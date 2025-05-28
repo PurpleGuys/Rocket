@@ -464,6 +464,7 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <Switch>
+        {/* Routes pour /dashboard */}
         <Route path="/dashboard" component={DashboardHome} />
         <Route path="/dashboard/orders" component={OrdersPage} />
         <Route path="/dashboard/config" component={ConfigurationPage} />
@@ -474,6 +475,18 @@ export default function Dashboard() {
         <Route path="/dashboard/pricing/treatment" component={TreatmentPricingPage} />
         <Route path="/dashboard/legal" component={LegalDocumentsPage} />
         <Route path="/dashboard/simulator" component={PriceSimulatorPage} />
+        
+        {/* Routes pour /admin (même contenu) */}
+        <Route path="/admin" component={DashboardHome} />
+        <Route path="/admin/orders" component={OrdersPage} />
+        <Route path="/admin/config" component={ConfigurationPage} />
+        <Route path="/admin/config/*" component={ConfigurationPage} />
+        <Route path="/admin/activities" component={ActivitiesPage} />
+        <Route path="/admin/pricing/rental" component={RentalPricingPage} />
+        <Route path="/admin/pricing/transport" component={TransportPricingPage} />
+        <Route path="/admin/pricing/treatment" component={TreatmentPricingPage} />
+        <Route path="/admin/legal" component={LegalDocumentsPage} />
+        <Route path="/admin/simulator" component={PriceSimulatorPage} />
       </Switch>
     </DashboardLayout>
   );

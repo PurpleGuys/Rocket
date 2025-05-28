@@ -25,71 +25,6 @@ interface SidebarProps {
   className?: string;
 }
 
-const navigationItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    description: "Vue d'ensemble"
-  },
-  {
-    title: "Mes Commandes",
-    href: "/dashboard/orders",
-    icon: ShoppingCart,
-    description: "Historique des commandes"
-  },
-  {
-    title: "Ma Configuration",
-    href: "/dashboard/config",
-    icon: Settings,
-    description: "Paramètres généraux",
-    submenu: [
-      { title: "Profil", href: "/dashboard/config/profile" },
-      { title: "Sécurité", href: "/dashboard/config/security" },
-      { title: "Notifications", href: "/dashboard/config/notifications" }
-    ]
-  },
-  {
-    title: "Mes Activités",
-    href: "/dashboard/activities",
-    icon: Activity,
-    description: "Journal d'activités"
-  }
-];
-
-const adminItems = [
-  {
-    title: "Prix de Location",
-    href: "/dashboard/pricing/rental",
-    icon: Euro,
-    description: "Tarifs de location"
-  },
-  {
-    title: "Prix de Transport",
-    href: "/dashboard/pricing/transport",
-    icon: Truck,
-    description: "Tarifs de transport"
-  },
-  {
-    title: "Prix de Traitement",
-    href: "/dashboard/pricing/treatment",
-    icon: Recycle,
-    description: "Tarifs de traitement"
-  },
-  {
-    title: "Documents Légaux",
-    href: "/dashboard/legal",
-    icon: FileText,
-    description: "Documents et conformité"
-  },
-  {
-    title: "Simulateur de Prix",
-    href: "/dashboard/simulator",
-    icon: Calculator,
-    description: "Outil de simulation"
-  }
-];
-
 export default function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
@@ -98,6 +33,73 @@ export default function Sidebar({ className }: SidebarProps) {
   const logoutMutation = useLogout();
 
   const isAdmin = user?.role === 'admin';
+  const isAdminPanel = location.startsWith('/admin');
+  const baseUrl = isAdminPanel ? '/admin' : '/dashboard';
+
+  const navigationItems = [
+    {
+      title: "Dashboard",
+      href: `${baseUrl}`,
+      icon: LayoutDashboard,
+      description: "Vue d'ensemble"
+    },
+    {
+      title: "Mes Commandes",
+      href: `${baseUrl}/orders`,
+      icon: ShoppingCart,
+      description: "Historique des commandes"
+    },
+    {
+      title: "Ma Configuration",
+      href: `${baseUrl}/config`,
+      icon: Settings,
+      description: "Paramètres généraux",
+      submenu: [
+        { title: "Profil", href: `${baseUrl}/config/profile` },
+        { title: "Sécurité", href: `${baseUrl}/config/security` },
+        { title: "Notifications", href: `${baseUrl}/config/notifications` }
+      ]
+    },
+    {
+      title: "Mes Activités",
+      href: `${baseUrl}/activities`,
+      icon: Activity,
+      description: "Journal d'activités"
+    }
+  ];
+
+  const adminItems = [
+    {
+      title: "Prix de Location",
+      href: `${baseUrl}/pricing/rental`,
+      icon: Euro,
+      description: "Tarifs de location"
+    },
+    {
+      title: "Prix de Transport",
+      href: `${baseUrl}/pricing/transport`,
+      icon: Truck,
+      description: "Tarifs de transport"
+    },
+    {
+      title: "Prix de Traitement",
+      href: `${baseUrl}/pricing/treatment`,
+      icon: Recycle,
+      description: "Tarifs de traitement"
+    },
+    {
+      title: "Documents Légaux",
+      href: `${baseUrl}/legal`,
+      icon: FileText,
+      description: "Documents et conformité"
+    },
+    {
+      title: "Simulateur de Prix",
+      href: `${baseUrl}/simulator`,
+      icon: Calculator,
+      description: "Outil de simulation"
+    }
+  ];
 
   const handleMenuClick = (item: any) => {
     if (item.submenu) {
@@ -172,9 +174,9 @@ export default function Sidebar({ className }: SidebarProps) {
               <Button
                 variant={location === item.href ? "secondary" : "ghost"}
                 className={cn(
-                  "w-full justify-start",
+                  "w-full justify-start transition-all duration-200",
                   collapsed && "justify-center px-2",
-                  location === item.href && "bg-green-100 text-green-700 hover:bg-green-200"
+                  location === item.href && "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-r-2 border-emerald-500 shadow-sm"
                 )}
                 onClick={() => handleMenuClick(item)}
               >
