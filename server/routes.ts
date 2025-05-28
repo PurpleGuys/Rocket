@@ -17,28 +17,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-12-18.acacia" as any,
 });
 
-// Rate limiting
-const authLimiter = rateLimit({
+// Rate limiting for production only
+const authLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // limit each IP to 5 requests per windowMs
   message: { message: "Trop de tentatives de connexion. Réessayez dans 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
-});
+}) : (req: any, res: any, next: any) => next();
 
-const generalLimiter = rateLimit({
+const generalLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: { message: "Trop de requêtes. Réessayez plus tard." },
-});
+}) : (req: any, res: any, next: any) => next();
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Trust proxy for rate limiting
-  app.set('trust proxy', true);
-  
   // Security middleware
   app.use(helmet());
-  app.use(generalLimiter);
+  
+  // Only enable rate limiting in production
+  if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', true);
+    app.use(generalLimiter);
+  }
 
   // ==================== AUTH ROUTES ====================
   
