@@ -1,0 +1,234 @@
+import { users, services, timeSlots, orders, type User, type InsertUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, gte, sql } from "drizzle-orm";
+
+export interface IStorage {
+  // Users
+  getUser(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Services
+  getServices(): Promise<Service[]>;
+  getService(id: number): Promise<Service | undefined>;
+  createService(service: InsertService): Promise<Service>;
+  updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined>;
+  
+  // Time slots
+  getAvailableTimeSlots(date: string): Promise<TimeSlot[]>;
+  getTimeSlot(id: number): Promise<TimeSlot | undefined>;
+  createTimeSlot(timeSlot: InsertTimeSlot): Promise<TimeSlot>;
+  updateTimeSlotBookings(id: number, increment: number): Promise<void>;
+  
+  // Orders
+  createOrder(order: InsertOrder): Promise<Order>;
+  getOrder(id: number): Promise<Order | undefined>;
+  getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
+  getOrders(limit?: number): Promise<Order[]>;
+  getUserOrders(userId: number): Promise<Order[]>;
+  updateOrderStatus(id: number, status: string): Promise<void>;
+  updateOrderPayment(id: number, paymentIntentId: string, status: string): Promise<void>;
+  
+  // Dashboard stats
+  getDashboardStats(): Promise<{
+    todayOrders: number;
+    monthlyRevenue: string;
+    rentedDumpsters: number;
+    activeCustomers: number;
+  }>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // Users
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  // Services
+  async getServices(): Promise<Service[]> {
+    return await db.select().from(services).where(eq(services.isActive, true));
+  }
+
+  async getService(id: number): Promise<Service | undefined> {
+    const [service] = await db.select().from(services).where(eq(services.id, id));
+    return service || undefined;
+  }
+
+  async createService(service: InsertService): Promise<Service> {
+    const [newService] = await db
+      .insert(services)
+      .values(service)
+      .returning();
+    return newService;
+  }
+
+  async updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined> {
+    const [updatedService] = await db
+      .update(services)
+      .set(service)
+      .where(eq(services.id, id))
+      .returning();
+    return updatedService || undefined;
+  }
+
+  // Time slots
+  async getAvailableTimeSlots(date: string): Promise<TimeSlot[]> {
+    return await db
+      .select()
+      .from(timeSlots)
+      .where(
+        and(
+          eq(timeSlots.date, date),
+          eq(timeSlots.isAvailable, true),
+          sql`${timeSlots.currentBookings} < ${timeSlots.maxBookings}`
+        )
+      );
+  }
+
+  async getTimeSlot(id: number): Promise<TimeSlot | undefined> {
+    const [timeSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, id));
+    return timeSlot || undefined;
+  }
+
+  async createTimeSlot(timeSlot: InsertTimeSlot): Promise<TimeSlot> {
+    const [newTimeSlot] = await db
+      .insert(timeSlots)
+      .values(timeSlot)
+      .returning();
+    return newTimeSlot;
+  }
+
+  async updateTimeSlotBookings(id: number, increment: number): Promise<void> {
+    await db
+      .update(timeSlots)
+      .set({
+        currentBookings: sql`${timeSlots.currentBookings} + ${increment}`
+      })
+      .where(eq(timeSlots.id, id));
+  }
+
+  // Orders
+  async createOrder(order: InsertOrder): Promise<Order> {
+    // Generate order number
+    const orderNumber = `BNE-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+    
+    const [newOrder] = await db
+      .insert(orders)
+      .values({
+        ...order,
+        orderNumber,
+      })
+      .returning();
+    return newOrder;
+  }
+
+  async getOrder(id: number): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order || undefined;
+  }
+
+  async getOrderByNumber(orderNumber: string): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+    return order || undefined;
+  }
+
+  async getOrders(limit: number = 50): Promise<Order[]> {
+    return await db
+      .select()
+      .from(orders)
+      .orderBy(desc(orders.createdAt))
+      .limit(limit);
+  }
+
+  async getUserOrders(userId: number): Promise<Order[]> {
+    return await db
+      .select()
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.createdAt));
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<void> {
+    await db
+      .update(orders)
+      .set({ 
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id));
+  }
+
+  async updateOrderPayment(id: number, paymentIntentId: string, status: string): Promise<void> {
+    await db
+      .update(orders)
+      .set({
+        stripePaymentIntentId: paymentIntentId,
+        paymentStatus: status,
+        status: status === 'paid' ? 'confirmed' : 'pending',
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id));
+  }
+
+  async getDashboardStats(): Promise<{
+    todayOrders: number;
+    monthlyRevenue: string;
+    rentedDumpsters: number;
+    activeCustomers: number;
+  }> {
+    const today = new Date().toISOString().split('T')[0];
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+
+    // Today's orders
+    const [todayOrdersResult] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(orders)
+      .where(sql`date(${orders.createdAt}) = ${today}`);
+
+    // Monthly revenue
+    const [monthlyRevenueResult] = await db
+      .select({ total: sql<string>`cast(sum(${orders.totalTTC}) as text)` })
+      .from(orders)
+      .where(
+        and(
+          gte(orders.createdAt, new Date(startOfMonth)),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Rented dumpsters (active orders)
+    const [rentedDumpstersResult] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(orders)
+      .where(eq(orders.status, 'delivered'));
+
+    // Active customers (users with orders)
+    const [activeCustomersResult] = await db
+      .select({ count: sql<number>`cast(count(distinct ${orders.userId}) as integer)` })
+      .from(orders)
+      .where(gte(orders.createdAt, new Date(startOfMonth)));
+
+    return {
+      todayOrders: todayOrdersResult?.count || 0,
+      monthlyRevenue: monthlyRevenueResult?.total || "0",
+      rentedDumpsters: rentedDumpstersResult?.count || 0,
+      activeCustomers: activeCustomersResult?.count || 0,
+    };
+  }
+}
+
+export const storage = new DatabaseStorage();
