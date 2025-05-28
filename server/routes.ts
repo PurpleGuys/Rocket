@@ -33,8 +33,16 @@ const generalLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
 }) : (req: any, res: any, next: any) => next();
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Security middleware
-  app.use(helmet());
+  // Security middleware - relaxed for development
+  if (process.env.NODE_ENV === 'production') {
+    app.use(helmet());
+  } else {
+    // Development: disable CSP to allow Vite and Replit scripts
+    app.use(helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }));
+  }
   
   // Only enable rate limiting in production
   if (process.env.NODE_ENV === 'production') {
