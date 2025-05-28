@@ -33,6 +33,9 @@ const generalLimiter = rateLimit({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Trust proxy for rate limiting
+  app.set('trust proxy', true);
+  
   // Security middleware
   app.use(helmet());
   app.use(generalLimiter);
