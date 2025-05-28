@@ -1,12 +1,38 @@
-import { users, services, timeSlots, orders, type User, type InsertUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder } from "@shared/schema";
+import { users, services, timeSlots, orders, sessions, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, sql } from "drizzle-orm";
+import { eq, desc, and, gte, sql, lt } from "drizzle-orm";
 
 export interface IStorage {
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: UpdateUser): Promise<User | undefined>;
+  updateUserSecurity(id: number, security: {
+    loginAttempts?: number;
+    lockUntil?: Date | null;
+    lastLogin?: Date;
+    verificationToken?: string;
+    resetPasswordToken?: string;
+    resetPasswordExpires?: Date;
+    isVerified?: boolean;
+  }): Promise<void>;
+  updateUserPassword(id: number, hashedPassword: string): Promise<void>;
+  deleteUser(id: number): Promise<void>;
+  
+  // Sessions
+  createSession(session: {
+    userId: number;
+    token: string;
+    expiresAt: Date;
+    userAgent?: string;
+    ipAddress?: string;
+  }): Promise<Session>;
+  getSessionByToken(token: string): Promise<Session | undefined>;
+  deleteSession(sessionId: string): Promise<void>;
+  deleteSessionByToken(token: string): Promise<void>;
+  deleteExpiredSessions(): Promise<void>;
+  getUserSessions(userId: number): Promise<Session[]>;
   
   // Services
   getServices(): Promise<Service[]>;
@@ -56,6 +82,90 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+
+  async updateUser(id: number, user: UpdateUser): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        ...user,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser || undefined;
+  }
+
+  async updateUserSecurity(id: number, security: {
+    loginAttempts?: number;
+    lockUntil?: Date | null;
+    lastLogin?: Date;
+    verificationToken?: string;
+    resetPasswordToken?: string;
+    resetPasswordExpires?: Date;
+    isVerified?: boolean;
+  }): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        ...security,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
+  }
+
+  async updateUserPassword(id: number, hashedPassword: string): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        password: hashedPassword,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  // Sessions
+  async createSession(session: {
+    userId: number;
+    token: string;
+    expiresAt: Date;
+    userAgent?: string;
+    ipAddress?: string;
+  }): Promise<Session> {
+    const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const [newSession] = await db
+      .insert(sessions)
+      .values({
+        id: sessionId,
+        ...session,
+      })
+      .returning();
+    return newSession;
+  }
+
+  async getSessionByToken(token: string): Promise<Session | undefined> {
+    const [session] = await db.select().from(sessions).where(eq(sessions.token, token));
+    return session || undefined;
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.id, sessionId));
+  }
+
+  async deleteSessionByToken(token: string): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.token, token));
+  }
+
+  async deleteExpiredSessions(): Promise<void> {
+    await db.delete(sessions).where(lt(sessions.expiresAt, new Date()));
+  }
+
+  async getUserSessions(userId: number): Promise<Session[]> {
+    return await db.select().from(sessions).where(eq(sessions.userId, userId));
   }
 
   // Services

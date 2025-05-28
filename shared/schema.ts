@@ -6,12 +6,32 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
-  password: text("password"),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  phone: text("phone"),
+  password: text("password").notNull(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  phone: text("phone").notNull(),
   role: text("role").notNull().default("customer"), // customer, admin
+  isVerified: boolean("is_verified").default(false),
+  verificationToken: text("verification_token"),
+  resetPasswordToken: text("reset_password_token"),
+  resetPasswordExpires: timestamp("reset_password_expires"),
+  lastLogin: timestamp("last_login"),
+  loginAttempts: integer("login_attempts").default(0),
+  lockUntil: timestamp("lock_until"),
+  twoFactorSecret: text("two_factor_secret"),
+  twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  companyName: text("company_name"),
+  siret: text("siret"),
+  address: text("address"),
+  city: text("city"),
+  postalCode: text("postal_code"),
+  country: text("country").default("FR"),
+  preferredLanguage: text("preferred_language").default("fr"),
+  marketingConsent: boolean("marketing_consent").default(false),
+  isActive: boolean("is_active").default(true),
+  profilePicture: text("profile_picture"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const services = pgTable("services", {
@@ -105,10 +125,64 @@ export const servicesRelations = relations(services, ({ many }) => ({
   orders: many(orders),
 }));
 
+// Add session table for secure session management
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+  isVerified: true,
+  verificationToken: true,
+  resetPasswordToken: true,
+  resetPasswordExpires: true,
+  lastLogin: true,
+  loginAttempts: true,
+  lockUntil: true,
+  twoFactorSecret: true,
+}).extend({
+  password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+  email: z.string().email("Format d'email invalide"),
+  phone: z.string().min(10, "Numéro de téléphone invalide"),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Format d'email invalide"),
+  password: z.string().min(1, "Mot de passe requis"),
+  rememberMe: z.boolean().optional(),
+});
+
+export const updateUserSchema = createInsertSchema(users).omit({
+  id: true,
+  password: true,
+  createdAt: true,
+  updatedAt: true,
+  isVerified: true,
+  verificationToken: true,
+  resetPasswordToken: true,
+  resetPasswordExpires: true,
+  lastLogin: true,
+  loginAttempts: true,
+  lockUntil: true,
+  twoFactorSecret: true,
+}).partial();
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Mot de passe actuel requis"),
+  newPassword: z.string().min(8, "Le nouveau mot de passe doit contenir au moins 8 caractères"),
+  confirmPassword: z.string().min(1, "Confirmation du mot de passe requise"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
 });
 
 export const insertServiceSchema = createInsertSchema(services).omit({
@@ -126,9 +200,21 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   updatedAt: true,
 });
 
+// Relations
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type LoginUser = z.infer<typeof loginSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
+export type ChangePassword = z.infer<typeof changePasswordSchema>;
+export type Session = typeof sessions.$inferSelect;
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
 export type TimeSlot = typeof timeSlots.$inferSelect;
