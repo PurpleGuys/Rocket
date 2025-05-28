@@ -153,6 +153,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
   password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
   email: z.string().email("Format d'email invalide"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
+  verificationToken: z.string().optional(),
 });
 
 export const loginSchema = z.object({

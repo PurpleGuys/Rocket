@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Find user by verification token
       const users = await storage.getUsers();
-      const user = users.find(u => u.verificationToken === token);
+      const user = users.find((u: any) => u.verificationToken === token);
       
       if (!user) {
         return res.status(400).json({ message: "Token de vérification invalide" });
@@ -221,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update user as verified
       await storage.updateUserSecurity(user.id, {
         isVerified: true,
-        verificationToken: null
+        verificationToken: undefined
       });
       
       res.json({ message: "Email vérifié avec succès" });

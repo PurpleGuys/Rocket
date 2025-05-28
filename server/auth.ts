@@ -117,7 +117,7 @@ export class AuthService {
       return null;
     }
 
-    return user;
+    return user || null;
   }
 
   // Delete session (logout)
@@ -143,7 +143,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
   if (token) {
     const decoded = AuthService.verifyToken(token);
     if (decoded) {
-      user = await storage.getUser(decoded.userId);
+      const foundUser = await storage.getUser(decoded.userId);
+      user = foundUser || null;
     }
   } else if (sessionToken) {
     user = await AuthService.validateSession(sessionToken);

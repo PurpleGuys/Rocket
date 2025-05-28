@@ -6,13 +6,14 @@ export interface IStorage {
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: UpdateUser): Promise<User | undefined>;
   updateUserSecurity(id: number, security: {
     loginAttempts?: number;
     lockUntil?: Date | null;
     lastLogin?: Date;
-    verificationToken?: string;
+    verificationToken?: string | null | undefined;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
     isVerified?: boolean;
@@ -166,6 +167,10 @@ export class DatabaseStorage implements IStorage {
 
   async getUserSessions(userId: number): Promise<Session[]> {
     return await db.select().from(sessions).where(eq(sessions.userId, userId));
+  }
+
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 
   // Services
