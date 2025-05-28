@@ -299,6 +299,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== ADMIN SETUP ====================
+  
+  // Create default admin account (one-time setup)
+  app.post("/api/setup/admin", async (req, res) => {
+    try {
+      // Check if admin already exists
+      const existingAdmin = await storage.getUserByEmail("ethan.petrovic@remondis.fr");
+      if (existingAdmin) {
+        return res.status(409).json({ message: "Compte administrateur déjà existant" });
+      }
+
+      // Hash the admin password
+      const hashedPassword = await AuthService.hashPassword("Admin");
+      
+      // Create admin user
+      const adminUser = await storage.createUser({
+        email: "ethan.petrovic@remondis.fr",
+        password: hashedPassword,
+        firstName: "Ethan",
+        lastName: "Petrovic",
+        phone: "+33123456789",
+        role: "admin",
+        companyName: "Remondis",
+        isVerified: true, // Pre-verified admin account
+      });
+
+      res.status(201).json({
+        message: "Compte administrateur créé avec succès",
+        email: adminUser.email,
+        role: adminUser.role
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la création du compte admin: " + error.message });
+    }
+  });
+
   // ==================== SERVICES ROUTES ====================
   
   // Get all services
