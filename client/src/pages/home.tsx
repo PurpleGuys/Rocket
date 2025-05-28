@@ -11,7 +11,7 @@ import OrderConfirmation from "@/components/booking/OrderConfirmation";
 import PricingSummary from "@/components/PricingSummary";
 import { useBookingState } from "@/hooks/useBookingState";
 import { useAuth, useLogout } from "@/hooks/useAuth";
-import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings } from "lucide-react";
+import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 
 export default function Home() {
   const [showBooking, setShowBooking] = useState(false);
@@ -150,6 +150,10 @@ export default function Home() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      Tableau de bord
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/profile")}>
                       <Settings className="h-4 w-4 mr-2" />
                       Mon profil

@@ -1,0 +1,294 @@
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { 
+  TrendingUp, 
+  Users, 
+  ShoppingCart, 
+  Euro,
+  Activity,
+  Truck,
+  Recycle,
+  AlertTriangle
+} from "lucide-react";
+
+export default function Dashboard() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  // Récupération des statistiques du dashboard
+  const { data: stats } = useQuery({
+    queryKey: ["/api/dashboard/stats"],
+    enabled: isAdmin,
+  });
+
+  const { data: userOrders } = useQuery({
+    queryKey: ["/api/orders/my-orders"],
+    enabled: !isAdmin,
+  });
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Tableau de bord
+          </h1>
+          <p className="text-gray-600">
+            Bienvenue {user?.firstName}, voici un aperçu de votre activité
+          </p>
+        </div>
+
+        {/* Admin Dashboard */}
+        {isAdmin && (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="border-green-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Commandes Aujourd'hui</CardTitle>
+                  <ShoppingCart className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-700">
+                    {stats?.todayOrders || 0}
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    +2.1% par rapport à hier
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Chiffre d'Affaires</CardTitle>
+                  <Euro className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-700">
+                    {stats?.monthlyRevenue || "0 €"}
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    +12.5% ce mois-ci
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Bennes Louées</CardTitle>
+                  <Truck className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-700">
+                    {stats?.rentedDumpsters || 0}
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    En cours de location
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Clients Actifs</CardTitle>
+                  <Users className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-700">
+                    {stats?.activeCustomers || 0}
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    +5.2% ce mois-ci
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Admin Panels */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-green-600" />
+                    Activités Récentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Nouvelle commande #12345</p>
+                        <p className="text-xs text-gray-500">Il y a 5 minutes</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Livraison planifiée</p>
+                        <p className="text-xs text-gray-500">Il y a 15 minutes</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Collecte programmée</p>
+                        <p className="text-xs text-gray-500">Il y a 1 heure</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    Alertes Système
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                      <div>
+                        <p className="text-sm font-medium text-orange-800">Stock faible</p>
+                        <p className="text-xs text-orange-600">Bennes 8m³ - 3 restantes</p>
+                      </div>
+                      <Badge variant="outline" className="text-orange-600 border-orange-200">
+                        Urgent
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <div>
+                        <p className="text-sm font-medium text-blue-800">Maintenance prévue</p>
+                        <p className="text-xs text-blue-600">Camion #45 - Demain 14h</p>
+                      </div>
+                      <Badge variant="outline" className="text-blue-600 border-blue-200">
+                        Info
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {/* User Dashboard */}
+        {!isAdmin && (
+          <>
+            {/* User Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="border-green-200">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5 text-green-600" />
+                    Mes Commandes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-700">
+                    {userOrders?.length || 0}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Commandes passées
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-green-600" />
+                    En Cours
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-700">
+                    {userOrders?.filter((order: any) => order.status === 'active')?.length || 0}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Locations actives
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Recycle className="h-5 w-5 text-green-600" />
+                    Économies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-700">
+                    85%
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Déchets recyclés
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* User Recent Orders */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Commandes Récentes</CardTitle>
+                <CardDescription>
+                  Vos dernières réservations de bennes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {userOrders && userOrders.length > 0 ? (
+                  <div className="space-y-4">
+                    {userOrders.slice(0, 5).map((order: any) => (
+                      <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <Truck className="h-5 w-5 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Commande #{order.orderNumber}</p>
+                            <p className="text-sm text-gray-500">
+                              {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge 
+                            variant={order.status === 'completed' ? 'default' : 'secondary'}
+                            className={order.status === 'completed' ? 'bg-green-100 text-green-700' : ''}
+                          >
+                            {order.status === 'completed' ? 'Terminée' : 
+                             order.status === 'active' ? 'En cours' : 
+                             order.status === 'pending' ? 'En attente' : order.status}
+                          </Badge>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {order.totalPrice} €
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Truck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">Aucune commande pour le moment</p>
+                    <p className="text-sm text-gray-400">
+                      Commencez par réserver votre première benne
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}

@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Auth from "@/pages/auth";
 import Profile from "@/pages/profile";
+import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 import CookieConsent from "@/components/CookieConsent";
 
@@ -34,6 +35,7 @@ function Router() {
     <Switch>
       <Route path="/auth" component={Auth} />
       <Route path="/profile" component={Profile} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/" component={Home} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
