@@ -2,6 +2,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { Switch, Route } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
   TrendingUp, 
@@ -14,7 +15,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 
-export default function Dashboard() {
+function DashboardHome() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
@@ -289,6 +290,191 @@ export default function Dashboard() {
           </>
         )}
       </div>
+    </DashboardLayout>
+  );
+}
+
+// Composants pour les différentes pages du dashboard
+function OrdersPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Mes Commandes</h1>
+        <p className="text-gray-600">Historique et suivi de vos commandes</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Commandes récentes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Aucune commande trouvée pour le moment.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ConfigurationPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Ma Configuration</h1>
+        <p className="text-gray-600">Paramètres et préférences du compte</p>
+      </div>
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Profil</CardTitle>
+            <CardDescription>Informations personnelles</CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Sécurité</CardTitle>
+            <CardDescription>Paramètres de sécurité</CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Notifications</CardTitle>
+            <CardDescription>Préférences de notification</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ActivitiesPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Mes Activités</h1>
+        <p className="text-gray-600">Journal des activités de votre compte</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Activités récentes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Aucune activité récente.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Pages d'administration
+function RentalPricingPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Prix de Location</h1>
+        <p className="text-gray-600">Gestion des tarifs de location de bennes</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tarifs par type de benne</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Configuration des tarifs en cours de développement.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function TransportPricingPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Prix de Transport</h1>
+        <p className="text-gray-600">Gestion des tarifs de transport</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Zones de transport</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Configuration des zones tarifaires en cours de développement.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function TreatmentPricingPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Prix de Traitement</h1>
+        <p className="text-gray-600">Gestion des tarifs de traitement des déchets</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tarifs par type de déchet</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Configuration des tarifs en cours de développement.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function LegalDocumentsPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Documents Légaux</h1>
+        <p className="text-gray-600">Gestion des documents légaux et de conformité</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Documents disponibles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Aucun document configuré pour le moment.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function PriceSimulatorPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Simulateur de Prix</h1>
+        <p className="text-gray-600">Outil de simulation de tarifs pour les clients</p>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Paramètres du simulateur</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Configuration du simulateur en cours de développement.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <DashboardLayout>
+      <Switch>
+        <Route path="/dashboard" component={DashboardHome} />
+        <Route path="/dashboard/orders" component={OrdersPage} />
+        <Route path="/dashboard/config" component={ConfigurationPage} />
+        <Route path="/dashboard/config/*" component={ConfigurationPage} />
+        <Route path="/dashboard/activities" component={ActivitiesPage} />
+        <Route path="/dashboard/pricing/rental" component={RentalPricingPage} />
+        <Route path="/dashboard/pricing/transport" component={TransportPricingPage} />
+        <Route path="/dashboard/pricing/treatment" component={TreatmentPricingPage} />
+        <Route path="/dashboard/legal" component={LegalDocumentsPage} />
+        <Route path="/dashboard/simulator" component={PriceSimulatorPage} />
+      </Switch>
     </DashboardLayout>
   );
 }

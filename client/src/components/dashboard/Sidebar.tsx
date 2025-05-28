@@ -118,32 +118,34 @@ export default function Sidebar({ className }: SidebarProps) {
       className
     )}>
       {/* Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b">
+      <div className="flex h-16 items-center justify-between px-4 border-b bg-gradient-to-r from-emerald-50 to-green-50">
         {!collapsed && (
           <div className="flex items-center space-x-2">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
-              alt="Remondis" 
-              className="h-8 w-auto"
-            />
+            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">R</span>
+            </div>
+            <div>
+              <h2 className="font-bold text-emerald-700">Remondis</h2>
+              <p className="text-xs text-emerald-600">Pro Dashboard</p>
+            </div>
           </div>
         )}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto"
+          className="ml-auto hover:bg-emerald-100"
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {collapsed ? <ChevronRight className="h-4 w-4 text-emerald-600" /> : <ChevronLeft className="h-4 w-4 text-emerald-600" />}
         </Button>
       </div>
 
       {/* User Info */}
       {!collapsed && (
-        <div className="p-4">
+        <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-700 font-semibold text-sm">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-white font-semibold text-sm">
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </span>
             </div>
@@ -151,8 +153,8 @@ export default function Sidebar({ className }: SidebarProps) {
               <p className="text-sm font-medium text-gray-900 truncate">
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className="text-xs text-gray-500 truncate">
-                {user?.role === 'admin' ? 'Administrateur' : 'Client'}
+              <p className="text-xs text-emerald-600 font-medium truncate">
+                {user?.role === 'admin' ? '👑 Administrateur' : '👤 Client'}
               </p>
             </div>
           </div>
@@ -225,9 +227,9 @@ export default function Sidebar({ className }: SidebarProps) {
                   key={item.href}
                   variant={location === item.href ? "secondary" : "ghost"}
                   className={cn(
-                    "w-full justify-start",
+                    "w-full justify-start transition-all duration-200",
                     collapsed && "justify-center px-2",
-                    location === item.href && "bg-green-100 text-green-700 hover:bg-green-200"
+                    location === item.href && "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-r-2 border-emerald-500 shadow-sm"
                   )}
                   onClick={() => navigate(item.href)}
                 >
