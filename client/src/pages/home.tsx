@@ -11,7 +11,7 @@ import OrderConfirmation from "@/components/booking/OrderConfirmation";
 import PricingSummary from "@/components/PricingSummary";
 import { useBookingState } from "@/hooks/useBookingState";
 import { useAuth, useLogout } from "@/hooks/useAuth";
-import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
+import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings, LayoutDashboard, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   const [showBooking, setShowBooking] = useState(false);
@@ -142,32 +142,46 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
-                      <User className="h-4 w-4 mr-2" />
-                      {user?.firstName} {user?.lastName}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                      <LayoutDashboard className="h-4 w-4 mr-2" />
-                      Tableau de bord
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/profile")}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Mon profil
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => logoutMutation.mutate()}
-                      className="text-red-600"
+                <>
+                  {/* Admin Panel Button */}
+                  {user?.role === 'admin' && (
+                    <Button 
+                      variant="outline" 
+                      className="text-emerald-600 border-emerald-600 hover:bg-emerald-50"
+                      onClick={() => navigate("/admin")}
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Déconnexion
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <ShieldCheck className="h-4 w-4 mr-2" />
+                      Panneau Admin
+                    </Button>
+                  )}
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                        <User className="h-4 w-4 mr-2" />
+                        {user?.firstName} {user?.lastName}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        Tableau de bord
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/profile")}>
+                        <Settings className="h-4 w-4 mr-2" />
+                        Mon profil
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => logoutMutation.mutate()}
+                        className="text-red-600"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Déconnexion
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <Button 
                   variant="ghost" 
