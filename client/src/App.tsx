@@ -36,8 +36,9 @@ function Router() {
       <Route path="/auth" component={Auth} />
       <Route path="/profile" component={Profile} />
       <Route path="/dashboard/*" component={Dashboard} />
-      <Route path="/" component={Home} />
+      <Route path="/admin/*" component={Admin} />
       <Route path="/admin" component={Admin} />
+      <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -36,11 +36,6 @@ export default function Admin() {
     );
   }
 
-  // Utiliser le même composant Dashboard mais avec le routage /admin/*
-  return (
-    <Switch>
-      <Route path="/admin/*" component={Dashboard} />
-      <Route path="/admin" component={Dashboard} />
-    </Switch>
-  );
+  // Rediriger vers le dashboard avec le bon contexte admin
+  return <Dashboard />;
 }
