@@ -1,9 +1,9 @@
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import Sidebar from "@/components/dashboard/Sidebar";
 import { 
   TrendingUp, 
   Users, 
@@ -461,33 +461,60 @@ function PriceSimulatorPage() {
 }
 
 export default function Dashboard() {
+  const { user, isLoading, isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <div className="mb-8">
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">R</span>
+          </div>
+        </div>
+        <div className="animate-spin w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full"></div>
+        <p className="mt-4 text-gray-600">Chargement du tableau de bord...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    navigate("/auth");
+    return null;
+  }
+
   return (
-    <DashboardLayout>
-      <Switch>
-        {/* Routes pour /dashboard */}
-        <Route path="/dashboard" component={DashboardHome} />
-        <Route path="/dashboard/orders" component={OrdersPage} />
-        <Route path="/dashboard/config" component={ConfigurationPage} />
-        <Route path="/dashboard/config/*" component={ConfigurationPage} />
-        <Route path="/dashboard/activities" component={ActivitiesPage} />
-        <Route path="/dashboard/pricing/rental" component={RentalPricingPage} />
-        <Route path="/dashboard/pricing/transport" component={TransportPricingPage} />
-        <Route path="/dashboard/pricing/treatment" component={TreatmentPricingPage} />
-        <Route path="/dashboard/legal" component={LegalDocumentsPage} />
-        <Route path="/dashboard/simulator" component={PriceSimulatorPage} />
-        
-        {/* Routes pour /admin (même contenu) */}
-        <Route path="/admin" component={DashboardHome} />
-        <Route path="/admin/orders" component={OrdersPage} />
-        <Route path="/admin/config" component={ConfigurationPage} />
-        <Route path="/admin/config/*" component={ConfigurationPage} />
-        <Route path="/admin/activities" component={ActivitiesPage} />
-        <Route path="/admin/pricing/rental" component={RentalPricingPage} />
-        <Route path="/admin/pricing/transport" component={TransportPricingPage} />
-        <Route path="/admin/pricing/treatment" component={TreatmentPricingPage} />
-        <Route path="/admin/legal" component={LegalDocumentsPage} />
-        <Route path="/admin/simulator" component={PriceSimulatorPage} />
-      </Switch>
-    </DashboardLayout>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-6">
+          <Switch>
+            {/* Routes pour /dashboard */}
+            <Route path="/dashboard" component={DashboardHome} />
+            <Route path="/dashboard/orders" component={OrdersPage} />
+            <Route path="/dashboard/config" component={ConfigurationPage} />
+            <Route path="/dashboard/config/*" component={ConfigurationPage} />
+            <Route path="/dashboard/activities" component={ActivitiesPage} />
+            <Route path="/dashboard/pricing/rental" component={RentalPricingPage} />
+            <Route path="/dashboard/pricing/transport" component={TransportPricingPage} />
+            <Route path="/dashboard/pricing/treatment" component={TreatmentPricingPage} />
+            <Route path="/dashboard/legal" component={LegalDocumentsPage} />
+            <Route path="/dashboard/simulator" component={PriceSimulatorPage} />
+            
+            {/* Routes pour /admin (même contenu) */}
+            <Route path="/admin" component={DashboardHome} />
+            <Route path="/admin/orders" component={OrdersPage} />
+            <Route path="/admin/config" component={ConfigurationPage} />
+            <Route path="/admin/config/*" component={ConfigurationPage} />
+            <Route path="/admin/activities" component={ActivitiesPage} />
+            <Route path="/admin/pricing/rental" component={RentalPricingPage} />
+            <Route path="/admin/pricing/transport" component={TransportPricingPage} />
+            <Route path="/admin/pricing/treatment" component={TreatmentPricingPage} />
+            <Route path="/admin/legal" component={LegalDocumentsPage} />
+            <Route path="/admin/simulator" component={PriceSimulatorPage} />
+          </Switch>
+        </main>
+      </div>
+    </div>
   );
 }
