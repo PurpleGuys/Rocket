@@ -35,15 +35,15 @@ export default function ServiceSelection() {
         updateService(service);
       }
     }
-  }, [selectedServiceId, services, updateService]);
+  }, [selectedServiceId, services]);
 
   useEffect(() => {
     updateDuration(selectedDuration);
-  }, [selectedDuration, updateDuration]);
+  }, [selectedDuration]);
 
   useEffect(() => {
     updateWasteTypes(selectedWasteTypes);
-  }, [selectedWasteTypes, updateWasteTypes]);
+  }, [selectedWasteTypes]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceId(service.id);

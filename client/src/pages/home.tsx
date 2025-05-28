@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ServiceSelection from "@/components/booking/ServiceSelection";
 import AddressInput from "@/components/booking/AddressInput";
 import TimeSlotSelection from "@/components/booking/TimeSlotSelection";
@@ -8,11 +10,15 @@ import PaymentStep from "@/components/booking/PaymentStep";
 import OrderConfirmation from "@/components/booking/OrderConfirmation";
 import PricingSummary from "@/components/PricingSummary";
 import { useBookingState } from "@/hooks/useBookingState";
-import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User } from "lucide-react";
+import { useAuth, useLogout } from "@/hooks/useAuth";
+import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings } from "lucide-react";
 
 export default function Home() {
   const [showBooking, setShowBooking] = useState(false);
   const { currentStep, setCurrentStep, bookingData, resetBooking } = useBookingState();
+  const { user, isAuthenticated } = useAuth();
+  const logoutMutation = useLogout();
+  const [, navigate] = useLocation();
 
   const handleStartBooking = () => {
     setShowBooking(true);
@@ -135,10 +141,39 @@ export default function Home() {
               />
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
-                <User className="h-4 w-4 mr-1" />
-                Connexion
-              </Button>
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                      <User className="h-4 w-4 mr-2" />
+                      {user?.firstName} {user?.lastName}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => navigate("/profile")}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Mon profil
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => logoutMutation.mutate()}
+                      className="text-red-600"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Déconnexion
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-600 hover:text-gray-900"
+                  onClick={() => navigate("/auth")}
+                >
+                  <User className="h-4 w-4 mr-1" />
+                  Connexion / Inscription
+                </Button>
+              )}
               <Button onClick={handleStartBooking} className="bg-green-600 hover:bg-green-700 text-white">
                 Réserver une benne
               </Button>
