@@ -1,4 +1,4 @@
-import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing } from "@shared/schema";
+import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql, lt } from "drizzle-orm";
 
@@ -583,6 +583,39 @@ export class DatabaseStorage implements IStorage {
       .update(treatmentPricing)
       .set({ isActive: false, updatedAt: new Date() })
       .where(eq(treatmentPricing.id, id));
+  }
+
+  // Company Activities
+  async getCompanyActivities(): Promise<CompanyActivities | undefined> {
+    const [activities] = await db.select().from(companyActivities).where(eq(companyActivities.isActive, true));
+    return activities;
+  }
+
+  async createCompanyActivities(activities: InsertCompanyActivities): Promise<CompanyActivities> {
+    const [newActivities] = await db
+      .insert(companyActivities)
+      .values(activities)
+      .returning();
+    return newActivities;
+  }
+
+  async updateCompanyActivities(activities: UpdateCompanyActivities): Promise<CompanyActivities | undefined> {
+    // Obtenir l'ID de la configuration existante
+    const existing = await this.getCompanyActivities();
+    if (!existing) {
+      // Si aucune configuration n'existe, créer une nouvelle
+      return this.createCompanyActivities(activities as InsertCompanyActivities);
+    }
+
+    const [updated] = await db
+      .update(companyActivities)
+      .set({
+        ...activities,
+        updatedAt: new Date(),
+      })
+      .where(eq(companyActivities.id, existing.id))
+      .returning();
+    return updated;
   }
 }
 

@@ -748,6 +748,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Company activities routes
+  app.get('/api/admin/company-activities', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const activities = await storage.getCompanyActivities();
+      res.json(activities);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des activités: ' + error.message });
+    }
+  });
+
+  app.post('/api/admin/company-activities', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const activities = await storage.createCompanyActivities(req.body);
+      res.status(201).json(activities);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Erreur lors de la création des activités: ' + error.message });
+    }
+  });
+
+  app.put('/api/admin/company-activities', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const activities = await storage.updateCompanyActivities(req.body);
+      res.json(activities);
+    } catch (error: any) {
+      res.status(500).json({ message: 'Erreur lors de la mise à jour des activités: ' + error.message });
+    }
+  });
+
   // Add new service/equipment
   app.post("/api/admin/services", authenticateToken, requireAdmin, async (req, res) => {
     try {
