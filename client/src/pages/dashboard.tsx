@@ -35,6 +35,11 @@ function DashboardHome() {
     enabled: isAdmin,
   });
 
+  const { data: allOrders } = useQuery({
+    queryKey: ["/api/admin/orders"],
+    enabled: isAdmin,
+  });
+
   const { data: userOrders } = useQuery({
     queryKey: ["/api/orders/my-orders"],
     enabled: !isAdmin,
@@ -64,7 +69,9 @@ function DashboardHome() {
                   {stats?.todayOrders || 0}
                 </div>
                 <p className="text-xs text-gray-600">
-                  +2.1% par rapport à hier
+                  {stats?.ordersGrowth ? (
+                    stats.ordersGrowth > 0 ? `+${stats.ordersGrowth}%` : `${stats.ordersGrowth}%`
+                  ) : '0%'} par rapport à hier
                 </p>
               </CardContent>
             </Card>
@@ -79,7 +86,9 @@ function DashboardHome() {
                   {stats?.monthlyRevenue || '0'} €
                 </div>
                 <p className="text-xs text-gray-600">
-                  +4.3% ce mois-ci
+                  {stats?.revenueGrowth ? (
+                    stats.revenueGrowth > 0 ? `+${stats.revenueGrowth}%` : `${stats.revenueGrowth}%`
+                  ) : '0%'} par rapport au mois dernier
                 </p>
               </CardContent>
             </Card>
@@ -118,32 +127,35 @@ function DashboardHome() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Activité Récente</CardTitle>
-                <CardDescription>Dernières commandes et livraisons</CardDescription>
+                <CardTitle>Commandes Récentes</CardTitle>
+                <CardDescription>Dernières commandes avec paiement confirmé</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Livraison benne 8m³</p>
-                      <p className="text-xs text-gray-500">123 Rue de la Paix, Paris - Il y a 2h</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Nouvelle commande</p>
-                      <p className="text-xs text-gray-500">Benne 12m³ - Déchets verts - Il y a 4h</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Récupération programmée</p>
-                      <p className="text-xs text-gray-500">456 Avenue Victor Hugo - Demain 9h</p>
-                    </div>
-                  </div>
+                  {allOrders && allOrders.length > 0 ? (
+                    allOrders.slice(0, 5).map((order: any) => (
+                      <div key={order.id} className="flex items-center space-x-3">
+                        <div className={`w-2 h-2 rounded-full ${
+                          order.status === 'delivered' ? 'bg-green-500' :
+                          order.status === 'confirmed' ? 'bg-blue-500' :
+                          order.paymentStatus === 'paid' ? 'bg-yellow-500' : 'bg-gray-400'
+                        }`}></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">
+                            {order.orderNumber} - {order.customerFirstName} {order.customerLastName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {order.deliveryCity} - {order.totalTTC}€ - {order.paymentStatus}
+                          </p>
+                        </div>
+                        <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
+                          {order.status}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">Aucune commande récente</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

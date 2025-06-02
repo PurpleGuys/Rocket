@@ -1,6 +1,6 @@
 import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, sql, lt } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -332,22 +332,45 @@ export class DatabaseStorage implements IStorage {
 
   async getDashboardStats(): Promise<{
     todayOrders: number;
+    yesterdayOrders: number;
     monthlyRevenue: string;
+    lastMonthRevenue: string;
     rentedDumpsters: number;
     activeCustomers: number;
+    ordersGrowth: number;
+    revenueGrowth: number;
   }> {
     const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const startOfLastMonth = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString();
+    const endOfLastMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString();
 
-    // Today's orders
+    // Today's PAID orders only
     const [todayOrdersResult] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(orders)
-      .where(sql`date(${orders.createdAt}) = ${today}`);
+      .where(
+        and(
+          sql`date(${orders.createdAt}) = ${today}`,
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
 
-    // Monthly revenue
+    // Yesterday's PAID orders for comparison
+    const [yesterdayOrdersResult] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(orders)
+      .where(
+        and(
+          sql`date(${orders.createdAt}) = ${yesterday}`,
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Monthly revenue (PAID orders only)
     const [monthlyRevenueResult] = await db
-      .select({ total: sql<string>`cast(sum(${orders.totalTTC}) as text)` })
+      .select({ total: sql<string>`cast(coalesce(sum(${orders.totalTTC}), 0) as text)` })
       .from(orders)
       .where(
         and(
@@ -356,23 +379,58 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    // Rented dumpsters (active orders)
+    // Last month revenue for comparison
+    const [lastMonthRevenueResult] = await db
+      .select({ total: sql<string>`cast(coalesce(sum(${orders.totalTTC}), 0) as text)` })
+      .from(orders)
+      .where(
+        and(
+          gte(orders.createdAt, new Date(startOfLastMonth)),
+          lte(orders.createdAt, new Date(endOfLastMonth)),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Rented dumpsters (delivered orders with PAID status)
     const [rentedDumpstersResult] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(orders)
-      .where(eq(orders.status, 'delivered'));
+      .where(
+        and(
+          eq(orders.status, 'delivered'),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
 
-    // Active customers (users with orders)
+    // Active customers (users with PAID orders this month)
     const [activeCustomersResult] = await db
       .select({ count: sql<number>`cast(count(distinct ${orders.userId}) as integer)` })
       .from(orders)
-      .where(gte(orders.createdAt, new Date(startOfMonth)));
+      .where(
+        and(
+          gte(orders.createdAt, new Date(startOfMonth)),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Calculate growth percentages
+    const todayCount = todayOrdersResult?.count || 0;
+    const yesterdayCount = yesterdayOrdersResult?.count || 0;
+    const ordersGrowth = yesterdayCount > 0 ? ((todayCount - yesterdayCount) / yesterdayCount) * 100 : 0;
+
+    const monthlyRev = parseFloat(monthlyRevenueResult?.total || "0");
+    const lastMonthRev = parseFloat(lastMonthRevenueResult?.total || "0");
+    const revenueGrowth = lastMonthRev > 0 ? ((monthlyRev - lastMonthRev) / lastMonthRev) * 100 : 0;
 
     return {
-      todayOrders: todayOrdersResult?.count || 0,
+      todayOrders: todayCount,
+      yesterdayOrders: yesterdayCount,
       monthlyRevenue: monthlyRevenueResult?.total || "0",
+      lastMonthRevenue: lastMonthRevenueResult?.total || "0",
       rentedDumpsters: rentedDumpstersResult?.count || 0,
       activeCustomers: activeCustomersResult?.count || 0,
+      ordersGrowth: Math.round(ordersGrowth * 10) / 10, // Round to 1 decimal
+      revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal
     };
   }
 
