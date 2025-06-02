@@ -442,6 +442,7 @@ export class DatabaseStorage implements IStorage {
         serviceId: rentalPricing.serviceId,
         dailyRate: rentalPricing.dailyRate,
         billingStartDay: rentalPricing.billingStartDay,
+        maxTonnage: rentalPricing.maxTonnage,
         isActive: rentalPricing.isActive,
         createdAt: rentalPricing.createdAt,
         updatedAt: rentalPricing.updatedAt,

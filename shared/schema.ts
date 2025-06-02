@@ -149,6 +149,7 @@ export const rentalPricing = pgTable("rental_pricing", {
   serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
   dailyRate: decimal("daily_rate", { precision: 10, scale: 2 }).notNull(), // Prix par jour en €
   billingStartDay: integer("billing_start_day").notNull().default(0), // Jour à partir duquel la facturation commence (0 = dès le premier jour)
+  maxTonnage: decimal("max_tonnage", { precision: 10, scale: 2 }).notNull().default("0"), // Tonnage maximum de la benne en tonnes
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

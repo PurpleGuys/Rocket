@@ -1104,7 +1104,7 @@ function ActivitiesPage() {
 function RentalPricingPage() {
   const [activeTab, setActiveTab] = useState("daily");
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
-  const [formData, setFormData] = useState<{[key: number]: {dailyRate: string, billingStartDay: string}}>({});
+  const [formData, setFormData] = useState<{[key: number]: {dailyRate: string, billingStartDay: string, maxTonnage: string}}>({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [newServiceForm, setNewServiceForm] = useState({
     name: "",
@@ -1124,7 +1124,7 @@ function RentalPricingPage() {
   });
 
   const updatePricingMutation = {
-    mutate: async (data: {serviceId: number, dailyRate: string, billingStartDay: number}) => {
+    mutate: async (data: {serviceId: number, dailyRate: string, billingStartDay: number, maxTonnage: string}) => {
       try {
         const token = localStorage.getItem("auth_token");
         const response = await fetch("/api/admin/rental-pricing", {
@@ -1137,6 +1137,7 @@ function RentalPricingPage() {
             serviceId: data.serviceId,
             dailyRate: data.dailyRate,
             billingStartDay: data.billingStartDay,
+            maxTonnage: data.maxTonnage,
             isActive: true,
           }),
         });
@@ -1163,6 +1164,7 @@ function RentalPricingPage() {
       [serviceId]: {
         dailyRate: existingPricing?.dailyRate || "0",
         billingStartDay: existingPricing?.billingStartDay?.toString() || "0",
+        maxTonnage: existingPricing?.maxTonnage || "0",
       }
     });
   };
@@ -1174,6 +1176,7 @@ function RentalPricingPage() {
         serviceId,
         dailyRate: data.dailyRate,
         billingStartDay: parseInt(data.billingStartDay),
+        maxTonnage: data.maxTonnage,
       });
     }
   };
