@@ -222,28 +222,28 @@ export default function Home() {
         <div className="mt-20">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Pourquoi choisir Remondis ?</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="shadow-lg border-green-100">
+            <Card className="shadow-lg border-red-100">
               <CardContent className="p-8">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <Clock className="text-green-600 h-6 w-6" />
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                  <Clock className="text-red-600 h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Service 24h/24</h3>
                 <p className="text-gray-600">Réservation en ligne disponible à tout moment avec confirmation immédiate.</p>
               </CardContent>
             </Card>
-            <Card className="shadow-lg border-green-100">
+            <Card className="shadow-lg border-red-100">
               <CardContent className="p-8">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="text-green-600 h-6 w-6" />
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="text-red-600 h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Expertise environnementale</h3>
                 <p className="text-gray-600">Leader européen de la gestion des déchets avec 40 ans d'expérience.</p>
               </CardContent>
             </Card>
-            <Card className="shadow-lg border-green-100">
+            <Card className="shadow-lg border-red-100">
               <CardContent className="p-8">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <Truck className="text-green-600 h-6 w-6" />
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                  <Truck className="text-red-600 h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Livraison garantie</h3>
                 <p className="text-gray-600">Livraison et récupération ponctuelles dans toute la France.</p>

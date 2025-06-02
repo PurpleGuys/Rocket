@@ -200,7 +200,7 @@ export default function Sidebar({ className }: SidebarProps) {
                       size="sm"
                       className={cn(
                         "w-full justify-start text-xs",
-                        location === subItem.href && "bg-green-50 text-green-600"
+                        location === subItem.href && "bg-green-50 text-red-600"
                       )}
                       onClick={() => navigate(subItem.href)}
                     >

@@ -121,7 +121,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
                 <Button
                   type="button"
                   variant="link"
-                  className="p-0 h-auto text-green-600 hover:text-green-700"
+                  className="p-0 h-auto text-red-600 hover:text-red-700"
                   onClick={onSwitchToRegister}
                 >
                   Créer un compte

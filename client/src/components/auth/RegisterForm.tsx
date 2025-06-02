@@ -183,7 +183,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
               <Button
                 type="button"
                 variant="link"
-                className="p-0 h-auto text-green-600 hover:text-green-700"
+                className="p-0 h-auto text-red-600 hover:text-red-700"
                 onClick={onSwitchToLogin}
               >
                 Se connecter

@@ -52,11 +52,11 @@ export default function Auth() {
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>
             En vous connectant, vous acceptez nos{" "}
-            <a href="#" className="text-green-600 hover:underline">
+            <a href="#" className="text-red-600 hover:underline">
               conditions d'utilisation
             </a>{" "}
             et notre{" "}
-            <a href="#" className="text-green-600 hover:underline">
+            <a href="#" className="text-red-600 hover:underline">
               politique de confidentialité
             </a>
           </p>

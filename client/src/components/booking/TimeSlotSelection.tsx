@@ -140,7 +140,7 @@ export default function TimeSlotSelection() {
                         <h4 className="font-medium text-slate-900">
                           {slot.startTime === "08:00" ? "Matin" : "Après-midi"}
                         </h4>
-                        <span className="text-green-600 text-sm flex items-center">
+                        <span className="text-red-600 text-sm flex items-center">
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Disponible
                         </span>

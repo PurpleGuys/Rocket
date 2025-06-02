@@ -22,7 +22,7 @@ export default function OrdersTable() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return <Badge className="bg-green-100 text-green-800">Confirmée</Badge>;
+        return <Badge className="bg-red-100 text-red-800">Confirmée</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-100 text-yellow-800">En attente</Badge>;
       case 'delivered':

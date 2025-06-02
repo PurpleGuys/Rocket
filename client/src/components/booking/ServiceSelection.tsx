@@ -149,7 +149,7 @@ export default function ServiceSelection() {
         {/* Container Type Selection */}
         <div>
           <div className="flex items-center mb-4">
-            <Truck className="h-5 w-5 mr-2 text-green-600" />
+            <Truck className="h-5 w-5 mr-2 text-red-600" />
             <h3 className="text-lg font-semibold text-gray-900">Choisissez votre benne</h3>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
@@ -165,13 +165,13 @@ export default function ServiceSelection() {
               >
                 <Card className={`${
                   selectedServiceId === service.id
-                    ? "border-green-500 bg-green-50"
+                    ? "border-red-500 bg-green-50"
                     : "border-gray-200 hover:border-green-300"
                 }`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-gray-900">{service.name}</h4>
-                      <span className="text-green-600 font-semibold">
+                      <span className="text-red-600 font-semibold">
                         {parseFloat(service.basePrice).toFixed(0)}€
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export default function ServiceSelection() {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <div className="flex items-center mb-3">
-              <Calendar className="h-5 w-5 mr-2 text-green-600" />
+              <Calendar className="h-5 w-5 mr-2 text-red-600" />
               <h3 className="text-lg font-semibold text-gray-900">Durée</h3>
             </div>
             <Select value={selectedDuration.toString()} onValueChange={(value) => setSelectedDuration(parseInt(value))}>
@@ -214,7 +214,7 @@ export default function ServiceSelection() {
           
           <div>
             <div className="flex items-center mb-3">
-              <MapPin className="h-5 w-5 mr-2 text-green-600" />
+              <MapPin className="h-5 w-5 mr-2 text-red-600" />
               <h3 className="text-lg font-semibold text-gray-900">Code postal</h3>
             </div>
             <Input
@@ -253,9 +253,9 @@ export default function ServiceSelection() {
                 />
                 <Label htmlFor={type} className="text-sm cursor-pointer">
                   {label}
-                  {type === 'metal' && <span className="text-green-600"> (+15€)</span>}
+                  {type === 'metal' && <span className="text-red-600"> (+15€)</span>}
                   {type === 'construction' && selectedServiceId && services?.find(s => s.id === selectedServiceId)?.volume >= 15 && 
-                    <span className="text-green-600"> (+20€)</span>}
+                    <span className="text-red-600"> (+20€)</span>}
                 </Label>
               </div>
             ))}
@@ -265,7 +265,7 @@ export default function ServiceSelection() {
 
       {/* Right Column - Price Summary */}
       <div className="lg:col-span-1">
-        <Card className="sticky top-4 shadow-lg border-green-100">
+        <Card className="sticky top-4 shadow-lg border-red-100">
           <CardContent className="p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Devis instantané</h3>
             
@@ -282,7 +282,7 @@ export default function ServiceSelection() {
                   </div>
                 ))}
                 <hr className="border-gray-200" />
-                <div className="flex justify-between text-xl font-bold text-green-600">
+                <div className="flex justify-between text-xl font-bold text-red-600">
                   <span>Total TTC</span>
                   <span>{priceCalculation.total.toFixed(2)}€</span>
                 </div>
