@@ -624,6 +624,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const updatedPricing = await storage.updateRentalPricing(validatedData.serviceId, {
           dailyRate: validatedData.dailyRate,
           billingStartDay: validatedData.billingStartDay,
+          maxTonnage: validatedData.maxTonnage,
           isActive: validatedData.isActive,
         });
         res.json(updatedPricing);

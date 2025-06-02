@@ -1388,6 +1388,15 @@ function RentalPricingPage() {
                         </div>
                       </div>
                     </th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">
+                      Tonnage Max
+                      <div className="group relative inline-block ml-2">
+                        <span className="text-gray-400 cursor-help">ⓘ</span>
+                        <div className="invisible group-hover:visible absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                          Capacité maximale en tonnes pour le calcul des coûts de traitement
+                        </div>
+                      </div>
+                    </th>
                     <th className="text-right py-3 px-4 font-medium text-gray-900">Actions</th>
                   </tr>
                 </thead>
@@ -1446,6 +1455,26 @@ function RentalPricingPage() {
                           ) : (
                             <span className="text-gray-900">
                               {currentPricing ? `${currentPricing.billingStartDay} jour(s)` : "-"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-4">
+                          {isEditing ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={currentForm?.maxTonnage || ""}
+                                onChange={(e) => updateFormField(service.id, "maxTonnage", e.target.value)}
+                                className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                placeholder="0.0"
+                              />
+                              <span className="text-gray-500">tonnes</span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-900">
+                              {currentPricing ? `${currentPricing.maxTonnage} tonnes` : "-"}
                             </span>
                           )}
                         </td>
