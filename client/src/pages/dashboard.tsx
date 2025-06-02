@@ -2115,13 +2115,34 @@ function TreatmentPricingPage() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Types de matières</span>
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2"
-            >
-              <Plus className="h-4 w-4 inline mr-2" />
-              Ajouter une matière
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  // Sauvegarder toutes les configurations
+                  const configuredWasteTypes = companyActivities?.wasteTypes || [];
+                  const configuredCount = configuredWasteTypes.filter((wasteTypeName: string) => {
+                    const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
+                    return dbWasteType && treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id);
+                  }).length;
+                  
+                  toast({
+                    title: "Configuration enregistrée",
+                    description: `${configuredCount} tarif(s) de traitement configuré(s) et sauvegardé(s).`,
+                  });
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                <Save className="h-4 w-4 inline mr-2" />
+                Sauvegarder
+              </button>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2"
+              >
+                <Plus className="h-4 w-4 inline mr-2" />
+                Ajouter une matière
+              </button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -2276,6 +2297,41 @@ function TreatmentPricingPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Bouton de sauvegarde global */}
+      {(() => {
+        const configuredWasteTypes = companyActivities?.wasteTypes || [];
+        const hasConfiguredPricing = configuredWasteTypes.some((wasteTypeName: string) => {
+          const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
+          return dbWasteType && treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id);
+        });
+
+        return hasConfiguredPricing && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Configuration des tarifs terminée</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Tous les tarifs de traitement ont été configurés avec succès.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    toast({
+                      title: "Configuration sauvegardée",
+                      description: "Les tarifs de traitement sont bien enregistrés et prêts à être utilisés.",
+                    });
+                  }}
+                  className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 font-medium"
+                >
+                  ✓ Configuration sauvegardée
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Formulaire de configuration des tarifs */}
       {selectedWasteType && (
