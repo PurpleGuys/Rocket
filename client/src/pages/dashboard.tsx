@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { OrderManagement } from "@/components/admin/OrderManagement";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -311,6 +312,14 @@ function OrderDetailsModal({ order, onStatusUpdate, isAdmin = false }: { order: 
               {onStatusUpdate.isPending ? 'Mise à jour...' : 'Mettre à jour'}
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* Gestion post-commande - seulement pour admin */}
+      {isAdmin && (
+        <div className="border-t pt-4">
+          <h3 className="font-semibold mb-4">Gestion Post-Commande</h3>
+          <OrderManagement order={order} />
         </div>
       )}
     </div>
