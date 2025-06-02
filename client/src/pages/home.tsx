@@ -137,7 +137,7 @@ export default function Home() {
             <div className="flex items-center">
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
-                alt="Remondis" 
+                alt="Remondis DD" 
                 className="h-8 w-auto"
               />
             </div>

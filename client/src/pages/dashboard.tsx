@@ -2528,7 +2528,7 @@ export default function Dashboard() {
         {/* Sidebar intégrée */}
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-red-700">Remondis</h2>
+            <h2 className="text-xl font-bold text-red-700">Remondis DD</h2>
             <p className="text-sm text-gray-600">Panneau d'administration</p>
           </div>
           

@@ -8,12 +8,12 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Informations entreprise */}
           <div>
-            <h3 className="font-bold text-red-500 text-lg mb-4">REMONDIS France</h3>
+            <h3 className="font-bold text-red-500 text-lg mb-4">REMONDIS DD</h3>
             <div className="space-y-2 text-sm text-gray-300">
-              <p>Zone Industrielle des Alouettes</p>
-              <p>72700 Allonnes, France</p>
-              <p>Tél: 02.43.39.00.00</p>
-              <p>Email: contact@remondis.fr</p>
+              <p>Zone d'Activité</p>
+              <p>60430 Alonne, France</p>
+              <p>Tél: 03.44.00.00.00</p>
+              <p>Email: contact@remondis-dd.fr</p>
             </div>
           </div>
 
@@ -62,9 +62,9 @@ export default function Footer() {
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4 text-xs text-gray-400">
             <div>
-              <p><strong>REMONDIS France SAS</strong> - SAS au capital de 1 000 000 €</p>
-              <p>SIRET: 123 456 789 00012 - RCS Lyon B 123 456 789</p>
-              <p>Code APE: 3811Z - TVA: FR 12 123 456 789</p>
+              <p><strong>REMONDIS DD SAS</strong> - SAS au capital de 500 000 €</p>
+              <p>SIRET: 890 123 456 00015 - RCS Compiègne B 890 123 456</p>
+              <p>Code APE: 3811Z - TVA: FR 89 890 123 456</p>
             </div>
             <div>
               <p>Activité soumise au Code de l'environnement</p>
@@ -77,11 +77,11 @@ export default function Footer() {
 
           <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-400">
             <div className="mb-2 md:mb-0">
-              <p>&copy; 2025 REMONDIS France. Tous droits réservés.</p>
+              <p>&copy; 2025 REMONDIS DD. Tous droits réservés.</p>
             </div>
             <div className="flex space-x-4">
               <span>Médiation: CNPM</span>
-              <span>Juridiction: Lyon</span>
+              <span>Juridiction: Compiègne</span>
               <span>Droit applicable: France</span>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function Footer() {
               Service de collecte et traitement de déchets conforme au Code de l'environnement. 
               Traitement exclusivement en centres agréés ICPE. Bordereau de suivi fourni. 
               Droit de rétractation 14 jours (Art. L221-18). 
-              Réclamations: service.client@remondis.fr
+              Réclamations: service.client@remondis-dd.fr
             </p>
           </div>
         </div>
