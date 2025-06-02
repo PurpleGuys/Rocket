@@ -63,6 +63,13 @@ export interface IStorage {
     rentedDumpsters: number;
     activeCustomers: number;
   }>;
+
+  // Rental Pricing
+  getRentalPricing(): Promise<(RentalPricing & { service: Service })[]>;
+  getRentalPricingByServiceId(serviceId: number): Promise<RentalPricing | undefined>;
+  createRentalPricing(pricing: InsertRentalPricing): Promise<RentalPricing>;
+  updateRentalPricing(serviceId: number, pricing: UpdateRentalPricing): Promise<RentalPricing | undefined>;
+  deleteRentalPricing(serviceId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -343,6 +350,67 @@ export class DatabaseStorage implements IStorage {
       rentedDumpsters: rentedDumpstersResult?.count || 0,
       activeCustomers: activeCustomersResult?.count || 0,
     };
+  }
+
+  // Rental Pricing methods
+  async getRentalPricing(): Promise<(RentalPricing & { service: Service })[]> {
+    const result = await db
+      .select({
+        id: rentalPricing.id,
+        serviceId: rentalPricing.serviceId,
+        dailyRate: rentalPricing.dailyRate,
+        billingStartDay: rentalPricing.billingStartDay,
+        isActive: rentalPricing.isActive,
+        createdAt: rentalPricing.createdAt,
+        updatedAt: rentalPricing.updatedAt,
+        service: services,
+      })
+      .from(rentalPricing)
+      .leftJoin(services, eq(rentalPricing.serviceId, services.id))
+      .where(eq(rentalPricing.isActive, true));
+
+    return result.map(row => ({
+      ...row,
+      service: row.service!,
+    }));
+  }
+
+  async getRentalPricingByServiceId(serviceId: number): Promise<RentalPricing | undefined> {
+    const [result] = await db
+      .select()
+      .from(rentalPricing)
+      .where(and(
+        eq(rentalPricing.serviceId, serviceId),
+        eq(rentalPricing.isActive, true)
+      ));
+    return result;
+  }
+
+  async createRentalPricing(pricing: InsertRentalPricing): Promise<RentalPricing> {
+    const [result] = await db
+      .insert(rentalPricing)
+      .values(pricing)
+      .returning();
+    return result;
+  }
+
+  async updateRentalPricing(serviceId: number, pricing: UpdateRentalPricing): Promise<RentalPricing | undefined> {
+    const [result] = await db
+      .update(rentalPricing)
+      .set({
+        ...pricing,
+        updatedAt: new Date(),
+      })
+      .where(eq(rentalPricing.serviceId, serviceId))
+      .returning();
+    return result;
+  }
+
+  async deleteRentalPricing(serviceId: number): Promise<void> {
+    await db
+      .update(rentalPricing)
+      .set({ isActive: false })
+      .where(eq(rentalPricing.serviceId, serviceId));
   }
 }
 

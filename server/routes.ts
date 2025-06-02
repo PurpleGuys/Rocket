@@ -6,7 +6,7 @@ import helmet from "helmet";
 import { body, validationResult } from "express-validator";
 import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema } from "@shared/schema";
 import { z } from "zod";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -542,6 +542,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: "Default data initialized" });
     } catch (error: any) {
       res.status(500).json({ message: "Error initializing data: " + error.message });
+    }
+  });
+
+  // Routes for rental pricing management
+  // Get all rental pricing
+  app.get("/api/admin/rental-pricing", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const pricingList = await storage.getRentalPricing();
+      res.json(pricingList);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching rental pricing: " + error.message });
+    }
+  });
+
+  // Get rental pricing for a specific service
+  app.get("/api/admin/rental-pricing/:serviceId", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.serviceId);
+      const pricing = await storage.getRentalPricingByServiceId(serviceId);
+      
+      if (!pricing) {
+        return res.status(404).json({ message: "Pricing not found for this service" });
+      }
+      
+      res.json(pricing);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching rental pricing: " + error.message });
+    }
+  });
+
+  // Create or update rental pricing
+  app.post("/api/admin/rental-pricing", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertRentalPricingSchema.parse(req.body);
+      
+      // Check if pricing already exists for this service
+      const existingPricing = await storage.getRentalPricingByServiceId(validatedData.serviceId);
+      
+      if (existingPricing) {
+        // Update existing pricing
+        const updatedPricing = await storage.updateRentalPricing(validatedData.serviceId, {
+          dailyRate: validatedData.dailyRate,
+          billingStartDay: validatedData.billingStartDay,
+          isActive: validatedData.isActive,
+        });
+        res.json(updatedPricing);
+      } else {
+        // Create new pricing
+        const newPricing = await storage.createRentalPricing(validatedData);
+        res.status(201).json(newPricing);
+      }
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error saving rental pricing: " + error.message });
+      }
+    }
+  });
+
+  // Update rental pricing
+  app.put("/api/admin/rental-pricing/:serviceId", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.serviceId);
+      const validatedData = updateRentalPricingSchema.parse(req.body);
+      
+      const updatedPricing = await storage.updateRentalPricing(serviceId, validatedData);
+      
+      if (!updatedPricing) {
+        return res.status(404).json({ message: "Pricing not found for this service" });
+      }
+      
+      res.json(updatedPricing);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error updating rental pricing: " + error.message });
+      }
+    }
+  });
+
+  // Delete rental pricing
+  app.delete("/api/admin/rental-pricing/:serviceId", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.serviceId);
+      await storage.deleteRentalPricing(serviceId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error deleting rental pricing: " + error.message });
     }
   });
 

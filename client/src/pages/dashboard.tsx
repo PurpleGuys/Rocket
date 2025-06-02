@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -365,17 +365,285 @@ function ActivitiesPage() {
 }
 
 function RentalPricingPage() {
+  const [activeTab, setActiveTab] = useState("daily");
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [formData, setFormData] = useState<{[key: number]: {dailyRate: string, billingStartDay: string}}>({});
+
+  const { data: services } = useQuery({
+    queryKey: ["/api/services"],
+  });
+
+  const { data: rentalPricing, refetch: refetchPricing } = useQuery({
+    queryKey: ["/api/admin/rental-pricing"],
+  });
+
+  const updatePricingMutation = useMutation({
+    mutationFn: async (data: {serviceId: number, dailyRate: string, billingStartDay: number}) => {
+      const response = await fetch("/api/admin/rental-pricing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          serviceId: data.serviceId,
+          dailyRate: data.dailyRate,
+          billingStartDay: data.billingStartDay,
+          isActive: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      refetchPricing();
+      setEditingRowId(null);
+      setFormData({});
+    },
+  });
+
+  const handleEdit = (serviceId: number) => {
+    const existingPricing = rentalPricing?.find((p: any) => p.serviceId === serviceId);
+    setEditingRowId(serviceId);
+    setFormData({
+      ...formData,
+      [serviceId]: {
+        dailyRate: existingPricing?.dailyRate || "0",
+        billingStartDay: existingPricing?.billingStartDay?.toString() || "0",
+      }
+    });
+  };
+
+  const handleSave = (serviceId: number) => {
+    const data = formData[serviceId];
+    if (data) {
+      updatePricingMutation.mutate({
+        serviceId,
+        dailyRate: data.dailyRate,
+        billingStartDay: parseInt(data.billingStartDay),
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingRowId(null);
+    setFormData({});
+  };
+
+  const updateFormField = (serviceId: number, field: string, value: string) => {
+    setFormData({
+      ...formData,
+      [serviceId]: {
+        ...formData[serviceId],
+        [field]: value,
+      }
+    });
+  };
+
+  const getCurrentPricing = (serviceId: number) => {
+    return rentalPricing?.find((p: any) => p.serviceId === serviceId);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Prix de Location</h1>
-        <p className="text-gray-600">Configuration des tarifs de location</p>
+        <p className="text-gray-600">Configuration des tarifs de location par équipement</p>
       </div>
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-gray-500">Configuration des prix de location...</p>
-        </CardContent>
-      </Card>
+
+      {/* Onglets */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab("daily")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "daily"
+                ? "border-green-500 text-green-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Prix journalier
+          </button>
+          <button
+            onClick={() => setActiveTab("package")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "package"
+                ? "border-green-500 text-green-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Prix forfaitaire
+          </button>
+        </nav>
+      </div>
+
+      {activeTab === "daily" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-green-600" />
+              Tarifs Journaliers
+            </CardTitle>
+            <CardDescription>
+              Définissez les prix de location quotidiens pour chaque type d'équipement
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Équipement</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">
+                      Prix / Jour
+                      <div className="group relative inline-block ml-2">
+                        <span className="text-gray-400 cursor-help">ⓘ</span>
+                        <div className="invisible group-hover:visible absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                          Tarif appliqué par jour de location (€/jour)
+                        </div>
+                      </div>
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">
+                      Début de Facturation
+                      <div className="group relative inline-block ml-2">
+                        <span className="text-gray-400 cursor-help">ⓘ</span>
+                        <div className="invisible group-hover:visible absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                          Jour à partir duquel le tarif est appliqué (0 = dès le premier jour)
+                        </div>
+                      </div>
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-900">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {services?.map((service: any) => {
+                    const isEditing = editingRowId === service.id;
+                    const currentPricing = getCurrentPricing(service.id);
+                    const currentForm = formData[service.id];
+
+                    return (
+                      <tr key={service.id} className="border-b hover:bg-gray-50">
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                              <Truck className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{service.name}</p>
+                              <p className="text-sm text-gray-500">{service.volume}m³</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          {isEditing ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={currentForm?.dailyRate || ""}
+                                onChange={(e) => updateFormField(service.id, "dailyRate", e.target.value)}
+                                className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="0.00"
+                              />
+                              <span className="text-gray-500">€/jour</span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-900">
+                              {currentPricing ? `${currentPricing.dailyRate} €/jour` : "-"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-4">
+                          {isEditing ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                min="0"
+                                value={currentForm?.billingStartDay || ""}
+                                onChange={(e) => updateFormField(service.id, "billingStartDay", e.target.value)}
+                                className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="0"
+                              />
+                              <span className="text-gray-500">jour(s)</span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-900">
+                              {currentPricing ? `${currentPricing.billingStartDay} jour(s)` : "-"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          {isEditing ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleSave(service.id)}
+                                disabled={updatePricingMutation.isPending}
+                                className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                              >
+                                {updatePricingMutation.isPending ? "..." : "Valider"}
+                              </button>
+                              <button
+                                onClick={handleCancel}
+                                className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                              >
+                                Annuler
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleEdit(service.id)}
+                              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                              Modifier
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {services && services.length === 0 && (
+              <div className="text-center py-8">
+                <Truck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">Aucun équipement disponible</p>
+                <p className="text-sm text-gray-400">
+                  Ajoutez des équipements pour configurer les tarifs
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === "package" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-green-600" />
+              Prix Forfaitaire
+            </CardTitle>
+            <CardDescription>
+              Configuration des forfaits (fonctionnalité à venir)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Gestion des forfaits</p>
+              <p className="text-sm text-gray-400">
+                Cette fonctionnalité sera disponible prochainement
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
