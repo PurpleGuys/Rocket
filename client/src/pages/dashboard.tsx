@@ -2172,382 +2172,152 @@ function TreatmentPricingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {showAddForm && (
-            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-              <h3 className="text-lg font-medium mb-4">Nouvelle matière</h3>
-              <form onSubmit={handleAddWasteType} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom de la matière *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
-                      placeholder="Ex: Gravats, Bois, Métaux..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <input
-                      type="text"
-                      name="description"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
-                      placeholder="Description détaillée (optionnel)"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddForm(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createWasteTypeMutation.isPending}
-                    className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] disabled:opacity-50"
-                  >
-                    {createWasteTypeMutation.isPending ? 'Création...' : 'Créer la matière'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
+          <p className="text-gray-600 mb-6">
+            Les matières sélectionnées dans "Mes activités" apparaissent automatiquement ici pour configuration des tarifs.
+          </p>
 
-          {/* Tableau des tarifs configurés */}
           {(() => {
             const configuredWasteTypes = companyActivities?.wasteTypes || [];
-            const configuredPricings = configuredWasteTypes
-              .map((wasteTypeName: string) => {
-                const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
-                const existingPricing = dbWasteType ? treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id) : null;
-                return { wasteTypeName, dbWasteType, existingPricing };
-              })
-              .filter(item => item.existingPricing);
-
-            if (configuredPricings.length > 0) {
+            
+            if (configuredWasteTypes.length === 0) {
               return (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Tarifs configurés</h3>
-                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-gray-50">
-                          <TableHead className="font-semibold">Matière</TableHead>
-                          <TableHead className="font-semibold">Prix/tonne</TableHead>
-                          <TableHead className="font-semibold">Type de traitement</TableHead>
-                          <TableHead className="font-semibold">Code exutoire</TableHead>
-                          <TableHead className="font-semibold">Adresse exutoire</TableHead>
-                          <TableHead className="text-right font-semibold">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {configuredPricings.map(({ wasteTypeName, dbWasteType, existingPricing }) => (
-                          <TableRow key={wasteTypeName} className="hover:bg-gray-50">
-                            <TableCell className="font-medium">{wasteTypeName}</TableCell>
-                            <TableCell className="font-semibold text-green-700">{existingPricing.pricePerTon}€</TableCell>
-                            <TableCell>{existingPricing.treatmentType}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="font-mono text-xs">
-                                {existingPricing.treatmentCode}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="max-w-48">
-                              <span className="text-sm truncate block" title={existingPricing.outletAddress || ''}>
-                                {existingPricing.outletAddress || '-'}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    if (dbWasteType) {
-                                      setEditingPricing(existingPricing);
-                                      setSelectedWasteType(dbWasteType.id);
-                                      setSelectedWasteTypeName(wasteTypeName);
-                                      setShowAddForm(true);
-                                    }
-                                  }}
-                                  className="hover:bg-blue-50"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    if (existingPricing && window.confirm(`Êtes-vous sûr de vouloir supprimer le tarif pour ${wasteTypeName} ?`)) {
-                                      deleteTreatmentPricingMutation.mutate(existingPricing.id);
-                                    }
-                                  }}
-                                  className="text-red-600 hover:bg-red-50 hover:border-red-300"
-                                  disabled={deleteTreatmentPricingMutation.isPending}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                  <AlertTriangle className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
+                  <p className="text-yellow-800 font-medium">Aucune matière sélectionnée</p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Configurez vos activités dans "Mes activités" pour sélectionner les matières à traiter.
+                  </p>
                 </div>
               );
             }
-            return null;
-          })()}
 
-          {/* Section pour configurer de nouveaux tarifs */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Matières à configurer</h3>
-            
-            {(() => {
-              const configuredWasteTypes = companyActivities?.wasteTypes || [];
-              
-              if (configuredWasteTypes.length === 0) {
-                return (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-                    <AlertTriangle className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                    <p className="text-yellow-800 font-medium">Aucun type de matière configuré</p>
-                    <p className="text-sm text-yellow-700 mt-1">
-                      Veuillez d'abord configurer vos activités dans la section "Mes activités" pour sélectionner les types de déchets.
-                    </p>
-                  </div>
-                );
-              }
-
-              const unconfiguredTypes = configuredWasteTypes
-                .map((wasteTypeName: string) => {
+            return (
+              <div className="space-y-4">
+                {configuredWasteTypes.map((wasteTypeName: string) => {
                   const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
                   const existingPricing = dbWasteType ? treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id) : null;
-                  return { wasteTypeName, dbWasteType, existingPricing };
-                })
-                .filter(item => !item.existingPricing);
-
-              if (unconfiguredTypes.length === 0) {
-                return (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-                    <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                    <p className="text-green-700 font-medium">Toutes les matières sont configurées</p>
-                    <p className="text-sm text-green-600 mt-1">Tous vos types de déchets ont un tarif de traitement défini</p>
-                  </div>
-                );
-              }
-
-              return (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {unconfiguredTypes.map(({ wasteTypeName, dbWasteType }) => (
-                    <div key={wasteTypeName} className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group">
-                      <div className="text-center">
-                        <div className="mb-3">
-                          <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 group-hover:bg-blue-100 rounded-full transition-colors">
-                            <Package className="h-6 w-6 text-gray-500 group-hover:text-blue-600" />
-                          </div>
+                  
+                  return (
+                    <Card key={wasteTypeName} className="border-2">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{wasteTypeName}</CardTitle>
+                          {existingPricing ? (
+                            <Badge className="bg-green-100 text-green-800 border-green-300">Configuré</Badge>
+                          ) : (
+                            <Badge variant="secondary">À configurer</Badge>
+                          )}
                         </div>
-                        <h4 className="font-medium text-gray-900 mb-2">{wasteTypeName}</h4>
-                        <p className="text-sm text-gray-500 mb-4">Configuré dans "Mes activités"</p>
-                        <Badge variant="secondary" className="mb-4">En attente de configuration</Badge>
-                        <Button
-                          onClick={() => {
-                            // Utiliser directement le nom de la matière de "Mes activités"
-                            // Créer automatiquement le type si nécessaire
-                            if (!dbWasteType) {
-                              createWasteTypeMutation.mutate({
-                                name: wasteTypeName,
-                                description: `Matière configurée dans "Mes activités"`
-                              });
-                            }
-                            setSelectedWasteTypeName(wasteTypeName);
-                            setEditingPricing(null);
-                            setShowAddForm(true);
-                          }}
-                          className="w-full bg-blue-600 hover:bg-blue-700"
-                          disabled={createWasteTypeMutation.isPending}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          {createWasteTypeMutation.isPending ? 'Configuration...' : 'Configurer le tarif'}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-          </div>
+                      </CardHeader>
+                      <CardContent>
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          const formData = new FormData(e.currentTarget);
+                          
+                          // Créer le waste type si nécessaire
+                          if (!dbWasteType) {
+                            createWasteTypeMutation.mutate({
+                              name: wasteTypeName,
+                              description: `Matière de "Mes activités"`
+                            });
+                            return;
+                          }
+                          
+                          const pricingData = {
+                            wasteTypeId: dbWasteType.id,
+                            pricePerTon: formData.get('pricePerTon')?.toString() || '0',
+                            treatmentType: formData.get('treatmentType')?.toString() || '',
+                            treatmentCode: formData.get('treatmentCode')?.toString() || '',
+                            outletAddress: '',
+                            isManualTreatment: false,
+                            isActive: true
+                          };
+
+                          if (existingPricing) {
+                            updateTreatmentPricingMutation.mutate({
+                              id: existingPricing.id,
+                              ...pricingData
+                            });
+                          } else {
+                            createTreatmentPricingMutation.mutate(pricingData);
+                          }
+                        }} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Prix par tonne (€)
+                            </label>
+                            <input
+                              type="number"
+                              name="pricePerTon"
+                              step="0.01"
+                              min="0"
+                              required
+                              defaultValue={existingPricing?.pricePerTon || ''}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                              placeholder="0.00"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Type de traitement
+                            </label>
+                            <input
+                              type="text"
+                              name="treatmentType"
+                              required
+                              defaultValue={existingPricing?.treatmentType || ''}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                              placeholder="Ex: Recyclage, Incinération..."
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Code de traitement
+                            </label>
+                            <select
+                              name="treatmentCode"
+                              required
+                              defaultValue={existingPricing?.treatmentCode || ''}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                              <option value="">Sélectionner un code</option>
+                              {OUTLET_CODES.map((outlet) => (
+                                <option key={outlet.code} value={outlet.code}>
+                                  {outlet.code} - {outlet.description.substring(0, 30)}...
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="md:col-span-3 flex justify-end">
+                            <button
+                              type="submit"
+                              disabled={createTreatmentPricingMutation.isPending || updateTreatmentPricingMutation.isPending || createWasteTypeMutation.isPending}
+                              className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 font-medium"
+                            >
+                              {(createTreatmentPricingMutation.isPending || updateTreatmentPricingMutation.isPending) 
+                                ? 'Sauvegarde...' 
+                                : existingPricing 
+                                  ? 'Mettre à jour' 
+                                  : 'Configurer'
+                              }
+                            </button>
+                          </div>
+                        </form>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
 
-      {/* Bouton de sauvegarde global */}
-      {(() => {
-        const configuredWasteTypes = companyActivities?.wasteTypes || [];
-        const hasConfiguredPricing = configuredWasteTypes.some((wasteTypeName: string) => {
-          const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
-          return dbWasteType && treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id);
-        });
 
-        return hasConfiguredPricing && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">Configuration des tarifs terminée</h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Tous les tarifs de traitement ont été configurés avec succès.
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    toast({
-                      title: "Configuration sauvegardée",
-                      description: "Les tarifs de traitement sont bien enregistrés et prêts à être utilisés.",
-                    });
-                  }}
-                  className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 font-medium"
-                >
-                  ✓ Configuration sauvegardée
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })()}
-
-      {/* Formulaire de configuration/modification des tarifs */}
-      {selectedWasteType && (
-        <Card className="border-2 border-blue-200 bg-blue-50/30">
-          <CardHeader className="bg-blue-50 border-b border-blue-200">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-blue-900">
-                {editingPricing ? 'Modification' : 'Configuration'} du tarif - {selectedWasteTypeName}
-              </CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setSelectedWasteType(null);
-                  setSelectedWasteTypeName('');
-                  setEditingPricing(null);
-                }}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            {editingPricing && (
-              <p className="text-sm text-blue-700 mt-2">
-                Modifiez les informations ci-dessous pour mettre à jour le tarif de traitement.
-              </p>
-            )}
-          </CardHeader>
-          <CardContent className="bg-white">
-            <form onSubmit={handleAddTreatmentPricing} className="space-y-6 pt-6">
-              <input type="hidden" name="wasteTypeId" value={selectedWasteType} />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prix par tonne (€) *
-                  </label>
-                  <input
-                    type="number"
-                    name="pricePerTon"
-                    step="0.01"
-                    min="0"
-                    required
-                    defaultValue={editingPricing?.pricePerTon || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
-                    placeholder="0.00"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type de traitement *
-                  </label>
-                  <input
-                    type="text"
-                    name="treatmentType"
-                    required
-                    defaultValue={editingPricing?.treatmentType || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
-                    placeholder="Ex: Recyclage, Incinération, Compostage, Valorisation énergétique..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Code exutoire *
-                  </label>
-                  <select
-                    name="treatmentCode"
-                    required
-                    defaultValue={editingPricing?.treatmentCode || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
-                  >
-                    <option value="">Sélectionner un code</option>
-                    {OUTLET_CODES.map((outlet) => (
-                      <option key={outlet.code} value={outlet.code}>
-                        {outlet.code} - {outlet.description.substring(0, 50)}...
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Adresse exutoire
-                </label>
-                <textarea
-                  name="outletAddress"
-                  rows={3}
-                  defaultValue={editingPricing?.outletAddress || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
-                  placeholder="Adresse complète du site de traitement (optionnel)"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedWasteType(null);
-                    setSelectedWasteTypeName('');
-                    setEditingPricing(null);
-                    setShowAddForm(false);
-                  }}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={createTreatmentPricingMutation.isPending || updateTreatmentPricingMutation.isPending}
-                  className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] disabled:opacity-50"
-                >
-                  {(createTreatmentPricingMutation.isPending || updateTreatmentPricingMutation.isPending) 
-                    ? 'Sauvegarde...' 
-                    : editingPricing 
-                      ? 'Modifier le tarif' 
-                      : 'Sauvegarder le tarif'
-                  }
-                </button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Aide contextuelle pour les codes */}
       <Card>
