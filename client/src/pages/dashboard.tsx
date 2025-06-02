@@ -1972,10 +1972,16 @@ function TreatmentPricingPage() {
   // Mutation pour créer/mettre à jour un tarif de traitement
   const createTreatmentPricingMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Données envoyées pour création:", data);
       const response = await apiRequest("POST", "/api/admin/treatment-pricing", data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Erreur ${response.status}`);
+      }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Tarif créé avec succès:", data);
       toast({
         title: "Tarif configuré",
         description: "Le tarif de traitement a été sauvegardé avec succès.",
@@ -1983,12 +1989,14 @@ function TreatmentPricingPage() {
       setShowAddForm(false);
       setSelectedWasteType(null);
       setSelectedWasteTypeName('');
+      setEditingPricing(null);
       refetch();
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Erreur lors de la création du tarif:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder le tarif de traitement.",
+        title: "Erreur de sauvegarde",
+        description: error.message || "Impossible de sauvegarder le tarif de traitement.",
         variant: "destructive",
       });
     },
