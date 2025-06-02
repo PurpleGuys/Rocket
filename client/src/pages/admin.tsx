@@ -168,59 +168,82 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/')}
-                className="mr-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour
-              </Button>
-              <h1 className="text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
-            </div>
-            <div className="text-sm text-gray-600">
-              Connecté en tant que <span className="font-semibold text-red-600">{user?.firstName} {user?.lastName}</span>
-            </div>
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="w-64 bg-white shadow-lg">
+          <div className="p-6">
+            <h2 className="text-xl font-bold text-red-700">Remondis DD</h2>
+            <p className="text-sm text-gray-600">Administration</p>
           </div>
-        </div>
-      </div>
+          
+          <nav className="mt-6">
+            <div className="px-4">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                PANNEAU ADMIN
+              </h3>
+              <ul className="space-y-1">
+                {[
+                  { id: "dashboard", label: "Tableau de bord", icon: TrendingUp },
+                  { id: "orders", label: "Commandes", icon: ShoppingCart },
+                  { id: "users", label: "Utilisateurs", icon: Users },
+                  { id: "pricing", label: "Tarification", icon: Euro },
+                  { id: "settings", label: "Paramètres", icon: Settings },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <li key={tab.id}>
+                      <button
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                          activeTab === tab.id
+                            ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Icon className="mr-3 h-4 w-4" />
+                        {tab.label}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
 
-      {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              { id: "dashboard", label: "Tableau de bord", icon: TrendingUp },
-              { id: "orders", label: "Commandes", icon: ShoppingCart },
-              { id: "users", label: "Utilisateurs", icon: Users },
-              { id: "pricing", label: "Tarification", icon: Euro },
-              { id: "settings", label: "Paramètres", icon: Settings },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
-                    activeTab === tab.id
-                      ? "border-red-500 text-red-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {tab.label}
-                </button>
-              );
-            })}
+            <div className="px-4 mt-8">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                NAVIGATION
+              </h3>
+              <ul className="space-y-1">
+                <li>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => navigate('/')}
+                    className="w-full justify-start text-gray-700 hover:bg-gray-100"
+                  >
+                    <ArrowLeft className="mr-3 h-4 w-4" />
+                    Retour au site
+                  </Button>
+                </li>
+              </ul>
+            </div>
           </nav>
         </div>
 
-        {/* Contenu des onglets */}
+        {/* Contenu principal */}
+        <div className="flex-1 p-8">
+          <div className="mb-8">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
+                <p className="text-gray-600">Gestion complète de votre activité</p>
+              </div>
+              <div className="text-sm text-gray-600">
+                Connecté en tant que <span className="font-semibold text-red-600">{user?.firstName} {user?.lastName}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Contenu des onglets */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">
             {/* Statistiques principales */}
@@ -683,6 +706,7 @@ export default function AdminDashboard() {
             </Card>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
