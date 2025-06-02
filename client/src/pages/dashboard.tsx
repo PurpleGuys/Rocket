@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -14,8 +15,15 @@ import {
   FileText,
   Calculator,
   DollarSign,
-  Package
+  Package,
+  Info,
+  Edit,
+  Trash2,
+  Plus,
+  Save,
+  X
 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 // Composant principal du dashboard
 function DashboardHome() {
