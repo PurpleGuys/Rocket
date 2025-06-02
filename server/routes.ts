@@ -796,6 +796,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Google Maps API connection
+  app.get("/api/test-maps-api", async (req, res) => {
+    try {
+      if (!process.env.GOOGLE_MAPS_API_KEY) {
+        return res.status(500).json({ 
+          success: false,
+          message: "Clé API Google Maps manquante dans les variables d'environnement" 
+        });
+      }
+
+      // Test simple avec géocodage d'une adresse connue
+      const testResult = await DistanceService.geocodeAddress("Paris, France");
+      
+      res.json({
+        success: true,
+        message: "Clé API Google Maps fonctionnelle",
+        testResult: {
+          address: "Paris, France",
+          coordinates: testResult
+        }
+      });
+    } catch (error: any) {
+      console.error("Erreur test API Google Maps:", error);
+      res.status(500).json({ 
+        success: false,
+        message: `Erreur API Google Maps: ${error.message}`,
+        details: "Vérifiez que votre clé API Google Maps est valide et que les APIs Geocoding et Distance Matrix sont activées"
+      });
+    }
+  });
+
   // Calculate distance between addresses
   app.post("/api/calculate-distance", async (req, res) => {
     try {
