@@ -1,4 +1,4 @@
-import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing } from "@shared/schema";
+import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql, lt } from "drizzle-orm";
 
@@ -75,6 +75,20 @@ export interface IStorage {
   getTransportPricing(): Promise<TransportPricing | undefined>;
   createTransportPricing(pricing: InsertTransportPricing): Promise<TransportPricing>;
   updateTransportPricing(pricing: UpdateTransportPricing): Promise<TransportPricing | undefined>;
+
+  // Waste Types
+  getWasteTypes(): Promise<WasteType[]>;
+  getWasteType(id: number): Promise<WasteType | undefined>;
+  createWasteType(wasteType: InsertWasteType): Promise<WasteType>;
+  updateWasteType(id: number, wasteType: Partial<InsertWasteType>): Promise<WasteType | undefined>;
+  deleteWasteType(id: number): Promise<void>;
+
+  // Treatment Pricing
+  getTreatmentPricing(): Promise<(TreatmentPricing & { wasteType: WasteType })[]>;
+  getTreatmentPricingByWasteTypeId(wasteTypeId: number): Promise<TreatmentPricing | undefined>;
+  createTreatmentPricing(pricing: InsertTreatmentPricing): Promise<TreatmentPricing>;
+  updateTreatmentPricing(id: number, pricing: UpdateTreatmentPricing): Promise<TreatmentPricing | undefined>;
+  deleteTreatmentPricing(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {

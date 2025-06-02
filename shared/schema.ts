@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -162,6 +162,30 @@ export const transportPricing = pgTable("transport_pricing", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Table pour les matières/déchets
+export const wasteTypes = pgTable("waste_types", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(), // Nom de la matière (ex: "Gravats", "Bois", etc.)
+  description: text("description"), // Description détaillée
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Table pour les tarifs de traitement
+export const treatmentPricing = pgTable("treatment_pricing", {
+  id: serial("id").primaryKey(),
+  wasteTypeId: integer("waste_type_id").notNull().references(() => wasteTypes.id, { onDelete: "cascade" }),
+  pricePerTon: decimal("price_per_ton", { precision: 10, scale: 2 }).notNull(), // Prix par tonne en €
+  treatmentType: varchar("treatment_type", { length: 100 }).notNull(), // Type de traitement
+  treatmentCode: varchar("treatment_code", { length: 10 }).notNull(), // Code traitement (D1-D15, R1-R12)
+  outletAddress: text("outlet_address"), // Adresse exutoire
+  isManualTreatment: boolean("is_manual_treatment").default(false), // Manuel ou automatique
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -252,6 +276,25 @@ export const updateTransportPricingSchema = createInsertSchema(transportPricing)
   updatedAt: true,
 });
 
+export const insertWasteTypeSchema = createInsertSchema(wasteTypes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTreatmentPricingSchema = createInsertSchema(treatmentPricing).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateTreatmentPricingSchema = createInsertSchema(treatmentPricing).omit({
+  id: true,
+  wasteTypeId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Relations
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
@@ -279,3 +322,8 @@ export type UpdateRentalPricing = z.infer<typeof updateRentalPricingSchema>;
 export type TransportPricing = typeof transportPricing.$inferSelect;
 export type InsertTransportPricing = z.infer<typeof insertTransportPricingSchema>;
 export type UpdateTransportPricing = z.infer<typeof updateTransportPricingSchema>;
+export type WasteType = typeof wasteTypes.$inferSelect;
+export type InsertWasteType = z.infer<typeof insertWasteTypeSchema>;
+export type TreatmentPricing = typeof treatmentPricing.$inferSelect;
+export type InsertTreatmentPricing = z.infer<typeof insertTreatmentPricingSchema>;
+export type UpdateTreatmentPricing = z.infer<typeof updateTreatmentPricingSchema>;
