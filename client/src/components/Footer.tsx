@@ -63,7 +63,7 @@ export default function Footer() {
           <div className="grid md:grid-cols-2 gap-4 text-xs text-gray-400">
             <div>
               <p><strong>REMONDIS France SAS</strong> - SAS au capital de 1 000 000 €</p>
-              <p>SIRET: 123 456 789 00012 - RCS Lyon B 123 456 789</p>
+              <p>SIRET: 123 456 789 00012 - RCS Beauvais B 123 456 789</p>
               <p>Code APE: 3811Z - TVA: FR 12 123 456 789</p>
             </div>
             <div>
@@ -81,7 +81,7 @@ export default function Footer() {
             </div>
             <div className="flex space-x-4">
               <span>Médiation: CNPM</span>
-              <span>Juridiction: Lyon</span>
+              <span>Juridiction: Beauvais</span>
               <span>Droit applicable: France</span>
             </div>
           </div>

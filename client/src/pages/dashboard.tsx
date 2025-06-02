@@ -1198,6 +1198,12 @@ function TreatmentPricingPage() {
     { code: "R12", description: "Echange de déchets en vue de les soumettre à l'une des opérations numérotées R1 à R11" },
   ];
 
+  // Récupérer les activités de l'entreprise
+  const { data: companyActivities } = useQuery({
+    queryKey: ['/api/admin/company-activities'],
+    select: (data) => data || null
+  });
+
   // Récupérer les types de déchets
   const { data: wasteTypes, refetch: refetchWasteTypes } = useQuery({
     queryKey: ['/api/admin/waste-types'],
