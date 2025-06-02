@@ -15,7 +15,7 @@ export default function OrderConfirmation({ onNewOrder }: OrderConfirmationProps
   const orderNumber = `BNE-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">

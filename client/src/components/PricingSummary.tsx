@@ -152,15 +152,15 @@ export default function PricingSummary() {
         <div className="pt-6 border-t border-slate-200">
           <div className="space-y-2 text-sm text-slate-600">
             <div className="flex items-center">
-              <Shield className="h-4 w-4 mr-2 text-green-500" />
+              <Shield className="h-4 w-4 mr-2 text-red-500" />
               <span>Paiement 100% sécurisé</span>
             </div>
             <div className="flex items-center">
-              <Truck className="h-4 w-4 mr-2 text-green-500" />
+              <Truck className="h-4 w-4 mr-2 text-red-500" />
               <span>Livraison garantie sous 48h</span>
             </div>
             <div className="flex items-center">
-              <Phone className="h-4 w-4 mr-2 text-green-500" />
+              <Phone className="h-4 w-4 mr-2 text-red-500" />
               <span>Support client 7j/7</span>
             </div>
           </div>

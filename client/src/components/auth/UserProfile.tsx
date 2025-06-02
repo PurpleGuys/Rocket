@@ -202,7 +202,7 @@ export default function UserProfile() {
 
                   <Button
                     type="submit"
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-red-600 hover:bg-red-700"
                     disabled={updateProfileMutation.isPending}
                   >
                     {updateProfileMutation.isPending ? "Mise à jour..." : "Mettre à jour le profil"}
@@ -264,7 +264,7 @@ export default function UserProfile() {
 
                     <Button
                       type="submit"
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-red-600 hover:bg-red-700"
                       disabled={changePasswordMutation.isPending}
                     >
                       {changePasswordMutation.isPending ? "Modification..." : "Changer le mot de passe"}

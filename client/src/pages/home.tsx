@@ -147,7 +147,7 @@ export default function Home() {
                   {user?.role === 'admin' && (
                     <Button 
                       variant="outline" 
-                      className="text-emerald-600 border-emerald-600 hover:bg-emerald-50"
+                      className="text-red-600 border-red-600 hover:bg-red-50"
                       onClick={() => navigate("/admin")}
                     >
                       <ShieldCheck className="h-4 w-4 mr-2" />
@@ -192,7 +192,7 @@ export default function Home() {
                   Connexion / Inscription
                 </Button>
               )}
-              <Button onClick={handleStartBooking} className="bg-green-600 hover:bg-green-700 text-white">
+              <Button onClick={handleStartBooking} className="bg-red-600 hover:bg-red-700 text-white">
                 Réserver une benne
               </Button>
             </div>
@@ -268,28 +268,28 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Services</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-green-400">Location de bennes</a></li>
-                <li><a href="#" className="hover:text-green-400">Collecte des déchets</a></li>
-                <li><a href="#" className="hover:text-green-400">Recyclage</a></li>
-                <li><a href="#" className="hover:text-green-400">Valorisation</a></li>
+                <li><a href="#" className="hover:text-red-400">Location de bennes</a></li>
+                <li><a href="#" className="hover:text-red-400">Collecte des déchets</a></li>
+                <li><a href="#" className="hover:text-red-400">Recyclage</a></li>
+                <li><a href="#" className="hover:text-red-400">Valorisation</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-green-400">Contact</a></li>
-                <li><a href="#" className="hover:text-green-400">FAQ</a></li>
-                <li><a href="#" className="hover:text-green-400">Suivi commande</a></li>
-                <li><a href="#" className="hover:text-green-400">Service client</a></li>
+                <li><a href="#" className="hover:text-red-400">Contact</a></li>
+                <li><a href="#" className="hover:text-red-400">FAQ</a></li>
+                <li><a href="#" className="hover:text-red-400">Suivi commande</a></li>
+                <li><a href="#" className="hover:text-red-400">Service client</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Légal</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-green-400">Mentions légales</a></li>
-                <li><a href="#" className="hover:text-green-400">Politique de confidentialité</a></li>
-                <li><a href="#" className="hover:text-green-400">CGV</a></li>
-                <li><a href="#" className="hover:text-green-400">Cookies</a></li>
+                <li><a href="#" className="hover:text-red-400">Mentions légales</a></li>
+                <li><a href="#" className="hover:text-red-400">Politique de confidentialité</a></li>
+                <li><a href="#" className="hover:text-red-400">CGV</a></li>
+                <li><a href="#" className="hover:text-red-400">Cookies</a></li>
               </ul>
             </div>
           </div>

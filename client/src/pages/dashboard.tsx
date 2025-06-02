@@ -124,7 +124,7 @@ function DashboardHome() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">Livraison benne 8m³</p>
                       <p className="text-xs text-gray-500">123 Rue de la Paix, Paris - Il y a 2h</p>
@@ -588,7 +588,7 @@ function RentalPricingPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
         >
           <Package className="h-4 w-4" />
           Ajouter une benne
@@ -687,7 +687,7 @@ function RentalPricingPage() {
                                 min="0"
                                 value={currentForm?.dailyRate || ""}
                                 onChange={(e) => updateFormField(service.id, "dailyRate", e.target.value)}
-                                className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                                 placeholder="0.00"
                               />
                               <span className="text-gray-500">€/jour</span>
@@ -706,7 +706,7 @@ function RentalPricingPage() {
                                 min="0"
                                 value={currentForm?.billingStartDay || ""}
                                 onChange={(e) => updateFormField(service.id, "billingStartDay", e.target.value)}
-                                className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                                 placeholder="0"
                               />
                               <span className="text-gray-500">jour(s)</span>
@@ -723,7 +723,7 @@ function RentalPricingPage() {
                               <button
                                 onClick={() => handleSave(service.id)}
                                 disabled={updatePricingMutation.isPending}
-                                className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                                className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
                               >
                                 {updatePricingMutation.isPending ? "..." : "Valider"}
                               </button>
@@ -819,7 +819,7 @@ function RentalPricingPage() {
                   type="text"
                   value={newServiceForm.name}
                   onChange={(e) => setNewServiceForm({...newServiceForm, name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Ex: Benne 20m³"
                 />
               </div>
@@ -833,7 +833,7 @@ function RentalPricingPage() {
                   min="1"
                   value={newServiceForm.volume}
                   onChange={(e) => setNewServiceForm({...newServiceForm, volume: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Ex: 20"
                 />
               </div>
@@ -848,7 +848,7 @@ function RentalPricingPage() {
                   min="0"
                   value={newServiceForm.basePrice}
                   onChange={(e) => setNewServiceForm({...newServiceForm, basePrice: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Ex: 350.00"
                 />
               </div>
@@ -860,7 +860,7 @@ function RentalPricingPage() {
                 <textarea
                   value={newServiceForm.description}
                   onChange={(e) => setNewServiceForm({...newServiceForm, description: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Ex: Idéale pour gros travaux de construction"
                   rows={3}
                 />
@@ -875,7 +875,7 @@ function RentalPricingPage() {
                   min="1"
                   value={newServiceForm.maxWeight}
                   onChange={(e) => setNewServiceForm({...newServiceForm, maxWeight: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Ex: 10"
                 />
               </div>
@@ -901,7 +901,7 @@ function RentalPricingPage() {
               <button
                 onClick={handleAddService}
                 disabled={!newServiceForm.name || !newServiceForm.volume || !newServiceForm.basePrice}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Ajouter
               </button>
@@ -1134,7 +1134,7 @@ function TransportPricingPage() {
 
                 <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
                   <div className={`h-3 w-3 rounded-full ${
-                    transportPricing?.immediateLoadingEnabled ? 'bg-green-500' : 'bg-red-500'
+                    transportPricing?.immediateLoadingEnabled ? 'bg-red-500' : 'bg-red-500'
                   }`}></div>
                   <span className="text-sm text-gray-700">
                     <strong>Statut:</strong> {transportPricing?.immediateLoadingEnabled ? 'Activé' : 'Désactivé'}
@@ -1541,7 +1541,7 @@ function TreatmentPricingPage() {
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {OUTLET_CODES.filter(c => c.code.startsWith('R')).map((outlet) => (
                   <div key={outlet.code} className="text-sm">
-                    <span className="font-mono bg-green-50 text-red-700 px-2 py-1 rounded mr-2">{outlet.code}</span>
+                    <span className="font-mono bg-red-50 text-red-700 px-2 py-1 rounded mr-2">{outlet.code}</span>
                     <span className="text-gray-600">{outlet.description}</span>
                   </div>
                 ))}
@@ -1921,8 +1921,8 @@ function PriceSimulatorPage() {
               </div>
             </div>
 
-            <div className="bg-green-50 p-3 rounded">
-              <div className="font-medium text-green-900">Services</div>
+            <div className="bg-red-50 p-3 rounded">
+              <div className="font-medium text-red-900">Services</div>
               <div className="text-red-700">
                 {services?.length || 0} équipement(s) configuré(s)
               </div>

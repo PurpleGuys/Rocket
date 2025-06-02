@@ -126,7 +126,7 @@ export default function ServiceSelection() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -158,15 +158,15 @@ export default function ServiceSelection() {
                 key={service.id}
                 className={`relative cursor-pointer transition-all ${
                   selectedServiceId === service.id
-                    ? "ring-2 ring-green-500"
+                    ? "ring-2 ring-red-500"
                     : ""
                 }`}
                 onClick={() => handleServiceSelect(service)}
               >
                 <Card className={`${
                   selectedServiceId === service.id
-                    ? "border-red-500 bg-green-50"
-                    : "border-gray-200 hover:border-green-300"
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-200 hover:border-red-300"
                 }`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
@@ -180,11 +180,7 @@ export default function ServiceSelection() {
                       <div>• Volume: {service.volume}m³</div>
                       <div>• Poids max: {service.maxWeight} tonnes</div>
                     </div>
-                    {service.volume === 15 && (
-                      <Badge className="absolute top-2 right-2 bg-green-600 text-white">
-                        Populaire
-                      </Badge>
-                    )}
+
                   </CardContent>
                 </Card>
               </div>
@@ -287,7 +283,7 @@ export default function ServiceSelection() {
                   <span>{priceCalculation.total.toFixed(2)}€</span>
                 </div>
                 
-                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">
+                <Button className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white">
                   Réserver maintenant
                 </Button>
               </div>

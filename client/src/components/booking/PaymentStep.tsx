@@ -248,7 +248,7 @@ function CheckoutForm() {
       {/* Submit Button */}
       <Button
         type="submit"
-        className="w-full bg-green-600 hover:bg-green-700 text-lg py-4 h-auto"
+        className="w-full bg-red-600 hover:bg-red-700 text-lg py-4 h-auto"
         disabled={!stripe || isProcessing}
       >
         {isProcessing ? (

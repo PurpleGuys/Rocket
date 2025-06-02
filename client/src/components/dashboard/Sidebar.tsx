@@ -120,15 +120,15 @@ export default function Sidebar({ className }: SidebarProps) {
       className
     )}>
       {/* Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b bg-gradient-to-r from-emerald-50 to-green-50">
+      <div className="flex h-16 items-center justify-between px-4 border-b bg-gradient-to-r from-red-50 to-red-50">
         {!collapsed && (
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">R</span>
             </div>
             <div>
-              <h2 className="font-bold text-emerald-700">Remondis</h2>
-              <p className="text-xs text-emerald-600">Pro Dashboard</p>
+              <h2 className="font-bold text-red-700">Remondis</h2>
+              <p className="text-xs text-red-600">Pro Dashboard</p>
             </div>
           </div>
         )}
@@ -136,17 +136,17 @@ export default function Sidebar({ className }: SidebarProps) {
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto hover:bg-emerald-100"
+          className="ml-auto hover:bg-red-100"
         >
-          {collapsed ? <ChevronRight className="h-4 w-4 text-emerald-600" /> : <ChevronLeft className="h-4 w-4 text-emerald-600" />}
+          {collapsed ? <ChevronRight className="h-4 w-4 text-red-600" /> : <ChevronLeft className="h-4 w-4 text-red-600" />}
         </Button>
       </div>
 
       {/* User Info */}
       {!collapsed && (
-        <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50">
+        <div className="p-4 bg-gradient-to-r from-red-50 to-red-50">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-white font-semibold text-sm">
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </span>
@@ -155,7 +155,7 @@ export default function Sidebar({ className }: SidebarProps) {
               <p className="text-sm font-medium text-gray-900 truncate">
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className="text-xs text-emerald-600 font-medium truncate">
+              <p className="text-xs text-red-600 font-medium truncate">
                 {user?.role === 'admin' ? '👑 Administrateur' : '👤 Client'}
               </p>
             </div>
@@ -176,7 +176,7 @@ export default function Sidebar({ className }: SidebarProps) {
                 className={cn(
                   "w-full justify-start transition-all duration-200",
                   collapsed && "justify-center px-2",
-                  location === item.href && "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-r-2 border-emerald-500 shadow-sm"
+                  location === item.href && "bg-gradient-to-r from-red-100 to-red-100 text-red-700 border-r-2 border-red-500 shadow-sm"
                 )}
                 onClick={() => handleMenuClick(item)}
               >
@@ -200,7 +200,7 @@ export default function Sidebar({ className }: SidebarProps) {
                       size="sm"
                       className={cn(
                         "w-full justify-start text-xs",
-                        location === subItem.href && "bg-green-50 text-red-600"
+                        location === subItem.href && "bg-red-50 text-red-600"
                       )}
                       onClick={() => navigate(subItem.href)}
                     >
@@ -231,7 +231,7 @@ export default function Sidebar({ className }: SidebarProps) {
                   className={cn(
                     "w-full justify-start transition-all duration-200",
                     collapsed && "justify-center px-2",
-                    location === item.href && "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-r-2 border-emerald-500 shadow-sm"
+                    location === item.href && "bg-gradient-to-r from-red-100 to-red-100 text-red-700 border-r-2 border-red-500 shadow-sm"
                   )}
                   onClick={() => navigate(item.href)}
                 >

@@ -27,7 +27,7 @@ export default function Admin() {
           </p>
           <button 
             onClick={() => window.location.href = "/"}
-            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             Retour à l'accueil
           </button>

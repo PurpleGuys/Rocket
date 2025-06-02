@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             className="h-12 w-auto"
           />
         </div>
-        <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full"></div>
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
         <p className="mt-4 text-gray-600">Chargement du tableau de bord...</p>
       </div>
     );

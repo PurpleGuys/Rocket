@@ -171,7 +171,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
 
           <Button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full bg-red-600 hover:bg-red-700"
             disabled={registerMutation.isPending}
           >
             {registerMutation.isPending ? "Création..." : "Créer mon compte"}
