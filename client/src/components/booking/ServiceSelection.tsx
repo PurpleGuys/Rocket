@@ -27,6 +27,7 @@ export default function ServiceSelection() {
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [priceData, setPriceData] = useState<any>(null);
 
   const { data: services, isLoading, error } = useQuery({
     queryKey: ['/api/services'],
@@ -57,22 +58,20 @@ export default function ServiceSelection() {
     setDistanceError("");
 
     try {
-      const response = await apiRequest('POST', '/api/calculate-pricing', {
+      const data = await apiRequest('POST', '/api/calculate-pricing', {
         serviceId: selectedServiceId,
         wasteTypes: [selectedWasteType],
-        address: deliveryAddress,
-        postalCode: postalCode,
-        city: city
+        customerAddress: `${deliveryAddress}, ${postalCode} ${city}`
       });
-      
-      const data = await response.json();
       
       if (data.success && data.distance) {
         setDistance(data.distance.kilometers);
+        setPriceData(data); // Sauvegarder toutes les données de prix
         setDistanceError("");
       } else {
         setDistanceError(data.message || "Impossible de calculer la distance");
         setDistance(15); // Distance estimée par défaut
+        setPriceData(null);
       }
     } catch (error: any) {
       console.error('Erreur calcul distance:', error);
@@ -143,23 +142,44 @@ export default function ServiceSelection() {
 
   // Calculer le prix en fonction de la sélection
   const calculatePrice = () => {
-    if (!service || distance === 0) {
-      return { service: 0, transport: 0, total: 0, details: [] };
+    if (!service || !priceData) {
+      return { service: 0, transport: 0, treatment: 0, total: 0, details: [] };
     }
 
     const servicePrice = parseFloat(service.basePrice);
-    const transportPrice = Math.max(distance * 2 * 2.5, 150); // 2.5€/km aller-retour, minimum 150€
-    const total = servicePrice + transportPrice;
+    const transportCost = priceData.transportCost || 0;
+    const totalTreatmentCost = priceData.totalTreatmentCost || 0;
+    const total = servicePrice + transportCost + totalTreatmentCost;
+
+    const details = [
+      { label: "Service", amount: servicePrice },
+      { label: `Transport (${distance.toFixed(1)} km)`, amount: transportCost }
+    ];
+
+    // Ajouter les détails des coûts de traitement si disponibles
+    if (totalTreatmentCost > 0) {
+      details.push({ label: "Traitement des déchets", amount: totalTreatmentCost });
+      
+      // Ajouter les détails par matière
+      if (priceData.treatmentCosts) {
+        Object.entries(priceData.treatmentCosts).forEach(([wasteType, cost]: [string, any]) => {
+          details.push({ 
+            label: `  ${wasteType} (${priceData.maxTonnage}T)`, 
+            amount: cost.totalCost,
+            isSubItem: true 
+          });
+        });
+      }
+    }
+
+    details.push({ label: "Total TTC", amount: total });
 
     return {
       service: servicePrice,
-      transport: transportPrice,
+      transport: transportCost,
+      treatment: totalTreatmentCost,
       total: total,
-      details: [
-        { label: "Service", amount: servicePrice },
-        { label: `Transport (${distance.toFixed(1)} km)`, amount: transportPrice },
-        { label: "Total TTC", amount: total }
-      ]
+      details: details
     };
   };
 
@@ -438,16 +458,40 @@ export default function ServiceSelection() {
             
             {priceCalculation.total > 0 ? (
               <div className="space-y-3">
-                {priceCalculation.details.map((item, index) => (
-                  <div key={index} className="flex justify-between text-sm">
-                    <span className={index >= priceCalculation.details.length - 1 ? "font-medium" : "text-gray-600"}>
-                      {item.label}
-                    </span>
-                    <span className={index >= priceCalculation.details.length - 1 ? "font-medium" : ""}>
-                      {item.amount.toFixed(2)}€
-                    </span>
+                {priceCalculation.details.map((item, index) => {
+                  const isTotal = item.label === "Total TTC";
+                  const isSubItem = item.isSubItem;
+                  
+                  return (
+                    <div key={index} className={`flex justify-between text-sm ${
+                      isSubItem ? "ml-4 text-xs text-gray-500" : ""
+                    }`}>
+                      <span className={
+                        isTotal ? "font-medium" : 
+                        isSubItem ? "text-gray-500" : "text-gray-600"
+                      }>
+                        {item.label}
+                      </span>
+                      <span className={
+                        isTotal ? "font-medium" : 
+                        isSubItem ? "text-gray-500" : ""
+                      }>
+                        {item.amount.toFixed(2)}€
+                      </span>
+                    </div>
+                  );
+                })}
+                
+                {/* Affichage spécial du tonnage si disponible */}
+                {priceData?.maxTonnage > 0 && (
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-blue-800">Capacité maximale:</span>
+                      <span className="text-blue-800 font-medium">{priceData.maxTonnage} tonnes</span>
+                    </div>
                   </div>
-                ))}
+                )}
+                
                 <hr className="border-gray-200" />
                 <div className="flex justify-between text-xl font-bold text-red-600">
                   <span>Total TTC</span>
