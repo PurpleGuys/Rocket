@@ -2046,6 +2046,62 @@ function MyActivitiesPage() {
     }));
   };
 
+  // Fonction pour récupérer les suggestions d'adresses
+  const fetchAddressSuggestions = async (input: string) => {
+    if (input.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(input)}`);
+      const data = await response.json();
+      
+      if (data.suggestions) {
+        setAddressSuggestions(data.suggestions);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error('Erreur autocomplétion:', error);
+      setAddressSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Fonction pour sélectionner une suggestion d'adresse
+  const selectAddressSuggestion = (suggestion: any) => {
+    const parts = suggestion.description.split(', ');
+    if (parts.length >= 3) {
+      const address = parts[0];
+      const cityPart = parts[parts.length - 2];
+      const postalCodeMatch = cityPart.match(/(\d{5})/);
+      const city = cityPart.replace(/\d{5}\s*/, '').trim();
+      
+      updateActivity('industrialSiteAddress', address);
+      updateActivity('industrialSitePostalCode', postalCodeMatch ? postalCodeMatch[1] : '');
+      updateActivity('industrialSiteCity', city);
+    } else {
+      updateActivity('industrialSiteAddress', suggestion.description);
+    }
+    
+    setShowSuggestions(false);
+    setAddressSuggestions([]);
+  };
+
+  // Déclencher l'autocomplétion quand l'adresse change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (activities?.industrialSiteAddress) {
+        fetchAddressSuggestions(activities.industrialSiteAddress);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [activities?.industrialSiteAddress]);
+
   const toggleWasteType = (wasteType: string) => {
     const currentTypes = activities?.wasteTypes || [];
     const newTypes = currentTypes.includes(wasteType)
@@ -2316,13 +2372,37 @@ function MyActivitiesPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Adresse *
               </label>
-              <input
-                type="text"
-                value={activities.industrialSiteAddress || ''}
-                onChange={(e) => updateActivity('industrialSiteAddress', e.target.value)}
-                placeholder="123 Rue de l'Industrie"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={activities.industrialSiteAddress || ''}
+                  onChange={(e) => updateActivity('industrialSiteAddress', e.target.value)}
+                  onFocus={() => (activities.industrialSiteAddress?.length >= 3) && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder="123 Rue de l'Industrie"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                />
+                {isLoadingSuggestions && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+                
+                {showSuggestions && addressSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {addressSuggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        onClick={() => selectAddressSuggestion(suggestion)}
+                      >
+                        <div className="font-medium text-gray-900">{suggestion.main_text}</div>
+                        <div className="text-sm text-gray-500">{suggestion.secondary_text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
