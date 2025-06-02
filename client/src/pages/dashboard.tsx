@@ -2077,7 +2077,7 @@ function MyActivitiesPage() {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2 disabled:opacity-50"
+          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
         >
           {loading ? 'Sauvegarde...' : 'Sauvegarder'}
         </button>
