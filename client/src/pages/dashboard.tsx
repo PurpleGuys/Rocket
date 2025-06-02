@@ -1400,8 +1400,8 @@ function TreatmentPricingPage() {
                           <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{existingPricing.treatmentCode}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Mode:</span>
-                          <span className="text-sm">{existingPricing.isManualTreatment ? 'Manuel' : 'Automatique'}</span>
+                          <span className="text-sm text-gray-600">Type:</span>
+                          <span className="text-sm">{existingPricing.treatmentType}</span>
                         </div>
                       </div>
                     ) : (
@@ -1459,7 +1459,7 @@ function TreatmentPricingPage() {
                     name="treatmentType"
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
-                    placeholder="Ex: Recyclage, Incinération, Compostage..."
+                    placeholder="Ex: Recyclage, Incinération, Compostage, Valorisation énergétique..."
                   />
                 </div>
 
@@ -1478,20 +1478,6 @@ function TreatmentPricingPage() {
                         {outlet.code} - {outlet.description.substring(0, 50)}...
                       </option>
                     ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mode de traitement *
-                  </label>
-                  <select
-                    name="isManualTreatment"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
-                  >
-                    <option value="false">Automatique</option>
-                    <option value="true">Manuel</option>
                   </select>
                 </div>
               </div>
@@ -1585,15 +1571,380 @@ function LegalDocumentsPage() {
 }
 
 function PriceSimulatorPage() {
+  const { toast } = useToast();
+  const [simulationResults, setSimulationResults] = useState<any>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  // Récupérer les données nécessaires pour les calculs
+  const { data: services } = useQuery({
+    queryKey: ['/api/services'],
+    select: (data) => data || []
+  });
+
+  const { data: rentalPricing } = useQuery({
+    queryKey: ['/api/admin/rental-pricing'],
+    select: (data) => data || []
+  });
+
+  const { data: transportPricing } = useQuery({
+    queryKey: ['/api/admin/transport-pricing'],
+    select: (data) => data || {
+      pricePerKm: "0",
+      minimumFlatRate: "0",
+      hourlyRate: "0",
+      immediateLoadingEnabled: false
+    }
+  });
+
+  const { data: treatmentPricing } = useQuery({
+    queryKey: ['/api/admin/treatment-pricing'],
+    select: (data) => data || []
+  });
+
+  const handleSimulation = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsCalculating(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const serviceId = parseInt(formData.get('serviceId')?.toString() || '0');
+    const durationDays = parseInt(formData.get('durationDays')?.toString() || '1');
+    const distance = parseFloat(formData.get('distance')?.toString() || '0');
+    const wasteWeight = parseFloat(formData.get('wasteWeight')?.toString() || '0');
+    const immediateLoading = formData.get('immediateLoading') === 'true';
+    const immediateLoadingHours = parseFloat(formData.get('immediateLoadingHours')?.toString() || '1');
+
+    try {
+      // Calcul du prix de location
+      const selectedService = services?.find((s: any) => s.id === serviceId);
+      const servicePricing = rentalPricing?.find((p: any) => p.service?.id === serviceId);
+      
+      let rentalCost = 0;
+      if (selectedService && servicePricing) {
+        const dailyRate = parseFloat(servicePricing.dailyRate || '0');
+        const billingStartDay = parseInt(servicePricing.billingStartDay || '0');
+        const billableDays = Math.max(0, durationDays - billingStartDay);
+        rentalCost = dailyRate * billableDays;
+      }
+
+      // Calcul du prix de transport
+      let transportCost = 0;
+      if (distance > 0) {
+        const pricePerKm = parseFloat(transportPricing?.pricePerKm || '0');
+        const minimumFlatRate = parseFloat(transportPricing?.minimumFlatRate || '0');
+        const calculatedTransportCost = distance * pricePerKm * 2; // Aller-retour
+        transportCost = Math.max(calculatedTransportCost, minimumFlatRate);
+      }
+
+      // Calcul du chargement immédiat
+      let immediateLoadingCost = 0;
+      if (immediateLoading && transportPricing?.immediateLoadingEnabled) {
+        const hourlyRate = parseFloat(transportPricing?.hourlyRate || '0');
+        immediateLoadingCost = hourlyRate * immediateLoadingHours;
+      }
+
+      // Calcul du prix de traitement (simulation basique)
+      let treatmentCost = 0;
+      if (wasteWeight > 0 && treatmentPricing?.length > 0) {
+        // Prendre le premier tarif disponible pour la démonstration
+        const firstTreatment = treatmentPricing[0];
+        const pricePerTon = parseFloat(firstTreatment.pricePerTon || '0');
+        treatmentCost = wasteWeight * pricePerTon;
+      }
+
+      const totalCost = rentalCost + transportCost + immediateLoadingCost + treatmentCost;
+
+      setSimulationResults({
+        service: selectedService,
+        durationDays,
+        distance,
+        wasteWeight,
+        breakdown: {
+          rental: rentalCost,
+          transport: transportCost,
+          immediateLoading: immediateLoadingCost,
+          treatment: treatmentCost,
+          total: totalCost
+        },
+        details: {
+          servicePricing,
+          transportPricing,
+          immediateLoadingHours: immediateLoading ? immediateLoadingHours : 0
+        }
+      });
+
+      toast({
+        title: "Simulation calculée",
+        description: `Prix total estimé: ${totalCost.toFixed(2)} €`,
+      });
+
+    } catch (error) {
+      toast({
+        title: "Erreur de calcul",
+        description: "Impossible de calculer la simulation de prix.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Simulateur de Prix</h1>
-        <p className="text-gray-600">Outil de simulation tarifaire</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Simulateur de Prix</h1>
+          <p className="text-gray-600">Simulation et calcul automatique des tarifs complets</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Calculator className="h-4 w-4" />
+          <span>Calculs en temps réel</span>
+        </div>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Formulaire de simulation */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Paramètres de simulation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSimulation} className="space-y-6">
+              {/* Service */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Service/Équipement *
+                </label>
+                <select
+                  name="serviceId"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                >
+                  <option value="">Sélectionner un service</option>
+                  {services?.map((service: any) => (
+                    <option key={service.id} value={service.id}>
+                      {service.name} - {service.volume}m³
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Durée */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Durée de location (jours) *
+                </label>
+                <input
+                  type="number"
+                  name="durationDays"
+                  min="1"
+                  defaultValue="7"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                />
+              </div>
+
+              {/* Distance */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Distance de transport (km)
+                </label>
+                <input
+                  type="number"
+                  name="distance"
+                  step="0.1"
+                  min="0"
+                  defaultValue="10"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  placeholder="Distance aller simple"
+                />
+              </div>
+
+              {/* Poids des déchets */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Poids estimé des déchets (tonnes)
+                </label>
+                <input
+                  type="number"
+                  name="wasteWeight"
+                  step="0.1"
+                  min="0"
+                  defaultValue="2"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                />
+              </div>
+
+              {/* Chargement immédiat */}
+              {transportPricing?.immediateLoadingEnabled && (
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="immediateLoading"
+                      value="true"
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="ml-2 block text-sm text-gray-900">
+                      Chargement immédiat
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Heures de présence du véhicule
+                    </label>
+                    <input
+                      type="number"
+                      name="immediateLoadingHours"
+                      step="0.5"
+                      min="1"
+                      defaultValue="1"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isCalculating}
+                className="w-full px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50"
+              >
+                {isCalculating ? 'Calcul en cours...' : 'Calculer le prix'}
+              </button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Résultats de simulation */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Résultats de la simulation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {simulationResults ? (
+              <div className="space-y-6">
+                {/* Résumé */}
+                <div className="bg-[#00B8A2] bg-opacity-10 rounded-lg p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-[#00B8A2]">
+                      {simulationResults.breakdown.total.toFixed(2)} €
+                    </div>
+                    <div className="text-sm text-gray-600">Prix total estimé</div>
+                  </div>
+                </div>
+
+                {/* Détail des coûts */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-900">Détail des coûts</h4>
+                  
+                  {simulationResults.breakdown.rental > 0 && (
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">
+                        Location ({simulationResults.durationDays} jours)
+                      </span>
+                      <span className="font-medium">{simulationResults.breakdown.rental.toFixed(2)} €</span>
+                    </div>
+                  )}
+
+                  {simulationResults.breakdown.transport > 0 && (
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">
+                        Transport ({simulationResults.distance} km aller-retour)
+                      </span>
+                      <span className="font-medium">{simulationResults.breakdown.transport.toFixed(2)} €</span>
+                    </div>
+                  )}
+
+                  {simulationResults.breakdown.immediateLoading > 0 && (
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">
+                        Chargement immédiat ({simulationResults.details.immediateLoadingHours}h)
+                      </span>
+                      <span className="font-medium">{simulationResults.breakdown.immediateLoading.toFixed(2)} €</span>
+                    </div>
+                  )}
+
+                  {simulationResults.breakdown.treatment > 0 && (
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">
+                        Traitement ({simulationResults.wasteWeight} tonnes)
+                      </span>
+                      <span className="font-medium">{simulationResults.breakdown.treatment.toFixed(2)} €</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Informations sur le service */}
+                {simulationResults.service && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-2">Service sélectionné</h4>
+                    <div className="text-sm space-y-1">
+                      <div><strong>Nom:</strong> {simulationResults.service.name}</div>
+                      <div><strong>Volume:</strong> {simulationResults.service.volume}m³</div>
+                      {simulationResults.service.description && (
+                        <div><strong>Description:</strong> {simulationResults.service.description}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes importantes */}
+                <div className="text-xs text-gray-500 bg-yellow-50 p-3 rounded">
+                  <strong>Note:</strong> Cette simulation est indicative et basée sur les tarifs actuellement configurés. 
+                  Les prix réels peuvent varier selon les conditions spécifiques du projet.
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Calculator className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                <p>Remplissez le formulaire pour voir la simulation de prix</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Informations tarifaires */}
       <Card>
-        <CardContent className="p-6">
-          <p className="text-gray-500">Simulateur de prix à venir...</p>
+        <CardHeader>
+          <CardTitle>Informations tarifaires actuelles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div className="bg-blue-50 p-3 rounded">
+              <div className="font-medium text-blue-900">Transport</div>
+              <div className="text-blue-700">
+                {transportPricing?.pricePerKm || '0'} €/km
+                {transportPricing?.minimumFlatRate && transportPricing.minimumFlatRate !== '0' && (
+                  <div>Min: {transportPricing.minimumFlatRate} €</div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-green-50 p-3 rounded">
+              <div className="font-medium text-green-900">Services</div>
+              <div className="text-green-700">
+                {services?.length || 0} équipement(s) configuré(s)
+              </div>
+            </div>
+
+            <div className="bg-purple-50 p-3 rounded">
+              <div className="font-medium text-purple-900">Traitement</div>
+              <div className="text-purple-700">
+                {treatmentPricing?.length || 0} tarif(s) configuré(s)
+              </div>
+            </div>
+
+            <div className="bg-orange-50 p-3 rounded">
+              <div className="font-medium text-orange-900">Chargement immédiat</div>
+              <div className="text-orange-700">
+                {transportPricing?.immediateLoadingEnabled ? 
+                  `${transportPricing.hourlyRate} €/h` : 
+                  'Désactivé'
+                }
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
