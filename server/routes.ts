@@ -457,12 +457,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Get all orders
-  app.get("/api/admin/orders", async (req, res) => {
+  app.get("/api/admin/orders", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const orders = await storage.getOrders(100);
       res.json(orders);
     } catch (error: any) {
       res.status(500).json({ message: "Error fetching orders: " + error.message });
+    }
+  });
+
+  // Admin: Update order status
+  app.put("/api/admin/orders/:id/status", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      await storage.updateOrderStatus(orderId, status);
+      res.json({ message: "Order status updated successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error updating order status: " + error.message });
     }
   });
 

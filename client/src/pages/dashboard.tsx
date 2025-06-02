@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   ShoppingCart, 
   Euro, 
@@ -22,8 +27,292 @@ import {
   Trash2,
   Plus,
   Save,
-  X
+  X,
+  Eye,
+  Filter,
+  Search
 } from "lucide-react";
+
+// Composant de gestion des commandes
+function OrdersManagementSection({ allOrders }: { allOrders: any }) {
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const { toast } = useToast();
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ orderId, newStatus }: { orderId: number; newStatus: string }) => {
+      await apiRequest('PUT', `/api/admin/orders/${orderId}/status`, { status: newStatus });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      toast({
+        title: "Statut mis à jour",
+        description: "Le statut de la commande a été mis à jour avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut de la commande.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const filteredOrders = allOrders?.filter((order: any) => {
+    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    const matchesSearch = order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.customerFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.customerLastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  }) || [];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'delivered': return 'Livrée';
+      case 'confirmed': return 'Confirmée';
+      case 'pending': return 'En attente';
+      case 'cancelled': return 'Annulée';
+      default: return status;
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-red-600" />
+              Gestion des Commandes
+            </CardTitle>
+            <CardDescription>
+              Gérez toutes les commandes de bennes - Total: {allOrders?.length || 0} commandes
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {/* Filtres et recherche */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Rechercher par numéro, nom, email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="confirmed">Confirmées</SelectItem>
+                <SelectItem value="delivered">Livrées</SelectItem>
+                <SelectItem value="cancelled">Annulées</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Table des commandes */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Numéro</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Adresse</TableHead>
+                <TableHead>Montant</TableHead>
+                <TableHead>Paiement</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map((order: any) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{order.customerFirstName} {order.customerLastName}</p>
+                        <p className="text-sm text-gray-500">{order.customerEmail}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p>{order.deliveryStreet}</p>
+                        <p className="text-sm text-gray-500">{order.deliveryPostalCode} {order.deliveryCity}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">{order.totalTTC}€</TableCell>
+                    <TableCell>
+                      <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
+                        {order.paymentStatus === 'paid' ? 'Payé' : order.paymentStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(order.status)}>
+                        {getStatusLabel(order.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedOrder(order)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Détails de la commande {order.orderNumber}</DialogTitle>
+                            </DialogHeader>
+                            <OrderDetailsModal order={order} onStatusUpdate={updateOrderStatusMutation} />
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <div className="flex flex-col items-center gap-2">
+                      <ShoppingCart className="h-8 w-8 text-gray-400" />
+                      <p className="text-gray-500">
+                        {searchTerm || filterStatus !== 'all' 
+                          ? 'Aucune commande ne correspond aux critères de recherche'
+                          : 'Aucune commande trouvée'
+                        }
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Composant modal des détails de commande
+function OrderDetailsModal({ order, onStatusUpdate }: { order: any; onStatusUpdate: any }) {
+  const [newStatus, setNewStatus] = useState(order.status);
+
+  const handleStatusUpdate = () => {
+    if (newStatus !== order.status) {
+      onStatusUpdate.mutate({ orderId: order.id, newStatus });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Informations client */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h3 className="font-semibold mb-2">Informations Client</h3>
+          <div className="space-y-2 text-sm">
+            <p><span className="font-medium">Nom:</span> {order.customerFirstName} {order.customerLastName}</p>
+            <p><span className="font-medium">Email:</span> {order.customerEmail}</p>
+            <p><span className="font-medium">Téléphone:</span> {order.customerPhone}</p>
+          </div>
+        </div>
+        <div>
+          <h3 className="font-semibold mb-2">Adresse de Livraison</h3>
+          <div className="space-y-2 text-sm">
+            <p>{order.deliveryStreet}</p>
+            <p>{order.deliveryPostalCode} {order.deliveryCity}</p>
+            <p>{order.deliveryCountry}</p>
+            {order.deliveryNotes && (
+              <p><span className="font-medium">Notes:</span> {order.deliveryNotes}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Détails de la commande */}
+      <div>
+        <h3 className="font-semibold mb-2">Détails de la Commande</h3>
+        <div className="space-y-2 text-sm">
+          <p><span className="font-medium">Numéro:</span> {order.orderNumber}</p>
+          <p><span className="font-medium">Durée:</span> {order.durationDays} jours</p>
+          <p><span className="font-medium">Types de déchets:</span> {order.wasteTypes?.join(', ')}</p>
+          <p><span className="font-medium">Date de création:</span> {new Date(order.createdAt).toLocaleString('fr-FR')}</p>
+        </div>
+      </div>
+
+      {/* Détails financiers */}
+      <div>
+        <h3 className="font-semibold mb-2">Détails Financiers</h3>
+        <div className="space-y-2 text-sm">
+          <p><span className="font-medium">Prix de base:</span> {order.basePrice}€</p>
+          <p><span className="font-medium">Prix durée:</span> {order.durationPrice}€</p>
+          <p><span className="font-medium">Frais de livraison:</span> {order.deliveryFee}€</p>
+          <p><span className="font-medium">Total HT:</span> {order.totalHT}€</p>
+          <p><span className="font-medium">TVA:</span> {order.vat}€</p>
+          <p className="font-bold"><span className="font-medium">Total TTC:</span> {order.totalTTC}€</p>
+        </div>
+      </div>
+
+      {/* Gestion du statut */}
+      <div className="border-t pt-4">
+        <h3 className="font-semibold mb-2">Gestion du Statut</h3>
+        <div className="flex items-center gap-4">
+          <Select value={newStatus} onValueChange={setNewStatus}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">En attente</SelectItem>
+              <SelectItem value="confirmed">Confirmée</SelectItem>
+              <SelectItem value="delivered">Livrée</SelectItem>
+              <SelectItem value="cancelled">Annulée</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button 
+            onClick={handleStatusUpdate}
+            disabled={newStatus === order.status || onStatusUpdate.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {onStatusUpdate.isPending ? 'Mise à jour...' : 'Mettre à jour'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Composant principal du dashboard
 function DashboardHome() {
@@ -123,6 +412,9 @@ function DashboardHome() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Section Gestion des Commandes */}
+          <OrdersManagementSection allOrders={allOrders} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
