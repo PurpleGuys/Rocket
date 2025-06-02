@@ -9,6 +9,7 @@ import TimeSlotSelection from "@/components/booking/TimeSlotSelection";
 import PaymentStep from "@/components/booking/PaymentStep";
 import OrderConfirmation from "@/components/booking/OrderConfirmation";
 import PricingSummary from "@/components/PricingSummary";
+import Footer from "@/components/Footer";
 import { useBookingState } from "@/hooks/useBookingState";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings, LayoutDashboard, ShieldCheck } from "lucide-react";
@@ -253,51 +254,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
-                alt="Remondis" 
-                className="h-6 w-auto mb-4 brightness-0 invert"
-              />
-              <p className="text-gray-400 text-sm">Spécialiste européen de la gestion des déchets et du recyclage pour professionnels et particuliers.</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-red-400">Location de bennes</a></li>
-                <li><a href="#" className="hover:text-red-400">Collecte des déchets</a></li>
-                <li><a href="#" className="hover:text-red-400">Recyclage</a></li>
-                <li><a href="#" className="hover:text-red-400">Valorisation</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-red-400">Contact</a></li>
-                <li><a href="#" className="hover:text-red-400">FAQ</a></li>
-                <li><a href="#" className="hover:text-red-400">Suivi commande</a></li>
-                <li><a href="#" className="hover:text-red-400">Service client</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Légal</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-red-400">Mentions légales</a></li>
-                <li><a href="#" className="hover:text-red-400">Politique de confidentialité</a></li>
-                <li><a href="#" className="hover:text-red-400">CGV</a></li>
-                <li><a href="#" className="hover:text-red-400">Cookies</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-gray-400 text-center">
-            <p>&copy; 2024 Remondis. Tous droits réservés. Conforme RGPD.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
