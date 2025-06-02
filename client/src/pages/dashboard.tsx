@@ -1893,6 +1893,7 @@ function TreatmentPricingPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedWasteType, setSelectedWasteType] = useState<number | null>(null);
   const [selectedWasteTypeName, setSelectedWasteTypeName] = useState<string>('');
+  const [editingPricing, setEditingPricing] = useState<any>(null);
 
   // Codes exutoires disponibles selon le cahier des charges
   const OUTLET_CODES = [
@@ -1980,12 +1981,35 @@ function TreatmentPricingPage() {
       });
       setShowAddForm(false);
       setSelectedWasteType(null);
+      setSelectedWasteTypeName('');
       refetch();
     },
     onError: () => {
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder le tarif de traitement.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation pour supprimer un tarif de traitement
+  const deleteTreatmentPricingMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/treatment-pricing/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Tarif supprimé",
+        description: "Le tarif de traitement a été supprimé avec succès.",
+      });
+      refetch();
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le tarif de traitement.",
         variant: "destructive",
       });
     },
@@ -2149,6 +2173,8 @@ function TreatmentPricingPage() {
                               size="sm"
                               onClick={() => {
                                 setEditingPricing(existingPricing);
+                                setSelectedWasteType(existingPricing.wasteTypeId);
+                                setSelectedWasteTypeName(wasteTypeName);
                                 setShowAddForm(true);
                               }}
                             >
@@ -2218,7 +2244,7 @@ function TreatmentPricingPage() {
       {selectedWasteType && (
         <Card>
           <CardHeader>
-            <CardTitle>Configuration du tarif de traitement</CardTitle>
+            <CardTitle>Configuration du tarif de traitement - {selectedWasteTypeName}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAddTreatmentPricing} className="space-y-6">
@@ -2235,6 +2261,7 @@ function TreatmentPricingPage() {
                     step="0.01"
                     min="0"
                     required
+                    defaultValue={editingPricing?.pricePerTon || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                     placeholder="0.00"
                   />
@@ -2248,6 +2275,7 @@ function TreatmentPricingPage() {
                     type="text"
                     name="treatmentType"
                     required
+                    defaultValue={editingPricing?.treatmentType || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                     placeholder="Ex: Recyclage, Incinération, Compostage, Valorisation énergétique..."
                   />
@@ -2260,6 +2288,7 @@ function TreatmentPricingPage() {
                   <select
                     name="treatmentCode"
                     required
+                    defaultValue={editingPricing?.treatmentCode || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                   >
                     <option value="">Sélectionner un code</option>
