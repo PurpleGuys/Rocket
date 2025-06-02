@@ -6,7 +6,7 @@ import helmet from "helmet";
 import { body, validationResult } from "express-validator";
 import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema } from "@shared/schema";
 import { z } from "zod";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -667,6 +667,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Error updating transport pricing: " + error.message });
       }
+    }
+  });
+
+  // Routes pour les types de déchets/matières
+  app.get("/api/admin/waste-types", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const wasteTypes = await storage.getWasteTypes();
+      res.json(wasteTypes);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching waste types: " + error.message });
+    }
+  });
+
+  app.post("/api/admin/waste-types", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertWasteTypeSchema.parse(req.body);
+      const wasteType = await storage.createWasteType(validatedData);
+      res.status(201).json(wasteType);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating waste type: " + error.message });
+      }
+    }
+  });
+
+  // Routes pour les tarifs de traitement
+  app.get("/api/admin/treatment-pricing", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const pricing = await storage.getTreatmentPricing();
+      res.json(pricing);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching treatment pricing: " + error.message });
+    }
+  });
+
+  app.post("/api/admin/treatment-pricing", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertTreatmentPricingSchema.parse(req.body);
+      const pricing = await storage.createTreatmentPricing(validatedData);
+      res.status(201).json(pricing);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating treatment pricing: " + error.message });
+      }
+    }
+  });
+
+  app.put("/api/admin/treatment-pricing/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = updateTreatmentPricingSchema.parse(req.body);
+      const pricing = await storage.updateTreatmentPricing(id, validatedData);
+      
+      if (!pricing) {
+        return res.status(404).json({ message: "Treatment pricing not found" });
+      }
+      
+      res.json(pricing);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error updating treatment pricing: " + error.message });
+      }
+    }
+  });
+
+  app.delete("/api/admin/treatment-pricing/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteTreatmentPricing(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error deleting treatment pricing: " + error.message });
     }
   });
 

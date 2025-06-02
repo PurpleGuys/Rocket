@@ -475,6 +475,110 @@ export class DatabaseStorage implements IStorage {
       });
     }
   }
+
+  // Waste Types methods
+  async getWasteTypes(): Promise<WasteType[]> {
+    return await db
+      .select()
+      .from(wasteTypes)
+      .where(eq(wasteTypes.isActive, true))
+      .orderBy(wasteTypes.name);
+  }
+
+  async getWasteType(id: number): Promise<WasteType | undefined> {
+    const [result] = await db
+      .select()
+      .from(wasteTypes)
+      .where(eq(wasteTypes.id, id));
+    return result;
+  }
+
+  async createWasteType(wasteType: InsertWasteType): Promise<WasteType> {
+    const [result] = await db
+      .insert(wasteTypes)
+      .values(wasteType)
+      .returning();
+    return result;
+  }
+
+  async updateWasteType(id: number, wasteType: Partial<InsertWasteType>): Promise<WasteType | undefined> {
+    const [result] = await db
+      .update(wasteTypes)
+      .set({
+        ...wasteType,
+        updatedAt: new Date(),
+      })
+      .where(eq(wasteTypes.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteWasteType(id: number): Promise<void> {
+    await db
+      .update(wasteTypes)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(wasteTypes.id, id));
+  }
+
+  // Treatment Pricing methods
+  async getTreatmentPricing(): Promise<(TreatmentPricing & { wasteType: WasteType })[]> {
+    return await db
+      .select({
+        id: treatmentPricing.id,
+        wasteTypeId: treatmentPricing.wasteTypeId,
+        pricePerTon: treatmentPricing.pricePerTon,
+        treatmentType: treatmentPricing.treatmentType,
+        treatmentCode: treatmentPricing.treatmentCode,
+        outletAddress: treatmentPricing.outletAddress,
+        isManualTreatment: treatmentPricing.isManualTreatment,
+        isActive: treatmentPricing.isActive,
+        createdAt: treatmentPricing.createdAt,
+        updatedAt: treatmentPricing.updatedAt,
+        wasteType: wasteTypes,
+      })
+      .from(treatmentPricing)
+      .leftJoin(wasteTypes, eq(treatmentPricing.wasteTypeId, wasteTypes.id))
+      .where(eq(treatmentPricing.isActive, true))
+      .orderBy(wasteTypes.name);
+  }
+
+  async getTreatmentPricingByWasteTypeId(wasteTypeId: number): Promise<TreatmentPricing | undefined> {
+    const [result] = await db
+      .select()
+      .from(treatmentPricing)
+      .where(and(
+        eq(treatmentPricing.wasteTypeId, wasteTypeId),
+        eq(treatmentPricing.isActive, true)
+      ));
+    return result;
+  }
+
+  async createTreatmentPricing(pricing: InsertTreatmentPricing): Promise<TreatmentPricing> {
+    const [result] = await db
+      .insert(treatmentPricing)
+      .values(pricing)
+      .returning();
+    return result;
+  }
+
+  async updateTreatmentPricing(id: number, pricing: UpdateTreatmentPricing): Promise<TreatmentPricing | undefined> {
+    const [result] = await db
+      .update(treatmentPricing)
+      .set({
+        ...pricing,
+        updatedAt: new Date(),
+      })
+      .where(eq(treatmentPricing.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteTreatmentPricing(id: number): Promise<void> {
+    await db
+      .update(treatmentPricing)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(treatmentPricing.id, id));
+  }
 }
 
 export const storage = new DatabaseStorage();

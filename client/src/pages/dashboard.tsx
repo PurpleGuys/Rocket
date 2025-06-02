@@ -1161,15 +1161,407 @@ function TransportPricingPage() {
 }
 
 function TreatmentPricingPage() {
+  const { toast } = useToast();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedWasteType, setSelectedWasteType] = useState<number | null>(null);
+
+  // Codes exutoires disponibles selon le cahier des charges
+  const OUTLET_CODES = [
+    // Codes D (Élimination)
+    { code: "D1", description: "Dépôt sur ou dans le sol (par exemple, mise en décharge)" },
+    { code: "D2", description: "Traitement en milieu terrestre (par exemple, biodégradation de déchets liquides ou de boues dans les sols)" },
+    { code: "D3", description: "Injection en profondeur (par exemple, injection de déchets pompables dans des puits, des dômes de sel ou des failles géologiques naturelles)" },
+    { code: "D4", description: "Lagunage (par exemple, déversement de déchets liquides ou de boues dans des puits, des étangs ou des bassins)" },
+    { code: "D5", description: "Mise en décharge spécialement aménagée (par exemple, placement dans des alvéoles étanches séparées, recouvertes et isolées les unes des autres et de l'environnement)" },
+    { code: "D6", description: "Rejet dans le milieu aquatique, sauf l'immersion" },
+    { code: "D7", description: "Immersion, y compris enfouissement dans le sous-sol marin" },
+    { code: "D8", description: "Traitement biologique non spécifié ailleurs, aboutissant à des composés ou à des mélanges qui sont éliminés selon un des procédés numérotés D 1 à D 12" },
+    { code: "D9", description: "Traitement physico-chimique non spécifié ailleurs, aboutissant à des composés ou à des mélanges qui sont éliminés selon l'un des procédés numérotés D 1 à D 12" },
+    { code: "D10", description: "Incinération à terre" },
+    { code: "D11", description: "Incinération en mer" },
+    { code: "D12", description: "Stockage permanent (par exemple, placement de conteneurs dans une mine)" },
+    { code: "D13", description: "Regroupement ou mélange préalablement à l'une des opérations numérotées D 1 à D 12" },
+    { code: "D14", description: "Reconditionnement préalablement à l'une des opérations numérotées D 1 à D 13" },
+    { code: "D15", description: "Stockage préalablement à l'une des opérations numérotées D 1 à D 14 (à l'exclusion du stockage temporaire, avant collecte, sur le site de production des déchets)" },
+    // Codes R (Valorisation)
+    { code: "R1", description: "Utilisation principale comme combustible ou autre moyen de produire de l'énergie" },
+    { code: "R2", description: "Récupération ou régénération des solvants" },
+    { code: "R3", description: "Recyclage ou récupération des substances organiques qui ne sont pas utilisées comme solvants (y compris les opérations de compostage et autres transformations biologiques)" },
+    { code: "R4", description: "Recyclage ou récupération des métaux et des composés métalliques" },
+    { code: "R5", description: "Recyclage ou récupération d'autres matières inorganiques" },
+    { code: "R6", description: "Régénération des acides ou des bases" },
+    { code: "R7", description: "Récupération des produits servant à capter les polluants" },
+    { code: "R8", description: "Récupération des produits provenant des catalyseurs" },
+    { code: "R9", description: "Régénération ou autres réemplois des huiles" },
+    { code: "R10", description: "Epandage sur le sol au profit de l'agriculture ou de l'écologie" },
+    { code: "R11", description: "Utilisation de déchets résiduels obtenus à partir de l'une des opérations numérotées R1 à R10" },
+    { code: "R12", description: "Echange de déchets en vue de les soumettre à l'une des opérations numérotées R1 à R11" },
+  ];
+
+  // Récupérer les types de déchets
+  const { data: wasteTypes, refetch: refetchWasteTypes } = useQuery({
+    queryKey: ['/api/admin/waste-types'],
+    select: (data) => data || []
+  });
+
+  // Récupérer les tarifs de traitement
+  const { data: treatmentPricing, isLoading, refetch } = useQuery({
+    queryKey: ['/api/admin/treatment-pricing'],
+    select: (data) => data || []
+  });
+
+  // Mutation pour créer un type de déchet
+  const createWasteTypeMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/admin/waste-types", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Matière créée",
+        description: "Le nouveau type de matière a été ajouté avec succès.",
+      });
+      refetchWasteTypes();
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer le type de matière.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation pour créer/mettre à jour un tarif de traitement
+  const createTreatmentPricingMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/admin/treatment-pricing", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Tarif configuré",
+        description: "Le tarif de traitement a été sauvegardé avec succès.",
+      });
+      setShowAddForm(false);
+      setSelectedWasteType(null);
+      refetch();
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder le tarif de traitement.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddWasteType = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    createWasteTypeMutation.mutate({
+      name: formData.get('name')?.toString() || '',
+      description: formData.get('description')?.toString() || '',
+      isActive: true
+    });
+  };
+
+  const handleAddTreatmentPricing = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    createTreatmentPricingMutation.mutate({
+      wasteTypeId: parseInt(formData.get('wasteTypeId')?.toString() || '0'),
+      pricePerTon: formData.get('pricePerTon')?.toString() || '0',
+      treatmentType: formData.get('treatmentType')?.toString() || '',
+      treatmentCode: formData.get('treatmentCode')?.toString() || '',
+      outletAddress: formData.get('outletAddress')?.toString() || '',
+      isManualTreatment: formData.get('isManualTreatment') === 'true',
+      isActive: true
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Prix de Traitement</h1>
+          <p className="text-gray-600">Configuration des tarifs de traitement par matière</p>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Prix de Traitement</h1>
-        <p className="text-gray-600">Configuration des tarifs de traitement</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Prix de Traitement</h1>
+          <p className="text-gray-600">Configuration des tarifs par tonne pour chaque matière sélectionnée</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Info className="h-4 w-4" />
+          <span>Codes D1-D15 et R1-R12 disponibles</span>
+        </div>
       </div>
+
+      {/* Section des types de déchets */}
       <Card>
-        <CardContent className="p-6">
-          <p className="text-gray-500">Configuration des prix de traitement...</p>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Types de matières</span>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2"
+            >
+              <Plus className="h-4 w-4 inline mr-2" />
+              Ajouter une matière
+            </button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {showAddForm && (
+            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <h3 className="text-lg font-medium mb-4">Nouvelle matière</h3>
+              <form onSubmit={handleAddWasteType} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nom de la matière *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                      placeholder="Ex: Gravats, Bois, Métaux..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      name="description"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                      placeholder="Description détaillée (optionnel)"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddForm(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createWasteTypeMutation.isPending}
+                    className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] disabled:opacity-50"
+                  >
+                    {createWasteTypeMutation.isPending ? 'Création...' : 'Créer la matière'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {wasteTypes && wasteTypes.length > 0 ? (
+              wasteTypes.map((wasteType: any) => {
+                const existingPricing = treatmentPricing?.find((p: any) => p.wasteTypeId === wasteType.id);
+                return (
+                  <div key={wasteType.id} className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900">{wasteType.name}</h4>
+                    {wasteType.description && (
+                      <p className="text-sm text-gray-600 mt-1">{wasteType.description}</p>
+                    )}
+                    
+                    {existingPricing ? (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Prix/tonne:</span>
+                          <span className="font-medium">{existingPricing.pricePerTon} €</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Code:</span>
+                          <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{existingPricing.treatmentCode}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Mode:</span>
+                          <span className="text-sm">{existingPricing.isManualTreatment ? 'Manuel' : 'Automatique'}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedWasteType(wasteType.id)}
+                        className="mt-4 w-full px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
+                      >
+                        Configurer le tarif
+                      </button>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Aucun type de matière configuré. Commencez par ajouter une matière.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Formulaire de configuration des tarifs */}
+      {selectedWasteType && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Configuration du tarif de traitement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddTreatmentPricing} className="space-y-6">
+              <input type="hidden" name="wasteTypeId" value={selectedWasteType} />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prix par tonne (€) *
+                  </label>
+                  <input
+                    type="number"
+                    name="pricePerTon"
+                    step="0.01"
+                    min="0"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Type de traitement *
+                  </label>
+                  <input
+                    type="text"
+                    name="treatmentType"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                    placeholder="Ex: Recyclage, Incinération, Compostage..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Code exutoire *
+                  </label>
+                  <select
+                    name="treatmentCode"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  >
+                    <option value="">Sélectionner un code</option>
+                    {OUTLET_CODES.map((outlet) => (
+                      <option key={outlet.code} value={outlet.code}>
+                        {outlet.code} - {outlet.description.substring(0, 50)}...
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mode de traitement *
+                  </label>
+                  <select
+                    name="isManualTreatment"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  >
+                    <option value="false">Automatique</option>
+                    <option value="true">Manuel</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Adresse exutoire
+                </label>
+                <textarea
+                  name="outletAddress"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  placeholder="Adresse complète du site de traitement (optionnel)"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedWasteType(null)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={createTreatmentPricingMutation.isPending}
+                  className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] disabled:opacity-50"
+                >
+                  {createTreatmentPricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder le tarif'}
+                </button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Aide contextuelle pour les codes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5 text-blue-500" />
+            Codes exutoires disponibles
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Codes D (Élimination)</h4>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {OUTLET_CODES.filter(c => c.code.startsWith('D')).map((outlet) => (
+                  <div key={outlet.code} className="text-sm">
+                    <span className="font-mono bg-red-50 text-red-700 px-2 py-1 rounded mr-2">{outlet.code}</span>
+                    <span className="text-gray-600">{outlet.description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Codes R (Valorisation)</h4>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {OUTLET_CODES.filter(c => c.code.startsWith('R')).map((outlet) => (
+                  <div key={outlet.code} className="text-sm">
+                    <span className="font-mono bg-green-50 text-green-700 px-2 py-1 rounded mr-2">{outlet.code}</span>
+                    <span className="text-gray-600">{outlet.description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
