@@ -180,6 +180,7 @@ export default function Checkout() {
     try {
       const response = await apiRequest('POST', '/api/create-payment-intent', {
         amount: details.pricing.total,
+        orderId: `booking-${Date.now()}`, // ID temporaire pour la réservation
         bookingDetails: details
       });
 
