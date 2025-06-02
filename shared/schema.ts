@@ -136,6 +136,17 @@ export const sessions = pgTable("sessions", {
   ipAddress: text("ip_address"),
 });
 
+// Table pour les tarifs de location quotidiens
+export const rentalPricing = pgTable("rental_pricing", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  dailyRate: decimal("daily_rate", { precision: 10, scale: 2 }).notNull(), // Prix par jour en €
+  billingStartDay: integer("billing_start_day").notNull().default(0), // Jour à partir duquel la facturation commence (0 = dès le premier jour)
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -201,6 +212,19 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   updatedAt: true,
 });
 
+export const insertRentalPricingSchema = createInsertSchema(rentalPricing).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateRentalPricingSchema = createInsertSchema(rentalPricing).omit({
+  id: true,
+  serviceId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Relations
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
@@ -222,3 +246,6 @@ export type TimeSlot = typeof timeSlots.$inferSelect;
 export type InsertTimeSlot = z.infer<typeof insertTimeSlotSchema>;
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type RentalPricing = typeof rentalPricing.$inferSelect;
+export type InsertRentalPricing = z.infer<typeof insertRentalPricingSchema>;
+export type UpdateRentalPricing = z.infer<typeof updateRentalPricingSchema>;

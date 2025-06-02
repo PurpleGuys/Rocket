@@ -1,4 +1,4 @@
-import { users, services, timeSlots, orders, sessions, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session } from "@shared/schema";
+import { users, services, timeSlots, orders, sessions, rentalPricing, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql, lt } from "drizzle-orm";
 
