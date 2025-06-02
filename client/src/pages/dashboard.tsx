@@ -1015,7 +1015,7 @@ function TransportPricingPage() {
               onClick={() => setActiveTab('kilometric')}
               className={`px-6 py-3 border-b-2 font-medium text-sm ${
                 activeTab === 'kilometric'
-                  ? 'border-[#00B8A2] text-[#00B8A2]'
+                  ? 'border-[rgb(220, 38, 38)] text-[rgb(220, 38, 38)]'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -1025,7 +1025,7 @@ function TransportPricingPage() {
               onClick={() => setActiveTab('immediate')}
               className={`px-6 py-3 border-b-2 font-medium text-sm ${
                 activeTab === 'immediate'
-                  ? 'border-[#00B8A2] text-[#00B8A2]'
+                  ? 'border-[rgb(220, 38, 38)] text-[rgb(220, 38, 38)]'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -1058,7 +1058,7 @@ function TransportPricingPage() {
                         step="0.01"
                         min="0"
                         defaultValue={transportPricing?.pricePerKm || "0"}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent pr-12"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent pr-12"
                         placeholder="0.00"
                       />
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -1078,7 +1078,7 @@ function TransportPricingPage() {
                         step="0.01"
                         min="0"
                         defaultValue={transportPricing?.minimumFlatRate || "0"}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent pr-8"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent pr-8"
                         placeholder="0.00"
                       />
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -1092,7 +1092,7 @@ function TransportPricingPage() {
                   <button
                     type="submit"
                     disabled={updatePricingMutation.isPending}
-                    className="px-6 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {updatePricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder les tarifs'}
                   </button>
@@ -1123,7 +1123,7 @@ function TransportPricingPage() {
                       step="0.01"
                       min="0"
                       defaultValue={transportPricing?.hourlyRate || "0"}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent pr-12"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent pr-12"
                       placeholder="0.00"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -1146,7 +1146,7 @@ function TransportPricingPage() {
                   <button
                     type="submit"
                     disabled={updatePricingMutation.isPending}
-                    className="px-6 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {updatePricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder les tarifs'}
                   </button>
@@ -1321,7 +1321,7 @@ function TreatmentPricingPage() {
             <span>Types de matières</span>
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2"
+              className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2"
             >
               <Plus className="h-4 w-4 inline mr-2" />
               Ajouter une matière
@@ -1342,7 +1342,7 @@ function TreatmentPricingPage() {
                       type="text"
                       name="name"
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                       placeholder="Ex: Gravats, Bois, Métaux..."
                     />
                   </div>
@@ -1353,7 +1353,7 @@ function TreatmentPricingPage() {
                     <input
                       type="text"
                       name="description"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                       placeholder="Description détaillée (optionnel)"
                     />
                   </div>
@@ -1369,7 +1369,7 @@ function TreatmentPricingPage() {
                   <button
                     type="submit"
                     disabled={createWasteTypeMutation.isPending}
-                    className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] disabled:opacity-50"
+                    className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] disabled:opacity-50"
                   >
                     {createWasteTypeMutation.isPending ? 'Création...' : 'Créer la matière'}
                   </button>
@@ -1445,7 +1445,7 @@ function TreatmentPricingPage() {
                     step="0.01"
                     min="0"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                     placeholder="0.00"
                   />
                 </div>
@@ -1458,7 +1458,7 @@ function TreatmentPricingPage() {
                     type="text"
                     name="treatmentType"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                     placeholder="Ex: Recyclage, Incinération, Compostage, Valorisation énergétique..."
                   />
                 </div>
@@ -1470,7 +1470,7 @@ function TreatmentPricingPage() {
                   <select
                     name="treatmentCode"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                   >
                     <option value="">Sélectionner un code</option>
                     {OUTLET_CODES.map((outlet) => (
@@ -1489,7 +1489,7 @@ function TreatmentPricingPage() {
                 <textarea
                   name="outletAddress"
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                   placeholder="Adresse complète du site de traitement (optionnel)"
                 />
               </div>
@@ -1505,7 +1505,7 @@ function TreatmentPricingPage() {
                 <button
                   type="submit"
                   disabled={createTreatmentPricingMutation.isPending}
-                  className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] disabled:opacity-50"
+                  className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] disabled:opacity-50"
                 >
                   {createTreatmentPricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder le tarif'}
                 </button>
@@ -1717,7 +1717,7 @@ function PriceSimulatorPage() {
                 <select
                   name="serviceId"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                 >
                   <option value="">Sélectionner un service</option>
                   {services?.map((service: any) => (
@@ -1739,7 +1739,7 @@ function PriceSimulatorPage() {
                   min="1"
                   defaultValue="7"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                 />
               </div>
 
@@ -1754,7 +1754,7 @@ function PriceSimulatorPage() {
                   step="0.1"
                   min="0"
                   defaultValue="10"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                   placeholder="Distance aller simple"
                 />
               </div>
@@ -1770,7 +1770,7 @@ function PriceSimulatorPage() {
                   step="0.1"
                   min="0"
                   defaultValue="2"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                 />
               </div>
 
@@ -1782,7 +1782,7 @@ function PriceSimulatorPage() {
                       type="checkbox"
                       name="immediateLoading"
                       value="true"
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="ml-2 block text-sm text-gray-900">
                       Chargement immédiat
@@ -1798,7 +1798,7 @@ function PriceSimulatorPage() {
                       step="0.5"
                       min="1"
                       defaultValue="1"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -1807,7 +1807,7 @@ function PriceSimulatorPage() {
               <button
                 type="submit"
                 disabled={isCalculating}
-                className="w-full px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50"
+                className="w-full px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2 disabled:opacity-50"
               >
                 {isCalculating ? 'Calcul en cours...' : 'Calculer le prix'}
               </button>
@@ -1824,9 +1824,9 @@ function PriceSimulatorPage() {
             {simulationResults ? (
               <div className="space-y-6">
                 {/* Résumé */}
-                <div className="bg-[#00B8A2] bg-opacity-10 rounded-lg p-4">
+                <div className="bg-[rgb(220, 38, 38)] bg-opacity-10 rounded-lg p-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-[#00B8A2]">
+                    <div className="text-2xl font-bold text-[rgb(220, 38, 38)]">
                       {simulationResults.breakdown.total.toFixed(2)} €
                     </div>
                     <div className="text-sm text-gray-600">Prix total estimé</div>
@@ -2067,7 +2067,7 @@ function MyActivitiesPage() {
   if (!activities) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-[#00B8A2] border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-[rgb(220, 38, 38)] border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -2082,7 +2082,7 @@ function MyActivitiesPage() {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50"
+          className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:ring-offset-2 disabled:opacity-50"
         >
           {loading ? 'Sauvegarde...' : 'Sauvegarder'}
         </button>
@@ -2112,7 +2112,7 @@ function MyActivitiesPage() {
                   type="checkbox"
                   checked={activities[service.key] || false}
                   onChange={(e) => updateActivity(service.key, e.target.checked)}
-                  className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                  className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                 />
                 <label className="text-sm text-gray-700">{service.label}</label>
               </div>
@@ -2137,7 +2137,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.wasteTypes?.includes(wasteType) || false}
                       onChange={() => toggleWasteType(wasteType)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{wasteType}</label>
                   </div>
@@ -2166,7 +2166,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentMultibenne?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentMultibenne', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2184,7 +2184,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentAmpliroll?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentAmpliroll', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2202,7 +2202,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentCaissePalette?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentCaissePalette', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2220,7 +2220,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentRolls?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentRolls', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2238,7 +2238,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentContenantAlimentaire?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentContenantAlimentaire', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2256,7 +2256,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentBac?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentBac', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2274,7 +2274,7 @@ function MyActivitiesPage() {
                       type="checkbox"
                       checked={activities.equipmentBennesFermees?.includes(size) || false}
                       onChange={() => toggleEquipment('equipmentBennesFermees', size)}
-                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                      className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
                     />
                     <label className="text-sm text-gray-700">{size}</label>
                   </div>
@@ -2298,7 +2298,7 @@ function MyActivitiesPage() {
                 type="checkbox"
                 checked={activities.prixForfaitEnabled || false}
                 onChange={(e) => updateActivity('prixForfaitEnabled', e.target.checked)}
-                className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
               />
               <label className="text-sm text-gray-700">Activer les prix forfaitaires</label>
             </div>
