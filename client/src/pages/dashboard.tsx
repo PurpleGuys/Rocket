@@ -1993,6 +1993,32 @@ function TreatmentPricingPage() {
     },
   });
 
+  // Mutation pour mettre à jour un tarif de traitement
+  const updateTreatmentPricingMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/admin/treatment-pricing/${data.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Tarif modifié",
+        description: "Le tarif de traitement a été modifié avec succès.",
+      });
+      setShowAddForm(false);
+      setSelectedWasteType(null);
+      setSelectedWasteTypeName('');
+      setEditingPricing(null);
+      refetch();
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le tarif de traitement.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Mutation pour supprimer un tarif de traitement
   const deleteTreatmentPricingMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -2030,7 +2056,7 @@ function TreatmentPricingPage() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    createTreatmentPricingMutation.mutate({
+    const pricingData = {
       wasteTypeId: parseInt(formData.get('wasteTypeId')?.toString() || '0'),
       pricePerTon: formData.get('pricePerTon')?.toString() || '0',
       treatmentType: formData.get('treatmentType')?.toString() || '',
@@ -2038,7 +2064,18 @@ function TreatmentPricingPage() {
       outletAddress: formData.get('outletAddress')?.toString() || '',
       isManualTreatment: formData.get('isManualTreatment') === 'true',
       isActive: true
-    });
+    };
+
+    if (editingPricing) {
+      // Mode édition - utiliser PUT
+      updateTreatmentPricingMutation.mutate({
+        id: editingPricing.id,
+        ...pricingData
+      });
+    } else {
+      // Mode création - utiliser POST
+      createTreatmentPricingMutation.mutate(pricingData);
+    }
   };
 
   if (isLoading) {
@@ -2308,6 +2345,7 @@ function TreatmentPricingPage() {
                 <textarea
                   name="outletAddress"
                   rows={3}
+                  defaultValue={editingPricing?.outletAddress || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                   placeholder="Adresse complète du site de traitement (optionnel)"
                 />
@@ -2316,17 +2354,27 @@ function TreatmentPricingPage() {
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setSelectedWasteType(null)}
+                  onClick={() => {
+                    setSelectedWasteType(null);
+                    setSelectedWasteTypeName('');
+                    setEditingPricing(null);
+                    setShowAddForm(false);
+                  }}
                   className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  disabled={createTreatmentPricingMutation.isPending}
+                  disabled={createTreatmentPricingMutation.isPending || updateTreatmentPricingMutation.isPending}
                   className="px-4 py-2 bg-[rgb(220, 38, 38)] text-white rounded-md hover:bg-[rgb(185, 28, 28)] disabled:opacity-50"
                 >
-                  {createTreatmentPricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder le tarif'}
+                  {(createTreatmentPricingMutation.isPending || updateTreatmentPricingMutation.isPending) 
+                    ? 'Sauvegarde...' 
+                    : editingPricing 
+                      ? 'Modifier le tarif' 
+                      : 'Sauvegarder le tarif'
+                  }
                 </button>
               </div>
             </form>
