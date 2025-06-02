@@ -61,7 +61,9 @@ export default function ServiceSelection() {
       const response = await apiRequest('POST', '/api/calculate-pricing', {
         serviceId: selectedServiceId,
         wasteTypes: [selectedWasteType],
-        customerAddress: `${deliveryAddress}, ${postalCode} ${city}`
+        address: deliveryAddress,
+        postalCode: postalCode,
+        city: city
       });
       
       const data = await response.json();
