@@ -9,8 +9,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBookingState } from "@/hooks/useBookingState";
+import { apiRequest } from "@/lib/queryClient";
 import { Service } from "@shared/schema";
-import { Truck, AlertTriangle, MapPin, Calendar } from "lucide-react";
+import { Truck, AlertTriangle, MapPin, Calendar, Loader2 } from "lucide-react";
 
 export default function ServiceSelection() {
   const { bookingData, updateService, updateDuration, updateWasteTypes, calculateTotalPrice } = useBookingState();
@@ -19,8 +20,12 @@ export default function ServiceSelection() {
   );
   const [selectedDuration, setSelectedDuration] = useState(bookingData.durationDays);
   const [selectedWasteTypes, setSelectedWasteTypes] = useState<string[]>(bookingData.wasteTypes);
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [distance, setDistance] = useState(12); // km
+  const [city, setCity] = useState("");
+  const [distance, setDistance] = useState(0);
+  const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
+  const [distanceError, setDistanceError] = useState("");
 
   const { data: services, isLoading, error } = useQuery({
     queryKey: ['/api/services'],
@@ -49,6 +54,53 @@ export default function ServiceSelection() {
   useEffect(() => {
     updateWasteTypes(selectedWasteTypes);
   }, [selectedWasteTypes]);
+
+  // Fonction pour calculer la distance et le prix en temps réel
+  const calculateDistanceAndPrice = async () => {
+    if (!deliveryAddress || !postalCode || !city || !selectedServiceId) {
+      setDistance(0);
+      return;
+    }
+
+    setIsCalculatingDistance(true);
+    setDistanceError("");
+
+    try {
+      const response = await apiRequest('POST', '/api/calculate-pricing', {
+        serviceId: selectedServiceId,
+        wasteTypes: selectedWasteTypes,
+        address: deliveryAddress,
+        postalCode: postalCode,
+        city: city
+      });
+
+      if (response.success) {
+        setDistance(response.distance.kilometers);
+      } else {
+        setDistanceError("Impossible de calculer la distance");
+        setDistance(15); // Distance estimée par défaut
+      }
+    } catch (error: any) {
+      console.error('Erreur calcul distance:', error);
+      if (error.message.includes('Adresse du site industriel non configurée')) {
+        setDistanceError("Configuration requise : veuillez configurer l'adresse du site industriel dans le panneau d'administration");
+      } else {
+        setDistanceError("Erreur lors du calcul de distance");
+      }
+      setDistance(15); // Distance estimée par défaut
+    } finally {
+      setIsCalculatingDistance(false);
+    }
+  };
+
+  // Déclencher le calcul quand l'adresse change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      calculateDistanceAndPrice();
+    }, 1000); // Délai pour éviter trop d'appels API
+
+    return () => clearTimeout(timeoutId);
+  }, [deliveryAddress, postalCode, city, selectedServiceId, selectedWasteTypes]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceId(service.id);
@@ -212,26 +264,49 @@ export default function ServiceSelection() {
           <div>
             <div className="flex items-center mb-3">
               <MapPin className="h-5 w-5 mr-2 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Code postal</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Adresse de livraison</h3>
             </div>
-            <Input
-              type="text"
-              placeholder="75001"
-              value={postalCode}
-              onChange={(e) => {
-                setPostalCode(e.target.value);
-                // Mock distance calculation based on postal code
-                const mockDistance = e.target.value.length >= 5 ? 
-                  Math.floor(Math.random() * 40) + 5 : 12;
-                setDistance(mockDistance);
-              }}
-              className="w-full"
-            />
-            {postalCode && (
-              <p className="text-sm text-gray-500 mt-1">
-                Distance estimée: {distance} km
-              </p>
-            )}
+            <div className="space-y-3">
+              <Input
+                type="text"
+                placeholder="123 Rue de la République"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                className="w-full"
+              />
+              <div className="flex gap-3">
+                <Input
+                  type="text"
+                  placeholder="Code postal"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  className="flex-1"
+                />
+                <Input
+                  type="text"
+                  placeholder="Ville"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+              {isCalculatingDistance && (
+                <div className="flex items-center text-sm text-blue-600">
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Calcul de la distance en cours...
+                </div>
+              )}
+              {distanceError && (
+                <div className="text-sm text-red-600">
+                  {distanceError}
+                </div>
+              )}
+              {distance > 0 && !isCalculatingDistance && (
+                <div className="text-sm text-green-600">
+                  Distance : {distance} km aller-retour ({distance * 2} km total)
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
