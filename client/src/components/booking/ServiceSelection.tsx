@@ -240,7 +240,7 @@ export default function ServiceSelection() {
             <Truck className="h-5 w-5 mr-2 text-red-600" />
             <h3 className="text-lg font-semibold text-gray-900">Choisissez votre benne</h3>
           </div>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid lg:grid-cols-1 gap-6">
             {services?.map((service: Service) => (
               <div
                 key={service.id}
@@ -254,16 +254,57 @@ export default function ServiceSelection() {
                     ? "border-red-500 bg-red-50"
                     : "border-gray-200 hover:border-red-300"
                 }`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">{service.name}</h4>
-                      <span className="text-red-600 font-semibold">
-                        {parseFloat(service.basePrice).toFixed(0)}€
-                      </span>
+                  <CardContent className="p-6">
+                    <div className="grid md:grid-cols-3 gap-4">
+                      {/* Image de la benne */}
+                      <div className="md:col-span-1">
+                        {service.imageUrl && (
+                          <img 
+                            src={service.imageUrl} 
+                            alt={service.name}
+                            className="w-full h-32 object-contain bg-gray-50 rounded-lg"
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Informations principales */}
+                      <div className="md:col-span-1">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-lg font-semibold text-gray-900">{service.name}</h4>
+                          <span className="text-red-600 font-bold text-xl">
+                            {parseFloat(service.basePrice).toFixed(0)}€
+                          </span>
+                        </div>
+                        
+                        <div className="space-y-2 text-sm text-gray-600">
+                          <p><strong>Volume:</strong> {service.volume}m³</p>
+                          {service.length && service.width && service.height && (
+                            <p><strong>Dimensions:</strong> {service.length}m × {service.width}m × {service.height}m</p>
+                          )}
+                          {service.description && (
+                            <p className="text-gray-700 mt-2">{service.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Prestations incluses */}
+                      <div className="md:col-span-1">
+                        <h5 className="font-medium text-gray-900 mb-2">Prestations incluses</h5>
+                        <div className="space-y-1">
+                          {service.includedServices?.map((includedService: string, index: number) => (
+                            <div key={index} className="flex items-center text-xs text-gray-600">
+                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                              {includedService}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">Volume: {service.volume}m³</p>
+                    
                     {selectedServiceId === service.id && (
-                      <Badge className="bg-red-600 text-white">Sélectionné</Badge>
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <Badge className="bg-red-600 text-white">✓ Sélectionné</Badge>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
