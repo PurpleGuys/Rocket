@@ -3341,6 +3341,268 @@ function MyActivitiesPage() {
   );
 }
 
+function BankDepositsPage() {
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingDeposit, setEditingDeposit] = useState<any>(null);
+
+  const { data: bankDeposits = [] } = useQuery({
+    queryKey: ["/api/admin/bank-deposits"],
+  });
+
+  const { data: services = [] } = useQuery({
+    queryKey: ["/api/services"],
+  });
+
+  const { data: wasteTypes = [] } = useQuery({
+    queryKey: ["/api/admin/waste-types"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: any) => apiRequest("POST", "/api/admin/bank-deposits", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bank-deposits"] });
+      setIsDialogOpen(false);
+      toast({
+        title: "Empreinte bancaire créée",
+        description: "La nouvelle empreinte bancaire a été ajoutée avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: any) => apiRequest("PUT", `/api/admin/bank-deposits/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bank-deposits"] });
+      setIsDialogOpen(false);
+      setEditingDeposit(null);
+      toast({
+        title: "Empreinte bancaire modifiée",
+        description: "L'empreinte bancaire a été mise à jour avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/bank-deposits/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bank-deposits"] });
+      toast({
+        title: "Empreinte bancaire supprimée",
+        description: "L'empreinte bancaire a été supprimée avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      serviceId: Number(formData.get("serviceId")),
+      wasteTypeId: Number(formData.get("wasteTypeId")),
+      depositAmount: formData.get("depositAmount"),
+      description: formData.get("description"),
+      isActive: formData.get("isActive") === "on",
+    };
+
+    if (editingDeposit) {
+      updateMutation.mutate({ id: editingDeposit.id, ...data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Empreintes bancaires</h1>
+          <p className="text-gray-600">Gérez les empreintes bancaires par type de benne et de déchet</p>
+        </div>
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nouvelle empreinte
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Liste des empreintes bancaires</CardTitle>
+          <CardDescription>
+            Configuration des montants d'empreinte selon la benne et le type de déchet
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Benne</TableHead>
+                <TableHead>Type de déchet</TableHead>
+                <TableHead>Montant (€)</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {bankDeposits.map((deposit: any) => (
+                <TableRow key={deposit.id}>
+                  <TableCell>
+                    {services.find((s: any) => s.id === deposit.serviceId)?.name || "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    {wasteTypes.find((w: any) => w.id === deposit.wasteTypeId)?.name || "N/A"}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {Number(deposit.depositAmount).toFixed(2)} €
+                  </TableCell>
+                  <TableCell>{deposit.description || "-"}</TableCell>
+                  <TableCell>
+                    <Badge variant={deposit.isActive ? "default" : "secondary"}>
+                      {deposit.isActive ? "Actif" : "Inactif"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingDeposit(deposit);
+                          setIsDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteMutation.mutate(deposit.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingDeposit ? "Modifier" : "Créer"} une empreinte bancaire
+            </DialogTitle>
+            <DialogDescription>
+              Configurez le montant de l'empreinte bancaire pour une combinaison benne/déchet
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Type de benne</label>
+              <Select name="serviceId" defaultValue={editingDeposit?.serviceId?.toString()}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez une benne" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map((service: any) => (
+                    <SelectItem key={service.id} value={service.id.toString()}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Type de déchet</label>
+              <Select name="wasteTypeId" defaultValue={editingDeposit?.wasteTypeId?.toString()}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez un type de déchet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {wasteTypes.map((wasteType: any) => (
+                    <SelectItem key={wasteType.id} value={wasteType.id.toString()}>
+                      {wasteType.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Montant de l'empreinte (€)</label>
+              <Input
+                name="depositAmount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                defaultValue={editingDeposit?.depositAmount}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
+              <Input
+                name="description"
+                placeholder="Description de l'empreinte"
+                defaultValue={editingDeposit?.description || ""}
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="isActive"
+                className="rounded border-gray-300"
+                defaultChecked={editingDeposit?.isActive ?? true}
+              />
+              <label className="text-sm font-medium">Empreinte active</label>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={() => {
+                setIsDialogOpen(false);
+                setEditingDeposit(null);
+              }}>
+                Annuler
+              </Button>
+              <Button type="submit">
+                {editingDeposit ? "Modifier" : "Créer"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState("dashboard");
 

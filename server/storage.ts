@@ -773,6 +773,51 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated;
   }
+
+  // Bank deposits operations
+  async createBankDeposit(data: InsertBankDeposit): Promise<BankDeposit> {
+    const [deposit] = await db
+      .insert(bankDeposits)
+      .values(data)
+      .returning();
+    return deposit;
+  }
+
+  async updateBankDeposit(id: number, data: Partial<InsertBankDeposit>): Promise<BankDeposit> {
+    const [deposit] = await db
+      .update(bankDeposits)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(bankDeposits.id, id))
+      .returning();
+    return deposit;
+  }
+
+  async deleteBankDeposit(id: number): Promise<void> {
+    await db.delete(bankDeposits).where(eq(bankDeposits.id, id));
+  }
+
+  async getBankDeposits(): Promise<BankDeposit[]> {
+    return await db.select().from(bankDeposits).where(eq(bankDeposits.isActive, true));
+  }
+
+  async getBankDepositById(id: number): Promise<BankDeposit | null> {
+    const [deposit] = await db.select().from(bankDeposits).where(eq(bankDeposits.id, id));
+    return deposit || null;
+  }
+
+  async getBankDepositByServiceAndWaste(serviceId: number, wasteTypeId: number): Promise<BankDeposit | null> {
+    const [deposit] = await db
+      .select()
+      .from(bankDeposits)
+      .where(
+        and(
+          eq(bankDeposits.serviceId, serviceId),
+          eq(bankDeposits.wasteTypeId, wasteTypeId),
+          eq(bankDeposits.isActive, true)
+        )
+      );
+    return deposit || null;
+  }
 }
 
 export const storage = new DatabaseStorage();

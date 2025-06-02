@@ -1415,6 +1415,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bank deposits routes
+  app.get("/api/admin/bank-deposits", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const deposits = await storage.getBankDeposits();
+      res.json(deposits);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la récupération des empreintes bancaires: " + error.message });
+    }
+  });
+
+  app.post("/api/admin/bank-deposits", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertBankDepositSchema.parse(req.body);
+      const deposit = await storage.createBankDeposit(validatedData);
+      res.json(deposit);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Données invalides", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Erreur lors de la création de l'empreinte bancaire: " + error.message });
+      }
+    }
+  });
+
+  app.put("/api/admin/bank-deposits/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = updateBankDepositSchema.parse(req.body);
+      const deposit = await storage.updateBankDeposit(id, validatedData);
+      res.json(deposit);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Données invalides", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Erreur lors de la modification de l'empreinte bancaire: " + error.message });
+      }
+    }
+  });
+
+  app.delete("/api/admin/bank-deposits/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteBankDeposit(id);
+      res.json({ message: "Empreinte bancaire supprimée avec succès" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'empreinte bancaire: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
