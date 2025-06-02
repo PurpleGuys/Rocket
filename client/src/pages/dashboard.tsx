@@ -906,15 +906,246 @@ function RentalPricingPage() {
 }
 
 function TransportPricingPage() {
+  const [activeTab, setActiveTab] = useState<'kilometric' | 'immediate'>('kilometric');
+  const { toast } = useToast();
+
+  // Récupérer les tarifs de transport actuels
+  const { data: transportPricing, isLoading, refetch } = useQuery({
+    queryKey: ['/api/admin/transport-pricing'],
+    select: (data) => data || {
+      pricePerKm: "0",
+      minimumFlatRate: "0", 
+      hourlyRate: "0",
+      immediateLoadingEnabled: true
+    }
+  });
+
+  // Mutation pour mettre à jour les tarifs
+  const updatePricingMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", "/api/admin/transport-pricing", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Tarifs mis à jour",
+        description: "Les tarifs de transport ont été sauvegardés avec succès.",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder les tarifs de transport.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleKilometricSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    updatePricingMutation.mutate({
+      pricePerKm: formData.get('pricePerKm')?.toString() || "0",
+      minimumFlatRate: formData.get('minimumFlatRate')?.toString() || "0",
+      hourlyRate: transportPricing?.hourlyRate || "0",
+      immediateLoadingEnabled: transportPricing?.immediateLoadingEnabled
+    });
+  };
+
+  const handleImmediateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const hourlyRate = formData.get('hourlyRate')?.toString() || "0";
+    
+    updatePricingMutation.mutate({
+      pricePerKm: transportPricing?.pricePerKm || "0",
+      minimumFlatRate: transportPricing?.minimumFlatRate || "0",
+      hourlyRate,
+      immediateLoadingEnabled: hourlyRate !== "0" && hourlyRate !== "0.00"
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Prix de Transport</h1>
+          <p className="text-gray-600">Configuration des tarifs de transport</p>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Prix de Transport</h1>
-        <p className="text-gray-600">Configuration des tarifs de transport</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Prix de Transport</h1>
+          <p className="text-gray-600">Configuration des tarifs de transport et chargement</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Info className="h-4 w-4" />
+          <span>API gratuite pour calcul de distances</span>
+        </div>
       </div>
+
+      {/* Onglets */}
       <Card>
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex">
+            <button
+              onClick={() => setActiveTab('kilometric')}
+              className={`px-6 py-3 border-b-2 font-medium text-sm ${
+                activeTab === 'kilometric'
+                  ? 'border-[#00B8A2] text-[#00B8A2]'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Tarification kilométrique
+            </button>
+            <button
+              onClick={() => setActiveTab('immediate')}
+              className={`px-6 py-3 border-b-2 font-medium text-sm ${
+                activeTab === 'immediate'
+                  ? 'border-[#00B8A2] text-[#00B8A2]'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Chargement immédiat
+            </button>
+          </nav>
+        </div>
+
         <CardContent className="p-6">
-          <p className="text-gray-500">Configuration des prix de transport...</p>
+          {activeTab === 'kilometric' && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
+                <Info className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div className="text-sm text-blue-700">
+                  <p className="font-medium">Tarification kilométrique</p>
+                  <p>Configurez le prix par kilomètre pour les trajets aller-retour depuis votre site d'activité. Un prix forfaitaire minimum peut être appliqué.</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleKilometricSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Prix par kilomètre (aller-retour)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        name="pricePerKm"
+                        step="0.01"
+                        min="0"
+                        defaultValue={transportPricing?.pricePerKm || "0"}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent pr-12"
+                        placeholder="0.00"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <span className="text-gray-500 text-sm">€/km</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Prix forfaitaire minimum
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        name="minimumFlatRate"
+                        step="0.01"
+                        min="0"
+                        defaultValue={transportPricing?.minimumFlatRate || "0"}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent pr-8"
+                        placeholder="0.00"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <span className="text-gray-500 text-sm">€</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={updatePricingMutation.isPending}
+                    className="px-6 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updatePricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder les tarifs'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {activeTab === 'immediate' && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-lg">
+                <Info className="h-5 w-5 text-orange-500 mt-0.5" />
+                <div className="text-sm text-orange-700">
+                  <p className="font-medium">Chargement immédiat</p>
+                  <p>Configurez le tarif horaire appliqué pour chaque heure de présence du véhicule chez le client. Facturation minimale d'une heure. Cette option est automatiquement désactivée si le prix horaire est fixé à 0 €.</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleImmediateSubmit} className="space-y-6">
+                <div className="max-w-md">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prix horaire
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      name="hourlyRate"
+                      step="0.01"
+                      min="0"
+                      defaultValue={transportPricing?.hourlyRate || "0"}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:border-transparent pr-12"
+                      placeholder="0.00"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                      <span className="text-gray-500 text-sm">€/h</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                  <div className={`h-3 w-3 rounded-full ${
+                    transportPricing?.immediateLoadingEnabled ? 'bg-green-500' : 'bg-red-500'
+                  }`}></div>
+                  <span className="text-sm text-gray-700">
+                    <strong>Statut:</strong> {transportPricing?.immediateLoadingEnabled ? 'Activé' : 'Désactivé'}
+                    {!transportPricing?.immediateLoadingEnabled && ' (prix horaire = 0 €)'}
+                  </span>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={updatePricingMutation.isPending}
+                    className="px-6 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updatePricingMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder les tarifs'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

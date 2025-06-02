@@ -635,6 +635,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes pour les tarifs de transport
+  app.get("/api/admin/transport-pricing", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const pricing = await storage.getTransportPricing();
+      res.json(pricing || {
+        pricePerKm: "0",
+        minimumFlatRate: "0",
+        hourlyRate: "0",
+        immediateLoadingEnabled: true
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching transport pricing: " + error.message });
+    }
+  });
+
+  app.put("/api/admin/transport-pricing", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const validatedData = updateTransportPricingSchema.parse(req.body);
+      
+      // Auto-disable immediate loading if hourly rate is 0
+      if (validatedData.hourlyRate === "0" || validatedData.hourlyRate === "0.00") {
+        validatedData.immediateLoadingEnabled = false;
+      }
+      
+      const pricing = await storage.updateTransportPricing(validatedData);
+      res.json(pricing);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error updating transport pricing: " + error.message });
+      }
+    }
+  });
+
   // Add new service/equipment
   app.post("/api/admin/services", authenticateToken, requireAdmin, async (req, res) => {
     try {
