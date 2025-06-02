@@ -28,6 +28,7 @@ import {
   Plus,
   Save,
   X,
+  CheckCircle,
   Eye,
   Filter,
   Search
@@ -2195,102 +2196,166 @@ function TreatmentPricingPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Tableau des tarifs configurés */}
+          {(() => {
+            const configuredWasteTypes = companyActivities?.wasteTypes || [];
+            const configuredPricings = configuredWasteTypes
+              .map((wasteTypeName: string) => {
+                const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
+                const existingPricing = dbWasteType ? treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id) : null;
+                return { wasteTypeName, dbWasteType, existingPricing };
+              })
+              .filter(item => item.existingPricing);
+
+            if (configuredPricings.length > 0) {
+              return (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Tarifs configurés</h3>
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="font-semibold">Matière</TableHead>
+                          <TableHead className="font-semibold">Prix/tonne</TableHead>
+                          <TableHead className="font-semibold">Type de traitement</TableHead>
+                          <TableHead className="font-semibold">Code exutoire</TableHead>
+                          <TableHead className="font-semibold">Adresse exutoire</TableHead>
+                          <TableHead className="text-right font-semibold">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {configuredPricings.map(({ wasteTypeName, dbWasteType, existingPricing }) => (
+                          <TableRow key={wasteTypeName} className="hover:bg-gray-50">
+                            <TableCell className="font-medium">{wasteTypeName}</TableCell>
+                            <TableCell className="font-semibold text-green-700">{existingPricing.pricePerTon}€</TableCell>
+                            <TableCell>{existingPricing.treatmentType}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {existingPricing.treatmentCode}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="max-w-48">
+                              <span className="text-sm truncate block" title={existingPricing.outletAddress || ''}>
+                                {existingPricing.outletAddress || '-'}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (dbWasteType) {
+                                      setEditingPricing(existingPricing);
+                                      setSelectedWasteType(dbWasteType.id);
+                                      setSelectedWasteTypeName(wasteTypeName);
+                                      setShowAddForm(true);
+                                    }
+                                  }}
+                                  className="hover:bg-blue-50"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (existingPricing && window.confirm(`Êtes-vous sûr de vouloir supprimer le tarif pour ${wasteTypeName} ?`)) {
+                                      deleteTreatmentPricingMutation.mutate(existingPricing.id);
+                                    }
+                                  }}
+                                  className="text-red-600 hover:bg-red-50 hover:border-red-300"
+                                  disabled={deleteTreatmentPricingMutation.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
+          {/* Section pour configurer de nouveaux tarifs */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Matières à configurer</h3>
+            
             {(() => {
-              // Utiliser directement les types de déchets configurés dans "Mes activités"
               const configuredWasteTypes = companyActivities?.wasteTypes || [];
               
-              return configuredWasteTypes.length > 0 ? (
-                configuredWasteTypes.map((wasteTypeName: string, index: number) => {
-                  // Chercher si ce type de déchet existe dans la base de données
+              if (configuredWasteTypes.length === 0) {
+                return (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                    <AlertTriangle className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
+                    <p className="text-yellow-800 font-medium">Aucun type de matière configuré</p>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      Veuillez d'abord configurer vos activités dans la section "Mes activités" pour sélectionner les types de déchets.
+                    </p>
+                  </div>
+                );
+              }
+
+              const unconfiguredTypes = configuredWasteTypes
+                .map((wasteTypeName: string) => {
                   const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
                   const existingPricing = dbWasteType ? treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id) : null;
-                  
-                  return (
-                    <div key={`waste-${index}`} className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-900">{wasteTypeName}</h4>
-                      <p className="text-sm text-gray-600 mt-1">Configuré dans "Mes activités"</p>
-                      
-                      {existingPricing ? (
-                        <div className="mt-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Prix/tonne:</span>
-                            <span className="font-medium">{existingPricing.pricePerTon} €</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Code:</span>
-                            <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{existingPricing.treatmentCode}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Type:</span>
-                            <span className="text-sm">{existingPricing.treatmentType}</span>
-                          </div>
-                          <div className="flex justify-end gap-2 mt-4">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingPricing(existingPricing);
-                                setSelectedWasteType(existingPricing.wasteTypeId);
-                                setSelectedWasteTypeName(wasteTypeName);
-                                setShowAddForm(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Modifier
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => deleteTreatmentPricingMutation.mutate(existingPricing.id)}
-                              disabled={deleteTreatmentPricingMutation.isPending}
-                              className="text-red-600 border-red-300 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Supprimer
-                            </Button>
+                  return { wasteTypeName, dbWasteType, existingPricing };
+                })
+                .filter(item => !item.existingPricing);
+
+              if (unconfiguredTypes.length === 0) {
+                return (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                    <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                    <p className="text-green-700 font-medium">Toutes les matières sont configurées</p>
+                    <p className="text-sm text-green-600 mt-1">Tous vos types de déchets ont un tarif de traitement défini</p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {unconfiguredTypes.map(({ wasteTypeName, dbWasteType }) => (
+                    <div key={wasteTypeName} className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group">
+                      <div className="text-center">
+                        <div className="mb-3">
+                          <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 group-hover:bg-blue-100 rounded-full transition-colors">
+                            <Package className="h-6 w-6 text-gray-500 group-hover:text-blue-600" />
                           </div>
                         </div>
-                      ) : (
-                        <button
+                        <h4 className="font-medium text-gray-900 mb-2">{wasteTypeName}</h4>
+                        <p className="text-sm text-gray-500 mb-4">Configuré dans "Mes activités"</p>
+                        <Badge variant="secondary" className="mb-4">En attente de configuration</Badge>
+                        <Button
                           onClick={() => {
-                            // Créer ou utiliser le type de déchet existant
-                            if (dbWasteType) {
-                              setSelectedWasteType(dbWasteType.id);
-                              setSelectedWasteTypeName(wasteTypeName);
-                            } else {
-                              // Créer automatiquement le type de déchet s'il n'existe pas
+                            if (!dbWasteType) {
                               createWasteTypeMutation.mutate({
                                 name: wasteTypeName,
                                 description: `Type de déchet configuré dans "Mes activités"`
                               });
                               setSelectedWasteTypeName(wasteTypeName);
+                            } else {
+                              setSelectedWasteType(dbWasteType.id);
+                              setSelectedWasteTypeName(wasteTypeName);
                             }
+                            setEditingPricing(null);
                             setShowAddForm(true);
                           }}
-                          className="mt-4 w-full px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
+                          className="w-full bg-blue-600 hover:bg-blue-700"
+                          disabled={createWasteTypeMutation.isPending}
                         >
-                          Configurer le tarif
-                        </button>
-                      )}
+                          <Plus className="h-4 w-4 mr-2" />
+                          {createWasteTypeMutation.isPending ? 'Configuration...' : 'Configurer le tarif'}
+                        </Button>
+                      </div>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="col-span-full text-center py-8 text-gray-500">
-                  {configuredWasteTypes.length === 0 ? (
-                    <>
-                      Aucun type de matière sélectionné dans "Mes activités". 
-                      <br />
-                      Veuillez d'abord configurer vos activités pour sélectionner les types de déchets.
-                    </>
-                  ) : (
-                    <>
-                      Les types de matières configurés dans "Mes activités" ne correspondent à aucun type disponible.
-                      <br />
-                      Vérifiez la configuration dans "Mes activités".
-                    </>
-                  )}
+                  ))}
                 </div>
               );
             })()}
@@ -2333,14 +2398,36 @@ function TreatmentPricingPage() {
         );
       })()}
 
-      {/* Formulaire de configuration des tarifs */}
+      {/* Formulaire de configuration/modification des tarifs */}
       {selectedWasteType && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuration du tarif de traitement - {selectedWasteTypeName}</CardTitle>
+        <Card className="border-2 border-blue-200 bg-blue-50/30">
+          <CardHeader className="bg-blue-50 border-b border-blue-200">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-blue-900">
+                {editingPricing ? 'Modification' : 'Configuration'} du tarif - {selectedWasteTypeName}
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowAddForm(false);
+                  setSelectedWasteType(null);
+                  setSelectedWasteTypeName('');
+                  setEditingPricing(null);
+                }}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {editingPricing && (
+              <p className="text-sm text-blue-700 mt-2">
+                Modifiez les informations ci-dessous pour mettre à jour le tarif de traitement.
+              </p>
+            )}
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddTreatmentPricing} className="space-y-6">
+          <CardContent className="bg-white">
+            <form onSubmit={handleAddTreatmentPricing} className="space-y-6 pt-6">
               <input type="hidden" name="wasteTypeId" value={selectedWasteType} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
