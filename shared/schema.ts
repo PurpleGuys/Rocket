@@ -40,9 +40,16 @@ export const services = pgTable("services", {
   volume: integer("volume").notNull(), // in m³
   basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(),
   description: text("description"),
+  imageUrl: text("image_url"),
+  length: decimal("length", { precision: 5, scale: 2 }), // en mètres
+  width: decimal("width", { precision: 5, scale: 2 }), // en mètres
+  height: decimal("height", { precision: 5, scale: 2 }), // en mètres
   wasteTypes: text("waste_types").array(),
   maxWeight: integer("max_weight"), // in tonnes
+  includedServices: text("included_services").array().default([]), // Services inclus
   isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const timeSlots = pgTable("time_slots", {

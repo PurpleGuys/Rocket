@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- Benne 12m³ -->
+  <defs>
+    <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d0d0d0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b8b8b8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="redAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="400" height="300" fill="#f5f5f5"/>
+  
+  <!-- Base de la benne (plus grande) -->
+  <rect x="40" y="170" width="320" height="90" fill="url(#metalGradient)" stroke="#999" stroke-width="2"/>
+  
+  <!-- Côtés de la benne -->
+  <polygon points="40,170 70,140 70,80 40,110" fill="url(#metalGradient)" stroke="#999" stroke-width="2"/>
+  <polygon points="360,170 390,140 390,80 360,110" fill="url(#metalGradient)" stroke="#999" stroke-width="2"/>
+  
+  <!-- Façade avant -->
+  <rect x="40" y="110" width="320" height="60" fill="url(#metalGradient)" stroke="#999" stroke-width="2"/>
+  
+  <!-- Haut de la benne -->
+  <polygon points="40,110 70,80 390,80 360,110" fill="url(#metalGradient)" stroke="#999" stroke-width="2"/>
+  
+  <!-- Bande rouge Remondis -->
+  <rect x="40" y="130" width="320" height="10" fill="url(#redAccent)"/>
+  
+  <!-- Logo Remondis simplifié -->
+  <rect x="330" y="210" width="25" height="15" fill="#ff0000"/>
+  <text x="332" y="220" font-family="Arial, sans-serif" font-size="8" fill="white" font-weight="bold">R</text>
+  
+  <!-- Texte dimensions -->
+  <text x="200" y="290" font-family="Arial, sans-serif" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">12m³</text>
+  
+  <!-- Crochets de levage -->
+  <rect x="90" y="75" width="8" height="10" fill="#666" rx="2"/>
+  <rect x="130" y="75" width="8" height="10" fill="#666" rx="2"/>
+  <rect x="270" y="75" width="8" height="10" fill="#666" rx="2"/>
+  <rect x="310" y="75" width="8" height="10" fill="#666" rx="2"/>
+</svg>
