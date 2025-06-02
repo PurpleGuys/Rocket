@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar } from "lucide-react";
+import { Calendar, AlertTriangle } from "lucide-react";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
@@ -40,11 +41,40 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  
+  // États pour les cases à cocher obligatoires
+  const [evacuationConditions, setEvacuationConditions] = useState({
+    heightLimit: false,
+    noDangerousWaste: false,
+    spaceRequirements: false,
+    groundProtection: false,
+  });
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
+      return;
+    }
+
+    // Vérifier que toutes les conditions sont acceptées
+    const allEvacuationConditions = Object.values(evacuationConditions).every(Boolean);
+    if (!allEvacuationConditions || !acceptTerms) {
+      toast({
+        title: "Conditions requises",
+        description: "Veuillez accepter toutes les conditions d'évacuation et les conditions générales pour continuer.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedDate) {
+      toast({
+        title: "Date requise",
+        description: "Veuillez sélectionner une date souhaitée pour la livraison.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -156,6 +186,96 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
                 * La date vous sera confirmée par email. Si elle n'est pas disponible, 
                 REMONDIS vous proposera une autre date selon ses disponibilités et vous en informera par email.
               </p>
+            </div>
+
+            {/* Conditions d'évacuation obligatoires */}
+            <div className="bg-red-50 border border-red-200 p-4 rounded-lg space-y-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+                <h4 className="font-semibold text-red-900">Conditions d'évacuation *</h4>
+              </div>
+              <p className="text-sm text-red-800">Toutes les conditions suivantes doivent être acceptées :</p>
+              
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="height-limit"
+                    checked={evacuationConditions.heightLimit}
+                    onCheckedChange={(checked) => 
+                      setEvacuationConditions(prev => ({ ...prev, heightLimit: !!checked }))
+                    }
+                    className="mt-1"
+                  />
+                  <label htmlFor="height-limit" className="text-sm text-gray-700 cursor-pointer">
+                    Je m'engage à ne pas dépasser la hauteur maximale autorisée de la benne (soit à la hauteur des ridelles)
+                  </label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="no-dangerous-waste"
+                    checked={evacuationConditions.noDangerousWaste}
+                    onCheckedChange={(checked) => 
+                      setEvacuationConditions(prev => ({ ...prev, noDangerousWaste: !!checked }))
+                    }
+                    className="mt-1"
+                  />
+                  <label htmlFor="no-dangerous-waste" className="text-sm text-gray-700 cursor-pointer">
+                    Je confirme l'absence de déchets dangereux (Solvants, Amiante, Pneus, peinture, enrobé goudron sans analyse HAP, etc.)
+                  </label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="space-requirements"
+                    checked={evacuationConditions.spaceRequirements}
+                    onCheckedChange={(checked) => 
+                      setEvacuationConditions(prev => ({ ...prev, spaceRequirements: !!checked }))
+                    }
+                    className="mt-1"
+                  />
+                  <label htmlFor="space-requirements" className="text-sm text-gray-700 cursor-pointer">
+                    Je dispose de 4m de haut, 3m de large, 10m de long sans obstacle pour assurer la dépose de la benne
+                  </label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="ground-protection"
+                    checked={evacuationConditions.groundProtection}
+                    onCheckedChange={(checked) => 
+                      setEvacuationConditions(prev => ({ ...prev, groundProtection: !!checked }))
+                    }
+                    className="mt-1"
+                  />
+                  <label htmlFor="ground-protection" className="text-sm text-gray-700 cursor-pointer">
+                    Je suis responsable de protéger le sol sur lequel sera posée la benne (par exemple avec des bastaings en bois)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Conditions générales */}
+            <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg space-y-3">
+              <h4 className="font-semibold text-gray-900">Conditions générales *</h4>
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="accept-terms"
+                  checked={acceptTerms}
+                  onCheckedChange={(checked) => setAcceptTerms(!!checked)}
+                  className="mt-1"
+                />
+                <label htmlFor="accept-terms" className="text-sm text-gray-700 cursor-pointer">
+                  Je reconnais avoir pris connaissance et j'accepte les{' '}
+                  <a href="/legal" target="_blank" className="text-red-600 underline hover:text-red-700">
+                    conditions générales d'utilisation (CGU)
+                  </a>
+                  {' '}et les{' '}
+                  <a href="/legal" target="_blank" className="text-red-600 underline hover:text-red-700">
+                    Conditions Générales de Ventes (CGV)
+                  </a>
+                </label>
+              </div>
             </div>
 
             <PaymentElement />
