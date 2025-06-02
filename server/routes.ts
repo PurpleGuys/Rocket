@@ -771,17 +771,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Données reçues pour mise à jour:', JSON.stringify(req.body, null, 2));
       
+      // Filtrer les champs qui ne doivent pas être mis à jour (dates, id)
+      const { id, createdAt, updatedAt, ...dataToUpdate } = req.body;
+      
       // Convertir les données pour s'assurer que les tableaux sont bien formatés
       const processedData = {
-        ...req.body,
-        wasteTypes: Array.isArray(req.body.wasteTypes) ? req.body.wasteTypes : [],
-        equipmentMultibenne: Array.isArray(req.body.equipmentMultibenne) ? req.body.equipmentMultibenne : [],
-        equipmentAmpliroll: Array.isArray(req.body.equipmentAmpliroll) ? req.body.equipmentAmpliroll : [],
-        equipmentCaissePalette: Array.isArray(req.body.equipmentCaissePalette) ? req.body.equipmentCaissePalette : [],
-        equipmentRolls: Array.isArray(req.body.equipmentRolls) ? req.body.equipmentRolls : [],
-        equipmentContenantAlimentaire: Array.isArray(req.body.equipmentContenantAlimentaire) ? req.body.equipmentContenantAlimentaire : [],
-        equipmentBac: Array.isArray(req.body.equipmentBac) ? req.body.equipmentBac : [],
-        equipmentBennesFermees: Array.isArray(req.body.equipmentBennesFermees) ? req.body.equipmentBennesFermees : [],
+        ...dataToUpdate,
+        wasteTypes: Array.isArray(dataToUpdate.wasteTypes) ? dataToUpdate.wasteTypes : [],
+        equipmentMultibenne: Array.isArray(dataToUpdate.equipmentMultibenne) ? dataToUpdate.equipmentMultibenne : [],
+        equipmentAmpliroll: Array.isArray(dataToUpdate.equipmentAmpliroll) ? dataToUpdate.equipmentAmpliroll : [],
+        equipmentCaissePalette: Array.isArray(dataToUpdate.equipmentCaissePalette) ? dataToUpdate.equipmentCaissePalette : [],
+        equipmentRolls: Array.isArray(dataToUpdate.equipmentRolls) ? dataToUpdate.equipmentRolls : [],
+        equipmentContenantAlimentaire: Array.isArray(dataToUpdate.equipmentContenantAlimentaire) ? dataToUpdate.equipmentContenantAlimentaire : [],
+        equipmentBac: Array.isArray(dataToUpdate.equipmentBac) ? dataToUpdate.equipmentBac : [],
+        equipmentBennesFermees: Array.isArray(dataToUpdate.equipmentBennesFermees) ? dataToUpdate.equipmentBennesFermees : [],
       };
       
       const activities = await storage.updateCompanyActivities(processedData);

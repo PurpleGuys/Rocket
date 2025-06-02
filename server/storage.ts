@@ -617,18 +617,21 @@ export class DatabaseStorage implements IStorage {
       return this.createCompanyActivities(activities as InsertCompanyActivities);
     }
 
+    // Filtrer les champs non autorisés pour la mise à jour
+    const { id, createdAt, updatedAt, ...cleanActivities } = activities as any;
+
     const [updated] = await db
       .update(companyActivities)
       .set({
-        ...activities,
-        wasteTypes: activities.wasteTypes || [],
-        equipmentMultibenne: activities.equipmentMultibenne || [],
-        equipmentAmpliroll: activities.equipmentAmpliroll || [],
-        equipmentCaissePalette: activities.equipmentCaissePalette || [],
-        equipmentRolls: activities.equipmentRolls || [],
-        equipmentContenantAlimentaire: activities.equipmentContenantAlimentaire || [],
-        equipmentBac: activities.equipmentBac || [],
-        equipmentBennesFermees: activities.equipmentBennesFermees || [],
+        ...cleanActivities,
+        wasteTypes: cleanActivities.wasteTypes || [],
+        equipmentMultibenne: cleanActivities.equipmentMultibenne || [],
+        equipmentAmpliroll: cleanActivities.equipmentAmpliroll || [],
+        equipmentCaissePalette: cleanActivities.equipmentCaissePalette || [],
+        equipmentRolls: cleanActivities.equipmentRolls || [],
+        equipmentContenantAlimentaire: cleanActivities.equipmentContenantAlimentaire || [],
+        equipmentBac: cleanActivities.equipmentBac || [],
+        equipmentBennesFermees: cleanActivities.equipmentBennesFermees || [],
         updatedAt: new Date(),
       })
       .where(eq(companyActivities.id, existing.id))
