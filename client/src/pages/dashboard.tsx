@@ -1985,32 +1985,30 @@ function MyActivitiesPage() {
 
   // Initialiser avec les données existantes ou des valeurs par défaut
   useEffect(() => {
-    if (existingActivities) {
-      setActivities(existingActivities);
-    } else {
-      setActivities({
-        // Services
-        collecteBenne: false,
-        collecteBac: false,
-        collecteVrac: false,
-        collecteBigBag: false,
-        collecteSacGravats: false,
-        collecteHuileFriture: false,
-        collecteDechetsBureaux: false,
-        // Types de déchets
-        wasteTypes: [],
-        // Équipements
-        equipmentMultibenne: [],
-        equipmentAmpliroll: [],
-        equipmentCaissePalette: [],
-        equipmentRolls: [],
-        equipmentContenantAlimentaire: [],
-        equipmentBac: [],
-        equipmentBennesFermees: [],
-        // Prix forfaitaires
-        prixForfaitEnabled: false
-      });
-    }
+    const defaultActivities = {
+      // Services
+      collecteBenne: false,
+      collecteBac: false,
+      collecteVrac: false,
+      collecteBigBag: false,
+      collecteSacGravats: false,
+      collecteHuileFriture: false,
+      collecteDechetsBureaux: false,
+      // Types de déchets
+      wasteTypes: [],
+      // Équipements
+      equipmentMultibenne: [],
+      equipmentAmpliroll: [],
+      equipmentCaissePalette: [],
+      equipmentRolls: [],
+      equipmentContenantAlimentaire: [],
+      equipmentBac: [],
+      equipmentBennesFermees: [],
+      // Prix forfaitaires
+      prixForfaitEnabled: false
+    };
+
+    setActivities(existingActivities || defaultActivities);
   }, [existingActivities]);
 
   const handleSave = async () => {
