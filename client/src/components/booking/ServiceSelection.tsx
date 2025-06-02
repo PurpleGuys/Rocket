@@ -4,24 +4,20 @@ import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useBookingState } from "@/hooks/useBookingState";
 import { apiRequest } from "@/lib/queryClient";
 import { Service } from "@shared/schema";
 import { Truck, AlertTriangle, MapPin, Calendar, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ServiceSelection() {
-  const { bookingData, updateService, updateDuration, updateWasteTypes, calculateTotalPrice } = useBookingState();
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
-    bookingData.service?.id || null
-  );
-  const [selectedDuration, setSelectedDuration] = useState(bookingData.durationDays);
-  const [selectedWasteTypes, setSelectedWasteTypes] = useState<string[]>(bookingData.wasteTypes);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [selectedWasteType, setSelectedWasteType] = useState<string>("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
@@ -41,28 +37,18 @@ export default function ServiceSelection() {
     queryKey: ['/api/admin/company-activities'],
   });
 
-  const pricing = calculateTotalPrice();
+  const service = services?.find((s: Service) => s.id === selectedServiceId);
 
+  // Calcul automatique de la distance quand les données changent
   useEffect(() => {
-    if (selectedServiceId && services) {
-      const service = services.find((s: Service) => s.id === selectedServiceId);
-      if (service) {
-        updateService(service);
-      }
+    if (selectedServiceId && deliveryAddress && postalCode && city && selectedWasteType) {
+      calculateDistance();
     }
-  }, [selectedServiceId, services]);
+  }, [selectedServiceId, deliveryAddress, postalCode, city, selectedWasteType]);
 
-  useEffect(() => {
-    updateDuration(selectedDuration);
-  }, [selectedDuration]);
-
-  useEffect(() => {
-    updateWasteTypes(selectedWasteTypes);
-  }, [selectedWasteTypes]);
-
-  // Fonction pour calculer la distance et le prix en temps réel
-  const calculateDistanceAndPrice = async () => {
-    if (!deliveryAddress || !postalCode || !city || !selectedServiceId) {
+  // Fonction pour valider et calculer la distance
+  const calculateDistance = async () => {
+    if (!selectedServiceId || !deliveryAddress || !postalCode || !city || !selectedWasteType) {
       setDistance(0);
       return;
     }
@@ -73,7 +59,7 @@ export default function ServiceSelection() {
     try {
       const response = await apiRequest('POST', '/api/calculate-pricing', {
         serviceId: selectedServiceId,
-        wasteTypes: selectedWasteTypes,
+        wasteTypes: [selectedWasteType],
         address: deliveryAddress,
         postalCode: postalCode,
         city: city
@@ -111,7 +97,7 @@ export default function ServiceSelection() {
 
     setIsLoadingSuggestions(true);
     try {
-      const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(input)}`);
+      const response = await apiRequest('GET', `/api/places/autocomplete?input=${encodeURIComponent(input)}`);
       const data = await response.json();
       
       if (data.suggestions) {
@@ -120,138 +106,123 @@ export default function ServiceSelection() {
       }
     } catch (error) {
       console.error('Erreur autocomplétion:', error);
-      setAddressSuggestions([]);
     } finally {
       setIsLoadingSuggestions(false);
     }
   };
 
-  // Fonction pour sélectionner une suggestion d'adresse
-  const selectAddressSuggestion = (suggestion: any) => {
-    const parts = suggestion.description.split(', ');
-    if (parts.length >= 3) {
-      const address = parts[0];
-      const cityPart = parts[parts.length - 2];
-      const postalCodeMatch = cityPart.match(/(\d{5})/);
-      const city = cityPart.replace(/\d{5}\s*/, '').trim();
-      
-      setDeliveryAddress(address);
-      setPostalCode(postalCodeMatch ? postalCodeMatch[1] : '');
-      setCity(city);
-    } else {
-      setDeliveryAddress(suggestion.description);
-    }
-    
-    setShowSuggestions(false);
-    setAddressSuggestions([]);
-  };
-
-  // Déclencher l'autocomplétion quand l'adresse change
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (deliveryAddress) {
-        fetchAddressSuggestions(deliveryAddress);
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [deliveryAddress]);
-
-  // Déclencher le calcul quand l'adresse change
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      calculateDistanceAndPrice();
-    }, 1000); // Délai pour éviter trop d'appels API
-
-    return () => clearTimeout(timeoutId);
-  }, [deliveryAddress, postalCode, city, selectedServiceId, selectedWasteTypes]);
-
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceId(service.id);
   };
 
-  const handleDurationSelect = (days: number) => {
-    setSelectedDuration(days);
+  const handleWasteTypeChange = (wasteType: string) => {
+    setSelectedWasteType(wasteType);
   };
 
-  const handleWasteTypeChange = (wasteType: string, checked: boolean) => {
-    setSelectedWasteTypes(prev => 
-      checked 
-        ? [...prev, wasteType]
-        : prev.filter(type => type !== wasteType)
-    );
+  const handleAddressChange = (value: string) => {
+    setDeliveryAddress(value);
+    fetchAddressSuggestions(value);
   };
 
-  // Utiliser les types de déchets configurés dans le panneau d'administration
+  const handleSuggestionSelect = (suggestion: any) => {
+    setDeliveryAddress(suggestion.description);
+    setShowSuggestions(false);
+    
+    // Extraire code postal et ville de la suggestion
+    const parts = suggestion.description.split(', ');
+    if (parts.length >= 2) {
+      const lastPart = parts[parts.length - 1];
+      const postalMatch = lastPart.match(/\b\d{5}\b/);
+      if (postalMatch) {
+        setPostalCode(postalMatch[0]);
+        const cityPart = lastPart.replace(postalMatch[0], '').trim();
+        setCity(cityPart);
+      }
+    }
+  };
+
+  // Calculer le prix en fonction de la sélection
+  const calculatePrice = () => {
+    if (!service || distance === 0) {
+      return { service: 0, transport: 0, total: 0, details: [] };
+    }
+
+    const servicePrice = parseFloat(service.basePrice);
+    const transportPrice = Math.max(distance * 2 * 2.5, 150); // 2.5€/km aller-retour, minimum 150€
+    const total = servicePrice + transportPrice;
+
+    return {
+      service: servicePrice,
+      transport: transportPrice,
+      total: total,
+      details: [
+        { label: "Service", amount: servicePrice },
+        { label: `Transport (${distance.toFixed(1)} km)`, amount: transportPrice },
+        { label: "Total TTC", amount: total }
+      ]
+    };
+  };
+
+  const priceCalculation = calculatePrice();
+
+  // Fonction pour gérer la réservation
+  const handleBooking = () => {
+    if (!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city) {
+      toast({
+        title: "Informations manquantes",
+        description: "Veuillez remplir tous les champs requis",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!service) {
+      toast({
+        title: "Erreur",
+        description: "Service non sélectionné",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Préparer les données de réservation
+    const bookingDetails = {
+      serviceId: selectedServiceId,
+      serviceName: service.name,
+      serviceVolume: service.volume,
+      address: deliveryAddress,
+      postalCode: postalCode,
+      city: city,
+      wasteTypes: [selectedWasteType],
+      distance: distance * 2, // Distance aller-retour
+      pricing: {
+        service: priceCalculation.service,
+        transport: priceCalculation.transport,
+        total: priceCalculation.total
+      }
+    };
+
+    // Sauvegarder dans sessionStorage et rediriger vers checkout
+    sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+    setLocation('/checkout');
+  };
+
+  // Obtenir les types de déchets disponibles
   const availableWasteTypes = companyActivities?.wasteTypes || [];
-
-  const calculateAdvancedPrice = () => {
-    if (!selectedServiceId || !services) return { total: 0, details: [] };
-    
-    const service = services.find((s: Service) => s.id === selectedServiceId);
-    if (!service) return { total: 0, details: [] };
-
-    const basePrice = parseFloat(service.basePrice);
-    const details = [];
-    
-    details.push({ label: `${service.name}`, amount: basePrice });
-    
-    // Duration pricing
-    let durationPrice = 0;
-    if (selectedDuration > 1) {
-      durationPrice = (selectedDuration - 1) * 25;
-      details.push({ label: `Supplément durée (${selectedDuration-1} jours)`, amount: durationPrice });
-    }
-    
-    // Distance-based delivery fee
-    let deliveryFee = 0;
-    if (distance <= 10) {
-      deliveryFee = 20;
-    } else if (distance <= 25) {
-      deliveryFee = 35;
-    } else if (distance <= 50) {
-      deliveryFee = 55;
-    } else {
-      deliveryFee = 75;
-    }
-    details.push({ label: `Livraison (${distance}km)`, amount: deliveryFee });
-    
-    // Waste type surcharge (basic calculation based on selected types)
-    let wasteTypeSurcharge = 0;
-    if (selectedWasteTypes.includes('Ferrailles') || selectedWasteTypes.includes('Métaux et ferraille')) {
-      wasteTypeSurcharge += 15;
-    }
-    if ((selectedWasteTypes.includes('Déchets de chantiers en mélange') || selectedWasteTypes.includes('Gravats en mélange')) && service.volume >= 15) {
-      wasteTypeSurcharge += 20;
-    }
-    if (wasteTypeSurcharge > 0) {
-      details.push({ label: 'Supplément type de déchets', amount: wasteTypeSurcharge });
-    }
-    
-    const subtotal = basePrice + durationPrice + deliveryFee + wasteTypeSurcharge;
-    const vat = subtotal * 0.2;
-    const total = subtotal + vat;
-    
-    details.push({ label: 'Sous-total HT', amount: subtotal });
-    details.push({ label: 'TVA (20%)', amount: vat });
-    
-    return { total, details, subtotal, vat };
-  };
-
-  const priceCalculation = calculateAdvancedPrice();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+        <span className="ml-2 text-gray-600">Chargement des services...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert className="border-red-200 bg-red-50">
-        <AlertTriangle className="h-4 w-4 text-red-600" />
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
           Erreur lors du chargement des services. Veuillez réessayer.
         </AlertDescription>
@@ -274,9 +245,7 @@ export default function ServiceSelection() {
               <div
                 key={service.id}
                 className={`relative cursor-pointer transition-all ${
-                  selectedServiceId === service.id
-                    ? "ring-2 ring-red-500"
-                    : ""
+                  selectedServiceId === service.id ? "ring-2 ring-red-500" : ""
                 }`}
                 onClick={() => handleServiceSelect(service)}
               >
@@ -292,12 +261,10 @@ export default function ServiceSelection() {
                         {parseFloat(service.basePrice).toFixed(0)}€
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{service.description}</p>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>• Volume: {service.volume}m³</div>
-                      <div>• Poids max: {service.maxWeight} tonnes</div>
-                    </div>
-
+                    <p className="text-sm text-gray-600 mb-2">Volume: {service.volume}m³</p>
+                    {selectedServiceId === service.id && (
+                      <Badge className="bg-red-600 text-white">Sélectionné</Badge>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -305,125 +272,118 @@ export default function ServiceSelection() {
           </div>
         </div>
 
-        {/* Duration and Location */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <div className="flex items-center mb-3">
-              <Calendar className="h-5 w-5 mr-2 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Durée</h3>
-            </div>
-            <Select value={selectedDuration.toString()} onValueChange={(value) => setSelectedDuration(parseInt(value))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1 jour</SelectItem>
-                <SelectItem value="3">3 jours (+50€)</SelectItem>
-                <SelectItem value="7">1 semaine (+150€)</SelectItem>
-                <SelectItem value="14">2 semaines (+325€)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <div className="flex items-center mb-3">
-              <MapPin className="h-5 w-5 mr-2 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Adresse de livraison</h3>
-            </div>
-            <div className="space-y-3">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="123 Rue de la République"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  onFocus={() => deliveryAddress.length >= 3 && setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  className="w-full"
-                />
-                {isLoadingSuggestions && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                  </div>
-                )}
-                
-                {showSuggestions && addressSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {addressSuggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                        onClick={() => selectAddressSuggestion(suggestion)}
-                      >
-                        <div className="font-medium text-gray-900">{suggestion.main_text}</div>
-                        <div className="text-sm text-gray-500">{suggestion.secondary_text}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex gap-3">
-                <Input
-                  type="text"
-                  placeholder="Code postal"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  type="text"
-                  placeholder="Ville"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-              
-              {isCalculatingDistance && (
-                <div className="flex items-center text-sm text-blue-600">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Calcul de la distance en cours...
-                </div>
-              )}
-              {distanceError && (
-                <div className="text-sm text-red-600">
-                  {distanceError}
-                </div>
-              )}
-              {distance > 0 && !isCalculatingDistance && (
-                <div className="text-sm text-green-600">
-                  Distance : {distance} km aller-retour ({distance * 2} km total)
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Waste Type Selection */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Type de déchets</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Type de déchet</h3>
           {availableWasteTypes.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-3">
-              {availableWasteTypes.map((wasteType) => (
-                <div key={wasteType} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={wasteType}
-                    checked={selectedWasteTypes.includes(wasteType)}
-                    onCheckedChange={(checked) => 
-                      handleWasteTypeChange(wasteType, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={wasteType} className="text-sm cursor-pointer">
+            <Select value={selectedWasteType} onValueChange={handleWasteTypeChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionnez un type de déchet" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableWasteTypes.map((wasteType: string) => (
+                  <SelectItem key={wasteType} value={wasteType}>
                     {wasteType}
-                  </Label>
-                </div>
-              ))}
-            </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           ) : (
             <div className="text-center text-gray-500 py-4 border-2 border-dashed border-gray-200 rounded-lg">
               <p className="text-sm">Aucun type de déchet configuré.</p>
               <p className="text-xs text-gray-400 mt-1">Contactez l'administrateur pour configurer les types de déchets.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Address Section */}
+        <div>
+          <div className="flex items-center mb-4">
+            <MapPin className="h-5 w-5 mr-2 text-red-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Adresse de livraison</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="relative">
+              <Label htmlFor="address">Adresse *</Label>
+              <Input
+                id="address"
+                type="text"
+                value={deliveryAddress}
+                onChange={(e) => handleAddressChange(e.target.value)}
+                placeholder="Tapez votre adresse..."
+                className="mt-1"
+              />
+              
+              {/* Suggestions d'adresses */}
+              {showSuggestions && addressSuggestions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                  {addressSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                      onClick={() => handleSuggestionSelect(suggestion)}
+                    >
+                      <div className="font-medium">{suggestion.main_text}</div>
+                      <div className="text-gray-500 text-xs">{suggestion.secondary_text}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {isLoadingSuggestions && (
+                <div className="absolute right-3 top-9">
+                  <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                </div>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="postalCode">Code postal *</Label>
+                <Input
+                  id="postalCode"
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  placeholder="75001"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="city">Ville *</Label>
+                <Input
+                  id="city"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Paris"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Distance et erreurs */}
+          {isCalculatingDistance && (
+            <div className="mt-4 flex items-center text-sm text-gray-600">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Calcul de la distance en cours...
+            </div>
+          )}
+          
+          {distanceError && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{distanceError}</AlertDescription>
+            </Alert>
+          )}
+          
+          {distance > 0 && !isCalculatingDistance && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-800">
+                Distance calculée : {distance.toFixed(1)} km (aller-retour : {(distance * 2).toFixed(1)} km)
+              </p>
             </div>
           )}
         </div>
@@ -439,10 +399,10 @@ export default function ServiceSelection() {
               <div className="space-y-3">
                 {priceCalculation.details.map((item, index) => (
                   <div key={index} className="flex justify-between text-sm">
-                    <span className={index >= priceCalculation.details.length - 2 ? "font-medium" : "text-gray-600"}>
+                    <span className={index >= priceCalculation.details.length - 1 ? "font-medium" : "text-gray-600"}>
                       {item.label}
                     </span>
-                    <span className={index >= priceCalculation.details.length - 2 ? "font-medium" : ""}>
+                    <span className={index >= priceCalculation.details.length - 1 ? "font-medium" : ""}>
                       {item.amount.toFixed(2)}€
                     </span>
                   </div>
@@ -453,7 +413,11 @@ export default function ServiceSelection() {
                   <span>{priceCalculation.total.toFixed(2)}€</span>
                 </div>
                 
-                <Button className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white">
+                <Button 
+                  className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white"
+                  onClick={handleBooking}
+                  disabled={!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city}
+                >
                   Réserver maintenant
                 </Button>
               </div>
