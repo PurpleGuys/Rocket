@@ -1955,6 +1955,9 @@ function MyActivitiesPage() {
   const { toast } = useToast();
   const [activities, setActivities] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   // Charger les activités existantes
   const { data: existingActivities, refetch } = useQuery({
