@@ -1953,11 +1953,10 @@ function TreatmentPricingPage() {
       const response = await apiRequest("POST", "/api/admin/waste-types", data);
       return response.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Matière créée",
-        description: "Le nouveau type de matière a été ajouté avec succès.",
-      });
+    onSuccess: (createdWasteType) => {
+      // Configurer automatiquement le formulaire avec le nouveau type créé
+      setSelectedWasteType(createdWasteType.id);
+      setShowAddForm(true);
       refetchWasteTypes();
     },
     onError: () => {
@@ -2065,13 +2064,31 @@ function TreatmentPricingPage() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    // Trouver l'ID du type de déchet basé sur le nom
+    let wasteTypeId = selectedWasteType;
+    
+    if (!wasteTypeId) {
+      // Chercher le type de déchet par nom
+      const dbWasteType = wasteTypes?.find((wt: any) => wt.name === selectedWasteTypeName);
+      if (dbWasteType) {
+        wasteTypeId = dbWasteType.id;
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Type de matière non trouvé. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     const pricingData = {
-      wasteTypeId: parseInt(formData.get('wasteTypeId')?.toString() || '0'),
+      wasteTypeId: wasteTypeId,
       pricePerTon: formData.get('pricePerTon')?.toString() || '0',
       treatmentType: formData.get('treatmentType')?.toString() || '',
       treatmentCode: formData.get('treatmentCode')?.toString() || '',
       outletAddress: formData.get('outletAddress')?.toString() || '',
-      isManualTreatment: formData.get('isManualTreatment') === 'true',
+      isManualTreatment: false,
       isActive: true
     };
 
@@ -2342,16 +2359,15 @@ function TreatmentPricingPage() {
                         <Badge variant="secondary" className="mb-4">En attente de configuration</Badge>
                         <Button
                           onClick={() => {
+                            // Utiliser directement le nom de la matière de "Mes activités"
+                            // Créer automatiquement le type si nécessaire
                             if (!dbWasteType) {
                               createWasteTypeMutation.mutate({
                                 name: wasteTypeName,
-                                description: `Type de déchet configuré dans "Mes activités"`
+                                description: `Matière configurée dans "Mes activités"`
                               });
-                              setSelectedWasteTypeName(wasteTypeName);
-                            } else {
-                              setSelectedWasteType(dbWasteType.id);
-                              setSelectedWasteTypeName(wasteTypeName);
                             }
+                            setSelectedWasteTypeName(wasteTypeName);
                             setEditingPricing(null);
                             setShowAddForm(true);
                           }}
