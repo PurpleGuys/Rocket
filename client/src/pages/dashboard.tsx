@@ -1892,6 +1892,7 @@ function TreatmentPricingPage() {
   const { toast } = useToast();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedWasteType, setSelectedWasteType] = useState<number | null>(null);
+  const [selectedWasteTypeName, setSelectedWasteTypeName] = useState<string>('');
 
   // Codes exutoires disponibles selon le cahier des charges
   const OUTLET_CODES = [
@@ -2114,23 +2115,19 @@ function TreatmentPricingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {(() => {
-              // Filtrer les types de déchets selon la configuration des activités
+              // Utiliser directement les types de déchets configurés dans "Mes activités"
               const configuredWasteTypes = companyActivities?.wasteTypes || [];
-              const filteredWasteTypes = wasteTypes && wasteTypes.length > 0 
-                ? wasteTypes.filter((wasteType: any) => 
-                    configuredWasteTypes.includes(wasteType.name)
-                  )
-                : [];
-
-              return filteredWasteTypes.length > 0 ? (
-                filteredWasteTypes.map((wasteType: any) => {
-                  const existingPricing = treatmentPricing?.find((p: any) => p.wasteTypeId === wasteType.id);
+              
+              return configuredWasteTypes.length > 0 ? (
+                configuredWasteTypes.map((wasteTypeName: string, index: number) => {
+                  // Chercher si ce type de déchet existe dans la base de données
+                  const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
+                  const existingPricing = dbWasteType ? treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id) : null;
+                  
                   return (
-                    <div key={wasteType.id} className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-900">{wasteType.name}</h4>
-                      {wasteType.description && (
-                        <p className="text-sm text-gray-600 mt-1">{wasteType.description}</p>
-                      )}
+                    <div key={`waste-${index}`} className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900">{wasteTypeName}</h4>
+                      <p className="text-sm text-gray-600 mt-1">Configuré dans "Mes activités"</p>
                       
                       {existingPricing ? (
                         <div className="mt-4 space-y-2">
@@ -2146,10 +2143,47 @@ function TreatmentPricingPage() {
                             <span className="text-sm text-gray-600">Type:</span>
                             <span className="text-sm">{existingPricing.treatmentType}</span>
                           </div>
+                          <div className="flex justify-end gap-2 mt-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setEditingPricing(existingPricing);
+                                setShowAddForm(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Modifier
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteTreatmentPricingMutation.mutate(existingPricing.id)}
+                              disabled={deleteTreatmentPricingMutation.isPending}
+                              className="text-red-600 border-red-300 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Supprimer
+                            </Button>
+                          </div>
                         </div>
                       ) : (
                         <button
-                          onClick={() => setSelectedWasteType(wasteType.id)}
+                          onClick={() => {
+                            // Créer ou utiliser le type de déchet existant
+                            if (dbWasteType) {
+                              setSelectedWasteType(dbWasteType.id);
+                              setSelectedWasteTypeName(wasteTypeName);
+                            } else {
+                              // Créer automatiquement le type de déchet s'il n'existe pas
+                              createWasteTypeMutation.mutate({
+                                name: wasteTypeName,
+                                description: `Type de déchet configuré dans "Mes activités"`
+                              });
+                              setSelectedWasteTypeName(wasteTypeName);
+                            }
+                            setShowAddForm(true);
+                          }}
                           className="mt-4 w-full px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
                         >
                           Configurer le tarif
