@@ -1,0 +1,91 @@
+Cahier des charges – Pages Tarification : « Prix de location » et « Prix de transports »
+
+Objectifs
+
+Ajouter une interface permettant aux administrateurs de gérer et définir les tarifs de location quotidiens des équipements et les tarifs liés au transport.
+
+Description fonctionnelle
+
+1. Page « Mes prix de location » :
+
+Permettre la saisie des tarifs quotidiens par équipement.
+
+Permettre la saisie du nombre de jours à partir duquel la facturation débute.
+
+Offrir deux onglets :
+
+Prix journalier
+
+Prix forfaitaire
+
+2. Page « Prix de transports » :
+
+Onglet "Tarification kilométrique" :
+
+Configuration du tarif par kilomètre en euros (€/km), calcul aller-retour depuis le site d’activité.
+
+Service automatisé de calcul des kilomètres aller-retour.
+
+Saisie d’un prix forfaitaire minimum applicable.
+
+Onglet « Chargement immédiat » :
+
+Configuration du tarif horaire en euros (€/heure).
+
+Application automatique pour chaque heure de présence du véhicule chez le client.
+
+Facturation minimale d'une heure.
+
+Désactivation de cette option si le prix horaire est fixé à 0 €.
+
+Champs à implémenter
+
+Page « Prix de transports » :
+
+Tarification kilométrique :
+
+Prix par km (aller-retour) : Saisie numérique décimale.
+
+Prix forfaitaire minimum : Saisie numérique décimale.
+
+Chargement immédiat :
+
+Prix horaire : Saisie numérique décimale, désactivé si fixé à 0 €.
+
+Contraintes techniques
+
+Validation côté client et serveur pour assurer la cohérence et l'exactitude des données saisies.
+
+Intégration d’une API de calcul de distances (par exemple Google Maps API) pour les trajets aller-retour.
+
+Enregistrement sécurisé des données en base avec sauvegarde automatique après chaque modification.
+
+Interface utilisateur
+
+Design clair et intuitif.
+
+Aide contextuelle via info-bulles explicatives.
+
+Bouton global de sauvegarde des configurations tarifaires.
+
+Sécurité et RGPD
+
+Protection des données saisies par chiffrement.
+
+Accès sécurisé réservé aux administrateurs authentifiés.
+
+Traçabilité des actions par logs administratifs.
+
+Livrables attendus
+
+Pages fonctionnelles intégrées sur l’extranet existant.
+
+Documentation succincte d’utilisation.
+
+Scripts SQL ou migrations pour la gestion en base de données des nouvelles fonctionnalités.
+
+Délais
+
+Livraison en environnement de test : 3 semaines après validation du cahier des charges.
+
+Validation finale et mise en production : 4 semaines après livraison en environnement de test.

@@ -6,7 +6,7 @@ import helmet from "helmet";
 import { body, validationResult } from "express-validator";
 import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema } from "@shared/schema";
 import { z } from "zod";
 
 if (!process.env.STRIPE_SECRET_KEY) {

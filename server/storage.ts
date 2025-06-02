@@ -1,4 +1,4 @@
-import { users, services, timeSlots, orders, sessions, rentalPricing, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing } from "@shared/schema";
+import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql, lt } from "drizzle-orm";
 
@@ -70,6 +70,11 @@ export interface IStorage {
   createRentalPricing(pricing: InsertRentalPricing): Promise<RentalPricing>;
   updateRentalPricing(serviceId: number, pricing: UpdateRentalPricing): Promise<RentalPricing | undefined>;
   deleteRentalPricing(serviceId: number): Promise<void>;
+
+  // Transport Pricing
+  getTransportPricing(): Promise<TransportPricing | undefined>;
+  createTransportPricing(pricing: InsertTransportPricing): Promise<TransportPricing>;
+  updateTransportPricing(pricing: UpdateTransportPricing): Promise<TransportPricing | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -411,6 +416,50 @@ export class DatabaseStorage implements IStorage {
       .update(rentalPricing)
       .set({ isActive: false })
       .where(eq(rentalPricing.serviceId, serviceId));
+  }
+
+  // Transport Pricing methods
+  async getTransportPricing(): Promise<TransportPricing | undefined> {
+    const [result] = await db
+      .select()
+      .from(transportPricing)
+      .where(eq(transportPricing.isActive, true))
+      .limit(1);
+    return result;
+  }
+
+  async createTransportPricing(pricing: InsertTransportPricing): Promise<TransportPricing> {
+    const [result] = await db
+      .insert(transportPricing)
+      .values(pricing)
+      .returning();
+    return result;
+  }
+
+  async updateTransportPricing(pricing: UpdateTransportPricing): Promise<TransportPricing | undefined> {
+    // Get the current active transport pricing
+    const existing = await this.getTransportPricing();
+    
+    if (existing) {
+      const [result] = await db
+        .update(transportPricing)
+        .set({
+          ...pricing,
+          updatedAt: new Date(),
+        })
+        .where(eq(transportPricing.id, existing.id))
+        .returning();
+      return result;
+    } else {
+      // Create new if none exists
+      return await this.createTransportPricing({
+        pricePerKm: pricing.pricePerKm || "0",
+        minimumFlatRate: pricing.minimumFlatRate || "0",
+        hourlyRate: pricing.hourlyRate || "0",
+        immediateLoadingEnabled: pricing.immediateLoadingEnabled ?? true,
+        isActive: true,
+      });
+    }
   }
 }
 

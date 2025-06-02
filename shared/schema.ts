@@ -147,6 +147,21 @@ export const rentalPricing = pgTable("rental_pricing", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Table pour les tarifs de transport
+export const transportPricing = pgTable("transport_pricing", {
+  id: serial("id").primaryKey(),
+  // Tarification kilométrique
+  pricePerKm: decimal("price_per_km", { precision: 10, scale: 2 }).notNull().default("0"), // Prix par km aller-retour en €
+  minimumFlatRate: decimal("minimum_flat_rate", { precision: 10, scale: 2 }).notNull().default("0"), // Prix forfaitaire minimum en €
+  // Chargement immédiat
+  hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }).notNull().default("0"), // Prix horaire en €
+  immediateLoadingEnabled: boolean("immediate_loading_enabled").default(true), // Désactivé si prix horaire = 0
+  // Métadonnées
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -225,6 +240,18 @@ export const updateRentalPricingSchema = createInsertSchema(rentalPricing).omit(
   updatedAt: true,
 });
 
+export const insertTransportPricingSchema = createInsertSchema(transportPricing).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateTransportPricingSchema = createInsertSchema(transportPricing).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Relations
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
@@ -249,3 +276,6 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type RentalPricing = typeof rentalPricing.$inferSelect;
 export type InsertRentalPricing = z.infer<typeof insertRentalPricingSchema>;
 export type UpdateRentalPricing = z.infer<typeof updateRentalPricingSchema>;
+export type TransportPricing = typeof transportPricing.$inferSelect;
+export type InsertTransportPricing = z.infer<typeof insertTransportPricingSchema>;
+export type UpdateTransportPricing = z.infer<typeof updateTransportPricingSchema>;
