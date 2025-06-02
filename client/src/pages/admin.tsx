@@ -379,12 +379,12 @@ export default function AdminDashboard() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{order.customerName}</div>
+                            <div className="text-sm text-gray-900">{order.customerFirstName} {order.customerLastName}</div>
                             <div className="text-sm text-gray-500">{order.customerEmail}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{order.serviceName}</div>
-                            <div className="text-sm text-gray-500">{order.wasteType}</div>
+                            <div className="text-sm text-gray-900">Service {order.serviceId}</div>
+                            <div className="text-sm text-gray-500">{order.wasteTypes?.[0] || 'Non spécifié'}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
@@ -545,13 +545,13 @@ export default function AdminDashboard() {
                       <div>
                         <h4 className="font-medium">{pricing.service.name}</h4>
                         <p className="text-sm text-gray-600">
-                          Prix de base: {formatPrice(pricing.basePrice)} | 
-                          Taux horaire: {formatPrice(pricing.hourlyRate || '0')}/h
+                          Tarif journalier: {formatPrice(pricing.dailyRate)} | 
+                          Facturation à partir du jour: {pricing.billingStartDay}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={pricing.immediateLoadingEnabled ? "default" : "secondary"}>
-                          {pricing.immediateLoadingEnabled ? "Chargement immédiat" : "Standard"}
+                        <Badge variant={pricing.isActive ? "default" : "secondary"}>
+                          {pricing.isActive ? "Actif" : "Inactif"}
                         </Badge>
                       </div>
                     </div>
@@ -636,13 +636,13 @@ export default function AdminDashboard() {
                           </Badge>
                         </div>
                         <div className="flex items-center">
-                          <Badge variant={companyActivities.locationBenne ? "default" : "secondary"}>
-                            {companyActivities.locationBenne ? "✓" : "✗"} Location de bennes
+                          <Badge variant={companyActivities.collecteBac ? "default" : "secondary"}>
+                            {companyActivities.collecteBac ? "✓" : "✗"} Collecte de bacs
                           </Badge>
                         </div>
                         <div className="flex items-center">
-                          <Badge variant={companyActivities.traitementDechets ? "default" : "secondary"}>
-                            {companyActivities.traitementDechets ? "✓" : "✗"} Traitement des déchets
+                          <Badge variant={companyActivities.transitionEnergetique ? "default" : "secondary"}>
+                            {companyActivities.transitionEnergetique ? "✓" : "✗"} Transition énergétique
                           </Badge>
                         </div>
                       </div>
