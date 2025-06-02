@@ -10,6 +10,8 @@ import Auth from "@/pages/auth";
 import Profile from "@/pages/profile";
 import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
+import Checkout from "@/pages/checkout";
+import PaymentSuccess from "@/pages/payment-success";
 import CookieConsent from "@/components/CookieConsent";
 
 function Router() {
@@ -38,6 +40,8 @@ function Router() {
       <Route path="/dashboard/*" component={Dashboard} />
       <Route path="/admin/*" component={Admin} />
       <Route path="/admin" component={Admin} />
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
