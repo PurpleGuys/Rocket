@@ -8,7 +8,7 @@ import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
 import { DistanceService } from "./distanceService";
 import { emailService } from "./emailService";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema } from "@shared/schema";
 import { z } from "zod";
 
 if (!process.env.STRIPE_SECRET_KEY) {
