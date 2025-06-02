@@ -769,9 +769,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/company-activities', authenticateToken, requireAdmin, async (req, res) => {
     try {
-      const activities = await storage.updateCompanyActivities(req.body);
+      console.log('Données reçues pour mise à jour:', JSON.stringify(req.body, null, 2));
+      
+      // Convertir les données pour s'assurer que les tableaux sont bien formatés
+      const processedData = {
+        ...req.body,
+        wasteTypes: Array.isArray(req.body.wasteTypes) ? req.body.wasteTypes : [],
+        equipmentMultibenne: Array.isArray(req.body.equipmentMultibenne) ? req.body.equipmentMultibenne : [],
+        equipmentAmpliroll: Array.isArray(req.body.equipmentAmpliroll) ? req.body.equipmentAmpliroll : [],
+        equipmentCaissePalette: Array.isArray(req.body.equipmentCaissePalette) ? req.body.equipmentCaissePalette : [],
+        equipmentRolls: Array.isArray(req.body.equipmentRolls) ? req.body.equipmentRolls : [],
+        equipmentContenantAlimentaire: Array.isArray(req.body.equipmentContenantAlimentaire) ? req.body.equipmentContenantAlimentaire : [],
+        equipmentBac: Array.isArray(req.body.equipmentBac) ? req.body.equipmentBac : [],
+        equipmentBennesFermees: Array.isArray(req.body.equipmentBennesFermees) ? req.body.equipmentBennesFermees : [],
+      };
+      
+      const activities = await storage.updateCompanyActivities(processedData);
       res.json(activities);
     } catch (error: any) {
+      console.error('Erreur lors de la mise à jour des activités:', error);
       res.status(500).json({ message: 'Erreur lors de la mise à jour des activités: ' + error.message });
     }
   });

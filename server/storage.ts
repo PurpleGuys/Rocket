@@ -594,7 +594,17 @@ export class DatabaseStorage implements IStorage {
   async createCompanyActivities(activities: InsertCompanyActivities): Promise<CompanyActivities> {
     const [newActivities] = await db
       .insert(companyActivities)
-      .values(activities)
+      .values({
+        ...activities,
+        wasteTypes: activities.wasteTypes || [],
+        equipmentMultibenne: activities.equipmentMultibenne || [],
+        equipmentAmpliroll: activities.equipmentAmpliroll || [],
+        equipmentCaissePalette: activities.equipmentCaissePalette || [],
+        equipmentRolls: activities.equipmentRolls || [],
+        equipmentContenantAlimentaire: activities.equipmentContenantAlimentaire || [],
+        equipmentBac: activities.equipmentBac || [],
+        equipmentBennesFermees: activities.equipmentBennesFermees || [],
+      })
       .returning();
     return newActivities;
   }
@@ -611,6 +621,14 @@ export class DatabaseStorage implements IStorage {
       .update(companyActivities)
       .set({
         ...activities,
+        wasteTypes: activities.wasteTypes || [],
+        equipmentMultibenne: activities.equipmentMultibenne || [],
+        equipmentAmpliroll: activities.equipmentAmpliroll || [],
+        equipmentCaissePalette: activities.equipmentCaissePalette || [],
+        equipmentRolls: activities.equipmentRolls || [],
+        equipmentContenantAlimentaire: activities.equipmentContenantAlimentaire || [],
+        equipmentBac: activities.equipmentBac || [],
+        equipmentBennesFermees: activities.equipmentBennesFermees || [],
         updatedAt: new Date(),
       })
       .where(eq(companyActivities.id, existing.id))
