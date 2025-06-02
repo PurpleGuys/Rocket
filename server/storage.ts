@@ -89,6 +89,11 @@ export interface IStorage {
   createTreatmentPricing(pricing: InsertTreatmentPricing): Promise<TreatmentPricing>;
   updateTreatmentPricing(id: number, pricing: UpdateTreatmentPricing): Promise<TreatmentPricing | undefined>;
   deleteTreatmentPricing(id: number): Promise<void>;
+
+  // Company Activities
+  getCompanyActivities(): Promise<CompanyActivities | undefined>;
+  createCompanyActivities(activities: InsertCompanyActivities): Promise<CompanyActivities>;
+  updateCompanyActivities(activities: UpdateCompanyActivities): Promise<CompanyActivities | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {

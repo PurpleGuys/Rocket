@@ -1951,6 +1951,364 @@ function PriceSimulatorPage() {
   );
 }
 
+function MyActivitiesPage() {
+  const { toast } = useToast();
+  const [activities, setActivities] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Charger les activités existantes
+  const { data: existingActivities, refetch } = useQuery({
+    queryKey: ['/api/admin/company-activities'],
+    select: (data) => data || null
+  });
+
+  // Listes des options disponibles
+  const wasteTypeOptions = [
+    "Papier", "Carton", "Plastique", "Palettes", "Encombrants tout venant", "DIB (Déchet Industriel Banal)",
+    "Bois A", "Ferrailles", "Déchets verts", "Textiles", "Biodéchets alimentaires", "Bois B",
+    "Déchets de chantiers en mélange", "Gravats en mélange", "Gravats propres inertes", "Platre",
+    "Equipement informatique et imprimantes", "Lampes", "Electroménager", "Cartouches d'encre",
+    "Chiffons souillés", "Piles et accumulateurs", "DASRI (Déchets activités soins à risque infectieux)",
+    "5 flux (papier/carton, métal, plastique, verre et bois)", "7 flux (papier/carton, métal, plastique, verre, bois, gravats et plâtre)",
+    "Terre", "Verre", "Déchet Ultime"
+  ];
+
+  const equipmentOptions = {
+    multibenne: ["6m3", "7m3", "8m3", "10m3"],
+    ampliroll: ["3m3", "5m3", "7m3", "10m3", "15m3", "20m3", "30m3", "35m3"],
+    caissePalette: ["373L", "650L"],
+    rolls: ["500L", "700L", "1100L"],
+    contenantAlimentaire: ["100L", "120L", "240L", "400L", "660L", "20L", "40L", "60L", "80L"],
+    bac: ["20L", "40L", "60L", "80L", "100L", "120L", "240L", "360L", "450L", "550L", "770L", "1000L", "1100L"],
+    bennesFermees: ["15m3", "30m3"]
+  };
+
+  // Initialiser avec les données existantes ou des valeurs par défaut
+  useEffect(() => {
+    if (existingActivities) {
+      setActivities(existingActivities);
+    } else {
+      setActivities({
+        // Services
+        collecteBenne: false,
+        collecteBac: false,
+        collecteVrac: false,
+        collecteBigBag: false,
+        collecteSacGravats: false,
+        collecteHuileFriture: false,
+        collecteDechetsBureaux: false,
+        // Types de déchets
+        wasteTypes: [],
+        // Équipements
+        equipmentMultibenne: [],
+        equipmentAmpliroll: [],
+        equipmentCaissePalette: [],
+        equipmentRolls: [],
+        equipmentContenantAlimentaire: [],
+        equipmentBac: [],
+        equipmentBennesFermees: [],
+        // Prix forfaitaires
+        prixForfaitEnabled: false
+      });
+    }
+  }, [existingActivities]);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/company-activities', {
+        method: existingActivities ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(activities)
+      });
+
+      if (!response.ok) throw new Error('Erreur lors de la sauvegarde');
+
+      toast({
+        title: "Activités sauvegardées",
+        description: "La configuration de vos activités a été mise à jour avec succès.",
+      });
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder les activités.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateActivity = (field: string, value: any) => {
+    setActivities((prev: any) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const toggleWasteType = (wasteType: string) => {
+    const currentTypes = activities?.wasteTypes || [];
+    const newTypes = currentTypes.includes(wasteType)
+      ? currentTypes.filter((t: string) => t !== wasteType)
+      : [...currentTypes, wasteType];
+    updateActivity('wasteTypes', newTypes);
+  };
+
+  const toggleEquipment = (category: string, item: string) => {
+    const currentItems = activities?.[category] || [];
+    const newItems = currentItems.includes(item)
+      ? currentItems.filter((i: string) => i !== item)
+      : [...currentItems, item];
+    updateActivity(category, newItems);
+  };
+
+  if (!activities) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-[#00B8A2] border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Mes activités</h1>
+          <p className="text-gray-600">Configurez les activités de votre entreprise</p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="px-4 py-2 bg-[#00B8A2] text-white rounded-md hover:bg-[#009688] focus:outline-none focus:ring-2 focus:ring-[#00B8A2] focus:ring-offset-2 disabled:opacity-50"
+        >
+          {loading ? 'Sauvegarde...' : 'Sauvegarder'}
+        </button>
+      </div>
+
+      <div className="space-y-8">
+        {/* Services */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mes services</CardTitle>
+            <p className="text-sm text-gray-600">
+              Définissez les services que vous proposez. Vous pouvez sélectionner plusieurs choix.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {[
+              { key: 'collecteBenne', label: 'Collecte en Benne' },
+              { key: 'collecteBac', label: 'Collecte en Bac, Rolls ou Caisse palette' },
+              { key: 'collecteVrac', label: 'Collecte en vrac' },
+              { key: 'collecteBigBag', label: 'Collecte Big Bag' },
+              { key: 'collecteSacGravats', label: 'Collecte sac gravats' },
+              { key: 'collecteHuileFriture', label: 'Collecte huile de friture' },
+              { key: 'collecteDechetsBureaux', label: 'Collecte de déchets de bureaux' }
+            ].map((service) => (
+              <div key={service.key} className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={activities[service.key] || false}
+                  onChange={(e) => updateActivity(service.key, e.target.checked)}
+                  className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                />
+                <label className="text-sm text-gray-700">{service.label}</label>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Types de déchets */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mes déchets</CardTitle>
+            <p className="text-sm text-gray-600">
+              Définissez les déchets que vous collectez. Vous pouvez sélectionner plusieurs choix.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {wasteTypeOptions.map((wasteType) => (
+                  <div key={wasteType} className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={activities.wasteTypes?.includes(wasteType) || false}
+                      onChange={() => toggleWasteType(wasteType)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{wasteType}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Équipements */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mes équipements</CardTitle>
+            <p className="text-sm text-gray-600">
+              Définissez les équipements que vous utilisez. Vous pouvez sélectionner plusieurs choix.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Benne Multibenne */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Benne (Multibenne)</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.multibenne.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentMultibenne?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentMultibenne', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Benne Ampliroll */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Benne (Ampliroll)</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.ampliroll.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentAmpliroll?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentAmpliroll', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Caisse Palette */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Caisse Palette</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.caissePalette.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentCaissePalette?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentCaissePalette', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Rolls */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Rolls</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.rolls.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentRolls?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentRolls', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contenant alimentaire */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Contenant alimentaire</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.contenantAlimentaire.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentContenantAlimentaire?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentContenantAlimentaire', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bac */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Bac</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.bac.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentBac?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentBac', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bennes Fermées */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Bennes Fermées</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {equipmentOptions.bennesFermees.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activities.equipmentBennesFermees?.includes(size) || false}
+                      onChange={() => toggleEquipment('equipmentBennesFermees', size)}
+                      className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+                    />
+                    <label className="text-sm text-gray-700">{size}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Prix par forfait */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Prix par forfait</CardTitle>
+            <p className="text-sm text-gray-600">
+              Souhaitez-vous activer les prix forfaitaires ?
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                checked={activities.prixForfaitEnabled || false}
+                onChange={(e) => updateActivity('prixForfaitEnabled', e.target.checked)}
+                className="h-4 w-4 text-[#00B8A2] focus:ring-[#00B8A2] border-gray-300 rounded"
+              />
+              <label className="text-sm text-gray-700">Activer les prix forfaitaires</label>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState("dashboard");
 
@@ -1972,6 +2330,8 @@ export default function Dashboard() {
         return <LegalDocumentsPage />;
       case "price-simulator":
         return <PriceSimulatorPage />;
+      case "my-activities":
+        return <MyActivitiesPage />;
       default:
         return <DashboardHome />;
     }
@@ -2116,6 +2476,19 @@ export default function Dashboard() {
                   >
                     <Calculator className="mr-3 h-4 w-4" />
                     Simulateur de Prix
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("my-activities")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      currentPage === "my-activities"
+                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Settings className="mr-3 h-4 w-4" />
+                    Mes activités
                   </button>
                 </li>
               </ul>

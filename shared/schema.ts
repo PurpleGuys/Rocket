@@ -327,3 +327,52 @@ export type InsertWasteType = z.infer<typeof insertWasteTypeSchema>;
 export type TreatmentPricing = typeof treatmentPricing.$inferSelect;
 export type InsertTreatmentPricing = z.infer<typeof insertTreatmentPricingSchema>;
 export type UpdateTreatmentPricing = z.infer<typeof updateTreatmentPricingSchema>;
+
+// Company Activities Configuration
+export const companyActivities = pgTable("company_activities", {
+  id: serial("id").primaryKey(),
+  // Services configuration
+  collecteBenne: boolean("collecte_benne").default(false),
+  collecteBac: boolean("collecte_bac").default(false),
+  collecteVrac: boolean("collecte_vrac").default(false),
+  collecteBigBag: boolean("collecte_big_bag").default(false),
+  collecteSacGravats: boolean("collecte_sac_gravats").default(false),
+  collecteHuileFriture: boolean("collecte_huile_friture").default(false),
+  collecteDechetsBureaux: boolean("collecte_dechets_bureaux").default(false),
+  
+  // Waste types configuration
+  wasteTypes: jsonb("waste_types").$type<string[]>().default([]),
+  
+  // Equipment configuration
+  equipmentMultibenne: jsonb("equipment_multibenne").$type<string[]>().default([]),
+  equipmentAmpliroll: jsonb("equipment_ampliroll").$type<string[]>().default([]),
+  equipmentCaissePalette: jsonb("equipment_caisse_palette").$type<string[]>().default([]),
+  equipmentRolls: jsonb("equipment_rolls").$type<string[]>().default([]),
+  equipmentContenantAlimentaire: jsonb("equipment_contenant_alimentaire").$type<string[]>().default([]),
+  equipmentBac: jsonb("equipment_bac").$type<string[]>().default([]),
+  equipmentBennesFermees: jsonb("equipment_bennes_fermees").$type<string[]>().default([]),
+  
+  // Pricing configuration
+  prixForfaitEnabled: boolean("prix_forfait_enabled").default(false),
+  
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCompanyActivitiesSchema = createInsertSchema(companyActivities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateCompanyActivitiesSchema = createInsertSchema(companyActivities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type CompanyActivities = typeof companyActivities.$inferSelect;
+export type InsertCompanyActivities = z.infer<typeof insertCompanyActivitiesSchema>;
+export type UpdateCompanyActivities = z.infer<typeof updateCompanyActivitiesSchema>;
