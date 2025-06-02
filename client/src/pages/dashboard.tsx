@@ -31,8 +31,7 @@ function DashboardHome() {
   });
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -45,7 +44,7 @@ function DashboardHome() {
 
         {/* Admin Dashboard */}
         {isAdmin && (
-          <>
+          <div className="space-y-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="border-green-200">
@@ -176,12 +175,12 @@ function DashboardHome() {
                 </CardContent>
               </Card>
             </div>
-          </>
+          </div>
         )}
 
         {/* User Dashboard */}
         {!isAdmin && (
-          <>
+          <div className="space-y-6">
             {/* User Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="border-green-200">
@@ -287,10 +286,10 @@ function DashboardHome() {
                 )}
               </CardContent>
             </Card>
-          </>
+          </div>
         )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 
