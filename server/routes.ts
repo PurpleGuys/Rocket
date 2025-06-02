@@ -6,7 +6,7 @@ import helmet from "helmet";
 import { body, validationResult } from "express-validator";
 import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema } from "@shared/schema";
 import { z } from "zod";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -632,6 +632,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: "Error deleting rental pricing: " + error.message });
+    }
+  });
+
+  // Add new service/equipment
+  app.post("/api/admin/services", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertServiceSchema.parse(req.body);
+      const newService = await storage.createService(validatedData);
+      res.status(201).json(newService);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating service: " + error.message });
+      }
+    }
+  });
+
+  // Update service/equipment
+  app.put("/api/admin/services/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const validatedData = insertServiceSchema.parse(req.body);
+      const updatedService = await storage.updateService(serviceId, validatedData);
+      
+      if (!updatedService) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      res.json(updatedService);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error updating service: " + error.message });
+      }
+    }
+  });
+
+  // Delete service/equipment
+  app.delete("/api/admin/services/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      // Instead of deleting, we deactivate the service
+      await storage.updateService(serviceId, { isActive: false });
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error deleting service: " + error.message });
     }
   });
 

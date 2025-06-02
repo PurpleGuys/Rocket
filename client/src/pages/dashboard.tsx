@@ -368,6 +368,15 @@ function RentalPricingPage() {
   const [activeTab, setActiveTab] = useState("daily");
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
   const [formData, setFormData] = useState<{[key: number]: {dailyRate: string, billingStartDay: string}}>({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newServiceForm, setNewServiceForm] = useState({
+    name: "",
+    volume: "",
+    basePrice: "",
+    description: "",
+    maxWeight: "",
+    wasteTypes: [] as string[],
+  });
 
   const { data: services } = useQuery({
     queryKey: ["/api/services"],
@@ -377,33 +386,37 @@ function RentalPricingPage() {
     queryKey: ["/api/admin/rental-pricing"],
   });
 
-  const updatePricingMutation = useMutation({
-    mutationFn: async (data: {serviceId: number, dailyRate: string, billingStartDay: number}) => {
-      const response = await fetch("/api/admin/rental-pricing", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          serviceId: data.serviceId,
-          dailyRate: data.dailyRate,
-          billingStartDay: data.billingStartDay,
-          isActive: true,
-        }),
-      });
+  const updatePricingMutation = {
+    mutate: async (data: {serviceId: number, dailyRate: string, billingStartDay: number}) => {
+      try {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch("/api/admin/rental-pricing", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            serviceId: data.serviceId,
+            dailyRate: data.dailyRate,
+            billingStartDay: data.billingStartDay,
+            isActive: true,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        }
+
+        refetchPricing();
+        setEditingRowId(null);
+        setFormData({});
+      } catch (error) {
+        console.error("Erreur lors de la sauvegarde:", error);
       }
-
-      return response.json();
     },
-    onSuccess: () => {
-      refetchPricing();
-      setEditingRowId(null);
-      setFormData({});
-    },
-  });
+    isPending: false,
+  };
 
   const handleEdit = (serviceId: number) => {
     const existingPricing = rentalPricing?.find((p: any) => p.serviceId === serviceId);
@@ -447,11 +460,131 @@ function RentalPricingPage() {
     return rentalPricing?.find((p: any) => p.serviceId === serviceId);
   };
 
+  const addServiceMutation = {
+    mutate: async (serviceData: any) => {
+      try {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch("/api/admin/services", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(serviceData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        }
+
+        // Refresh services list
+        const servicesResponse = await fetch("/api/services");
+        if (servicesResponse.ok) {
+          window.location.reload(); // Simple refresh for now
+        }
+
+        setShowAddModal(false);
+        setNewServiceForm({
+          name: "",
+          volume: "",
+          basePrice: "",
+          description: "",
+          maxWeight: "",
+          wasteTypes: [],
+        });
+      } catch (error) {
+        console.error("Erreur lors de l'ajout:", error);
+      }
+    },
+    isPending: false,
+  };
+
+  const deleteServiceMutation = {
+    mutate: async (serviceId: number) => {
+      try {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch(`/api/admin/services/${serviceId}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        }
+
+        window.location.reload(); // Simple refresh for now
+      } catch (error) {
+        console.error("Erreur lors de la suppression:", error);
+      }
+    },
+    isPending: false,
+  };
+
+  const deletePricingMutation = {
+    mutate: async (serviceId: number) => {
+      try {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch(`/api/admin/rental-pricing/${serviceId}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        }
+
+        refetchPricing();
+      } catch (error) {
+        console.error("Erreur lors de la suppression du tarif:", error);
+      }
+    },
+    isPending: false,
+  };
+
+  const handleAddService = () => {
+    const serviceData = {
+      name: newServiceForm.name,
+      volume: parseInt(newServiceForm.volume),
+      basePrice: newServiceForm.basePrice,
+      description: newServiceForm.description,
+      maxWeight: parseInt(newServiceForm.maxWeight) || null,
+      wasteTypes: newServiceForm.wasteTypes,
+      isActive: true,
+    };
+
+    addServiceMutation.mutate(serviceData);
+  };
+
+  const handleDeleteService = (serviceId: number, serviceName: string) => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la benne "${serviceName}" ? Cette action est irréversible.`)) {
+      deleteServiceMutation.mutate(serviceId);
+    }
+  };
+
+  const handleDeletePricing = (serviceId: number, serviceName: string) => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le tarif pour "${serviceName}" ?`)) {
+      deletePricingMutation.mutate(serviceId);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Prix de Location</h1>
-        <p className="text-gray-600">Configuration des tarifs de location par équipement</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Prix de Location</h1>
+          <p className="text-gray-600">Configuration des tarifs de location par équipement</p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+        >
+          <Package className="h-4 w-4" />
+          Ajouter une benne
+        </button>
       </div>
 
       {/* Onglets */}
@@ -594,12 +727,30 @@ function RentalPricingPage() {
                               </button>
                             </div>
                           ) : (
-                            <button
-                              onClick={() => handleEdit(service.id)}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                            >
-                              Modifier
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleEdit(service.id)}
+                                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                              >
+                                Modifier
+                              </button>
+                              {currentPricing && (
+                                <button
+                                  onClick={() => handleDeletePricing(service.id, service.name)}
+                                  className="px-3 py-1 bg-orange-600 text-white rounded-md hover:bg-orange-700"
+                                  title="Supprimer le tarif"
+                                >
+                                  Suppr. tarif
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteService(service.id, service.name)}
+                                className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                title="Supprimer la benne"
+                              >
+                                Suppr. benne
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -643,6 +794,112 @@ function RentalPricingPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Modale d'ajout de benne */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Ajouter une nouvelle benne</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nom de la benne
+                </label>
+                <input
+                  type="text"
+                  value={newServiceForm.name}
+                  onChange={(e) => setNewServiceForm({...newServiceForm, name: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: Benne 20m³"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Volume (m³)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={newServiceForm.volume}
+                  onChange={(e) => setNewServiceForm({...newServiceForm, volume: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Prix de base (€)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newServiceForm.basePrice}
+                  onChange={(e) => setNewServiceForm({...newServiceForm, basePrice: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 350.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={newServiceForm.description}
+                  onChange={(e) => setNewServiceForm({...newServiceForm, description: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: Idéale pour gros travaux de construction"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Poids maximum (tonnes)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={newServiceForm.maxWeight}
+                  onChange={(e) => setNewServiceForm({...newServiceForm, maxWeight: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 10"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowAddModal(false);
+                  setNewServiceForm({
+                    name: "",
+                    volume: "",
+                    basePrice: "",
+                    description: "",
+                    maxWeight: "",
+                    wasteTypes: [],
+                  });
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleAddService}
+                disabled={!newServiceForm.name || !newServiceForm.volume || !newServiceForm.basePrice}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
