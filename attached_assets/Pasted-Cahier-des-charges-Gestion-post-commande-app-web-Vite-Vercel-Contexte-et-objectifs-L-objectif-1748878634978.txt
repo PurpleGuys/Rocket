@@ -1,0 +1,229 @@
+Cahier des charges – Gestion post-commande
+(app web Vite/Vercel)
+Contexte et objectifs
+L’objectif est de mettre en place une gestion automatisée du processus post-commande au sein d’une
+application web front-end Vite.js, avec déploiement sur Vercel (code source géré depuis Replit). Dès
+qu’un client passe commande, l’application doit envoyer immédiatement un e-mail de confirmation. Un
+administrateur dispose ensuite d’une interface dédiée pour valider ou ajuster manuellement la date de
+livraison/prestation. Toute modification par l’admin déclenche à son tour un nouvel e-mail automatique
+au client. Le cahier des charges couvre la description précise de ces flux (e-mails, interfaces, logs) ainsi
+que les contraintes techniques (hébergement Vercel, frontend Vite, Replit) et légales (RGPD).
+1. Envoi automatique d’un e-mail de confirmation au client
+Déclenchement : À la création d’une commande (validation du paiement ou du formulaire), un
+traitement back-end doit automatiquement envoyer un e-mail de confirmation. Ce traitement
+sera implémenté via une fonction serverless (Vercel Functions) déclenchée sur l’événement
+“nouvelle commande”. Vercel autorise l’envoi d’e-mails depuis une fonction serveur dédiée .
+Contenu de l’e-mail : Le mail de confirmation doit inclure la référence de la commande, la liste
+des articles/services achetés, la date et l’heure de commande, ainsi qu’une date prévisionnelle de
+livraison/prestation. Il doit mentionner le nom et les coordonnées du client, et un message de
+remerciement. Il est recommandé d’utiliser un template HTML clair et responsive.
+Fiabilité : Prévoir un système de queue ou un retry en cas d’échec d’envoi. Les erreurs doivent
+être loguées. Un statut “en attente de confirmation” peut être attribué à la commande tant que
+le mail n’a pas été envoyé avec succès.
+2. Validation/modification de la date par l’administrateur
+L’administrateur doit pouvoir examiner chaque commande et confirmer ou modifier la date de
+livraison/prestation initiale :
+- Accès aux commandes : L’interface admin liste les commandes reçues. L’admin sélectionne une
+commande à traiter. Par défaut, la date retenue peut provenir d’un choix client ou d’une estimation du
+système.
+- Modification : L’admin ajuste la date/heure de livraison selon les disponibilités. Il peut valider la date
+proposée ou en saisir une nouvelle. Un bouton “Enregistrer” ou “Valider” déclenche la sauvegarde de
+cette modification.
+- Statut de commande : Un champ de statut (ex. “En attente”, “Confirmée”, “Planifiée”) reflète la
+progression. Avant validation par l’admin, le statut reste “En attente de confirmation”. Après validation,
+il passe à “Confirmée”.
+•
+1
+•
+•
+1
+3. Envoi d’un e-mail de confirmation suite à validation/
+modification
+Après que l’admin a confirmé ou modifié la date, un nouvel e-mail doit être envoyé au client :
+- Déclenchement : Toute mise à jour de la date de livraison dans l’interface admin (bouton “Valider” ou
+équivalent) déclenche automatiquement l’envoi d’un e-mail. Ce processus est similaire à l’étape 1
+(fonction serverless dédiée).
+- Contenu de l’e-mail : Le second mail rappelle la référence de la commande et informe le client de la
+date/heure définitive de livraison. Il doit mettre en évidence la nouvelle date (par ex. “Votre commande
+X sera livrée le 15 juillet 2025 à 14h00”). En cas de changement par rapport à la date initiale,
+mentionner clairement l’ancienne et la nouvelle date. Ajouter, si besoin, un lien de contact pour toute
+question.
+- Confirmation de réception : Le système peut enregistrer une trace de l’envoi (horodatage, adresse
+email destinataire) pour suivi.
+4. Interface d’administration
+L’application doit fournir une interface d’administration sécurisée permettant de gérer les commandes
+et de suivre les communications :
+Authentification et sécurité : Accès réservé aux administrateurs (par exemple via login + mot
+de passe ou SSO). Mettre en place une gestion des rôles pour sécuriser les pages admin .
+Liste des commandes : Un tableau de bord présente toutes les commandes récentes avec filtres
+(par date, statut). Chaque ligne indique au moins l’ID de commande, le nom du client, la date de
+commande, le statut et la date provisoire.
+Vue détaillée de commande : En sélectionnant une commande, l’admin voit les détails
+complets : coordonnées du client (nom, email, téléphone), contenu de la commande (articles,
+quantités, prix), date demandée par le client, date provisoire initiale, etc.
+Modification de date : Dans cette vue, l’admin peut modifier la date/heure de livraison via un
+champ date-heure. Un bouton (“Valider la date” ou “Envoyer au client”) enregistre le changement
+et déclenche l’e-mail de confirmation.
+Historique des communications : Pour chaque commande, l’interface doit afficher un journal
+ou fil de discussion indiquant les e-mails envoyés (dates d’envoi, objet du mail) et les actions de
+l’admin (par ex. “Date modifiée le JJ/MM par Admin”). Ceci assure une traçabilité complète
+.
+Ergonomie : L’interface admin doit être claire et réactive (responsive design). Des boutons
+explicites et des indicateurs visuels (couleurs pour les statuts) amélioreront l’expérience.
+L’internationalisation (labels en français) et la validation des champs (dates au format valide)
+doivent être prises en compte.
+5. Contraintes techniques (Replit, Vercel, Vite.js)
+L’application doit être conçue en respectant la pile technologique et les limites des plateformes
+mentionnées :
+Environnement de développement – Replit : Le code source est hébergé et développé sur
+Replit. Replit offre un IDE en ligne, facilitant la collaboration, mais n’est pas destiné à être
+l’hébergeur final. Le projet doit être synchronisé avec un dépôt Git (ex. GitHub) pour le
+déploiement sur Vercel .
+•
+2
+•
+•
+•
+•
+3
+2
+•
+•
+4
+2
+Frontend Vite.js : Le client web est construit avec Vite. Vite compile le projet en actifs (HTML/
+CSS/JS) statiques optimisés pour la production . Les pages (y compris l’interface admin) seront
+déployées comme application Single Page (SPA) ou générées statiquement, en s’appuyant sur
+Vercel pour servir les fichiers. Vite doit être configuré pour gérer le routage de l’interface admin
+(/admin) et le fallback du SPA.
+Backend serverless (Vercel) : Aucune instance serveur permanente n’est prévue : toute logique
+back-end (gestion des commandes, envoi d’e-mails, etc.) est implémentée via des fonctions
+serverless déployées sur Vercel. Ces fonctions tournent dans un environnement Node.js. Il faut
+veiller à utiliser des appel asynchrones (ex. async/await , promesses) et à gérer les timeouts/
+limited CPU des lambdas Vercel.
+Stockage des données : Le cahier des charges ne fixe pas de base de données précise, mais on
+prévoit un système de persistance (ex. base de données NoSQL/SQL distante) accessible depuis
+les fonctions Vercel. En particulier, il faut stocker : commandes (détails, statut), journaux d’audit,
+et éventuellement log des communications. Replit ne fournit pas de stockage persistant adapté
+pour la prod, donc utiliser un service cloud (comme MongoDB Atlas, Firebase, Supabase, ou un
+gestionnaire headless) est conseillé.
+Intégration continue : Le projet Git doit être lié à Vercel. On utilisera la CLI Vercel ou
+l’intégration GitHub/GitLab pour déployer automatiquement à chaque push. Par exemple,
+depuis Replit on peut installer et utiliser le CLI Vercel pour initialiser et déployer le projet . Les
+variables d’environnement (clés API email, secrets) seront configurées dans le dashboard Vercel
+pour chaque environnement (développement local, preview, production).
+API Routes & Fonctionnalités : Si nécessaire, on peut exploiter des routes API (via Next.js API
+Routes ou Express sur une function Vercel) pour centraliser la logique (prise de commande,
+déclenchement d’e-mail). Les endpoints REST/GraphQL doivent être sécurisés (authentification/
+admin pour les opérations sensibles).
+6. Service d’e-mail transactionnel
+Pour l’envoi des e-mails transactionnels (confirmations de commande), il faut intégrer un service tiers
+adapté à l’environnement Vercel :
+Choix du service : Des fournisseurs tels que Mailgun, Resend, SendGrid, Postmark ou AWS SES
+sont recommandés. Vercel conseille l’usage de tels services tiers spécialisés . Ils offrent des
+APIs simples, une meilleure délivrabilité et des fonctionnalités (analytique, suivi) qu’il est difficile
+de reproduire avec le SMTP natif.
+Intégration technique : Utiliser l’API REST du service choisi dans les fonctions serverless. Par
+exemple, avec SendGrid on peut utiliser le package @sendgrid/mail , ou avec Mailgun un
+client HTTP vers leur API JSON. Il est préférable de ne pas compter sur la connexion SMTP
+sortante par défaut de Vercel : plutôt configurer le host SMTP ou l’API du fournisseur . Les
+clés secrètes (API keys) sont stockées dans les variables d’environnement Vercel.
+Templates et contenus : Les e-mails peuvent être envoyés via des templates prédéfinis sur la
+plateforme (permettant d’envoyer simplement une référence de template + données
+dynamiques) ou générés dynamiquement (HTML/CSS). Quel que soit le moyen, s’assurer que le
+rendu soit correct sur différents clients mail. Inclure un lien de désinscription dans les e-mails
+marketing éventuels (pas nécessaire pour l’email de commande, qui est purement
+transactionnel).
+Gestion des erreurs : En cas d’échec d’envoi (bogue du fournisseur, clé invalide, dépassement de
+quota), la fonction devra capturer l’erreur et la logguer. Il est conseillé d’utiliser le mode
+“sandbox” ou les logs d’essai (disponibles chez SendGrid/Mailgun) pendant le développement
+pour vérifier les e-mails sans spamming réel.
+•
+5
+•
+•
+•
+4
+•
+•
+6
+•
+7
+•
+•
+3
+7. Journalisation et conformité RGPD
+Le système doit maintenir une traçabilité complète des actions et garantir la conformité au RGPD pour
+les données personnelles :
+Traçabilité (audit) : Journaliser chaque action clé de l’administrateur (connexion, changement
+de date, envoi d’email) et chaque accès aux données sensibles (création d’une commande,
+lecture de données client). Le log doit indiquer qui (identifiant admin ou système) a fait quoi,
+quand et sur quelle commande . Ce journal d’audit assure la transparence et
+l’accountability, comme requis par le RGPD.
+Sécurité des logs : Les journaux collectés doivent être stockés de manière sécurisée. Ils doivent
+être protégés contre la falsification et accessibles uniquement aux personnes habilitées
+(administrateurs) . Utiliser si possible un système de stockage chiffré (logs chiffrés au
+repos et en transit). Par exemple, utiliser un service cloud sécurisé ou base de données avec
+chiffrement intégré.
+Conservation limitée : Mettre en place une politique de rétention des logs : ne garder les
+données de log que le temps nécessaire (p. ex. quelques mois) puis les purger automatiquement
+. Cela respecte le principe de minimisation des données du RGPD.
+Minimisation des données : Collecter et stocker uniquement les données personnelles
+strictement nécessaires pour la gestion des commandes (nom, email, adresse) et les logs.
+Conformément à l’Art.5 du RGPD, les données doivent être adéquates, pertinentes et limitées à
+ce qui est nécessaire . Par exemple, ne pas stocker de données inutiles comme informations
+de paiement hors contexte.
+Droits des personnes : Prévoir les mécanismes pour respecter les droits RGPD : droit d’accès (ex.
+fournir à un client la trace de ses données), droit de rectification et droit à l’effacement
+(supprimer les données personnelles d’un client). Si un client demande la suppression de ses
+données, prévoir de supprimer ses commandes/logs associés ou de les anonymiser.
+Politique de confidentialité : Mettre à jour la politique de confidentialité pour indiquer les
+traitements réalisés (gestion des commandes, e-mails transactionnels, durée de conservation
+des logs, etc.). S’assurer que le client a consenti (ou que le traitement est justifié par un contrat
+de service) pour recevoir les emails de confirmation (normalement considérés comme
+nécessaires à l’exécution du contrat).
+8. Tests, déploiement et documentation
+Tests automatisés : Développer des tests unitaires (pour la logique d’envoi d’e-mail, de
+modification de date, etc.) et des tests d’intégration (simuler un parcours commande -> email).
+Des tests end-to-end (via Puppeteer/Cypress) peuvent vérifier le bon fonctionnement global.
+Mettre en place un rapport de couverture de code. Les tests de non-régression doivent être
+exécutés avant chaque déploiement en staging.
+Environnement de pré-production (staging) : Utiliser les déploiements Preview de Vercel pour
+le testing. Par défaut, Vercel crée automatiquement une URL de pré-production pour chaque
+branche/PR non fusionnée . Par exemple, lorsqu’on ouvre une Pull Request depuis Replit/
+GitHub, une version de test live est déployée où l’on peut valider les fonctionnalités (envoi d’emails réels vers une boîte de test).
+Processus de déploiement : La branche principale (main/master) doit déclencher un
+déploiement en production sur Vercel. Les modifications validées en staging sont fusionnées
+dans la branche principale. On peut utiliser vercel --prod ou le push GitHub pour mettre à
+jour la version de production. Bien documenter les commandes et le workflow de CI/CD (par ex.
+hooks Git, protections de branch) dans le guide de déploiement.
+•
+8 9
+•
+10 11
+•
+12
+•
+13
+•
+•
+•
+•
+14
+•
+4
+Configuration des variables d’environnement : Gérer séparément les clés/API pour staging et
+production dans les Environments Vercel. Par exemple, utiliser un domaine de test ou des
+comptes sandbox pour envoyer les e-mails depuis le staging. Le fichier .env local (Replit) doit
+être gardé à jour via vercel env pull lors du développement local.
+Documentation technique : Fournir une documentation complète post-livraison comprenant :
+schéma d’architecture (flux commande -> fonctions -> e-mail), liste des dépendances et versions
+(Node, packages), explications des endpoints API, instructions de build/déploiement, et guide
+d’utilisation de l’interface admin. Documenter également les schémas de base de données et les
+modalités de support/maintenance. Un README clair et des commentaires de code facilitent la
+prise en main par d’autres développeurs.
+Sources : Les bonnes pratiques de Vercel recommandent d’utiliser des services d’e-mails transactionnels
+dédiés (SendGrid, Resend, Mailgun…) plutôt que le SMTP interne . Le RGPD impose de maintenir un
+journal d’audit détaillé et sécurisé (qui, quoi, quand) pour toute modification de données sensibles
+, ainsi qu’un stockage chiffré et une rétention limitée . Les environnements de preview de
+Vercel (PR tests) facilitent la validation en staging avant production . 

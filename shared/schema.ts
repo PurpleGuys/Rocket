@@ -97,6 +97,15 @@ export const orders = pgTable("orders", {
   paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, failed, refunded
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   
+  // Post-order management
+  estimatedDeliveryDate: timestamp("estimated_delivery_date"),
+  confirmedDeliveryDate: timestamp("confirmed_delivery_date"),
+  adminValidatedBy: integer("admin_validated_by"),
+  adminValidatedAt: timestamp("admin_validated_at"),
+  confirmationEmailSent: boolean("confirmation_email_sent").default(false),
+  validationEmailSent: boolean("validation_email_sent").default(false),
+  adminNotes: text("admin_notes"),
+  
   // Selected waste types
   wasteTypes: text("waste_types").array(),
   
@@ -389,3 +398,72 @@ export const updateCompanyActivitiesSchema = createInsertSchema(companyActivitie
 export type CompanyActivities = typeof companyActivities.$inferSelect;
 export type InsertCompanyActivities = z.infer<typeof insertCompanyActivitiesSchema>;
 export type UpdateCompanyActivities = z.infer<typeof updateCompanyActivitiesSchema>;
+
+// Email logs table for audit trail
+export const emailLogs = pgTable("email_logs", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  orderId: integer("order_id").notNull().references(() => orders.id),
+  emailType: text("email_type").notNull(), // 'confirmation', 'validation', 'update'
+  recipientEmail: text("recipient_email").notNull(),
+  subject: text("subject").notNull(),
+  emailContent: text("email_content"),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  status: text("status").notNull().default("sent"), // 'sent', 'failed', 'pending'
+  errorMessage: text("error_message"),
+  sentBy: integer("sent_by"), // admin user ID if manual send
+});
+
+// Audit logs table for tracking admin actions
+export const auditLogs = pgTable("audit_logs", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  userId: integer("user_id").references(() => users.id),
+  orderId: integer("order_id").references(() => orders.id),
+  action: text("action").notNull(), // 'order_created', 'delivery_date_updated', 'status_changed', etc.
+  entityType: text("entity_type").notNull(), // 'order', 'user', 'setting'
+  entityId: integer("entity_id"),
+  oldValues: text("old_values"), // JSON string of old values
+  newValues: text("new_values"), // JSON string of new values
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Email logs relations
+export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
+  order: one(orders, {
+    fields: [emailLogs.orderId],
+    references: [orders.id],
+  }),
+  sentByUser: one(users, {
+    fields: [emailLogs.sentBy],
+    references: [users.id],
+  }),
+}));
+
+// Audit logs relations
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [auditLogs.userId],
+    references: [users.id],
+  }),
+  order: one(orders, {
+    fields: [auditLogs.orderId],
+    references: [orders.id],
+  }),
+}));
+
+// Email logs schemas
+export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({
+  id: true,
+  sentAt: true,
+});
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type EmailLog = typeof emailLogs.$inferSelect;
+export type InsertEmailLog = z.infer<typeof insertEmailLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;

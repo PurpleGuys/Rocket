@@ -94,6 +94,20 @@ export interface IStorage {
   getCompanyActivities(): Promise<CompanyActivities | undefined>;
   createCompanyActivities(activities: InsertCompanyActivities): Promise<CompanyActivities>;
   updateCompanyActivities(activities: UpdateCompanyActivities): Promise<CompanyActivities | undefined>;
+
+  // Email Logs
+  createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog>;
+  getEmailLogsByOrder(orderId: number): Promise<EmailLog[]>;
+
+  // Audit Logs
+  createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogsByOrder(orderId: number): Promise<AuditLog[]>;
+
+  // Order Email Status
+  updateOrderEmailStatus(orderId: number, status: { confirmationEmailSent?: boolean; validationEmailSent?: boolean }): Promise<void>;
+  
+  // Order Delivery Date Management
+  updateOrderDeliveryDate(orderId: number, confirmedDate: Date, adminUserId: number, adminNotes?: string): Promise<Order | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
