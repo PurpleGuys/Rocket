@@ -30,12 +30,7 @@ function DashboardHome() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  const { data: stats, isLoading: statsLoading } = useQuery<{
-    todayOrders: number;
-    monthlyRevenue: string;
-    rentedDumpsters: number;
-    activeCustomers: number;
-  }>({
+  const { data: stats } = useQuery({
     queryKey: ["/api/admin/stats"],
     enabled: isAdmin,
   });
@@ -43,36 +38,6 @@ function DashboardHome() {
   const { data: userOrders } = useQuery({
     queryKey: ["/api/orders/my-orders"],
     enabled: !isAdmin,
-  });
-
-  const { data: allOrders = [] } = useQuery({
-    queryKey: ["/api/admin/orders"],
-    enabled: isAdmin,
-  });
-
-  const { data: rentalPricing = [] } = useQuery({
-    queryKey: ["/api/admin/rental-pricing"],
-    enabled: isAdmin,
-  });
-
-  const { data: transportPricing = null } = useQuery({
-    queryKey: ["/api/admin/transport-pricing"],
-    enabled: isAdmin,
-  });
-
-  const { data: treatmentPricing = [] } = useQuery({
-    queryKey: ["/api/admin/treatment-pricing"],
-    enabled: isAdmin,
-  });
-
-  const { data: wasteTypes = [] } = useQuery({
-    queryKey: ["/api/admin/waste-types"],
-    enabled: isAdmin,
-  });
-
-  const { data: companyActivities = null } = useQuery({
-    queryKey: ["/api/admin/company-activities"],
-    enabled: isAdmin,
   });
 
   return (
@@ -2528,7 +2493,7 @@ export default function Dashboard() {
         {/* Sidebar intégrée */}
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-red-700">Remondis DD</h2>
+            <h2 className="text-xl font-bold text-red-700">Remondis</h2>
             <p className="text-sm text-gray-600">Panneau d'administration</p>
           </div>
           
