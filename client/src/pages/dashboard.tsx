@@ -2446,6 +2446,11 @@ function PriceSimulatorPage() {
     select: (data) => data || []
   });
 
+  const { data: wasteTypes } = useQuery({
+    queryKey: ['/api/admin/waste-types'],
+    select: (data) => data || []
+  });
+
   const handleSimulation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsCalculating(true);
@@ -2487,13 +2492,20 @@ function PriceSimulatorPage() {
         immediateLoadingCost = hourlyRate * immediateLoadingHours;
       }
 
-      // Calcul du prix de traitement (simulation basique)
+      // Calcul du prix de traitement avec types de déchets
       let treatmentCost = 0;
-      if (wasteWeight > 0 && treatmentPricing?.length > 0) {
-        // Prendre le premier tarif disponible pour la démonstration
-        const firstTreatment = treatmentPricing[0];
-        const pricePerTon = parseFloat(firstTreatment.pricePerTon || '0');
-        treatmentCost = wasteWeight * pricePerTon;
+      const selectedWasteTypes = formData.getAll('wasteTypes');
+      
+      if (wasteWeight > 0 && selectedWasteTypes.length > 0 && treatmentPricing) {
+        const wasteInTons = wasteWeight / 1000; // Conversion kg vers tonnes
+        
+        for (const wasteTypeId of selectedWasteTypes) {
+          const pricing = treatmentPricing.find((p: any) => p.wasteType?.id === parseInt(wasteTypeId.toString()));
+          if (pricing) {
+            const pricePerTon = parseFloat(pricing.pricePerTon || '0');
+            treatmentCost += wasteInTons * pricePerTon;
+          }
+        }
       }
 
       const totalCost = rentalCost + transportCost + immediateLoadingCost + treatmentCost;
@@ -2604,17 +2616,42 @@ function PriceSimulatorPage() {
                 />
               </div>
 
+              {/* Types de déchets */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Types de déchets acceptés
+                </label>
+                <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-300 rounded-md p-3">
+                  {wasteTypes?.map((wasteType: any) => (
+                    <div key={wasteType.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="wasteTypes"
+                        value={wasteType.id}
+                        className="h-4 w-4 text-[rgb(220, 38, 38)] focus:ring-[rgb(220, 38, 38)] border-gray-300 rounded"
+                      />
+                      <label className="ml-2 block text-sm text-gray-900">
+                        {wasteType.name}
+                        {wasteType.description && (
+                          <span className="text-gray-500 text-xs block">{wasteType.description}</span>
+                        )}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Poids des déchets */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Poids estimé des déchets (tonnes)
+                  Poids estimé des déchets (kg)
                 </label>
                 <input
                   type="number"
                   name="wasteWeight"
-                  step="0.1"
+                  step="10"
                   min="0"
-                  defaultValue="2"
+                  defaultValue="2000"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgb(220, 38, 38)] focus:border-transparent"
                 />
               </div>
@@ -3338,8 +3375,15 @@ export default function Dashboard() {
         {/* Sidebar intégrée */}
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-red-700">Remondis</h2>
-            <p className="text-sm text-gray-600">Panneau d'administration</p>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">R</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-red-700">REMONDIS</h2>
+                <p className="text-xs text-gray-500">Admin Panel</p>
+              </div>
+            </div>
           </div>
           
           <nav className="mt-6">
