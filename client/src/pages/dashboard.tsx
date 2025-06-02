@@ -1379,47 +1379,69 @@ function TreatmentPricingPage() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {wasteTypes && wasteTypes.length > 0 ? (
-              wasteTypes.map((wasteType: any) => {
-                const existingPricing = treatmentPricing?.find((p: any) => p.wasteTypeId === wasteType.id);
-                return (
-                  <div key={wasteType.id} className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900">{wasteType.name}</h4>
-                    {wasteType.description && (
-                      <p className="text-sm text-gray-600 mt-1">{wasteType.description}</p>
-                    )}
-                    
-                    {existingPricing ? (
-                      <div className="mt-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Prix/tonne:</span>
-                          <span className="font-medium">{existingPricing.pricePerTon} €</span>
+            {(() => {
+              // Filtrer les types de déchets selon la configuration des activités
+              const configuredWasteTypes = companyActivities?.wasteTypes || [];
+              const filteredWasteTypes = wasteTypes && wasteTypes.length > 0 
+                ? wasteTypes.filter((wasteType: any) => 
+                    configuredWasteTypes.includes(wasteType.name)
+                  )
+                : [];
+
+              return filteredWasteTypes.length > 0 ? (
+                filteredWasteTypes.map((wasteType: any) => {
+                  const existingPricing = treatmentPricing?.find((p: any) => p.wasteTypeId === wasteType.id);
+                  return (
+                    <div key={wasteType.id} className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900">{wasteType.name}</h4>
+                      {wasteType.description && (
+                        <p className="text-sm text-gray-600 mt-1">{wasteType.description}</p>
+                      )}
+                      
+                      {existingPricing ? (
+                        <div className="mt-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Prix/tonne:</span>
+                            <span className="font-medium">{existingPricing.pricePerTon} €</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Code:</span>
+                            <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{existingPricing.treatmentCode}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Type:</span>
+                            <span className="text-sm">{existingPricing.treatmentType}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Code:</span>
-                          <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{existingPricing.treatmentCode}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Type:</span>
-                          <span className="text-sm">{existingPricing.treatmentType}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setSelectedWasteType(wasteType.id)}
-                        className="mt-4 w-full px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
-                      >
-                        Configurer le tarif
-                      </button>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="col-span-full text-center py-8 text-gray-500">
-                Aucun type de matière configuré. Commencez par ajouter une matière.
-              </div>
-            )}
+                      ) : (
+                        <button
+                          onClick={() => setSelectedWasteType(wasteType.id)}
+                          className="mt-4 w-full px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
+                        >
+                          Configurer le tarif
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  {configuredWasteTypes.length === 0 ? (
+                    <>
+                      Aucun type de matière sélectionné dans "Mes activités". 
+                      <br />
+                      Veuillez d'abord configurer vos activités pour sélectionner les types de déchets.
+                    </>
+                  ) : (
+                    <>
+                      Les types de matières configurés dans "Mes activités" ne correspondent à aucun type disponible.
+                      <br />
+                      Vérifiez la configuration dans "Mes activités".
+                    </>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>
