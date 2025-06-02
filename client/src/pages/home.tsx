@@ -221,7 +221,7 @@ export default function Home() {
 
         {/* Features Section */}
         <div className="mt-20">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Pourquoi choisir Remondis ?</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Pourquoi choisir Remondis DD ?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="shadow-lg border-red-100">
               <CardContent className="p-8">
@@ -247,7 +247,7 @@ export default function Home() {
                   <Truck className="text-red-600 h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Livraison garantie</h3>
-                <p className="text-gray-600">Livraison et récupération ponctuelles dans toute la France.</p>
+                <p className="text-gray-600">Livraison et récupération ponctuelles dans la région d'Alonne et ses environs.</p>
               </CardContent>
             </Card>
           </div>
