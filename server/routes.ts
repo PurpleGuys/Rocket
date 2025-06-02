@@ -796,6 +796,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calculate distance between addresses
+  app.post("/api/calculate-distance", async (req, res) => {
+    try {
+      const { customerAddress, industrialAddress } = req.body;
+
+      if (!customerAddress || !industrialAddress) {
+        return res.status(400).json({ 
+          message: "Adresses du client et du site industriel requises" 
+        });
+      }
+
+      const result = await DistanceService.calculateDistance(customerAddress, industrialAddress);
+      
+      res.json({
+        success: true,
+        distance: result.distance,
+        duration: result.duration,
+        roundTripDistance: result.distance * 2
+      });
+    } catch (error: any) {
+      console.error("Erreur calcul distance:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error.message || "Erreur lors du calcul de distance"
+      });
+    }
+  });
+
+  // Calculate pricing with real distance
+  app.post("/api/calculate-pricing", async (req, res) => {
+    try {
+      const { serviceId, wasteTypes, address, postalCode, city } = req.body;
+
+      // Get service pricing
+      const service = await storage.getService(serviceId);
+      if (!service) {
+        return res.status(404).json({ message: "Service non trouvé" });
+      }
+
+      // Get transport pricing
+      const transportPricing = await storage.getTransportPricing();
+      if (!transportPricing) {
+        return res.status(404).json({ message: "Tarification transport non configurée" });
+      }
+
+      // Get company activities for industrial site address
+      const activities = await storage.getCompanyActivities();
+      if (!activities || !activities.industrialSiteAddress) {
+        return res.status(400).json({ 
+          message: "Adresse du site industriel non configurée. Veuillez configurer l'adresse dans 'Mes activités'." 
+        });
+      }
+
+      let totalPrice = service.basePrice;
+      let breakdown = {
+        service: service.basePrice,
+        transport: 0,
+        treatment: 0,
+        total: 0
+      };
+
+      // Calculate real distance and transport cost
+      try {
+        const customerAddress = `${address}, ${postalCode} ${city}`;
+        const industrialAddress = DistanceService.formatIndustrialSiteAddress(activities);
+        
+        const distanceResult = await DistanceService.calculateDistance(customerAddress, industrialAddress);
+        
+        const transportCost = DistanceService.calculateTransportCost(
+          distanceResult.distance,
+          parseFloat(transportPricing.pricePerKm),
+          parseFloat(transportPricing.minimumFlatRate)
+        );
+        
+        breakdown.transport = transportCost;
+        totalPrice += transportCost;
+
+        // Add treatment costs for each waste type
+        for (const wasteTypeName of wasteTypes) {
+          const wasteType = await storage.getWasteTypes();
+          const wasteTypeObj = wasteType.find(wt => wt.name === wasteTypeName);
+          
+          if (wasteTypeObj) {
+            const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeObj.id);
+            if (treatmentPricing) {
+              const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
+              breakdown.treatment += treatmentCost;
+              totalPrice += treatmentCost;
+            }
+          }
+        }
+
+        breakdown.total = totalPrice;
+
+        res.json({
+          success: true,
+          pricing: breakdown,
+          distance: {
+            kilometers: distanceResult.distance,
+            roundTripKm: distanceResult.distance * 2,
+            duration: distanceResult.duration
+          },
+          service: {
+            name: service.name,
+            volume: service.volume
+          },
+          addresses: {
+            customer: customerAddress,
+            industrial: industrialAddress
+          }
+        });
+
+      } catch (distanceError: any) {
+        console.error("Erreur calcul distance:", distanceError);
+        
+        // Fallback avec distance estimée si l'API échoue
+        const estimatedDistance = 15; // km
+        const transportCost = Math.max(
+          estimatedDistance * parseFloat(transportPricing.pricePerKm),
+          parseFloat(transportPricing.minimumFlatRate)
+        );
+        breakdown.transport = transportCost;
+        totalPrice += transportCost;
+
+        // Add treatment costs for each waste type
+        for (const wasteTypeName of wasteTypes) {
+          const wasteType = await storage.getWasteTypes();
+          const wasteTypeObj = wasteType.find(wt => wt.name === wasteTypeName);
+          
+          if (wasteTypeObj) {
+            const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeObj.id);
+            if (treatmentPricing) {
+              const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
+              breakdown.treatment += treatmentCost;
+              totalPrice += treatmentCost;
+            }
+          }
+        }
+
+        breakdown.total = totalPrice;
+
+        res.json({
+          success: true,
+          pricing: breakdown,
+          distance: {
+            kilometers: estimatedDistance,
+            roundTripKm: estimatedDistance * 2,
+            estimated: true,
+            error: distanceError.message
+          },
+          service: {
+            name: service.name,
+            volume: service.volume
+          }
+        });
+      }
+    } catch (error: any) {
+      console.error("Erreur calcul prix:", error);
+      res.status(500).json({ message: "Erreur lors du calcul du prix: " + error.message });
+    }
+  });
+
   // Add new service/equipment
   app.post("/api/admin/services", authenticateToken, requireAdmin, async (req, res) => {
     try {

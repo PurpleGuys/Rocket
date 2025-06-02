@@ -2299,6 +2299,78 @@ function MyActivitiesPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Adresse du site industriel */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Adresse du site industriel</CardTitle>
+            <p className="text-sm text-gray-600">
+              Configurez l'adresse de votre site industriel pour le calcul automatique des distances de transport (aller-retour).
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Adresse *
+              </label>
+              <input
+                type="text"
+                value={activities.industrialSiteAddress || ''}
+                onChange={(e) => updateActivity('industrialSiteAddress', e.target.value)}
+                placeholder="123 Rue de l'Industrie"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Code postal *
+                </label>
+                <input
+                  type="text"
+                  value={activities.industrialSitePostalCode || ''}
+                  onChange={(e) => updateActivity('industrialSitePostalCode', e.target.value)}
+                  placeholder="75001"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ville *
+                </label>
+                <input
+                  type="text"
+                  value={activities.industrialSiteCity || ''}
+                  onChange={(e) => updateActivity('industrialSiteCity', e.target.value)}
+                  placeholder="Paris"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                />
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">
+                    Calcul automatique des distances
+                  </h3>
+                  <div className="mt-2 text-sm text-blue-700">
+                    <p>
+                      Cette adresse sera utilisée pour calculer automatiquement la distance aller-retour entre votre site et l'adresse de livraison du client, permettant une tarification transport précise.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
