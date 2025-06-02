@@ -355,6 +355,11 @@ export const companyActivities = pgTable("company_activities", {
   // Pricing configuration
   prixForfaitEnabled: boolean("prix_forfait_enabled").default(false),
   
+  // Industrial site address for distance calculation
+  industrialSiteAddress: text("industrial_site_address"),
+  industrialSiteCity: text("industrial_site_city"),
+  industrialSitePostalCode: text("industrial_site_postal_code"),
+  
   // Metadata
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
