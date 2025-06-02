@@ -490,7 +490,7 @@ export default function ServiceSelection() {
                 {priceData?.maxTonnage > 0 && (
                   <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
                     <div className="flex justify-between">
-                      <span className="text-blue-800">Capacité maximale:</span>
+                      <span className="text-blue-800">Capacité / prix de traitement:</span>
                       <span className="text-blue-800 font-medium">{priceData.maxTonnage} tonnes</span>
                     </div>
                   </div>
