@@ -906,8 +906,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculer le coût de transport
         const transportCost = DistanceService.calculateTransportCost(
           distanceResult.distance,
-          transportPricing.pricePerKm,
-          transportPricing.minimumFlatRate
+          parseFloat(transportPricing.pricePerKm),
+          parseFloat(transportPricing.minimumFlatRate)
         );
 
         res.json({
@@ -930,8 +930,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const estimatedDistance = 15;
         const transportCost = DistanceService.calculateTransportCost(
           estimatedDistance,
-          transportPricing.pricePerKm,
-          transportPricing.minimumFlatRate
+          parseFloat(transportPricing.pricePerKm),
+          parseFloat(transportPricing.minimumFlatRate)
         );
 
         res.json({
