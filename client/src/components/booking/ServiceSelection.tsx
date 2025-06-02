@@ -69,18 +69,19 @@ export default function ServiceSelection() {
     setDistanceError("");
 
     try {
-      const response = await apiRequest('POST', '/api/calculate-pricing', {
+      const data = await apiRequest('POST', '/api/calculate-pricing', {
         serviceId: selectedServiceId,
         wasteTypes: selectedWasteTypes,
         address: deliveryAddress,
         postalCode: postalCode,
         city: city
       });
-
-      if (response.success) {
-        setDistance(response.distance.kilometers);
+      
+      if (data.success && data.distance) {
+        setDistance(data.distance.kilometers);
+        setDistanceError("");
       } else {
-        setDistanceError("Impossible de calculer la distance");
+        setDistanceError(data.message || "Impossible de calculer la distance");
         setDistance(15); // Distance estimée par défaut
       }
     } catch (error: any) {
