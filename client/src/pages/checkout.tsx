@@ -136,6 +136,19 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
           <form onSubmit={handleSubmit} className="space-y-6">
             <PaymentElement />
             
+            {/* Mentions légales obligatoires */}
+            <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 space-y-2">
+              <h4 className="font-semibold text-gray-900">Informations légales :</h4>
+              <ul className="space-y-1 text-xs">
+                <li>• Prix TTC incluant TVA 20% applicable aux prestations de collecte</li>
+                <li>• Prestation soumise au Code de l'environnement (déchets)</li>
+                <li>• Traitement en centre agréé ICPE selon réglementation</li>
+                <li>• Bordereau de suivi de déchets (BSD) fourni</li>
+                <li>• Droit de rétractation : 14 jours (Art. L221-18 Code consommation)</li>
+                <li>• Réclamations : service.client@remondis.fr</li>
+              </ul>
+            </div>
+            
             <Button 
               type="submit" 
               disabled={!stripe || isProcessing}
@@ -143,6 +156,10 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
             >
               {isProcessing ? "Traitement..." : `Payer ${bookingDetails.pricing.total.toFixed(2)}€`}
             </Button>
+            
+            <p className="text-xs text-gray-500 text-center">
+              En finalisant votre commande, vous acceptez nos conditions générales de vente et notre politique de confidentialité.
+            </p>
           </form>
         </CardContent>
       </Card>

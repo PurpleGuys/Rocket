@@ -12,6 +12,7 @@ import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 import Checkout from "@/pages/checkout";
 import PaymentSuccess from "@/pages/payment-success";
+import Legal from "@/pages/legal";
 import CookieConsent from "@/components/CookieConsent";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/legal" component={Legal} />
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

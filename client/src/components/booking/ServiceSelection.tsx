@@ -454,6 +454,13 @@ export default function ServiceSelection() {
                   <span>{priceCalculation.total.toFixed(2)}€</span>
                 </div>
                 
+                {/* Mentions légales TVA */}
+                <div className="text-xs text-gray-500 mt-2 space-y-1">
+                  <p>• Prix TTC (TVA 20% incluse)</p>
+                  <p>• Facture émise après prestation</p>
+                  <p>• Conforme aux réglementations environnementales</p>
+                </div>
+                
                 <Button 
                   className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white"
                   onClick={handleBooking}
