@@ -179,33 +179,116 @@ export default function AdminDashboard() {
           <nav className="mt-6">
             <div className="px-4">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                PANNEAU ADMIN
+                PRINCIPAL
               </h3>
               <ul className="space-y-1">
-                {[
-                  { id: "dashboard", label: "Tableau de bord", icon: TrendingUp },
-                  { id: "orders", label: "Commandes", icon: ShoppingCart },
-                  { id: "users", label: "Utilisateurs", icon: Users },
-                  { id: "pricing", label: "Tarification", icon: Euro },
-                  { id: "settings", label: "Paramètres", icon: Settings },
-                ].map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <li key={tab.id}>
-                      <button
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
-                          activeTab === tab.id
-                            ? "bg-red-100 text-red-700 border-r-2 border-red-500"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                      >
-                        <Icon className="mr-3 h-4 w-4" />
-                        {tab.label}
-                      </button>
-                    </li>
-                  );
-                })}
+                <li>
+                  <button
+                    onClick={() => setActiveTab("dashboard")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "dashboard"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <ShoppingCart className="mr-3 h-4 w-4" />
+                    Dashboard
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setActiveTab("orders")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "orders"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Truck className="mr-3 h-4 w-4" />
+                    Mes Commandes
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setActiveTab("users")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "users"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Users className="mr-3 h-4 w-4" />
+                    Utilisateurs
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="px-4 mt-8">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                TARIFICATION
+              </h3>
+              <ul className="space-y-1">
+                <li>
+                  <button
+                    onClick={() => setActiveTab("rental-pricing")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "rental-pricing"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Euro className="mr-3 h-4 w-4" />
+                    Prix de Location
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setActiveTab("transport-pricing")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "transport-pricing"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Truck className="mr-3 h-4 w-4" />
+                    Prix de Transport
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setActiveTab("treatment-pricing")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "treatment-pricing"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Package className="mr-3 h-4 w-4" />
+                    Prix de Traitement
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="px-4 mt-8">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                CONFIGURATION
+              </h3>
+              <ul className="space-y-1">
+                <li>
+                  <button
+                    onClick={() => setActiveTab("settings")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      activeTab === "settings"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Settings className="mr-3 h-4 w-4" />
+                    Paramètres Entreprise
+                  </button>
+                </li>
               </ul>
             </div>
 
@@ -619,6 +702,110 @@ export default function AdminDashboard() {
                     <div key={pricing.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <h4 className="font-medium">{pricing.wasteType.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          Type: {pricing.treatmentType} | Code: {pricing.treatmentCode}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-red-600">
+                          {formatPrice(pricing.pricePerTon)}/tonne
+                        </div>
+                        <Badge variant={pricing.isActive ? "default" : "secondary"}>
+                          {pricing.isActive ? "Actif" : "Inactif"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "rental-pricing" && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Prix de Location</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tarifs de Location des Bennes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {rentalPricing?.map((pricing) => (
+                    <div key={pricing.id} className="flex justify-between items-center p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-medium">{pricing.service?.name}</h3>
+                        <p className="text-sm text-gray-600">Volume: {pricing.service?.volume}m³</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-red-600">
+                          {formatPrice(pricing.dailyRate)}/jour
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Hebdo: {formatPrice(pricing.weeklyRate)} | Mensuel: {formatPrice(pricing.monthlyRate)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "transport-pricing" && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Prix de Transport</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tarification du Transport</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {transportPricing && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-blue-50 rounded-lg">
+                        <h3 className="font-medium text-blue-900">Prix par kilomètre</h3>
+                        <p className="text-2xl font-bold text-blue-700">
+                          {formatPrice(transportPricing.pricePerKm)}/km
+                        </p>
+                      </div>
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <h3 className="font-medium text-green-900">Tarif minimum</h3>
+                        <p className="text-2xl font-bold text-green-700">
+                          {formatPrice(transportPricing.minimumFlatRate)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-orange-50 rounded-lg">
+                      <h3 className="font-medium text-orange-900">Chargement immédiat</h3>
+                      <p className="text-lg font-semibold text-orange-700">
+                        {transportPricing.immediateLoadingEnabled 
+                          ? `${formatPrice(transportPricing.hourlyRate)}/heure` 
+                          : "Service désactivé"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "treatment-pricing" && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Prix de Traitement</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tarifs de Traitement des Déchets</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {treatmentPricing?.map((pricing) => (
+                    <div key={pricing.id} className="flex justify-between items-center p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-medium">{pricing.wasteType?.name}</h3>
                         <p className="text-sm text-gray-600">
                           Type: {pricing.treatmentType} | Code: {pricing.treatmentCode}
                         </p>
