@@ -26,6 +26,11 @@ export default function ServiceSelection() {
     queryKey: ['/api/services'],
   });
 
+  // Récupérer les activités configurées depuis le panneau d'administration
+  const { data: companyActivities } = useQuery({
+    queryKey: ['/api/admin/company-activities'],
+  });
+
   const pricing = calculateTotalPrice();
 
   useEffect(() => {
@@ -61,12 +66,8 @@ export default function ServiceSelection() {
     );
   };
 
-  const wasteTypeLabels = {
-    construction: "Déchets de construction",
-    household: "Déchets ménagers",
-    green: "Déchets verts",
-    metal: "Métaux et ferraille",
-  };
+  // Utiliser les types de déchets configurés dans le panneau d'administration
+  const availableWasteTypes = companyActivities?.wasteTypes || [];
 
   const calculateAdvancedPrice = () => {
     if (!selectedServiceId || !services) return { total: 0, details: [] };
@@ -99,12 +100,12 @@ export default function ServiceSelection() {
     }
     details.push({ label: `Livraison (${distance}km)`, amount: deliveryFee });
     
-    // Waste type surcharge
+    // Waste type surcharge (basic calculation based on selected types)
     let wasteTypeSurcharge = 0;
-    if (selectedWasteTypes.includes('metal')) {
+    if (selectedWasteTypes.includes('Ferrailles') || selectedWasteTypes.includes('Métaux et ferraille')) {
       wasteTypeSurcharge += 15;
     }
-    if (selectedWasteTypes.includes('construction') && service.volume >= 15) {
+    if ((selectedWasteTypes.includes('Déchets de chantiers en mélange') || selectedWasteTypes.includes('Gravats en mélange')) && service.volume >= 15) {
       wasteTypeSurcharge += 20;
     }
     if (wasteTypeSurcharge > 0) {
@@ -237,25 +238,29 @@ export default function ServiceSelection() {
         {/* Waste Type Selection */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Type de déchets</h3>
-          <div className="grid md:grid-cols-2 gap-3">
-            {Object.entries(wasteTypeLabels).map(([type, label]) => (
-              <div key={type} className="flex items-center space-x-2">
-                <Checkbox
-                  id={type}
-                  checked={selectedWasteTypes.includes(type)}
-                  onCheckedChange={(checked) => 
-                    handleWasteTypeChange(type, checked as boolean)
-                  }
-                />
-                <Label htmlFor={type} className="text-sm cursor-pointer">
-                  {label}
-                  {type === 'metal' && <span className="text-red-600"> (+15€)</span>}
-                  {type === 'construction' && selectedServiceId && services?.find(s => s.id === selectedServiceId)?.volume >= 15 && 
-                    <span className="text-red-600"> (+20€)</span>}
-                </Label>
-              </div>
-            ))}
-          </div>
+          {availableWasteTypes.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-3">
+              {availableWasteTypes.map((wasteType) => (
+                <div key={wasteType} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={wasteType}
+                    checked={selectedWasteTypes.includes(wasteType)}
+                    onCheckedChange={(checked) => 
+                      handleWasteTypeChange(wasteType, checked as boolean)
+                    }
+                  />
+                  <Label htmlFor={wasteType} className="text-sm cursor-pointer">
+                    {wasteType}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-4 border-2 border-dashed border-gray-200 rounded-lg">
+              <p className="text-sm">Aucun type de déchet configuré.</p>
+              <p className="text-xs text-gray-400 mt-1">Contactez l'administrateur pour configurer les types de déchets.</p>
+            </div>
+          )}
         </div>
       </div>
 
