@@ -54,13 +54,13 @@ function DashboardHome() {
       {isAdmin && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Commandes Aujourd'hui</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-green-600" />
+                <ShoppingCart className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-2xl font-bold text-red-700">
                   {stats?.todayOrders || 0}
                 </div>
                 <p className="text-xs text-gray-600">
@@ -69,13 +69,13 @@ function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Chiffre d'Affaires</CardTitle>
-                <Euro className="h-4 w-4 text-green-600" />
+                <Euro className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-2xl font-bold text-red-700">
                   {stats?.monthlyRevenue || '0'} €
                 </div>
                 <p className="text-xs text-gray-600">
@@ -84,13 +84,13 @@ function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Bennes Louées</CardTitle>
-                <Truck className="h-4 w-4 text-green-600" />
+                <Truck className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-2xl font-bold text-red-700">
                   {stats?.rentedDumpsters || 0}
                 </div>
                 <p className="text-xs text-gray-600">
@@ -99,13 +99,13 @@ function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Clients Actifs</CardTitle>
-                <Users className="h-4 w-4 text-green-600" />
+                <Users className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-2xl font-bold text-red-700">
                   {stats?.activeCustomers || 0}
                 </div>
                 <p className="text-xs text-gray-600">
@@ -185,15 +185,15 @@ function DashboardHome() {
       {!isAdmin && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-green-600" />
+                  <ShoppingCart className="h-5 w-5 text-red-600" />
                   Mes Commandes
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-700">
+                <div className="text-3xl font-bold text-red-700">
                   {userOrders?.length || 0}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -202,15 +202,15 @@ function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-green-600" />
+                  <Truck className="h-5 w-5 text-red-600" />
                   En Cours
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-700">
+                <div className="text-3xl font-bold text-red-700">
                   {userOrders?.filter((order: any) => order.status === 'active')?.length || 0}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -219,15 +219,15 @@ function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-200">
+            <Card className="border-red-200">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Package className="h-5 w-5 text-green-600" />
+                  <Package className="h-5 w-5 text-red-600" />
                   Déchets Traités
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-700">
+                <div className="text-3xl font-bold text-red-700">
                   2.4t
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -250,8 +250,8 @@ function DashboardHome() {
                   {userOrders.slice(0, 5).map((order: any) => (
                     <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Truck className="h-5 w-5 text-green-600" />
+                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                          <Truck className="h-5 w-5 text-red-600" />
                         </div>
                         <div>
                           <p className="font-medium">Commande #{order.orderNumber}</p>
@@ -263,7 +263,7 @@ function DashboardHome() {
                       <div className="text-right">
                         <Badge 
                           variant={order.status === 'completed' ? 'default' : 'secondary'}
-                          className={order.status === 'completed' ? 'bg-green-100 text-green-700' : ''}
+                          className={order.status === 'completed' ? 'bg-red-100 text-red-700' : ''}
                         >
                           {order.status === 'completed' ? 'Terminée' : 
                            order.status === 'active' ? 'En cours' : 
@@ -602,7 +602,7 @@ function RentalPricingPage() {
             onClick={() => setActiveTab("daily")}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === "daily"
-                ? "border-green-500 text-green-600"
+                ? "border-red-500 text-red-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
@@ -612,7 +612,7 @@ function RentalPricingPage() {
             onClick={() => setActiveTab("package")}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === "package"
-                ? "border-green-500 text-green-600"
+                ? "border-red-500 text-red-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
@@ -625,7 +625,7 @@ function RentalPricingPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-green-600" />
+              <DollarSign className="h-5 w-5 text-red-600" />
               Tarifs Journaliers
             </CardTitle>
             <CardDescription>
@@ -669,8 +669,8 @@ function RentalPricingPage() {
                       <tr key={service.id} className="border-b hover:bg-gray-50">
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                              <Truck className="h-5 w-5 text-green-600" />
+                            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                              <Truck className="h-5 w-5 text-red-600" />
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">{service.name}</p>
@@ -785,7 +785,7 @@ function RentalPricingPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-green-600" />
+              <Package className="h-5 w-5 text-red-600" />
               Prix Forfaitaire
             </CardTitle>
             <CardDescription>
@@ -1541,7 +1541,7 @@ function TreatmentPricingPage() {
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {OUTLET_CODES.filter(c => c.code.startsWith('R')).map((outlet) => (
                   <div key={outlet.code} className="text-sm">
-                    <span className="font-mono bg-green-50 text-green-700 px-2 py-1 rounded mr-2">{outlet.code}</span>
+                    <span className="font-mono bg-green-50 text-red-700 px-2 py-1 rounded mr-2">{outlet.code}</span>
                     <span className="text-gray-600">{outlet.description}</span>
                   </div>
                 ))}
@@ -1923,7 +1923,7 @@ function PriceSimulatorPage() {
 
             <div className="bg-green-50 p-3 rounded">
               <div className="font-medium text-green-900">Services</div>
-              <div className="text-green-700">
+              <div className="text-red-700">
                 {services?.length || 0} équipement(s) configuré(s)
               </div>
             </div>
@@ -2340,7 +2340,7 @@ export default function Dashboard() {
         {/* Sidebar intégrée */}
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-green-700">Remondis</h2>
+            <h2 className="text-xl font-bold text-red-700">Remondis</h2>
             <p className="text-sm text-gray-600">Panneau d'administration</p>
           </div>
           
@@ -2355,7 +2355,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("dashboard")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "dashboard"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2368,7 +2368,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("orders")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "orders"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2381,7 +2381,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("configuration")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "configuration"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2394,7 +2394,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("activities")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "activities"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2415,7 +2415,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("rental-pricing")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "rental-pricing"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2428,7 +2428,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("transport-pricing")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "transport-pricing"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2441,7 +2441,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("treatment-pricing")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "treatment-pricing"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2454,7 +2454,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("legal-documents")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "legal-documents"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2467,7 +2467,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("price-simulator")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "price-simulator"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -2480,7 +2480,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentPage("my-activities")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "my-activities"
-                        ? "bg-green-100 text-green-700 border-r-2 border-green-500"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
