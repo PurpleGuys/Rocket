@@ -91,17 +91,34 @@ export default function PricingSummary() {
                 <span className="text-slate-600">Prix de base:</span>
                 <span className="font-medium">{parseFloat(bookingData.service.basePrice).toFixed(2)}€</span>
               </div>
-              {bookingData.durationDays > 1 && (
+              {pricing.transportCost > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Supplément durée:</span>
-                  <span className="font-medium">+{pricing.durationPrice.toFixed(2)}€</span>
+                  <span className="text-slate-600">Transport:</span>
+                  <span className="font-medium">+{pricing.transportCost.toFixed(2)}€</span>
                 </div>
               )}
-              {pricing.deliveryFee > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Livraison:</span>
-                  <span className="font-medium">+{pricing.deliveryFee.toFixed(2)}€</span>
-                </div>
+              {pricing.totalTreatmentCost > 0 && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Traitement des déchets:</span>
+                    <span className="font-medium">+{pricing.totalTreatmentCost.toFixed(2)}€</span>
+                  </div>
+                  {pricing.maxTonnage > 0 && (
+                    <div className="text-xs text-slate-500 ml-4">
+                      Capacité max: {pricing.maxTonnage}T
+                    </div>
+                  )}
+                  {Object.keys(pricing.treatmentCosts).length > 0 && (
+                    <div className="ml-4 space-y-1">
+                      {Object.entries(pricing.treatmentCosts).map(([wasteType, cost]: [string, any]) => (
+                        <div key={wasteType} className="text-xs text-slate-500 flex justify-between">
+                          <span>{wasteType}:</span>
+                          <span>{cost.totalCost?.toFixed(2)}€ ({cost.pricePerTon}€/T)</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
               <hr className="border-slate-200" />
               <div className="flex justify-between text-lg font-semibold">

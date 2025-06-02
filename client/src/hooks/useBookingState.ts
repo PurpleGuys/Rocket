@@ -44,6 +44,7 @@ interface PriceCalculation {
 
 export function useBookingState() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [priceData, setPriceData] = useState<any>(null);
   const [bookingData, setBookingData] = useState<BookingData>({
     service: null,
     durationDays: 1,
@@ -87,29 +88,58 @@ export function useBookingState() {
     setBookingData(prev => ({ ...prev, paymentMethod: method }));
   };
 
+  // Fonction pour déclencher le calcul de prix via l'API
+  const calculatePrice = async () => {
+    if (!bookingData.service || !bookingData.address) {
+      return;
+    }
+
+    try {
+      const response = await apiRequest("POST", "/api/calculate-pricing", {
+        serviceId: bookingData.service.id,
+        customerAddress: `${bookingData.address.street}, ${bookingData.address.postalCode} ${bookingData.address.city}`,
+        wasteTypes: bookingData.wasteTypes,
+        durationDays: bookingData.durationDays
+      });
+
+      setPriceData(response);
+    } catch (error) {
+      console.error("Erreur calcul prix:", error);
+    }
+  };
+
+  // Fonction pour obtenir les prix calculés
   const calculateTotalPrice = () => {
-    if (!bookingData.service) {
+    if (!priceData) {
       return {
         basePrice: 0,
         durationPrice: 0,
         deliveryFee: 0,
+        transportCost: 0,
+        treatmentCosts: {},
+        totalTreatmentCost: 0,
+        maxTonnage: 0,
         totalHT: 0,
         vat: 0,
         totalTTC: 0,
       };
     }
 
-    const basePrice = parseFloat(bookingData.service.basePrice);
-    const durationPrice = bookingData.durationDays > 1 ? (bookingData.durationDays - 1) * 25 : 0;
-    const deliveryFee = bookingData.address ? 24 : 0; // Mock calculation
-    const totalHT = basePrice + durationPrice + deliveryFee;
+    const basePrice = parseFloat(bookingData.service?.basePrice || '0');
+    const transportCost = priceData.transportCost || 0;
+    const totalTreatmentCost = priceData.totalTreatmentCost || 0;
+    const totalHT = basePrice + transportCost + totalTreatmentCost;
     const vat = totalHT * 0.2;
     const totalTTC = totalHT + vat;
 
     return {
       basePrice,
-      durationPrice,
-      deliveryFee,
+      durationPrice: 0,
+      deliveryFee: 0,
+      transportCost,
+      treatmentCosts: priceData.treatmentCosts || {},
+      totalTreatmentCost,
+      maxTonnage: priceData.maxTonnage || 0,
       totalHT,
       vat,
       totalTTC,
@@ -118,6 +148,7 @@ export function useBookingState() {
 
   const resetBooking = () => {
     setCurrentStep(1);
+    setPriceData(null);
     setBookingData({
       service: null,
       durationDays: 1,
@@ -134,6 +165,7 @@ export function useBookingState() {
     currentStep,
     setCurrentStep,
     bookingData,
+    priceData,
     updateService,
     updateDuration,
     updateWasteTypes,
@@ -141,6 +173,7 @@ export function useBookingState() {
     updateTimeSlots,
     updateCustomer,
     updatePaymentMethod,
+    calculatePrice,
     calculateTotalPrice,
     resetBooking,
   };
