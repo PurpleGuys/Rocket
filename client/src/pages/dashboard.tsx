@@ -228,7 +228,7 @@ function OrdersManagementSection({ allOrders }: { allOrders: any }) {
 }
 
 // Composant modal des détails de commande
-function OrderDetailsModal({ order, onStatusUpdate }: { order: any; onStatusUpdate: any }) {
+function OrderDetailsModal({ order, onStatusUpdate, isAdmin = false }: { order: any; onStatusUpdate: any; isAdmin?: boolean }) {
   const [newStatus, setNewStatus] = useState(order.status);
 
   const handleStatusUpdate = () => {
@@ -286,30 +286,32 @@ function OrderDetailsModal({ order, onStatusUpdate }: { order: any; onStatusUpda
         </div>
       </div>
 
-      {/* Gestion du statut */}
-      <div className="border-t pt-4">
-        <h3 className="font-semibold mb-2">Gestion du Statut</h3>
-        <div className="flex items-center gap-4">
-          <Select value={newStatus} onValueChange={setNewStatus}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pending">En attente</SelectItem>
-              <SelectItem value="confirmed">Confirmée</SelectItem>
-              <SelectItem value="delivered">Livrée</SelectItem>
-              <SelectItem value="cancelled">Annulée</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button 
-            onClick={handleStatusUpdate}
-            disabled={newStatus === order.status || onStatusUpdate.isPending}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            {onStatusUpdate.isPending ? 'Mise à jour...' : 'Mettre à jour'}
-          </Button>
+      {/* Gestion du statut - seulement pour admin */}
+      {isAdmin && (
+        <div className="border-t pt-4">
+          <h3 className="font-semibold mb-2">Gestion du Statut</h3>
+          <div className="flex items-center gap-4">
+            <Select value={newStatus} onValueChange={setNewStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="confirmed">Confirmée</SelectItem>
+                <SelectItem value="delivered">Livrée</SelectItem>
+                <SelectItem value="cancelled">Annulée</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={handleStatusUpdate}
+              disabled={newStatus === order.status || onStatusUpdate.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {onStatusUpdate.isPending ? 'Mise à jour...' : 'Mettre à jour'}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -599,17 +601,439 @@ function DashboardHome() {
 
 // Composants pour les différentes pages du dashboard
 function OrdersPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterPayment, setFilterPayment] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<string>('date_desc');
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const { toast } = useToast();
+
+  // Charger toutes les commandes selon le rôle
+  const { data: allOrders, isLoading } = useQuery({
+    queryKey: isAdmin ? ["/api/admin/orders"] : ["/api/orders/my-orders"],
+    enabled: !!user,
+  });
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ orderId, newStatus }: { orderId: number; newStatus: string }) => {
+      await apiRequest('PUT', `/api/admin/orders/${orderId}/status`, { status: newStatus });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      toast({
+        title: "Statut mis à jour",
+        description: "Le statut de la commande a été mis à jour avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut de la commande.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Filtrage et recherche
+  const filteredOrders = allOrders?.filter((order: any) => {
+    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    const matchesPayment = filterPayment === 'all' || order.paymentStatus === filterPayment;
+    const matchesSearch = !searchTerm || 
+      order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerLastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.deliveryCity?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesStatus && matchesPayment && matchesSearch;
+  }) || [];
+
+  // Tri
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    switch (sortBy) {
+      case 'date_desc':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case 'date_asc':
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case 'amount_desc':
+        return parseFloat(b.totalTTC) - parseFloat(a.totalTTC);
+      case 'amount_asc':
+        return parseFloat(a.totalTTC) - parseFloat(b.totalTTC);
+      case 'status':
+        return a.status.localeCompare(b.status);
+      default:
+        return 0;
+    }
+  });
+
+  // Pagination
+  const totalItems = sortedOrders.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedOrders = sortedOrders.slice(startIndex, startIndex + itemsPerPage);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'delivered': return 'Livrée';
+      case 'confirmed': return 'Confirmée';
+      case 'pending': return 'En attente';
+      case 'cancelled': return 'Annulée';
+      default: return status;
+    }
+  };
+
+  const getPaymentColor = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case 'paid': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'failed': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Mes Commandes</h1>
-        <p className="text-gray-600">Gérez vos commandes et réservations</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isAdmin ? 'Toutes les Commandes' : 'Mes Commandes'}
+          </h1>
+          <p className="text-gray-600">
+            Historique complet - {totalItems} commande{totalItems > 1 ? 's' : ''} au total
+          </p>
+        </div>
       </div>
+
+      {/* Filtres et contrôles */}
       <Card>
         <CardContent className="p-6">
-          <p className="text-gray-500">Historique des commandes à venir...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {/* Recherche */}
+            <div className="lg:col-span-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Rechercher commande, client, ville..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Filtre par statut */}
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="confirmed">Confirmées</SelectItem>
+                <SelectItem value="delivered">Livrées</SelectItem>
+                <SelectItem value="cancelled">Annulées</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Filtre par paiement */}
+            <Select value={filterPayment} onValueChange={setFilterPayment}>
+              <SelectTrigger>
+                <SelectValue placeholder="Paiement" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les paiements</SelectItem>
+                <SelectItem value="paid">Payé</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="failed">Échoué</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Tri */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger>
+                <SelectValue placeholder="Trier par" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date_desc">Plus récent</SelectItem>
+                <SelectItem value="date_asc">Plus ancien</SelectItem>
+                <SelectItem value="amount_desc">Montant élevé</SelectItem>
+                <SelectItem value="amount_asc">Montant faible</SelectItem>
+                <SelectItem value="status">Statut</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Pagination */}
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+              setItemsPerPage(parseInt(value));
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 par page</SelectItem>
+                <SelectItem value="25">25 par page</SelectItem>
+                <SelectItem value="50">50 par page</SelectItem>
+                <SelectItem value="100">100 par page</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Statistiques rapides */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-red-600">
+              {filteredOrders.filter(o => o.paymentStatus === 'paid').length}
+            </div>
+            <p className="text-sm text-gray-600">Commandes payées</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-blue-600">
+              {filteredOrders.filter(o => o.status === 'delivered').length}
+            </div>
+            <p className="text-sm text-gray-600">Bennes livrées</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-green-600">
+              {filteredOrders.reduce((sum, o) => sum + parseFloat(o.totalTTC || 0), 0).toFixed(2)}€
+            </div>
+            <p className="text-sm text-gray-600">Chiffre d'affaires</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-purple-600">
+              {new Set(filteredOrders.map(o => o.customerEmail)).size}
+            </div>
+            <p className="text-sm text-gray-600">Clients uniques</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tableau des commandes */}
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Numéro</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Adresse</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Montant</TableHead>
+                  <TableHead>Paiement</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedOrders.length > 0 ? (
+                  paginatedOrders.map((order: any) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">
+                        {order.orderNumber}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">
+                            {order.customerFirstName} {order.customerLastName}
+                          </p>
+                          <p className="text-sm text-gray-500">{order.customerEmail}</p>
+                          {order.customerPhone && (
+                            <p className="text-sm text-gray-500">{order.customerPhone}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{order.deliveryStreet}</p>
+                          <p className="text-sm text-gray-500">
+                            {order.deliveryPostalCode} {order.deliveryCity}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">Service #{order.serviceId}</p>
+                          <p className="text-sm text-gray-500">
+                            {order.durationDays} jour{order.durationDays > 1 ? 's' : ''}
+                          </p>
+                          {order.wasteTypes && order.wasteTypes.length > 0 && (
+                            <p className="text-sm text-gray-500">
+                              {order.wasteTypes.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-bold">{order.totalTTC}€</p>
+                          <p className="text-sm text-gray-500">TTC</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getPaymentColor(order.paymentStatus)}>
+                          {order.paymentStatus === 'paid' ? 'Payé' : 
+                           order.paymentStatus === 'pending' ? 'En attente' :
+                           order.paymentStatus === 'failed' ? 'Échoué' : order.paymentStatus}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(order.status)}>
+                          {getStatusLabel(order.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(order.createdAt).toLocaleTimeString('fr-FR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedOrder(order)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Détails de la commande {order.orderNumber}
+                                </DialogTitle>
+                              </DialogHeader>
+                              <OrderDetailsModal 
+                                order={order} 
+                                onStatusUpdate={updateOrderStatusMutation}
+                                isAdmin={isAdmin}
+                              />
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8">
+                      <div className="flex flex-col items-center gap-2">
+                        <ShoppingCart className="h-8 w-8 text-gray-400" />
+                        <p className="text-gray-500">
+                          {searchTerm || filterStatus !== 'all' || filterPayment !== 'all'
+                            ? 'Aucune commande ne correspond aux critères de recherche'
+                            : 'Aucune commande trouvée'
+                          }
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, totalItems)} sur {totalItems} commandes
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Précédent
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={pageNum === currentPage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={pageNum === currentPage ? "bg-red-600 hover:bg-red-700" : ""}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Suivant
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

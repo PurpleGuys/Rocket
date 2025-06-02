@@ -483,6 +483,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User: Get my orders
+  app.get("/api/orders/my-orders", authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const orders = await storage.getUserOrders(userId);
+      res.json(orders);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching user orders: " + error.message });
+    }
+  });
+
   // Admin: Get dashboard stats
   app.get("/api/admin/dashboard", async (req, res) => {
     try {
