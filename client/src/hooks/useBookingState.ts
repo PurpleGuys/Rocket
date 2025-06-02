@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Service, TimeSlot } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 
 interface CustomerInfo {
   firstName: string;
@@ -26,6 +27,19 @@ interface BookingData {
   pickupTimeSlot: TimeSlot | null;
   customer: CustomerInfo | null;
   paymentMethod: string;
+}
+
+interface PriceCalculation {
+  basePrice: number;
+  durationPrice: number;
+  deliveryFee: number;
+  transportCost: number;
+  treatmentCosts: Record<string, any>;
+  totalTreatmentCost: number;
+  maxTonnage: number;
+  totalHT: number;
+  vat: number;
+  totalTTC: number;
 }
 
 export function useBookingState() {

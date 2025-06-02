@@ -932,6 +932,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Récupérer la tarification de location pour obtenir le tonnage
+      const rentalPricing = await storage.getRentalPricingByServiceId(serviceId);
+      if (!rentalPricing) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "Tarification de location non configurée pour cette benne" 
+        });
+      }
+
+      // Récupérer les prix de traitement pour toutes les matières
+      const treatmentPricing = await storage.getTreatmentPricing();
+
       const customerAddress = `${address}, ${postalCode} ${city}`;
       const industrialAddress = companyActivities.industrialSiteAddress;
 
@@ -949,6 +961,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           parseFloat(transportPricing.minimumFlatRate)
         );
 
+        // Calculer les coûts de traitement basés sur les matières sélectionnées et le tonnage
+        let treatmentCosts: Record<string, any> = {};
+        let totalTreatmentCost = 0;
+
+        if (wasteTypes && wasteTypes.length > 0 && treatmentPricing.length > 0) {
+          const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
+          
+          wasteTypes.forEach((wasteTypeName: string) => {
+            const pricing = treatmentPricing.find(tp => 
+              tp.wasteType.name.toLowerCase() === wasteTypeName.toLowerCase()
+            );
+            
+            if (pricing && maxTonnage > 0) {
+              const costPerTon = parseFloat(pricing.pricePerTon);
+              const treatmentCost = costPerTon * maxTonnage;
+              treatmentCosts[wasteTypeName] = {
+                pricePerTon: costPerTon,
+                tonnage: maxTonnage,
+                totalCost: treatmentCost
+              };
+              totalTreatmentCost += treatmentCost;
+            }
+          });
+        }
+
         res.json({
           success: true,
           distance: {
@@ -956,6 +993,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             duration: distanceResult.duration
           },
           transportCost: transportCost,
+          treatmentCosts: treatmentCosts,
+          totalTreatmentCost: totalTreatmentCost,
+          maxTonnage: parseFloat(rentalPricing.maxTonnage) || 0,
           addresses: {
             customer: customerAddress,
             industrial: industrialAddress
@@ -973,6 +1013,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           parseFloat(transportPricing.minimumFlatRate)
         );
 
+        // Calculer les coûts de traitement même en mode fallback
+        let treatmentCosts: Record<string, any> = {};
+        let totalTreatmentCost = 0;
+
+        if (wasteTypes && wasteTypes.length > 0 && treatmentPricing.length > 0) {
+          const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
+          
+          wasteTypes.forEach((wasteTypeName: string) => {
+            const pricing = treatmentPricing.find(tp => 
+              tp.wasteType.name.toLowerCase() === wasteTypeName.toLowerCase()
+            );
+            
+            if (pricing && maxTonnage > 0) {
+              const costPerTon = parseFloat(pricing.pricePerTon);
+              const treatmentCost = costPerTon * maxTonnage;
+              treatmentCosts[wasteTypeName] = {
+                pricePerTon: costPerTon,
+                tonnage: maxTonnage,
+                totalCost: treatmentCost
+              };
+              totalTreatmentCost += treatmentCost;
+            }
+          });
+        }
+
         res.json({
           success: true,
           distance: {
@@ -981,7 +1046,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             estimated: true
           },
           transportCost: transportCost,
-          warning: "Distance estimée - Erreur API Google Maps"
+          treatmentCosts: treatmentCosts,
+          totalTreatmentCost: totalTreatmentCost,
+          maxTonnage: parseFloat(rentalPricing.maxTonnage) || 0,
+          warning: "Distance estimée - Erreur API Google Maps",
+          addresses: {
+            customer: customerAddress,
+            industrial: industrialAddress
+          }
         });
       }
 
