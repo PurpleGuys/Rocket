@@ -1,4 +1,4 @@
-import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities } from "@shared/schema";
+import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
 
@@ -708,6 +708,68 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(companyActivities.id, existing.id))
+      .returning();
+    return updated;
+  }
+
+  // Email Logs
+  async createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog> {
+    const [log] = await db
+      .insert(emailLogs)
+      .values(emailLog)
+      .returning();
+    return log;
+  }
+
+  async getEmailLogsByOrder(orderId: number): Promise<EmailLog[]> {
+    return await db
+      .select()
+      .from(emailLogs)
+      .where(eq(emailLogs.orderId, orderId))
+      .orderBy(desc(emailLogs.sentAt));
+  }
+
+  // Audit Logs
+  async createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog> {
+    const [log] = await db
+      .insert(auditLogs)
+      .values(auditLog)
+      .returning();
+    return log;
+  }
+
+  async getAuditLogsByOrder(orderId: number): Promise<AuditLog[]> {
+    return await db
+      .select()
+      .from(auditLogs)
+      .where(eq(auditLogs.orderId, orderId))
+      .orderBy(desc(auditLogs.createdAt));
+  }
+
+  // Order Email Status
+  async updateOrderEmailStatus(orderId: number, status: { confirmationEmailSent?: boolean; validationEmailSent?: boolean }): Promise<void> {
+    await db
+      .update(orders)
+      .set({
+        ...status,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+  }
+  
+  // Order Delivery Date Management
+  async updateOrderDeliveryDate(orderId: number, confirmedDate: Date, adminUserId: number, adminNotes?: string): Promise<Order | undefined> {
+    const [updated] = await db
+      .update(orders)
+      .set({
+        confirmedDeliveryDate: confirmedDate,
+        adminValidatedBy: adminUserId,
+        adminValidatedAt: new Date(),
+        adminNotes: adminNotes,
+        status: 'confirmed',
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId))
       .returning();
     return updated;
   }

@@ -7,6 +7,7 @@ import { body, validationResult } from "express-validator";
 import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
 import { DistanceService } from "./distanceService";
+import { emailService } from "./emailService";
 import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -385,6 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalHT: totalHT.toString(),
         vat: vat.toString(),
         totalTTC: totalTTC.toString(),
+        estimatedDeliveryDate: orderData.deliveryTimeSlotId ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null, // 24h from now
       });
 
       // Update time slot bookings
@@ -393,6 +395,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (orderData.pickupTimeSlotId) {
         await storage.updateTimeSlotBookings(orderData.pickupTimeSlotId, 1);
+      }
+
+      // Send automatic confirmation email
+      try {
+        await emailService.sendConfirmationEmail(order);
+        
+        // Log audit action
+        await emailService.logAuditAction({
+          userId: null, // Guest checkout
+          orderId: order.id,
+          action: 'order_created',
+          entityType: 'order',
+          entityId: order.id,
+          newValues: JSON.stringify(order),
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent'),
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the order creation if email fails
       }
 
       res.json(order);
@@ -480,6 +502,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Order status updated successfully" });
     } catch (error: any) {
       res.status(500).json({ message: "Error updating order status: " + error.message });
+    }
+  });
+
+  // Admin: Confirm delivery date and send validation email
+  app.put("/api/admin/orders/:id/confirm-delivery", authenticateToken, requireAdmin, async (req: any, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { confirmedDate, adminNotes } = req.body;
+      const adminUserId = req.user.id;
+      
+      if (!confirmedDate) {
+        return res.status(400).json({ message: "Confirmed delivery date is required" });
+      }
+
+      // Update order with confirmed delivery date
+      const updatedOrder = await storage.updateOrderDeliveryDate(
+        orderId, 
+        new Date(confirmedDate), 
+        adminUserId, 
+        adminNotes
+      );
+
+      if (!updatedOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Send validation email
+      try {
+        await emailService.sendValidationEmail(updatedOrder, adminUserId);
+        
+        // Log audit action
+        await emailService.logAuditAction({
+          userId: adminUserId,
+          orderId: orderId,
+          action: 'delivery_date_confirmed',
+          entityType: 'order',
+          entityId: orderId,
+          oldValues: JSON.stringify({ status: 'pending' }),
+          newValues: JSON.stringify({ 
+            status: 'confirmed', 
+            confirmedDeliveryDate: confirmedDate,
+            adminNotes: adminNotes 
+          }),
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent'),
+        });
+
+        res.json({ 
+          message: "Delivery date confirmed and validation email sent", 
+          order: updatedOrder 
+        });
+      } catch (emailError) {
+        console.error('Failed to send validation email:', emailError);
+        res.json({ 
+          message: "Delivery date confirmed but email failed to send", 
+          order: updatedOrder,
+          emailError: emailError.message 
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: "Error confirming delivery date: " + error.message });
+    }
+  });
+
+  // Admin: Get email logs for an order
+  app.get("/api/admin/orders/:id/email-logs", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const emailLogs = await storage.getEmailLogsByOrder(orderId);
+      res.json(emailLogs);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching email logs: " + error.message });
+    }
+  });
+
+  // Admin: Get audit logs for an order
+  app.get("/api/admin/orders/:id/audit-logs", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const auditLogs = await storage.getAuditLogsByOrder(orderId);
+      res.json(auditLogs);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching audit logs: " + error.message });
+    }
+  });
+
+  // Admin: Resend confirmation email
+  app.post("/api/admin/orders/:id/resend-confirmation", authenticateToken, requireAdmin, async (req: any, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const adminUserId = req.user.id;
+      
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const success = await emailService.sendConfirmationEmail(order);
+      
+      if (success) {
+        // Log audit action
+        await emailService.logAuditAction({
+          userId: adminUserId,
+          orderId: orderId,
+          action: 'confirmation_email_resent',
+          entityType: 'order',
+          entityId: orderId,
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent'),
+        });
+
+        res.json({ message: "Confirmation email resent successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to resend confirmation email" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: "Error resending confirmation email: " + error.message });
     }
   });
 
