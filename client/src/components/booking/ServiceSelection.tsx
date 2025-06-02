@@ -69,13 +69,15 @@ export default function ServiceSelection() {
     setDistanceError("");
 
     try {
-      const data = await apiRequest('POST', '/api/calculate-pricing', {
+      const response = await apiRequest('POST', '/api/calculate-pricing', {
         serviceId: selectedServiceId,
         wasteTypes: selectedWasteTypes,
         address: deliveryAddress,
         postalCode: postalCode,
         city: city
       });
+      
+      const data = await response.json();
       
       if (data.success && data.distance) {
         setDistance(data.distance.kilometers);
