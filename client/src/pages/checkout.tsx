@@ -5,8 +5,10 @@ import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Calendar } from "lucide-react";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
@@ -37,6 +39,7 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +137,27 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Sélection de la date souhaitée */}
+            <div className="space-y-2">
+              <Label htmlFor="preferred-date" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Date souhaitée pour la livraison *
+              </Label>
+              <input
+                id="preferred-date"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Minimum demain
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                required
+              />
+              <p className="text-xs text-gray-500">
+                * La date vous sera confirmée par email. Si elle n'est pas disponible, 
+                REMONDIS vous proposera une autre date selon ses disponibilités et vous en informera par email.
+              </p>
+            </div>
+
             <PaymentElement />
             
             {/* Mentions légales obligatoires */}

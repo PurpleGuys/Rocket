@@ -22,7 +22,7 @@ export default function Legal() {
               <p>REMONDIS France SAS</p>
               <p>Société par Actions Simplifiée au capital de 1 000 000 €</p>
               <p>SIRET : 123 456 789 00012</p>
-              <p>RCS : Lyon B 123 456 789</p>
+              <p>RCS : Beauvais B 123 456 789</p>
               <p>Code APE : 3811Z - Collecte des déchets non dangereux</p>
             </div>
             
