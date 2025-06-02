@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -23,7 +24,6 @@ import {
   Save,
   X
 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 
 // Composant principal du dashboard
 function DashboardHome() {
@@ -2016,13 +2016,10 @@ function MyActivitiesPage() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/company-activities', {
-        method: existingActivities ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(activities)
-      });
+      const method = existingActivities ? 'PUT' : 'POST';
+      const result = await apiRequest(method, '/api/admin/company-activities', activities);
 
-      if (!response.ok) throw new Error('Erreur lors de la sauvegarde');
+      if (!result) throw new Error('Erreur lors de la sauvegarde');
 
       toast({
         title: "Activités sauvegardées",

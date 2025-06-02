@@ -13,7 +13,7 @@
 --card-foreground: 20 14.3% 4.1%;
 --border: 20 5.9% 90%;
 --input: 20 5.9% 90%;
---primary: 0 84% 45%;
+--primary: 0 100% 50%;
 --primary-foreground: 0 0% 100%;
 --secondary: 60 4.8% 95.9%;
 --secondary-foreground: 24 9.8% 10%;
@@ -21,7 +21,7 @@
 --accent-foreground: 24 9.8% 10%;
 --destructive: 0 84.2% 60.2%;
 --destructive-foreground: 60 9.1% 97.8%;
---ring: 0 84% 45%; /* Rouge Remondis pour focus */
+--ring: 0 100% 50%; /* Rouge pur #FF0000 pour focus */
 --radius: 0.5rem;
   }
   .dark {
