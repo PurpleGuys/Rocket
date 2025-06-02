@@ -476,6 +476,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get stats (alias for dashboard compatibility)
+  app.get("/api/admin/stats", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const stats = await storage.getDashboardStats();
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching stats: " + error.message });
+    }
+  });
+
   // Create default services and time slots (for initialization)
   app.post("/api/admin/initialize", async (req, res) => {
     try {
