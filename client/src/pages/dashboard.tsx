@@ -3362,6 +3362,8 @@ export default function Dashboard() {
         return <LegalDocumentsPage />;
       case "price-simulator":
         return <PriceSimulatorPage />;
+      case "bank-deposits":
+        return <BankDepositsPage />;
       case "my-activities":
         return <MyActivitiesPage />;
       default:
@@ -3515,6 +3517,19 @@ export default function Dashboard() {
                   >
                     <Calculator className="mr-3 h-4 w-4" />
                     Simulateur de Prix
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("bank-deposits")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      currentPage === "bank-deposits"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Euro className="mr-3 h-4 w-4" />
+                    Empreintes bancaires
                   </button>
                 </li>
                 <li>

@@ -203,6 +203,18 @@ export const treatmentPricing = pgTable("treatment_pricing", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Table pour les empreintes bancaires
+export const bankDeposits = pgTable("bank_deposits", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  wasteTypeId: integer("waste_type_id").notNull().references(() => wasteTypes.id, { onDelete: "cascade" }),
+  depositAmount: decimal("deposit_amount", { precision: 10, scale: 2 }).notNull(), // Montant de l'empreinte en €
+  description: text("description"), // Description de l'empreinte
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -395,9 +407,25 @@ export const updateCompanyActivitiesSchema = createInsertSchema(companyActivitie
   updatedAt: true,
 });
 
+export const insertBankDepositSchema = createInsertSchema(bankDeposits).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateBankDepositSchema = createInsertSchema(bankDeposits).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type CompanyActivities = typeof companyActivities.$inferSelect;
 export type InsertCompanyActivities = z.infer<typeof insertCompanyActivitiesSchema>;
 export type UpdateCompanyActivities = z.infer<typeof updateCompanyActivitiesSchema>;
+
+export type BankDeposit = typeof bankDeposits.$inferSelect;
+export type InsertBankDeposit = z.infer<typeof insertBankDepositSchema>;
+export type UpdateBankDeposit = z.infer<typeof updateBankDepositSchema>;
 
 // Email logs table for audit trail
 export const emailLogs = pgTable("email_logs", {
