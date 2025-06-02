@@ -466,8 +466,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get all users
+  app.get("/api/admin/users", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching users: " + error.message });
+    }
+  });
+
+  // Admin: Update order status
+  app.patch("/api/admin/orders/:id/status", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      await storage.updateOrderStatus(orderId, status);
+      res.json({ message: "Order status updated successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error updating order status: " + error.message });
+    }
+  });
+
   // Admin: Get dashboard stats
-  app.get("/api/admin/dashboard", async (req, res) => {
+  app.get("/api/admin/stats", async (req, res) => {
     try {
       const stats = await storage.getDashboardStats();
       res.json(stats);

@@ -30,7 +30,12 @@ function DashboardHome() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<{
+    todayOrders: number;
+    monthlyRevenue: string;
+    rentedDumpsters: number;
+    activeCustomers: number;
+  }>({
     queryKey: ["/api/admin/stats"],
     enabled: isAdmin,
   });
@@ -38,6 +43,36 @@ function DashboardHome() {
   const { data: userOrders } = useQuery({
     queryKey: ["/api/orders/my-orders"],
     enabled: !isAdmin,
+  });
+
+  const { data: allOrders = [] } = useQuery({
+    queryKey: ["/api/admin/orders"],
+    enabled: isAdmin,
+  });
+
+  const { data: rentalPricing = [] } = useQuery({
+    queryKey: ["/api/admin/rental-pricing"],
+    enabled: isAdmin,
+  });
+
+  const { data: transportPricing = null } = useQuery({
+    queryKey: ["/api/admin/transport-pricing"],
+    enabled: isAdmin,
+  });
+
+  const { data: treatmentPricing = [] } = useQuery({
+    queryKey: ["/api/admin/treatment-pricing"],
+    enabled: isAdmin,
+  });
+
+  const { data: wasteTypes = [] } = useQuery({
+    queryKey: ["/api/admin/waste-types"],
+    enabled: isAdmin,
+  });
+
+  const { data: companyActivities = null } = useQuery({
+    queryKey: ["/api/admin/company-activities"],
+    enabled: isAdmin,
   });
 
   return (
