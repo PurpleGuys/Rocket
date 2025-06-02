@@ -26,6 +26,9 @@ export default function ServiceSelection() {
   const [distance, setDistance] = useState(0);
   const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
   const [distanceError, setDistanceError] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   const { data: services, isLoading, error } = useQuery({
     queryKey: ['/api/services'],
@@ -92,6 +95,62 @@ export default function ServiceSelection() {
       setIsCalculatingDistance(false);
     }
   };
+
+  // Fonction pour récupérer les suggestions d'adresses
+  const fetchAddressSuggestions = async (input: string) => {
+    if (input.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(input)}`);
+      const data = await response.json();
+      
+      if (data.suggestions) {
+        setAddressSuggestions(data.suggestions);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error('Erreur autocomplétion:', error);
+      setAddressSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Fonction pour sélectionner une suggestion d'adresse
+  const selectAddressSuggestion = (suggestion: any) => {
+    const parts = suggestion.description.split(', ');
+    if (parts.length >= 3) {
+      const address = parts[0];
+      const cityPart = parts[parts.length - 2];
+      const postalCodeMatch = cityPart.match(/(\d{5})/);
+      const city = cityPart.replace(/\d{5}\s*/, '').trim();
+      
+      setDeliveryAddress(address);
+      setPostalCode(postalCodeMatch ? postalCodeMatch[1] : '');
+      setCity(city);
+    } else {
+      setDeliveryAddress(suggestion.description);
+    }
+    
+    setShowSuggestions(false);
+    setAddressSuggestions([]);
+  };
+
+  // Déclencher l'autocomplétion quand l'adresse change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (deliveryAddress) {
+        fetchAddressSuggestions(deliveryAddress);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [deliveryAddress]);
 
   // Déclencher le calcul quand l'adresse change
   useEffect(() => {
@@ -267,13 +326,38 @@ export default function ServiceSelection() {
               <h3 className="text-lg font-semibold text-gray-900">Adresse de livraison</h3>
             </div>
             <div className="space-y-3">
-              <Input
-                type="text"
-                placeholder="123 Rue de la République"
-                value={deliveryAddress}
-                onChange={(e) => setDeliveryAddress(e.target.value)}
-                className="w-full"
-              />
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="123 Rue de la République"
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                  onFocus={() => deliveryAddress.length >= 3 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  className="w-full"
+                />
+                {isLoadingSuggestions && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  </div>
+                )}
+                
+                {showSuggestions && addressSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {addressSuggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        onClick={() => selectAddressSuggestion(suggestion)}
+                      >
+                        <div className="font-medium text-gray-900">{suggestion.main_text}</div>
+                        <div className="text-sm text-gray-500">{suggestion.secondary_text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
               <div className="flex gap-3">
                 <Input
                   type="text"
@@ -290,6 +374,7 @@ export default function ServiceSelection() {
                   className="flex-1"
                 />
               </div>
+              
               {isCalculatingDistance && (
                 <div className="flex items-center text-sm text-blue-600">
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

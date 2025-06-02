@@ -796,6 +796,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Places Autocomplete API
+  app.get("/api/places/autocomplete", async (req, res) => {
+    try {
+      const { input } = req.query;
+      
+      if (!input || typeof input !== 'string') {
+        return res.status(400).json({ message: "Paramètre 'input' requis" });
+      }
+
+      if (!process.env.GOOGLE_MAPS_API_KEY) {
+        return res.status(500).json({ message: "Clé API Google Maps manquante" });
+      }
+
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=address&components=country:fr&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === 'OK') {
+        const suggestions = data.predictions.map((prediction: any) => ({
+          place_id: prediction.place_id,
+          description: prediction.description,
+          main_text: prediction.structured_formatting?.main_text || '',
+          secondary_text: prediction.structured_formatting?.secondary_text || ''
+        }));
+        
+        res.json({ suggestions });
+      } else {
+        res.status(400).json({ message: `Erreur API Google Places: ${data.status}` });
+      }
+    } catch (error: any) {
+      console.error("Erreur autocomplete:", error);
+      res.status(500).json({ message: "Erreur lors de l'autocomplétion: " + error.message });
+    }
+  });
+
   // Test Google Maps API connection
   app.get("/api/test-maps-api", async (req, res) => {
     try {
@@ -823,6 +859,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         message: `Erreur API Google Maps: ${error.message}`,
         details: "Vérifiez que votre clé API Google Maps est valide et que les APIs Geocoding et Distance Matrix sont activées"
+      });
+    }
+  });
+
+  // Calculate pricing with distance
+  app.post("/api/calculate-pricing", async (req, res) => {
+    try {
+      const { serviceId, wasteTypes, address, postalCode, city } = req.body;
+
+      if (!serviceId || !address || !postalCode || !city) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Service ID et adresse complète requis" 
+        });
+      }
+
+      // Récupérer la tarification transport
+      const transportPricing = await storage.getTransportPricing();
+      if (!transportPricing) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "Tarification transport non configurée" 
+        });
+      }
+
+      // Récupérer les activités pour l'adresse du site industriel
+      const companyActivities = await storage.getCompanyActivities();
+      if (!companyActivities || !companyActivities.industrialSiteAddress) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Adresse du site industriel non configurée" 
+        });
+      }
+
+      const customerAddress = `${address}, ${postalCode} ${city}`;
+      const industrialAddress = companyActivities.industrialSiteAddress;
+
+      try {
+        // Calculer la distance réelle avec Google Maps
+        const distanceResult = await DistanceService.calculateDistance(
+          industrialAddress,
+          customerAddress
+        );
+
+        // Calculer le coût de transport
+        const transportCost = DistanceService.calculateTransportCost(
+          distanceResult.distance,
+          transportPricing.pricePerKm,
+          transportPricing.minimumFlatRate
+        );
+
+        res.json({
+          success: true,
+          distance: {
+            kilometers: distanceResult.distance,
+            duration: distanceResult.duration
+          },
+          transportCost: transportCost,
+          addresses: {
+            customer: customerAddress,
+            industrial: industrialAddress
+          }
+        });
+
+      } catch (distanceError: any) {
+        console.error("Erreur calcul distance Google Maps:", distanceError);
+        
+        // Utiliser une distance estimée par défaut
+        const estimatedDistance = 15;
+        const transportCost = DistanceService.calculateTransportCost(
+          estimatedDistance,
+          transportPricing.pricePerKm,
+          transportPricing.minimumFlatRate
+        );
+
+        res.json({
+          success: true,
+          distance: {
+            kilometers: estimatedDistance,
+            duration: 30,
+            estimated: true
+          },
+          transportCost: transportCost,
+          warning: "Distance estimée - Erreur API Google Maps"
+        });
+      }
+
+    } catch (error: any) {
+      console.error("Erreur calcul pricing:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Erreur lors du calcul de tarification: " + error.message 
       });
     }
   });
