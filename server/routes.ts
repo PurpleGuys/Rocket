@@ -1349,21 +1349,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Calculate duration supplement based on configured thresholds and supplements
+      // Calculate duration supplement: (jours - seuil) × prix journalier
       const calculateDurationSupplement = (days: number, pricing: any) => {
         const daysNum = parseInt(days.toString());
-        let supplement = 0;
+        const dailyRate = parseFloat(pricing.dailyRate) || 0;
+        let extraDays = 0;
+        let startDay = pricing.billingStartDay || 1;
         
-        // Apply the highest applicable supplement based on configured thresholds
-        if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3 && pricing.durationSupplement3) {
-          supplement = parseFloat(pricing.durationSupplement3);
-        } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2 && pricing.durationSupplement2) {
-          supplement = parseFloat(pricing.durationSupplement2);
-        } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1 && pricing.durationSupplement1) {
-          supplement = parseFloat(pricing.durationSupplement1);
+        // Calculer les jours supplémentaires au-delà du seuil de début
+        if (daysNum > startDay) {
+          extraDays = daysNum - startDay;
         }
         
-        return supplement;
+        return extraDays * dailyRate;
       };
 
       const durationSupplement = calculateDurationSupplement(durationDays, rentalPricing);
