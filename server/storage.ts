@@ -380,6 +380,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id));
   }
 
+  async deleteOrder(id: number): Promise<void> {
+    await db
+      .delete(orders)
+      .where(eq(orders.id, id));
+  }
+
   async getDashboardStats(): Promise<{
     todayOrders: number;
     yesterdayOrders: number;
