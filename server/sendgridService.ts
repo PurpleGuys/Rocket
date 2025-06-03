@@ -9,7 +9,7 @@ export interface EmailTemplate {
 
 export class SendGridService {
   private isConfigured = false;
-  private fromEmail = 'noreply@gmail.com'; // Email générique pour test
+  private fromEmail = process.env.SENDGRID_VERIFIED_SENDER_EMAIL || 'noreply@gmail.com';
 
   constructor() {
     this.initialize();

@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { AuthService, authenticateToken, requireAdmin } from "./auth";
 import { DistanceService } from "./distanceService";
 import { emailService } from "./emailService";
+import { sendGridService } from "./sendgridService";
 import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema } from "@shared/schema";
 import { z } from "zod";
 
