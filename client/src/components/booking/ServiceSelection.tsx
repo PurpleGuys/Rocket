@@ -43,7 +43,7 @@ export default function ServiceSelection() {
     queryKey: ['/api/treatment-pricing'],
   });
 
-  const service = services?.find((s: Service) => s.id === selectedServiceId);
+  const service = services ? services.find((s: Service) => s.id === selectedServiceId) : undefined;
 
   // Calcul automatique de la distance quand les données changent
   useEffect(() => {

@@ -107,6 +107,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(423).json({ message: "Compte temporairement verrouillé" });
       }
       
+      // Check if email is verified
+      if (!user.isVerified) {
+        return res.status(403).json({ 
+          message: "Compte non vérifié. Vérifiez votre email pour activer votre compte.",
+          requiresVerification: true 
+        });
+      }
+      
       // Verify password
       const isPasswordValid = await AuthService.comparePassword(password, user.password);
       if (!isPasswordValid) {
