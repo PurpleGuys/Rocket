@@ -35,7 +35,11 @@ export class SendGridService {
     }
 
     try {
-      const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/verify-email?token=${verificationToken}`;
+      // Use Replit domain if available, otherwise fallback to localhost
+      const baseUrl = process.env.REPLIT_DOMAINS ? 
+        `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 
+        'http://localhost:5000';
+      const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
       const template = this.generateVerificationTemplate(user, verificationUrl);
       
       const msg = {
@@ -66,7 +70,11 @@ export class SendGridService {
     }
 
     try {
-      const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+      // Use Replit domain if available, otherwise fallback to localhost
+      const baseUrl = process.env.REPLIT_DOMAINS ? 
+        `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 
+        'http://localhost:5000';
+      const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
       const template = this.generatePasswordResetTemplate(user, resetUrl);
       
       const msg = {
