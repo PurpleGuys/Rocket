@@ -1355,24 +1355,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const dailyRate = parseFloat(pricing.dailyRate) || 0;
         let extraDays = 0;
         
-        console.log(`Calcul supplément durée: ${daysNum} jours, tarif journalier: ${dailyRate}€`);
-        console.log(`Seuils: ${pricing.durationThreshold1}, ${pricing.durationThreshold2}, ${pricing.durationThreshold3}`);
-        
         // Find the applicable threshold and calculate extra days beyond base period
         if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3) {
           extraDays = daysNum - pricing.durationThreshold3;
-          console.log(`Seuil 3 appliqué: ${daysNum} - ${pricing.durationThreshold3} = ${extraDays} jours supplémentaires`);
         } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2) {
           extraDays = daysNum - pricing.durationThreshold2;
-          console.log(`Seuil 2 appliqué: ${daysNum} - ${pricing.durationThreshold2} = ${extraDays} jours supplémentaires`);
         } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1) {
           extraDays = daysNum - pricing.durationThreshold1;
-          console.log(`Seuil 1 appliqué: ${daysNum} - ${pricing.durationThreshold1} = ${extraDays} jours supplémentaires`);
         }
         
-        const supplement = extraDays * dailyRate;
-        console.log(`Supplément calculé: ${extraDays} × ${dailyRate} = ${supplement}€`);
-        return supplement;
+        return extraDays * dailyRate;
       };
 
       const durationSupplement = calculateDurationSupplement(durationDays, rentalPricing);
