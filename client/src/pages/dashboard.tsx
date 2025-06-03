@@ -32,8 +32,615 @@ import {
   CheckCircle,
   Eye,
   Filter,
-  Search
+  Search,
+  Shield,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  UserCheck,
+  UserX,
+  Lock,
+  Unlock
 } from "lucide-react";
+
+// Composant de gestion complète des utilisateurs
+function UsersManagementPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  // Récupérer tous les utilisateurs
+  const { data: users, isLoading, refetch } = useQuery({
+    queryKey: ['/api/admin/users'],
+    select: (data) => data || []
+  });
+
+  // Mutation pour créer un utilisateur
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: any) => {
+      const response = await apiRequest("POST", "/api/admin/users", userData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Utilisateur créé",
+        description: "L'utilisateur a été créé avec succès.",
+      });
+      setIsCreateDialogOpen(false);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de créer l'utilisateur.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutation pour mettre à jour un utilisateur
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, userData }: { userId: number; userData: any }) => {
+      const response = await apiRequest("PUT", `/api/admin/users/${userId}`, userData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Utilisateur mis à jour",
+        description: "Les informations de l'utilisateur ont été mises à jour.",
+      });
+      setIsEditDialogOpen(false);
+      setSelectedUser(null);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de mettre à jour l'utilisateur.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutation pour vérifier manuellement un utilisateur
+  const verifyUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const response = await apiRequest("POST", `/api/admin/users/${userId}/verify`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Utilisateur vérifié",
+        description: "L'utilisateur a été vérifié manuellement.",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de vérifier l'utilisateur.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutation pour supprimer un utilisateur
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      await apiRequest("DELETE", `/api/admin/users/${userId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Utilisateur supprimé",
+        description: "L'utilisateur a été supprimé avec succès.",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de supprimer l'utilisateur.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Filtrer les utilisateurs
+  const filteredUsers = users?.filter((user: any) => {
+    const matchesSearch = user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.companyName?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = filterRole === 'all' || user.role === filterRole;
+    const matchesStatus = filterStatus === 'all' || 
+                         (filterStatus === 'verified' && user.isVerified) ||
+                         (filterStatus === 'unverified' && !user.isVerified) ||
+                         (filterStatus === 'active' && user.isActive) ||
+                         (filterStatus === 'inactive' && !user.isActive);
+    return matchesSearch && matchesRole && matchesStatus;
+  }) || [];
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'user': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Administrateur';
+      case 'user': return 'Utilisateur';
+      default: return role;
+    }
+  };
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const userData = {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+      phone: formData.get('phone'),
+      role: formData.get('role'),
+      companyName: formData.get('companyName'),
+      siret: formData.get('siret'),
+      address: formData.get('address'),
+      city: formData.get('city'),
+      postalCode: formData.get('postalCode'),
+      isVerified: formData.get('isVerified') === 'on',
+      isActive: formData.get('isActive') === 'on'
+    };
+    createUserMutation.mutate(userData);
+  };
+
+  const handleUpdateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const userData = {
+      email: formData.get('email'),
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+      phone: formData.get('phone'),
+      role: formData.get('role'),
+      companyName: formData.get('companyName'),
+      siret: formData.get('siret'),
+      address: formData.get('address'),
+      city: formData.get('city'),
+      postalCode: formData.get('postalCode'),
+      isVerified: formData.get('isVerified') === 'on',
+      isActive: formData.get('isActive') === 'on'
+    };
+    updateUserMutation.mutate({ userId: selectedUser.id, userData });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-red-600" />
+              Gestion des Utilisateurs
+            </CardTitle>
+            <CardDescription>
+              Gérez tous les comptes utilisateurs - Total: {users?.length || 0} utilisateurs
+            </CardDescription>
+          </div>
+          <Button 
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Créer un utilisateur
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {/* Filtres et recherche */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Rechercher par email, nom, entreprise..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Select value={filterRole} onValueChange={setFilterRole}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrer par rôle" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les rôles</SelectItem>
+                <SelectItem value="admin">Administrateurs</SelectItem>
+                <SelectItem value="user">Utilisateurs</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="verified">Vérifiés</SelectItem>
+                <SelectItem value="unverified">Non vérifiés</SelectItem>
+                <SelectItem value="active">Actifs</SelectItem>
+                <SelectItem value="inactive">Inactifs</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Table des utilisateurs */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Utilisateur</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Entreprise</TableHead>
+                <TableHead>Rôle</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Inscription</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((user: any) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <Users className="h-4 w-4 text-red-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">{user.firstName} {user.lastName}</div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      {user.phone && (
+                        <div className="flex items-center gap-1 text-sm">
+                          <Phone className="h-3 w-3" />
+                          {user.phone}
+                        </div>
+                      )}
+                      {user.address && (
+                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                          <MapPin className="h-3 w-3" />
+                          {user.city}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {user.companyName ? (
+                      <div>
+                        <div className="font-medium">{user.companyName}</div>
+                        {user.siret && (
+                          <div className="text-sm text-gray-500">SIRET: {user.siret}</div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Particulier</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getRoleColor(user.role)}>
+                      {getRoleLabel(user.role)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <Badge variant={user.isVerified ? "default" : "destructive"}>
+                        {user.isVerified ? (
+                          <>
+                            <UserCheck className="h-3 w-3 mr-1" />
+                            Vérifié
+                          </>
+                        ) : (
+                          <>
+                            <UserX className="h-3 w-3 mr-1" />
+                            Non vérifié
+                          </>
+                        )}
+                      </Badge>
+                      <Badge variant={user.isActive ? "default" : "secondary"}>
+                        {user.isActive ? (
+                          <>
+                            <Unlock className="h-3 w-3 mr-1" />
+                            Actif
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="h-3 w-3 mr-1" />
+                            Inactif
+                          </>
+                        )}
+                      </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {!user.isVerified && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => verifyUserMutation.mutate(user.id)}
+                          disabled={verifyUserMutation.isPending}
+                        >
+                          <UserCheck className="h-3 w-3 mr-1" />
+                          Vérifier
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Modifier
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.email} ?`)) {
+                            deleteUserMutation.mutate(user.id);
+                          }
+                        }}
+                        disabled={deleteUserMutation.isPending}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Supprimer
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            Aucun utilisateur trouvé avec les critères sélectionnés
+          </div>
+        )}
+      </CardContent>
+
+      {/* Dialog de création d'utilisateur */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
+            <DialogDescription>
+              Créez un nouveau compte utilisateur avec tous les détails nécessaires.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateUser} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email *</label>
+                <Input name="email" type="email" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mot de passe *</label>
+                <Input name="password" type="password" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Prénom *</label>
+                <Input name="firstName" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nom *</label>
+                <Input name="lastName" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Téléphone</label>
+                <Input name="phone" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Rôle</label>
+                <Select name="role" defaultValue="user">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">Utilisateur</SelectItem>
+                    <SelectItem value="admin">Administrateur</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Informations entreprise</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nom de l'entreprise</label>
+                  <Input name="companyName" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">SIRET</label>
+                  <Input name="siret" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Adresse</label>
+                <Input name="address" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Ville</label>
+                  <Input name="city" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Code postal</label>
+                  <Input name="postalCode" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Paramètres du compte</h4>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" name="isVerified" className="rounded" defaultChecked />
+                  <label className="text-sm font-medium">Compte vérifié</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" name="isActive" className="rounded" defaultChecked />
+                  <label className="text-sm font-medium">Compte actif</label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                Annuler
+              </Button>
+              <Button type="submit" disabled={createUserMutation.isPending}>
+                {createUserMutation.isPending ? 'Création...' : 'Créer l\'utilisateur'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de modification d'utilisateur */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Modifier l'utilisateur</DialogTitle>
+            <DialogDescription>
+              Modifiez les informations de l'utilisateur {selectedUser?.email}.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email *</label>
+                  <Input name="email" type="email" defaultValue={selectedUser.email} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Prénom *</label>
+                  <Input name="firstName" defaultValue={selectedUser.firstName} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nom *</label>
+                  <Input name="lastName" defaultValue={selectedUser.lastName} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Téléphone</label>
+                  <Input name="phone" defaultValue={selectedUser.phone} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Rôle</label>
+                  <Select name="role" defaultValue={selectedUser.role}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">Utilisateur</SelectItem>
+                      <SelectItem value="admin">Administrateur</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-medium">Informations entreprise</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Nom de l'entreprise</label>
+                    <Input name="companyName" defaultValue={selectedUser.companyName} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">SIRET</label>
+                    <Input name="siret" defaultValue={selectedUser.siret} />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Adresse</label>
+                  <Input name="address" defaultValue={selectedUser.address} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Ville</label>
+                    <Input name="city" defaultValue={selectedUser.city} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Code postal</label>
+                    <Input name="postalCode" defaultValue={selectedUser.postalCode} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-medium">Paramètres du compte</h4>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" name="isVerified" className="rounded" defaultChecked={selectedUser.isVerified} />
+                    <label className="text-sm font-medium">Compte vérifié</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" name="isActive" className="rounded" defaultChecked={selectedUser.isActive} />
+                    <label className="text-sm font-medium">Compte actif</label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Annuler
+                </Button>
+                <Button type="submit" disabled={updateUserMutation.isPending}>
+                  {updateUserMutation.isPending ? 'Mise à jour...' : 'Mettre à jour'}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
 
 // Composant de gestion des commandes
 function OrdersManagementSection({ allOrders }: { allOrders: any }) {
@@ -609,164 +1216,7 @@ function DashboardHome() {
   );
 }
 
-// Composant de gestion des utilisateurs (Admin uniquement)
-function UsersManagementPage() {
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterVerified, setFilterVerified] = useState<string>('all');
 
-  const { data: users, isLoading } = useQuery({
-    queryKey: ["/api/admin/users"],
-  });
-
-  const verifyUserMutation = useMutation({
-    mutationFn: async (userId: number) => {
-      const response = await apiRequest('POST', '/api/admin/verify-user', { userId });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
-      toast({
-        title: "Utilisateur vérifié",
-        description: data.message,
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Erreur lors de la vérification",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const filteredUsers = users?.filter((user: any) => {
-    const matchesSearch = !searchTerm || 
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesVerified = filterVerified === 'all' || 
-      (filterVerified === 'verified' && user.isVerified) ||
-      (filterVerified === 'unverified' && !user.isVerified);
-    
-    return matchesSearch && matchesVerified;
-  }) || [];
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Gestion des utilisateurs
-        </CardTitle>
-        <CardDescription>
-          Gérez les comptes utilisateurs et les vérifications d'email
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <Input
-              placeholder="Rechercher par email, nom ou prénom..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
-          </div>
-          <Select value={filterVerified} onValueChange={setFilterVerified}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les utilisateurs</SelectItem>
-              <SelectItem value="verified">Vérifiés</SelectItem>
-              <SelectItem value="unverified">Non vérifiés</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Utilisateur</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Rôle</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Inscrit le</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.map((user: any) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-medium">
-                        {user.firstName} {user.lastName}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                      {user.role === 'admin' ? 'Administrateur' : 'Client'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {user.isVerified ? (
-                        <Badge className="bg-green-100 text-green-800">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Vérifié
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          Non vérifié
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString('fr-FR')}
-                  </TableCell>
-                  <TableCell>
-                    {!user.isVerified && (
-                      <Button
-                        onClick={() => verifyUserMutation.mutate(user.id)}
-                        disabled={verifyUserMutation.isPending}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        {verifyUserMutation.isPending ? "Vérification..." : "Vérifier manuellement"}
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        {filteredUsers.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            Aucun utilisateur trouvé.
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 
 // Composants pour les différentes pages du dashboard
 function OrdersPage() {
