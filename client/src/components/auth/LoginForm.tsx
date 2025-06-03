@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -120,6 +120,29 @@ export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassw
           >
             {loginMutation.isPending ? "Connexion..." : "Se connecter"}
           </Button>
+
+          {showResendVerification && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <AlertCircle className="h-5 w-5 text-orange-600 mr-2" />
+                <span className="text-sm font-medium text-orange-800">
+                  Compte non vérifié
+                </span>
+              </div>
+              <p className="text-sm text-orange-700 mb-3">
+                Votre compte n'est pas encore vérifié. Vérifiez votre boîte email ou cliquez ci-dessous pour renvoyer l'email de vérification.
+              </p>
+              <Button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resendVerificationMutation.isPending}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                size="sm"
+              >
+                {resendVerificationMutation.isPending ? "Envoi..." : "Renvoyer l'email de vérification"}
+              </Button>
+            </div>
+          )}
 
           <div className="text-center space-y-2">
             <Button
