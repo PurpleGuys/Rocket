@@ -777,26 +777,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Order not found" });
       }
 
-      // Send validation email
+      // Send validation email using SendGrid
       try {
-        await emailService.sendValidationEmail(updatedOrder, adminUserId);
-        
-        // Log audit action
-        await emailService.logAuditAction({
-          userId: adminUserId,
-          orderId: orderId,
-          action: 'delivery_date_confirmed',
-          entityType: 'order',
-          entityId: orderId,
-          oldValues: JSON.stringify({ status: 'pending' }),
-          newValues: JSON.stringify({ 
-            status: 'confirmed', 
-            confirmedDeliveryDate: confirmedDate,
-            adminNotes: adminNotes 
-          }),
-          ipAddress: req.ip,
-          userAgent: req.get('User-Agent'),
-        });
+        const { sendGridService } = await import("./sendgridService");
+        const user = { 
+          firstName: updatedOrder.customerFirstName, 
+          lastName: updatedOrder.customerLastName, 
+          email: updatedOrder.customerEmail 
+        };
+        await sendGridService.sendDeliveryDateConfirmedEmail(updatedOrder, user);
 
         res.json({ 
           message: "Delivery date confirmed and validation email sent", 
@@ -807,7 +796,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ 
           message: "Delivery date confirmed but email failed to send", 
           order: updatedOrder,
-          emailError: emailError.message 
+          emailError: String(emailError) 
         });
       }
     } catch (error: any) {
@@ -848,22 +837,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Order not found" });
       }
 
-      const success = await emailService.sendConfirmationEmail(order);
-      
-      if (success) {
-        // Log audit action
-        await emailService.logAuditAction({
-          userId: adminUserId,
-          orderId: orderId,
-          action: 'confirmation_email_resent',
-          entityType: 'order',
-          entityId: orderId,
-          ipAddress: req.ip,
-          userAgent: req.get('User-Agent'),
-        });
-
+      try {
+        const { sendGridService } = await import("./sendgridService");
+        const user = { 
+          firstName: order.customerFirstName, 
+          lastName: order.customerLastName, 
+          email: order.customerEmail 
+        };
+        await sendGridService.sendOrderConfirmationEmail(order, user);
         res.json({ message: "Confirmation email resent successfully" });
-      } else {
+      } catch (emailError) {
+        console.error("Failed to resend confirmation email:", emailError);
         res.status(500).json({ message: "Failed to resend confirmation email" });
       }
     } catch (error: any) {
