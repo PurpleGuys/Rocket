@@ -1391,19 +1391,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         
         breakdown.transport = transportCost;
-        totalPrice += transportCost;
 
-        // Add treatment costs for each waste type
+        // Add treatment costs for each waste type (prix par tonne × tonnage max configuré)
+        const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
         for (const wasteTypeId of wasteTypes) {
           const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeId);
-          if (treatmentPricing) {
-            const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
+          if (treatmentPricing && maxTonnage > 0) {
+            const pricePerTon = parseFloat(treatmentPricing.pricePerTon);
+            const treatmentCost = pricePerTon * maxTonnage;
             breakdown.treatment += treatmentCost;
-            totalPrice += treatmentCost;
           }
         }
 
-        breakdown.total = totalPrice;
+        breakdown.total = breakdown.service + breakdown.durationSupplement + breakdown.transport + breakdown.treatment;
 
         res.json({
           success: true,
