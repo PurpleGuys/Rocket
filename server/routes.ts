@@ -584,14 +584,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phone: user.phone,
         role: user.role,
         isVerified: user.isVerified,
+        isActive: user.isActive,
+        companyName: user.companyName,
+        siret: user.siret,
+        address: user.address,
+        city: user.city,
+        postalCode: user.postalCode,
         createdAt: user.createdAt,
         lastLogin: user.lastLogin
       }));
       res.json(safeUsers);
     } catch (error: any) {
       res.status(500).json({ message: "Error fetching users: " + error.message });
+    }
+  });
+
+  // Admin: Create new user
+  app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const userData = req.body;
+      
+      // Hash password if provided
+      if (userData.password) {
+        userData.password = await AuthService.hashPassword(userData.password);
+      }
+
+      const newUser = await storage.createUser(userData);
+      
+      // Remove password from response
+      const { password, ...safeUser } = newUser;
+      res.json(safeUser);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error creating user: " + error.message });
+    }
+  });
+
+  // Admin: Update user
+  app.put("/api/admin/users/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const userData = req.body;
+      
+      // Remove password from update data (should be handled separately)
+      delete userData.password;
+
+      const updatedUser = await storage.updateUser(userId, userData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Remove password from response
+      const { password, ...safeUser } = updatedUser;
+      res.json(safeUser);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error updating user: " + error.message });
+    }
+  });
+
+  // Admin: Delete user
+  app.delete("/api/admin/users/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Prevent admin from deleting themselves
+      if (req.user.id === userId) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+
+      await storage.deleteUser(userId);
+      res.json({ message: "User deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error deleting user: " + error.message });
+    }
+  });
+
+  // Admin: Verify user manually
+  app.post("/api/admin/users/:id/verify", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.isVerified) {
+        return res.json({ message: "User is already verified" });
+      }
+
+      // Mark user as verified manually
+      await storage.updateUserSecurity(userId, {
+        isVerified: true,
+        verificationToken: null
+      });
+
+      res.json({ 
+        message: `User ${user.email} verified manually`,
+        user: { id: user.id, email: user.email, isVerified: true }
+      });
+
+    } catch (error: any) {
+      res.status(500).json({ message: "Error verifying user: " + error.message });
     }
   });
 
