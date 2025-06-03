@@ -46,11 +46,15 @@ export class SendGridService {
         html: template.html,
       };
 
+      console.log('Attempting to send verification email to:', user.email);
+      console.log('From email:', this.fromEmail);
+      
       await sgMail.send(msg);
-      console.log('Verification email sent to:', user.email);
+      console.log('Verification email sent successfully to:', user.email);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending verification email:', error);
+      console.error('SendGrid error details:', error.response?.body || error.message);
       return false;
     }
   }

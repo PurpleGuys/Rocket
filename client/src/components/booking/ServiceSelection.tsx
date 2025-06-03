@@ -237,7 +237,7 @@ export default function ServiceSelection() {
   };
 
   // Obtenir les types de déchets disponibles depuis les configurations admin
-  const availableWasteTypes = wasteTypes?.map((wt: any) => wt.name) || [];
+  const availableWasteTypes = Array.isArray(wasteTypes) ? wasteTypes.map((wt: any) => wt.name) : [];
 
   if (isLoading) {
     return (
@@ -270,7 +270,7 @@ export default function ServiceSelection() {
             <h3 className="text-lg font-semibold text-gray-900">Choisissez votre benne</h3>
           </div>
           <div className="grid lg:grid-cols-1 gap-6">
-            {services && services.map((service: Service) => (
+            {Array.isArray(services) && services.map((service: Service) => (
               <div
                 key={service.id}
                 className={`relative cursor-pointer transition-all ${
