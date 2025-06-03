@@ -4336,32 +4336,7 @@ export default function Dashboard() {
                     Mes Commandes
                   </button>
                 </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("configuration")}
-                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
-                      currentPage === "configuration"
-                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Settings className="mr-3 h-4 w-4" />
-                    Ma Configuration
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("activities")}
-                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
-                      currentPage === "activities"
-                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Clock className="mr-3 h-4 w-4" />
-                    Mes Activités
-                  </button>
-                </li>
+
               </ul>
             </div>
 
