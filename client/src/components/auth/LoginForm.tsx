@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginUser, loginSchema } from "@shared/schema";
-import { useLogin } from "@/hooks/useAuth";
+import { useLogin, useResendVerification } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,10 @@ interface LoginFormProps {
 
 export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [lastFailedEmail, setLastFailedEmail] = useState("");
   const loginMutation = useLogin();
+  const resendVerificationMutation = useResendVerification();
 
   const form = useForm<LoginUser>({
     resolver: zodResolver(loginSchema),
@@ -33,8 +36,19 @@ export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassw
     try {
       await loginMutation.mutateAsync(data);
       onSuccess?.();
-    } catch (error) {
-      // Error is handled by the mutation
+    } catch (error: any) {
+      // Check if it's an unverified account error
+      if (error.message?.includes('403') && error.message?.includes('non vérifié')) {
+        setLastFailedEmail(data.email);
+        setShowResendVerification(true);
+      }
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (lastFailedEmail) {
+      await resendVerificationMutation.mutateAsync(lastFailedEmail);
+      setShowResendVerification(false);
     }
   };
 

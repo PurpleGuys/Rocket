@@ -49,11 +49,20 @@ export function useLogin() {
       });
     },
     onError: (error: any) => {
-      toast({
-        title: "Erreur de connexion",
-        description: error.message || "Échec de la connexion",
-        variant: "destructive",
-      });
+      // Check if it's an unverified account error
+      if (error.message?.includes('403') && error.message?.includes('non vérifié')) {
+        toast({
+          title: "Compte non vérifié",
+          description: "Vérifiez votre email pour activer votre compte",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erreur de connexion",
+          description: error.message || "Échec de la connexion",
+          variant: "destructive",
+        });
+      }
     },
   });
 }
@@ -233,6 +242,30 @@ export function useVerifyEmail() {
       toast({
         title: "Erreur de vérification",
         description: error.message || "Échec de la vérification de l'email",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+export function useResendVerification() {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest("POST", "/api/auth/resend-verification", { email });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Email renvoyé",
+        description: data.message || "L'email de vérification a été renvoyé avec succès",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Échec du renvoi de l'email de vérification",
         variant: "destructive",
       });
     },

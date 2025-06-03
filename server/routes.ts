@@ -112,7 +112,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user.isVerified) {
         return res.status(403).json({ 
           message: "Compte non vérifié. Vérifiez votre email pour activer votre compte.",
-          requiresVerification: true 
+          requiresVerification: true,
+          userId: user.id
         });
       }
       
@@ -484,6 +485,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: "Error updating payment: " + error.message });
+    }
+  });
+
+  // Route pour renvoyer l'email de vérification
+  app.post("/api/auth/resend-verification", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email requis" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+
+      if (user.isVerified) {
+        return res.status(400).json({ message: "Ce compte est déjà vérifié" });
+      }
+
+      // Générer un nouveau token de vérification
+      const verificationToken = AuthService.generateVerificationToken();
+      
+      // Mettre à jour le token de vérification
+      await storage.updateUserSecurity(user.id, {
+        verificationToken: verificationToken
+      });
+
+      // Envoyer l'email de vérification
+      const emailSent = await sendGridService.sendVerificationEmail(user, verificationToken);
+      
+      if (emailSent) {
+        res.json({ 
+          message: "Email de vérification renvoyé avec succès",
+          email: user.email 
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Erreur lors de l'envoi de l'email de vérification" 
+        });
+      }
+
+    } catch (error: any) {
+      console.error("Error resending verification email:", error);
+      res.status(500).json({ 
+        message: "Erreur serveur lors du renvoi de l'email de vérification" 
+      });
     }
   });
 
