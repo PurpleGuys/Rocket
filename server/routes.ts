@@ -1382,15 +1382,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (wasteTypes && wasteTypes.length > 0 && treatmentPricing.length > 0) {
           const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
           
-          wasteTypes.forEach((wasteTypeName: string) => {
+          wasteTypes.forEach((wasteTypeId: number) => {
             const pricing = treatmentPricing.find(tp => 
-              tp.wasteType.name.toLowerCase() === wasteTypeName.toLowerCase()
+              tp.wasteTypeId === wasteTypeId
             );
             
             if (pricing && maxTonnage > 0) {
               const costPerTon = parseFloat(pricing.pricePerTon);
               const treatmentCost = costPerTon * maxTonnage;
-              treatmentCosts[wasteTypeName] = {
+              treatmentCosts[`Type-${wasteTypeId}`] = {
                 pricePerTon: costPerTon,
                 tonnage: maxTonnage,
                 totalCost: treatmentCost
@@ -1434,15 +1434,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (wasteTypes && wasteTypes.length > 0 && treatmentPricing.length > 0) {
           const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
           
-          wasteTypes.forEach((wasteTypeName: string) => {
+          wasteTypes.forEach((wasteTypeId: number) => {
             const pricing = treatmentPricing.find(tp => 
-              tp.wasteType.name.toLowerCase() === wasteTypeName.toLowerCase()
+              tp.wasteTypeId === wasteTypeId
             );
             
             if (pricing && maxTonnage > 0) {
               const costPerTon = parseFloat(pricing.pricePerTon);
               const treatmentCost = costPerTon * maxTonnage;
-              treatmentCosts[wasteTypeName] = {
+              treatmentCosts[`Type-${wasteTypeId}`] = {
                 pricePerTon: costPerTon,
                 tonnage: maxTonnage,
                 totalCost: treatmentCost
