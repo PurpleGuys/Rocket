@@ -5,28 +5,27 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowLeft, Mail } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email invalide"),
 });
 
-type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 interface ForgotPasswordFormProps {
-  onBackToLogin: () => void;
+  onBack?: () => void;
 }
 
-export default function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
+export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const { toast } = useToast();
-  const [emailSent, setEmailSent] = useState(false);
 
-  const form = useForm<ForgotPasswordData>({
+  const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
@@ -34,14 +33,14 @@ export default function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordForm
   });
 
   const forgotPasswordMutation = useMutation({
-    mutationFn: async (data: ForgotPasswordData) => {
+    mutationFn: async (data: ForgotPasswordFormData) => {
       return apiRequest("POST", "/api/auth/forgot-password", data);
     },
     onSuccess: () => {
-      setEmailSent(true);
+      setIsEmailSent(true);
       toast({
         title: "Email envoyé",
-        description: "Un lien de réinitialisation a été envoyé à votre adresse email.",
+        description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
       });
     },
     onError: (error: any) => {
@@ -53,46 +52,40 @@ export default function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordForm
     },
   });
 
-  const onSubmit = (data: ForgotPasswordData) => {
+  const onSubmit = (data: ForgotPasswordFormData) => {
     forgotPasswordMutation.mutate(data);
   };
 
-  if (emailSent) {
+  if (isEmailSent) {
     return (
-      <Card>
-        <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Mail className="h-8 w-8 text-green-600" />
-          </div>
-          <CardTitle className="text-green-600">Email envoyé !</CardTitle>
-          <CardDescription>
-            Nous avons envoyé un lien de réinitialisation à votre adresse email.
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Email envoyé</CardTitle>
+          <CardDescription className="text-center">
+            Vérifiez votre boîte mail et suivez les instructions pour réinitialiser votre mot de passe.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center text-sm text-gray-600">
-          <p>Vérifiez votre boîte de réception (et vos spams) et cliquez sur le lien pour réinitialiser votre mot de passe.</p>
-          <p className="mt-2">Le lien expirera dans 1 heure.</p>
-        </CardContent>
-        <CardFooter>
+        <CardContent>
           <Button
+            type="button"
             variant="outline"
-            onClick={onBackToLogin}
             className="w-full"
+            onClick={onBack}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Retour à la connexion
           </Button>
-        </CardFooter>
+        </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Mot de passe oublié</CardTitle>
-        <CardDescription>
-          Entrez votre adresse email pour recevoir un lien de réinitialisation.
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-bold text-center">Mot de passe oublié</CardTitle>
+        <CardDescription className="text-center">
+          Entrez votre adresse email pour recevoir un lien de réinitialisation
         </CardDescription>
       </CardHeader>
       <Form {...form}>
@@ -105,18 +98,21 @@ export default function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordForm
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="votre.email@exemple.com"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        type="email"
+                        placeholder="votre.email@exemple.com"
+                        className="pl-10"
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-2">
+
             <Button
               type="submit"
               className="w-full bg-red-600 hover:bg-red-700"
@@ -124,16 +120,17 @@ export default function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordForm
             >
               {forgotPasswordMutation.isPending ? "Envoi..." : "Envoyer le lien"}
             </Button>
+
             <Button
               type="button"
-              variant="ghost"
-              onClick={onBackToLogin}
+              variant="outline"
               className="w-full"
+              onClick={onBack}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Retour à la connexion
             </Button>
-          </CardFooter>
+          </CardContent>
         </form>
       </Form>
     </Card>

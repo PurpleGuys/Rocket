@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -111,156 +110,299 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-lg mx-auto">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">Créer un compte</CardTitle>
         <CardDescription className="text-center">
-          Rejoignez Remondis pour vos besoins en location de bennes
+          Rejoignez REMONDIS France pour vos besoins en gestion des déchets
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Prénom</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="firstName"
-                  placeholder="Jean"
-                  className="pl-10"
-                  {...form.register("firstName")}
-                />
-              </div>
-              {form.formState.errors.firstName && (
-                <p className="text-sm text-red-600">{form.formState.errors.firstName.message}</p>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent className="space-y-4">
+            {/* Type de compte */}
+            <FormField
+              control={form.control}
+              name="accountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type de compte</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez votre type de compte" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="particulier">Particulier</SelectItem>
+                      <SelectItem value="entreprise">Entreprise</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Nom</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="lastName"
-                  placeholder="Dupont"
-                  className="pl-10"
-                  {...form.register("lastName")}
-                />
-              </div>
-              {form.formState.errors.lastName && (
-                <p className="text-sm text-red-600">{form.formState.errors.lastName.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Adresse email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="jean.dupont@email.com"
-                className="pl-10"
-                {...form.register("email")}
-              />
-            </div>
-            {form.formState.errors.email && (
-              <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Téléphone</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="06 12 34 56 78"
-                className="pl-10"
-                {...form.register("phone")}
-              />
-            </div>
-            {form.formState.errors.phone && (
-              <p className="text-sm text-red-600">{form.formState.errors.phone.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="companyName">Entreprise (optionnel)</Label>
-            <div className="relative">
-              <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="companyName"
-                placeholder="Nom de votre entreprise"
-                className="pl-10"
-                {...form.register("companyName")}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                className="pl-10 pr-10"
-                {...form.register("password")}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {form.formState.errors.password && (
-              <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Minimum 8 caractères avec majuscules, minuscules et chiffres
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="marketingConsent"
-              {...form.register("marketingConsent")}
             />
-            <Label htmlFor="marketingConsent" className="text-sm">
-              J'accepte de recevoir des informations commerciales par email
-            </Label>
-          </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-red-600 hover:bg-red-700"
-            disabled={registerMutation.isPending}
-          >
-            {registerMutation.isPending ? "Création..." : "Créer mon compte"}
-          </Button>
+            {/* Informations personnelles */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prénom</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input placeholder="Prénom" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input placeholder="Nom" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          {onSwitchToLogin && (
-            <p className="text-sm text-muted-foreground text-center">
-              Déjà un compte ?{" "}
+            {/* Champs entreprise conditionnels */}
+            {accountType === "entreprise" && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom de l'entreprise *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input placeholder="Nom de votre entreprise" className="pl-10" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="siret"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Numéro SIRET *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input 
+                            placeholder="12345678901234" 
+                            className="pl-10" 
+                            maxLength={14}
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-xs text-gray-500">14 chiffres sans espaces</p>
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        type="email"
+                        placeholder="jean.dupont@email.com"
+                        className="pl-10"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Téléphone</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        type="tel" 
+                        placeholder="0123456789" 
+                        className="pl-10" 
+                        {...field} 
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot de passe</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="pl-10 pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-gray-500">
+                    Au moins 8 caractères avec une majuscule, une minuscule et un chiffre
+                  </p>
+                </FormItem>
+              )}
+            />
+
+            {/* Consentements obligatoires */}
+            <div className="space-y-3">
+              <FormField
+                control={form.control}
+                name="acceptTerms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm">
+                        J'accepte les{" "}
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="p-0 h-auto text-red-600 hover:text-red-700"
+                          onClick={() => window.open("/legal", "_blank")}
+                        >
+                          Conditions Générales de Vente
+                        </Button>{" "}
+                        *
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="acceptPrivacy"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm">
+                        J'accepte la{" "}
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="p-0 h-auto text-red-600 hover:text-red-700"
+                          onClick={() => window.open("/privacy-policy", "_blank")}
+                        >
+                          Politique de Confidentialité
+                        </Button>{" "}
+                        *
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="marketingConsent"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm">
+                        J'accepte de recevoir des communications marketing
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-red-600 hover:bg-red-700"
+              disabled={registerMutation.isPending}
+            >
+              {registerMutation.isPending ? "Création..." : "Créer mon compte"}
+            </Button>
+
+            <div className="text-center">
               <Button
                 type="button"
                 variant="link"
-                className="p-0 h-auto text-red-600 hover:text-red-700"
+                className="text-sm text-red-600 hover:text-red-500"
                 onClick={onSwitchToLogin}
               >
-                Se connecter
+                Déjà un compte ? Se connecter
               </Button>
-            </p>
-          )}
+            </div>
+          </CardContent>
         </form>
-      </CardContent>
+      </Form>
     </Card>
   );
 }
