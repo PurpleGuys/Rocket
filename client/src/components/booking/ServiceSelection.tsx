@@ -207,18 +207,12 @@ export default function ServiceSelection() {
 
     // Ajouter les détails des coûts de traitement si disponibles
     if (totalTreatmentCost > 0) {
-      details.push({ label: "Traitement des déchets", amount: totalTreatmentCost });
-      
-      // Ajouter les détails par matière
-      if (priceData.treatmentCosts) {
-        Object.entries(priceData.treatmentCosts).forEach(([wasteType, cost]: [string, any]) => {
-          details.push({ 
-            label: `  ${wasteType} (${priceData.maxTonnage}T)`, 
-            amount: cost.totalCost,
-            isSubItem: true 
-          });
-        });
-      }
+      const maxTonnage = priceData.service?.maxTonnage || service.volume || 0;
+      const wasteTypeName = selectedWasteType || "Déchets";
+      details.push({ 
+        label: `Traitement ${wasteTypeName} (${maxTonnage}T max)`, 
+        amount: totalTreatmentCost 
+      });
     }
 
     details.push({ label: "Total TTC", amount: total });
