@@ -152,13 +152,22 @@ export const sessions = pgTable("sessions", {
   ipAddress: text("ip_address"),
 });
 
-// Table pour les tarifs de location quotidiens
+// Table pour les tarifs de location quotidiens avec seuils progressifs
 export const rentalPricing = pgTable("rental_pricing", {
   id: serial("id").primaryKey(),
   serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
   dailyRate: decimal("daily_rate", { precision: 10, scale: 2 }).notNull(), // Prix par jour en €
   billingStartDay: integer("billing_start_day").notNull().default(0), // Jour à partir duquel la facturation commence (0 = dès le premier jour)
   maxTonnage: decimal("max_tonnage", { precision: 10, scale: 2 }).notNull().default("0"), // Tonnage maximum de la benne en tonnes
+  
+  // Tarification progressive par durée
+  durationThreshold1: integer("duration_threshold_1").default(7), // Premier seuil (ex: 7 jours)
+  durationSupplement1: decimal("duration_supplement_1", { precision: 10, scale: 2 }).default("0"), // Supplément après seuil 1
+  durationThreshold2: integer("duration_threshold_2").default(14), // Deuxième seuil (ex: 14 jours) 
+  durationSupplement2: decimal("duration_supplement_2", { precision: 10, scale: 2 }).default("0"), // Supplément après seuil 2
+  durationThreshold3: integer("duration_threshold_3").default(30), // Troisième seuil (ex: 30 jours)
+  durationSupplement3: decimal("duration_supplement_3", { precision: 10, scale: 2 }).default("0"), // Supplément après seuil 3
+  
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

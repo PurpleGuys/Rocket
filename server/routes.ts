@@ -1508,10 +1508,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Calculate pricing with real distance
+  // Calculate pricing with real distance and duration supplements
   app.post("/api/calculate-pricing", async (req, res) => {
     try {
-      const { serviceId, wasteTypes, address, postalCode, city } = req.body;
+      const { serviceId, wasteTypes, address, postalCode, city, durationDays = 7 } = req.body;
 
       // Get service pricing
       const service = await storage.getService(serviceId);
@@ -1525,6 +1525,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Tarification transport non configurée" });
       }
 
+      // Get rental pricing for duration supplements
+      const rentalPricing = await storage.getRentalPricingByServiceId(serviceId);
+      if (!rentalPricing) {
+        return res.status(404).json({ message: "Tarification de location non configurée" });
+      }
+
       // Get company activities for industrial site address
       const activities = await storage.getCompanyActivities();
       if (!activities || !activities.industrialSiteAddress) {
@@ -1533,9 +1539,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      let totalPrice = service.basePrice;
+      // Calculate duration supplement based on rental pricing thresholds
+      const calculateDurationSupplement = (days: number, pricing: any) => {
+        let supplement = 0;
+        const daysNum = parseInt(days.toString());
+        
+        // Check thresholds in order and apply highest applicable supplement
+        if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3 && pricing.durationSupplement3) {
+          supplement = parseFloat(pricing.durationSupplement3);
+        } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2 && pricing.durationSupplement2) {
+          supplement = parseFloat(pricing.durationSupplement2);
+        } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1 && pricing.durationSupplement1) {
+          supplement = parseFloat(pricing.durationSupplement1);
+        }
+        
+        return supplement;
+      };
+
+      const durationSupplement = calculateDurationSupplement(durationDays, rentalPricing);
+      const baseServicePrice = parseFloat(service.basePrice);
+      const totalServicePrice = baseServicePrice + durationSupplement;
+
+      let totalPrice = totalServicePrice;
       let breakdown = {
-        service: service.basePrice,
+        service: baseServicePrice,
+        durationSupplement: durationSupplement,
         transport: 0,
         treatment: 0,
         total: 0
@@ -1585,6 +1613,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           service: {
             name: service.name,
             volume: service.volume
+          },
+          duration: {
+            days: durationDays,
+            supplement: durationSupplement,
+            appliedThreshold: durationSupplement > 0 ? 
+              (durationDays >= (rentalPricing.durationThreshold3 || 999) ? rentalPricing.durationThreshold3 :
+               durationDays >= (rentalPricing.durationThreshold2 || 999) ? rentalPricing.durationThreshold2 :
+               durationDays >= (rentalPricing.durationThreshold1 || 999) ? rentalPricing.durationThreshold1 : null) : null
           },
           addresses: {
             customer: customerAddress,

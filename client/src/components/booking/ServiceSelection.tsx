@@ -69,7 +69,7 @@ export default function ServiceSelection() {
     if (selectedServiceId && deliveryAddress && postalCode && city && selectedWasteType) {
       calculateDistance();
     }
-  }, [selectedServiceId, deliveryAddress, postalCode, city, selectedWasteType]);
+  }, [selectedServiceId, deliveryAddress, postalCode, city, selectedWasteType, durationDays]);
 
   // Fonction pour valider et calculer la distance
   const calculateDistance = async () => {
