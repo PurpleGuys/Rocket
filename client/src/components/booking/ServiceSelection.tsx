@@ -87,7 +87,8 @@ export default function ServiceSelection() {
         wasteTypes: [selectedWasteType],
         address: deliveryAddress,
         postalCode: postalCode,
-        city: city
+        city: city,
+        durationDays: durationDays
       });
       
       const data = await response.json();
@@ -174,15 +175,26 @@ export default function ServiceSelection() {
       return { service: 0, transport: 0, treatment: 0, total: 0, details: [] };
     }
 
-    const servicePrice = parseFloat(service.basePrice);
-    const transportCost = priceData.transportCost || 0;
-    const totalTreatmentCost = priceData.totalTreatmentCost || 0;
-    const total = servicePrice + transportCost + totalTreatmentCost;
+    const servicePrice = priceData.pricing?.service || parseFloat(service.basePrice);
+    const durationSupplement = priceData.pricing?.durationSupplement || 0;
+    const transportCost = priceData.pricing?.transport || 0;
+    const totalTreatmentCost = priceData.pricing?.treatment || 0;
+    const total = priceData.pricing?.total || (servicePrice + durationSupplement + transportCost + totalTreatmentCost);
 
     const details = [
-      { label: "Service", amount: servicePrice },
-      { label: `Transport (${distance.toFixed(1)} km)`, amount: transportCost }
+      { label: "Service de base", amount: servicePrice },
     ];
+
+    // Ajouter le supplément de durée si applicable
+    if (durationSupplement > 0) {
+      const appliedThreshold = priceData.duration?.appliedThreshold;
+      const durationLabel = appliedThreshold 
+        ? `Supplément durée (à partir de ${appliedThreshold} jours)` 
+        : `Supplément durée (${durationDays} jours)`;
+      details.push({ label: durationLabel, amount: durationSupplement });
+    }
+
+    details.push({ label: `Transport (${distance.toFixed(1)} km)`, amount: transportCost });
 
     // Ajouter les détails des coûts de traitement si disponibles
     if (totalTreatmentCost > 0) {
