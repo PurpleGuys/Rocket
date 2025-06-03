@@ -569,7 +569,7 @@ export class SendGridService {
 
   private generateDeliveryDateConfirmedTemplate(order: Order, user: User): EmailTemplate {
     const subject = `Date de livraison confirmée - Commande ${order.orderNumber}`;
-    const deliveryDate = new Date(order.confirmedDeliveryDate || order.estimatedDeliveryDate!).toLocaleDateString('fr-FR', {
+    const deliveryDate = new Date(order.deliveryDate!).toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -587,32 +587,33 @@ export class SendGridService {
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
         .content { background: white; padding: 30px; border: 1px solid #ddd; }
-        .date-box { background: #f0f9ff; border: 2px solid #0369a1; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .date-box { background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
         .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>Date de livraison confirmée</h1>
+          <h1>✓ Date de livraison confirmée</h1>
         </div>
         <div class="content">
           <h2>Bonjour ${user.firstName || order.customerFirstName},</h2>
-          <p>Nous avons le plaisir de vous confirmer la date de livraison de votre commande <strong>${order.orderNumber}</strong>.</p>
+          <p>Bonne nouvelle ! La date de livraison de votre commande <strong>${order.orderNumber}</strong> a été confirmée.</p>
           
           <div class="date-box">
-            <h3 style="margin: 0; color: #0369a1;">Date de livraison confirmée</h3>
-            <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #0369a1;">${deliveryDate}</p>
+            <h3 style="margin: 0; color: #16a34a;">📅 Livraison prévue le</h3>
+            <p style="font-size: 20px; font-weight: bold; margin: 10px 0; color: #16a34a;">${deliveryDate}</p>
           </div>
           
-          <p><strong>Détails de la commande :</strong></p>
-          <ul>
-            <li>Numéro de commande : ${order.orderNumber}</li>
-            <li>Adresse de livraison : ${order.deliveryStreet}, ${order.deliveryPostalCode} ${order.deliveryCity}</li>
-            <li>Montant total : ${order.totalTTC}€ TTC</li>
-          </ul>
+          <p>Votre benne sera livrée à l'adresse :</p>
+          <p style="background: #f3f4f6; padding: 15px; border-radius: 6px; border-left: 4px solid #dc2626;">
+            <strong>${order.deliveryStreet}<br>
+            ${order.deliveryPostalCode} ${order.deliveryCity}</strong>
+          </p>
           
-          <p>Notre équipe se chargera de la livraison à l'adresse indiquée. Merci de vous assurer qu'une personne soit présente pour réceptionner la benne.</p>
+          <p>Merci de vous assurer qu'une personne soit présente pour réceptionner la benne à la date convenue.</p>
+          
+          <p>Cordialement,<br>L'équipe REMONDIS France</p>
         </div>
         <div class="footer">
           <p>REMONDIS France - Gestion des déchets professionnelle<br>
@@ -627,16 +628,15 @@ export class SendGridService {
     
     Bonjour ${user.firstName || order.customerFirstName},
     
-    Nous avons le plaisir de vous confirmer la date de livraison de votre commande ${order.orderNumber}.
+    Bonne nouvelle ! La date de livraison de votre commande ${order.orderNumber} a été confirmée.
     
-    Date de livraison confirmée : ${deliveryDate}
+    Livraison prévue le : ${deliveryDate}
     
-    Détails de la commande :
-    - Numéro de commande : ${order.orderNumber}
-    - Adresse de livraison : ${order.deliveryStreet}, ${order.deliveryPostalCode} ${order.deliveryCity}
-    - Montant total : ${order.totalTTC}€ TTC
+    Adresse de livraison :
+    ${order.deliveryStreet}
+    ${order.deliveryPostalCode} ${order.deliveryCity}
     
-    Notre équipe se chargera de la livraison à l'adresse indiquée.
+    Merci de vous assurer qu'une personne soit présente pour réceptionner la benne.
     
     Cordialement,
     L'équipe REMONDIS France
