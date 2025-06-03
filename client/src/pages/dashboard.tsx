@@ -2955,21 +2955,7 @@ function TreatmentPricingPage() {
   );
 }
 
-function LegalDocumentsPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Documents Légaux</h1>
-        <p className="text-gray-600">Gestion des documents juridiques</p>
-      </div>
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-gray-500">Documents légaux à venir...</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+
 
 function PriceSimulatorPage() {
   const { toast } = useToast();
@@ -4178,8 +4164,7 @@ export default function Dashboard() {
         return <TransportPricingPage />;
       case "treatment-pricing":
         return <TreatmentPricingPage />;
-      case "legal-documents":
-        return <LegalDocumentsPage />;
+
       case "price-simulator":
         return <PriceSimulatorPage />;
       case "bank-deposits":
@@ -4301,19 +4286,7 @@ export default function Dashboard() {
                     Prix de Traitement
                   </button>
                 </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("legal-documents")}
-                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
-                      currentPage === "legal-documents"
-                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <FileText className="mr-3 h-4 w-4" />
-                    Documents Légaux
-                  </button>
-                </li>
+
                 <li>
                   <button
                     onClick={() => setCurrentPage("price-simulator")}
