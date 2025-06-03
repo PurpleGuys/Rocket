@@ -16,6 +16,7 @@ import PaymentSuccess from "@/pages/payment-success";
 import Legal from "@/pages/legal";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import RetractionRights from "@/pages/retraction-rights";
+import PriceSimulation from "@/pages/price-simulation";
 import CookieConsent from "@/components/CookieConsent";
 
 function Router() {
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/legal" component={Legal} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/retraction-rights" component={RetractionRights} />
+      <Route path="/price-simulation" component={PriceSimulation} />
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

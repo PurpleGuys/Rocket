@@ -882,6 +882,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create test order (for price simulation)
+  app.post("/api/orders/test", async (req, res) => {
+    try {
+      const { 
+        serviceId, 
+        wasteTypes, 
+        deliveryDate, 
+        pickupDate, 
+        durationDays,
+        address, 
+        postalCode, 
+        city, 
+        pricing, 
+        customer, 
+        isTestOrder 
+      } = req.body;
+
+      // Generate unique order number for test
+      const orderNumber = `TEST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // Create order with zero total for testing
+      const orderData = {
+        orderNumber,
+        serviceId: parseInt(serviceId),
+        wasteTypes: wasteTypes.map((id: number) => id.toString()),
+        deliveryDate: new Date(deliveryDate),
+        pickupDate: new Date(pickupDate),
+        durationDays: parseInt(durationDays),
+        address,
+        postalCode,
+        city,
+        basePrice: "0.00", // Test order at 0€
+        totalPrice: "0.00", // Test order at 0€
+        status: "pending",
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+        phone: customer.phone,
+        company: customer.company,
+        siret: customer.siret,
+        notes: `COMMANDE TEST - ${customer.notes}`,
+        // Add pricing breakdown as JSON
+        pricingBreakdown: JSON.stringify(pricing),
+        isTestOrder: true
+      };
+
+      const order = await storage.createOrder(orderData);
+
+      // Send test emails
+      try {
+        await emailService.sendConfirmationEmail(order);
+        console.log(`Email de confirmation test envoyé pour commande ${orderNumber}`);
+      } catch (emailError) {
+        console.error("Erreur envoi email test:", emailError);
+      }
+
+      res.json({
+        success: true,
+        orderNumber: order.orderNumber,
+        orderId: order.id,
+        message: "Commande test créée avec succès. Emails d'envoi en cours..."
+      });
+
+    } catch (error: any) {
+      console.error("Erreur création commande test:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Erreur lors de la création de la commande test: " + error.message 
+      });
+    }
+  });
+
   // Admin: Get dashboard stats
   app.get("/api/admin/dashboard", async (req, res) => {
     try {
