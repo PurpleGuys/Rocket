@@ -8,10 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { apiRequest } from "@/lib/queryClient";
 import { Service } from "@shared/schema";
-import { Truck, AlertTriangle, MapPin, Calendar, Loader2 } from "lucide-react";
+import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { format, addDays } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export default function ServiceSelection() {
   const [, setLocation] = useLocation();
@@ -28,6 +33,12 @@ export default function ServiceSelection() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [priceData, setPriceData] = useState<any>(null);
+  
+  // Nouvelles variables pour la durée de location
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [durationDays, setDurationDays] = useState<number>(7); // Durée par défaut: 1 semaine
 
   const { data: services, isLoading, error } = useQuery({
     queryKey: ['/api/services'],
@@ -44,6 +55,14 @@ export default function ServiceSelection() {
   });
 
   const service = services ? services.find((s: Service) => s.id === selectedServiceId) : undefined;
+
+  // Calculer automatiquement la date de fin basée sur la date de début et la durée
+  useEffect(() => {
+    if (startDate && durationDays > 0) {
+      const calculatedEndDate = addDays(startDate, durationDays);
+      setEndDate(calculatedEndDate);
+    }
+  }, [startDate, durationDays]);
 
   // Calcul automatique de la distance quand les données changent
   useEffect(() => {
@@ -196,10 +215,10 @@ export default function ServiceSelection() {
 
   // Fonction pour gérer la réservation
   const handleBooking = () => {
-    if (!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city) {
+    if (!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city || !startDate || !endDate) {
       toast({
         title: "Informations manquantes",
-        description: "Veuillez remplir tous les champs requis",
+        description: "Veuillez remplir tous les champs requis y compris les dates de location",
         variant: "destructive",
       });
       return;
@@ -214,7 +233,7 @@ export default function ServiceSelection() {
       return;
     }
 
-    // Préparer les données de réservation
+    // Préparer les données de réservation avec les nouvelles informations de durée
     const bookingDetails = {
       serviceId: selectedServiceId,
       serviceName: service.name,
@@ -224,6 +243,11 @@ export default function ServiceSelection() {
       city: city,
       wasteTypes: [selectedWasteType],
       distance: distance * 2, // Distance aller-retour
+      // Nouvelles données de durée de location
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      durationDays: durationDays,
+      deliveryDate: startDate.toISOString(), // Date de livraison = date de début
       pricing: {
         service: priceCalculation.service,
         transport: priceCalculation.transport,
@@ -434,6 +458,85 @@ export default function ServiceSelection() {
             </div>
           </div>
 
+          {/* Section Durée de location */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <CalendarIcon className="h-5 w-5 mr-2 text-red-600" />
+              Durée de location
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Date de début */}
+              <div>
+                <Label>Date de début de location *</Label>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal mt-1",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP", { locale: fr }) : "Sélectionner une date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={(date) => {
+                        setStartDate(date);
+                        setIsCalendarOpen(false);
+                      }}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Durée en jours */}
+              <div>
+                <Label htmlFor="duration">Durée (jours) *</Label>
+                <Select value={durationDays.toString()} onValueChange={(value) => setDurationDays(parseInt(value))}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 jour</SelectItem>
+                    <SelectItem value="3">3 jours</SelectItem>
+                    <SelectItem value="7">1 semaine (7 jours)</SelectItem>
+                    <SelectItem value="14">2 semaines (14 jours)</SelectItem>
+                    <SelectItem value="21">3 semaines (21 jours)</SelectItem>
+                    <SelectItem value="30">1 mois (30 jours)</SelectItem>
+                    <SelectItem value="60">2 mois (60 jours)</SelectItem>
+                    <SelectItem value="90">3 mois (90 jours)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Résumé des dates */}
+            {startDate && endDate && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center text-sm text-blue-800">
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                  <span className="font-medium">Période de location :</span>
+                </div>
+                <div className="mt-2 text-sm text-blue-700">
+                  <div><strong>Début :</strong> {format(startDate, "EEEE d MMMM yyyy", { locale: fr })}</div>
+                  <div><strong>Fin :</strong> {format(endDate, "EEEE d MMMM yyyy", { locale: fr })}</div>
+                  <div><strong>Durée :</strong> {durationDays} jour{durationDays > 1 ? 's' : ''}</div>
+                </div>
+                <div className="mt-2 text-xs text-blue-600">
+                  📋 La livraison sera programmée le {format(startDate, "d MMMM yyyy", { locale: fr })} sauf en cas d'indisponibilité
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Distance et erreurs */}
           {isCalculatingDistance && (
             <div className="mt-4 flex items-center text-sm text-gray-600">
@@ -517,7 +620,7 @@ export default function ServiceSelection() {
                 <Button 
                   className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white"
                   onClick={handleBooking}
-                  disabled={!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city}
+                  disabled={!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city || !startDate || !endDate}
                 >
                   Réserver maintenant
                 </Button>
