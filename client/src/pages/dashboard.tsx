@@ -1598,6 +1598,21 @@ function OrdersPage() {
                               />
                             </>
                           )}
+                          
+                          {/* Bouton de suppression */}
+                          {isAdmin && (
+                            <DeleteOrderDialog 
+                              order={order}
+                              onSuccess={() => {
+                                queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
+                                queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+                                toast({
+                                  title: "Commande supprimée",
+                                  description: "La commande a été supprimée avec succès.",
+                                });
+                              }}
+                            />
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -4608,6 +4623,77 @@ function DeliveryDateModifyDialog({ order, onSuccess }: { order: any; onSuccess:
               {modifyDateMutation.isPending ? "Envoi..." : "Proposer"}
             </Button>
           </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Composant de dialogue pour supprimer une commande
+function DeleteOrderDialog({ order, onSuccess }: { order: any; onSuccess: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+
+  const deleteOrderMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest('DELETE', `/api/admin/orders/${order.id}`);
+    },
+    onSuccess: () => {
+      setIsOpen(false);
+      onSuccess();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la commande.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Supprimer la commande</DialogTitle>
+          <DialogDescription>
+            Êtes-vous sûr de vouloir supprimer définitivement la commande {order.orderNumber} ?
+            <br />
+            <strong>Cette action est irréversible.</strong>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+          <div className="flex items-start">
+            <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3" />
+            <div>
+              <h4 className="font-medium text-red-800">Attention</h4>
+              <p className="text-sm text-red-700 mt-1">
+                La suppression de cette commande supprimera également :
+              </p>
+              <ul className="text-sm text-red-700 mt-2 ml-4 list-disc">
+                <li>Toutes les données de facturation</li>
+                <li>L'historique des paiements</li>
+                <li>Les notes administratives</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-6">
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Annuler
+          </Button>
+          <Button 
+            onClick={() => deleteOrderMutation.mutate()}
+            disabled={deleteOrderMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteOrderMutation.isPending ? "Suppression..." : "Supprimer définitivement"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

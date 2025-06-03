@@ -1144,6 +1144,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Delete order
+  app.delete("/api/admin/orders/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      // Vérifier que la commande existe
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+
+      // Supprimer la commande
+      await storage.deleteOrder(orderId);
+      
+      res.json({ 
+        message: "Commande supprimée avec succès",
+        deletedOrderId: orderId 
+      });
+    } catch (error: any) {
+      console.error("Erreur suppression commande:", error);
+      res.status(500).json({ message: "Erreur lors de la suppression: " + error.message });
+    }
+  });
+
   // Create default services and time slots (for initialization)
   app.post("/api/admin/initialize", async (req, res) => {
     try {
