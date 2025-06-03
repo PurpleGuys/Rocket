@@ -1073,36 +1073,7 @@ function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-orange-600" />
-                  Alertes Système
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium text-orange-800">Stock faible</p>
-                      <p className="text-xs text-orange-600">Bennes 8m³ - 3 restantes</p>
-                    </div>
-                    <Badge variant="outline" className="text-orange-600 border-orange-200">
-                      Urgent
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium text-blue-800">Maintenance prévue</p>
-                      <p className="text-xs text-blue-600">Camion #45 - Demain 14h</p>
-                    </div>
-                    <Badge variant="outline" className="text-blue-600 border-blue-200">
-                      Info
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
         </div>
       )}
