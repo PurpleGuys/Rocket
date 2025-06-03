@@ -9,6 +9,7 @@ import Admin from "@/pages/admin";
 import Auth from "@/pages/auth";
 import Profile from "@/pages/profile";
 import Dashboard from "@/pages/dashboard";
+import ClientDashboard from "@/pages/client-dashboard";
 import NotFound from "@/pages/not-found";
 import Checkout from "@/pages/checkout";
 import PaymentSuccess from "@/pages/payment-success";
@@ -38,6 +39,7 @@ function Router() {
     <Switch>
       <Route path="/auth" component={Auth} />
       <Route path="/profile" component={Profile} />
+      <Route path="/client-dashboard" component={ClientDashboard} />
       <Route path="/dashboard/*" component={Dashboard} />
       <Route path="/admin/*" component={Admin} />
       <Route path="/admin" component={Admin} />

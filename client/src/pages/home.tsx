@@ -164,9 +164,9 @@ export default function Home() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                      <DropdownMenuItem onClick={() => navigate("/client-dashboard")}>
                         <LayoutDashboard className="h-4 w-4 mr-2" />
-                        Tableau de bord
+                        Mon tableau de bord
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/profile")}>
                         <Settings className="h-4 w-4 mr-2" />

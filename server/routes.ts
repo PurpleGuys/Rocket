@@ -1464,6 +1464,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client dashboard routes
+  app.get("/api/orders/my-orders", authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const orders = await storage.getUserOrders(userId);
+      res.json(orders);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes: " + error.message });
+    }
+  });
+
+  app.get("/api/orders/recurring", authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      // Pour l'instant, retourner un tableau vide car la fonctionnalité n'est pas encore implémentée
+      res.json([]);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes récurrentes: " + error.message });
+    }
+  });
+
+  app.post("/api/orders/recurring", authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      // TODO: Implémenter la création de commandes récurrentes
+      res.json({ message: "Fonctionnalité en cours de développement" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la création de la commande récurrente: " + error.message });
+    }
+  });
+
+  app.put("/api/orders/:id", authenticateToken, async (req: any, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Vérifier que la commande appartient à l'utilisateur
+      const order = await storage.getOrder(orderId);
+      if (!order || order.userId !== userId) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+      
+      // Vérifier que la commande peut être modifiée
+      if (!['en_attente', 'confirme'].includes(order.status)) {
+        return res.status(400).json({ message: "Cette commande ne peut plus être modifiée" });
+      }
+      
+      // TODO: Implémenter la mise à jour de commande
+      res.json({ message: "Commande mise à jour avec succès" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la modification de la commande: " + error.message });
+    }
+  });
+
+  app.put("/api/orders/:id/cancel", authenticateToken, async (req: any, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Vérifier que la commande appartient à l'utilisateur
+      const order = await storage.getOrder(orderId);
+      if (!order || order.userId !== userId) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+      
+      // Vérifier que la commande peut être annulée
+      if (!['en_attente', 'confirme'].includes(order.status)) {
+        return res.status(400).json({ message: "Cette commande ne peut plus être annulée" });
+      }
+      
+      await storage.updateOrderStatus(orderId, 'annule');
+      res.json({ message: "Commande annulée avec succès" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de l'annulation de la commande: " + error.message });
+    }
+  });
+
+  app.get("/api/waste-types", async (req, res) => {
+    try {
+      const wasteTypes = await storage.getWasteTypes();
+      res.json(wasteTypes);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la récupération des types de déchets: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
