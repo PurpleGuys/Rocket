@@ -1349,20 +1349,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Calculate duration supplement based on rental pricing thresholds
+      // Calculate duration supplement based on daily rate and days exceeding threshold
       const calculateDurationSupplement = (days: number, pricing: any) => {
-        let supplement = 0;
         const daysNum = parseInt(days.toString());
+        const dailyRate = parseFloat(pricing.dailyRate) || 0;
+        let extraDays = 0;
         
-        // Check thresholds in order and apply highest applicable supplement
-        if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3 && pricing.durationSupplement3) {
-          supplement = parseFloat(pricing.durationSupplement3);
-        } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2 && pricing.durationSupplement2) {
-          supplement = parseFloat(pricing.durationSupplement2);
-        } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1 && pricing.durationSupplement1) {
-          supplement = parseFloat(pricing.durationSupplement1);
+        console.log(`Calcul supplément durée: ${daysNum} jours, tarif journalier: ${dailyRate}€`);
+        console.log(`Seuils: ${pricing.durationThreshold1}, ${pricing.durationThreshold2}, ${pricing.durationThreshold3}`);
+        
+        // Find the applicable threshold and calculate extra days beyond base period
+        if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3) {
+          extraDays = daysNum - pricing.durationThreshold3;
+          console.log(`Seuil 3 appliqué: ${daysNum} - ${pricing.durationThreshold3} = ${extraDays} jours supplémentaires`);
+        } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2) {
+          extraDays = daysNum - pricing.durationThreshold2;
+          console.log(`Seuil 2 appliqué: ${daysNum} - ${pricing.durationThreshold2} = ${extraDays} jours supplémentaires`);
+        } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1) {
+          extraDays = daysNum - pricing.durationThreshold1;
+          console.log(`Seuil 1 appliqué: ${daysNum} - ${pricing.durationThreshold1} = ${extraDays} jours supplémentaires`);
         }
         
+        const supplement = extraDays * dailyRate;
+        console.log(`Supplément calculé: ${extraDays} × ${dailyRate} = ${supplement}€`);
         return supplement;
       };
 
