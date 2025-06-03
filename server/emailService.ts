@@ -1,16 +1,6 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { storage } from './storage';
-import type { Order, InsertEmailLog, InsertAuditLog } from '@shared/schema';
-
-export interface EmailConfig {
-  host: string;
-  port: number;
-  secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
-  };
-}
+import type { Order, InsertEmailLog, InsertAuditLog, User } from '@shared/schema';
 
 export interface EmailTemplate {
   subject: string;
@@ -19,33 +9,24 @@ export interface EmailTemplate {
 }
 
 export class EmailService {
-  private transporter: nodemailer.Transporter | null = null;
+  private isConfigured = false;
+  private fromEmail = 'noreply@remondis.fr';
 
   constructor() {
-    this.initializeTransporter();
+    this.initializeSendGrid();
   }
 
-  private initializeTransporter() {
-    // Check if email configuration is available
-    const emailHost = process.env.EMAIL_HOST;
-    const emailPort = process.env.EMAIL_PORT;
-    const emailUser = process.env.EMAIL_USER;
-    const emailPass = process.env.EMAIL_PASS;
-
-    if (!emailHost || !emailUser || !emailPass) {
-      console.warn('Email configuration incomplete. Email sending will be disabled.');
+  private initializeSendGrid() {
+    const apiKey = process.env.SENDGRID_API_KEY;
+    
+    if (!apiKey) {
+      console.warn('SendGrid API key not configured. Email sending will be disabled.');
       return;
     }
 
-    this.transporter = nodemailer.createTransport({
-      host: emailHost,
-      port: parseInt(emailPort || '587'),
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: emailUser,
-        pass: emailPass,
-      },
-    });
+    sgMail.setApiKey(apiKey);
+    this.isConfigured = true;
+    console.log('SendGrid email service initialized successfully.');
   }
 
   async sendConfirmationEmail(order: Order): Promise<boolean> {

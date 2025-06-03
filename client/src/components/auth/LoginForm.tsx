@@ -13,9 +13,10 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 interface LoginFormProps {
   onSuccess?: () => void;
   onSwitchToRegister?: () => void;
+  onForgotPassword?: () => void;
 }
 
-export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const loginMutation = useLogin();
 
