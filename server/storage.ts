@@ -381,6 +381,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteOrder(id: number): Promise<void> {
+    // Supprimer d'abord les entrées liées dans audit_logs
+    await db
+      .delete(auditLogs)
+      .where(eq(auditLogs.orderId, id));
+    
+    // Supprimer d'abord les entrées liées dans email_logs si elles existent
+    try {
+      await db
+        .delete(emailLogs)
+        .where(eq(emailLogs.orderId, id));
+    } catch (error) {
+      // Ignorer si la table n'existe pas ou n'a pas de contrainte
+      console.log("Note: email_logs cleanup skipped");
+    }
+    
+    // Maintenant supprimer la commande
     await db
       .delete(orders)
       .where(eq(orders.id, id));
