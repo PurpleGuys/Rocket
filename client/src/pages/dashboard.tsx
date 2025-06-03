@@ -41,7 +41,9 @@ import {
   UserCheck,
   UserX,
   Lock,
-  Unlock
+  Unlock,
+  CalendarCheck,
+  CalendarX
 } from "lucide-react";
 
 // Composant de gestion complète des utilisateurs
@@ -1570,6 +1572,32 @@ function OrdersPage() {
                               />
                             </DialogContent>
                           </Dialog>
+                          
+                          {/* Boutons de gestion des dates de livraison */}
+                          {order.status === 'pending' && order.deliveryDate && (
+                            <>
+                              <DeliveryDateConfirmDialog 
+                                order={order}
+                                onSuccess={() => {
+                                  queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
+                                  toast({
+                                    title: "Date confirmée",
+                                    description: "La date de livraison a été confirmée et l'email envoyé au client.",
+                                  });
+                                }}
+                              />
+                              <DeliveryDateModifyDialog 
+                                order={order}
+                                onSuccess={() => {
+                                  queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
+                                  toast({
+                                    title: "Proposition envoyée",
+                                    description: "La nouvelle date a été proposée au client par email.",
+                                  });
+                                }}
+                              />
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -4442,5 +4470,146 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Composant de dialogue pour confirmer la date de livraison
+function DeliveryDateConfirmDialog({ order, onSuccess }: { order: any; onSuccess: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+
+  const confirmDateMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest('PUT', `/api/admin/orders/${order.id}/validate-delivery-date`, {
+        confirmedDate: order.deliveryDate
+      });
+    },
+    onSuccess: () => {
+      setIsOpen(false);
+      onSuccess();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de confirmer la date de livraison.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700">
+          <CalendarCheck className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmer la date de livraison</DialogTitle>
+          <DialogDescription>
+            Voulez-vous confirmer la date de livraison prévue pour le {new Date(order.deliveryDate).toLocaleDateString('fr-FR')} ?
+            Un email de confirmation sera envoyé au client.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Annuler
+          </Button>
+          <Button 
+            onClick={() => confirmDateMutation.mutate()}
+            disabled={confirmDateMutation.isPending}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {confirmDateMutation.isPending ? "Confirmation..." : "Confirmer"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Composant de dialogue pour proposer une nouvelle date de livraison
+function DeliveryDateModifyDialog({ order, onSuccess }: { order: any; onSuccess: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [newDate, setNewDate] = useState('');
+  const { toast } = useToast();
+
+  const modifyDateMutation = useMutation({
+    mutationFn: async (proposedDate: string) => {
+      await apiRequest('PUT', `/api/admin/orders/${order.id}/propose-delivery-date`, {
+        proposedDate
+      });
+    },
+    onSuccess: () => {
+      setIsOpen(false);
+      setNewDate('');
+      onSuccess();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de proposer la nouvelle date.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!newDate) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une nouvelle date.",
+        variant: "destructive",
+      });
+      return;
+    }
+    modifyDateMutation.mutate(newDate);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-orange-600 hover:text-orange-700">
+          <CalendarX className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Proposer une nouvelle date</DialogTitle>
+          <DialogDescription>
+            Date actuelle : {new Date(order.deliveryDate).toLocaleDateString('fr-FR')}
+            <br />
+            Proposez une nouvelle date de livraison. Un email sera envoyé au client pour validation.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="newDate" className="block text-sm font-medium mb-2">
+              Nouvelle date de livraison
+            </label>
+            <Input
+              id="newDate"
+              type="datetime-local"
+              value={newDate}
+              onChange={(e) => setNewDate(e.target.value)}
+              min={new Date().toISOString().slice(0, 16)}
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              disabled={modifyDateMutation.isPending}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {modifyDateMutation.isPending ? "Envoi..." : "Proposer"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
