@@ -33,9 +33,14 @@ export default function ServiceSelection() {
     queryKey: ['/api/services'],
   });
 
-  // Récupérer les activités configurées depuis le panneau d'administration
-  const { data: companyActivities } = useQuery({
-    queryKey: ['/api/admin/company-activities'],
+  // Récupérer les types de déchets configurés
+  const { data: wasteTypes } = useQuery({
+    queryKey: ['/api/waste-types'],
+  });
+
+  // Récupérer les tarifs de traitement
+  const { data: treatmentPricing } = useQuery({
+    queryKey: ['/api/treatment-pricing'],
   });
 
   const service = services?.find((s: Service) => s.id === selectedServiceId);
@@ -231,8 +236,8 @@ export default function ServiceSelection() {
     setLocation('/checkout');
   };
 
-  // Obtenir les types de déchets disponibles
-  const availableWasteTypes = companyActivities?.wasteTypes || [];
+  // Obtenir les types de déchets disponibles depuis les configurations admin
+  const availableWasteTypes = wasteTypes?.map((wt: any) => wt.name) || [];
 
   if (isLoading) {
     return (
@@ -265,7 +270,7 @@ export default function ServiceSelection() {
             <h3 className="text-lg font-semibold text-gray-900">Choisissez votre benne</h3>
           </div>
           <div className="grid lg:grid-cols-1 gap-6">
-            {services?.map((service: Service) => (
+            {services && services.map((service: Service) => (
               <div
                 key={service.id}
                 className={`relative cursor-pointer transition-all ${

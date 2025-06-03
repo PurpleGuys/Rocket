@@ -850,6 +850,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes pour les types de déchets/matières
+  // Route publique pour les utilisateurs
+  app.get("/api/waste-types", async (req, res) => {
+    try {
+      const wasteTypes = await storage.getWasteTypes();
+      // Filtrer seulement les types actifs pour les utilisateurs
+      const activeWasteTypes = wasteTypes.filter(wt => wt.isActive !== false);
+      res.json(activeWasteTypes);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching waste types: " + error.message });
+    }
+  });
+
+  // Route admin pour la gestion complète
   app.get("/api/admin/waste-types", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const wasteTypes = await storage.getWasteTypes();
@@ -874,6 +887,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes pour les tarifs de traitement
+  // Route publique pour les utilisateurs
+  app.get("/api/treatment-pricing", async (req, res) => {
+    try {
+      const pricing = await storage.getTreatmentPricing();
+      // Filtrer seulement les tarifs actifs pour les utilisateurs
+      const activePricing = pricing.filter(p => p.isActive !== false);
+      res.json(activePricing);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching treatment pricing: " + error.message });
+    }
+  });
+
+  // Route admin pour la gestion complète
   app.get("/api/admin/treatment-pricing", authenticateToken, requireAdmin, async (req, res) => {
     try {
       const pricing = await storage.getTreatmentPricing();
