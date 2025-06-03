@@ -6,12 +6,12 @@ import { LoginUser, InsertUser, User, ChangePassword, UpdateUser } from "@shared
 export function useAuth() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/auth/me"],
-    retry: false,
+    retry: false, // Never retry auth requests
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchInterval: false,
-    enabled: true, // Only run once on mount
+    enabled: true,
   });
 
   return {

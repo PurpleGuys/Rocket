@@ -486,6 +486,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route de test pour SendGrid
+  app.post("/api/test-sendgrid", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email requis pour le test" });
+      }
+
+      const testUser = {
+        id: 999,
+        email: email,
+        firstName: "Test",
+        lastName: "SendGrid"
+      } as any;
+
+      console.log('Testing SendGrid with email:', email);
+      const success = await sendGridService.sendVerificationEmail(testUser, "test-token-123456");
+      
+      if (success) {
+        res.json({ 
+          message: "Email de test SendGrid envoyé avec succès",
+          email: email 
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Échec de l'envoi de l'email de test SendGrid",
+          email: email 
+        });
+      }
+    } catch (error: any) {
+      console.error('Test SendGrid error:', error);
+      res.status(500).json({ 
+        message: "Erreur lors du test SendGrid: " + error.message,
+        error: error.message 
+      });
+    }
+  });
+
   // Admin: Get all orders
   app.get("/api/admin/orders", authenticateToken, requireAdmin, async (req, res) => {
     try {
