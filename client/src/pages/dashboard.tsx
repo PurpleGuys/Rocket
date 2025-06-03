@@ -4329,6 +4329,19 @@ export default function Dashboard() {
               <ul className="space-y-1">
                 <li>
                   <button
+                    onClick={() => setCurrentPage("users")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      currentPage === "users"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Users className="mr-3 h-4 w-4" />
+                    Gestion Utilisateurs
+                  </button>
+                </li>
+                <li>
+                  <button
                     onClick={() => setCurrentPage("rental-pricing")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "rental-pricing"
