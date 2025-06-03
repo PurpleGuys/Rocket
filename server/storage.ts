@@ -108,6 +108,18 @@ export interface IStorage {
   
   // Order Delivery Date Management
   updateOrderDeliveryDate(orderId: number, confirmedDate: Date, adminUserId: number, adminNotes?: string): Promise<Order | undefined>;
+  updateOrderDeliveryDateValidation(orderId: number, updates: {
+    confirmedDeliveryDate?: Date;
+    proposedDeliveryDate?: Date;
+    clientValidationStatus?: string;
+    clientValidationToken?: string | null;
+    clientValidationExpiresAt?: Date;
+    deliveryDateValidatedBy?: number;
+    deliveryDateValidatedAt?: Date;
+    adminNotes?: string;
+    status?: string;
+  }): Promise<Order | undefined>;
+  getOrderByValidationToken(token: string): Promise<Order | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -796,6 +808,36 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, orderId))
       .returning();
     return updated;
+  }
+
+  async updateOrderDeliveryDateValidation(orderId: number, updates: {
+    confirmedDeliveryDate?: Date;
+    proposedDeliveryDate?: Date;
+    clientValidationStatus?: string;
+    clientValidationToken?: string | null;
+    clientValidationExpiresAt?: Date;
+    deliveryDateValidatedBy?: number;
+    deliveryDateValidatedAt?: Date;
+    adminNotes?: string;
+    status?: string;
+  }): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId))
+      .returning();
+    return order;
+  }
+
+  async getOrderByValidationToken(token: string): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.clientValidationToken, token));
+    return order;
   }
 
   // Bank deposits operations

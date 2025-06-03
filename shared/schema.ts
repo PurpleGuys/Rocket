@@ -97,13 +97,20 @@ export const orders = pgTable("orders", {
   paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, failed, refunded
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   
-  // Post-order management
+  // Post-order management and delivery date workflow
   estimatedDeliveryDate: timestamp("estimated_delivery_date"),
   confirmedDeliveryDate: timestamp("confirmed_delivery_date"),
+  proposedDeliveryDate: timestamp("proposed_delivery_date"), // Date proposée par l'admin
+  clientValidationStatus: text("client_validation_status").default("pending"), // pending, accepted, rejected
+  clientValidationToken: text("client_validation_token"), // Token unique pour validation client
+  clientValidationExpiresAt: timestamp("client_validation_expires_at"),
+  deliveryDateValidatedBy: integer("delivery_date_validated_by"), // Admin qui a validé/proposé
+  deliveryDateValidatedAt: timestamp("delivery_date_validated_at"),
   adminValidatedBy: integer("admin_validated_by"),
   adminValidatedAt: timestamp("admin_validated_at"),
   confirmationEmailSent: boolean("confirmation_email_sent").default(false),
   validationEmailSent: boolean("validation_email_sent").default(false),
+  deliveryDateProposalEmailSent: boolean("delivery_date_proposal_email_sent").default(false),
   adminNotes: text("admin_notes"),
   
   // Selected waste types

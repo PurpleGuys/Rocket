@@ -990,6 +990,156 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Validate delivery date (confirm original date)
+  app.post("/api/admin/orders/:id/validate-delivery-date", authenticateToken, requireAdmin, async (req: any, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const adminUserId = req.user.id;
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+
+      // Valider la date de livraison estimée
+      const updatedOrder = await storage.updateOrderDeliveryDateValidation(orderId, {
+        confirmedDeliveryDate: order.estimatedDeliveryDate,
+        deliveryDateValidatedBy: adminUserId,
+        deliveryDateValidatedAt: new Date(),
+        status: "confirmed"
+      });
+
+      // Envoyer email de confirmation
+      try {
+        const { sendGridService } = await import("./sendgridService");
+        const user = { 
+          firstName: order.customerFirstName, 
+          lastName: order.customerLastName, 
+          email: order.customerEmail 
+        };
+        await sendGridService.sendDeliveryDateConfirmedEmail(updatedOrder, user);
+      } catch (emailError) {
+        console.error("Erreur envoi email confirmation date:", emailError);
+      }
+
+      res.json({ message: "Date de livraison validée", order: updatedOrder });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur validation date: " + error.message });
+    }
+  });
+
+  // Admin: Propose new delivery date
+  app.post("/api/admin/orders/:id/propose-delivery-date", authenticateToken, requireAdmin, async (req: any, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { proposedDate, adminNotes } = req.body;
+      const adminUserId = req.user.id;
+
+      if (!proposedDate) {
+        return res.status(400).json({ message: "Date proposée requise" });
+      }
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+
+      // Générer un token unique pour la validation client
+      const validationToken = Math.random().toString(36).substr(2, 32);
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // Expire dans 7 jours
+
+      const updatedOrder = await storage.updateOrderDeliveryDateValidation(orderId, {
+        proposedDeliveryDate: new Date(proposedDate),
+        clientValidationToken: validationToken,
+        clientValidationExpiresAt: expiresAt,
+        clientValidationStatus: "pending",
+        deliveryDateValidatedBy: adminUserId,
+        deliveryDateValidatedAt: new Date(),
+        adminNotes: adminNotes,
+        status: "awaiting_client_validation"
+      });
+
+      // Envoyer email de proposition au client
+      try {
+        const { sendGridService } = await import("./sendgridService");
+        const user = { 
+          firstName: order.customerFirstName, 
+          lastName: order.customerLastName, 
+          email: order.customerEmail 
+        };
+        await sendGridService.sendDeliveryDateProposalEmail(updatedOrder, user, validationToken);
+      } catch (emailError) {
+        console.error("Erreur envoi email proposition:", emailError);
+      }
+
+      res.json({ message: "Nouvelle date proposée au client", order: updatedOrder });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur proposition date: " + error.message });
+    }
+  });
+
+  // Client: Validate proposed delivery date
+  app.post("/api/orders/validate-delivery-date/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { accepted } = req.body;
+
+      const order = await storage.getOrderByValidationToken(token);
+      if (!order) {
+        return res.status(404).json({ message: "Token de validation invalide ou expiré" });
+      }
+
+      if (new Date() > order.clientValidationExpiresAt) {
+        return res.status(400).json({ message: "Token de validation expiré" });
+      }
+
+      let newStatus = "pending";
+      let confirmedDate = null;
+
+      if (accepted) {
+        // Client accepte la date proposée
+        newStatus = "confirmed";
+        confirmedDate = order.proposedDeliveryDate;
+      } else {
+        // Client refuse - retour en attente d'une nouvelle proposition
+        newStatus = "pending";
+      }
+
+      const updatedOrder = await storage.updateOrderDeliveryDateValidation(order.id, {
+        clientValidationStatus: accepted ? "accepted" : "rejected",
+        confirmedDeliveryDate: confirmedDate,
+        clientValidationToken: null, // Invalider le token
+        status: newStatus
+      });
+
+      // Envoyer email de notification selon la réponse
+      try {
+        const { sendGridService } = await import("./sendgridService");
+        const user = { 
+          firstName: order.customerFirstName, 
+          lastName: order.customerLastName, 
+          email: order.customerEmail 
+        };
+        
+        if (accepted) {
+          await sendGridService.sendDeliveryDateAcceptedEmail(updatedOrder, user);
+        } else {
+          await sendGridService.sendDeliveryDateRejectedEmail(updatedOrder, user);
+        }
+      } catch (emailError) {
+        console.error("Erreur envoi email réponse client:", emailError);
+      }
+
+      res.json({ 
+        message: accepted ? "Date de livraison acceptée" : "Date de livraison refusée", 
+        order: updatedOrder 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur validation client: " + error.message });
+    }
+  });
+
   // Admin: Get dashboard stats
   app.get("/api/admin/dashboard", async (req, res) => {
     try {
