@@ -609,6 +609,165 @@ function DashboardHome() {
   );
 }
 
+// Composant de gestion des utilisateurs (Admin uniquement)
+function UsersManagementPage() {
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterVerified, setFilterVerified] = useState<string>('all');
+
+  const { data: users, isLoading } = useQuery({
+    queryKey: ["/api/admin/users"],
+  });
+
+  const verifyUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const response = await apiRequest('POST', '/api/admin/verify-user', { userId });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({
+        title: "Utilisateur vérifié",
+        description: data.message,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Erreur lors de la vérification",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const filteredUsers = users?.filter((user: any) => {
+    const matchesSearch = !searchTerm || 
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesVerified = filterVerified === 'all' || 
+      (filterVerified === 'verified' && user.isVerified) ||
+      (filterVerified === 'unverified' && !user.isVerified);
+    
+    return matchesSearch && matchesVerified;
+  }) || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Users className="h-5 w-5" />
+          Gestion des utilisateurs
+        </CardTitle>
+        <CardDescription>
+          Gérez les comptes utilisateurs et les vérifications d'email
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1">
+            <Input
+              placeholder="Rechercher par email, nom ou prénom..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
+          <Select value={filterVerified} onValueChange={setFilterVerified}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les utilisateurs</SelectItem>
+              <SelectItem value="verified">Vérifiés</SelectItem>
+              <SelectItem value="unverified">Non vérifiés</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Utilisateur</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Rôle</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Inscrit le</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((user: any) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {user.firstName} {user.lastName}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                      {user.role === 'admin' ? 'Administrateur' : 'Client'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {user.isVerified ? (
+                        <Badge className="bg-green-100 text-green-800">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Vérifié
+                        </Badge>
+                      ) : (
+                        <Badge variant="destructive">
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          Non vérifié
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(user.createdAt).toLocaleDateString('fr-FR')}
+                  </TableCell>
+                  <TableCell>
+                    {!user.isVerified && (
+                      <Button
+                        onClick={() => verifyUserMutation.mutate(user.id)}
+                        disabled={verifyUserMutation.isPending}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        {verifyUserMutation.isPending ? "Vérification..." : "Vérifier manuellement"}
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            Aucun utilisateur trouvé.
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 // Composants pour les différentes pages du dashboard
 function OrdersPage() {
   const { user } = useAuth();
@@ -3610,6 +3769,8 @@ export default function Dashboard() {
     switch (currentPage) {
       case "orders":
         return <OrdersPage />;
+      case "users":
+        return <UsersManagementPage />;
       case "configuration":
         return <ConfigurationPage />;
       case "activities":

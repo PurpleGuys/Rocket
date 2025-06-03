@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
-  LogOut
+  LogOut,
+  Users
 } from "lucide-react";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 
@@ -69,6 +70,12 @@ export default function Sidebar({ className }: SidebarProps) {
   ];
 
   const adminItems = [
+    {
+      title: "Gestion Utilisateurs",
+      href: `${baseUrl}/users`,
+      icon: Users,
+      description: "Vérification et gestion des comptes"
+    },
     {
       title: "Prix de Location",
       href: `${baseUrl}/pricing/rental`,

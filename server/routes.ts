@@ -574,6 +574,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get all users for verification management
+  app.get("/api/admin/users", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      // Remove sensitive information before sending
+      const safeUsers = users.map(user => ({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isVerified: user.isVerified,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin
+      }));
+      res.json(safeUsers);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching users: " + error.message });
+    }
+  });
+
+  // Admin: Manually verify user
+  app.post("/api/admin/verify-user", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ message: "ID utilisateur requis" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+
+      if (user.isVerified) {
+        return res.json({ message: "Cet utilisateur est déjà vérifié" });
+      }
+
+      // Mark user as verified manually
+      await storage.updateUserSecurity(user.id, {
+        isVerified: true,
+        verificationToken: null
+      });
+
+      res.json({ 
+        message: `Utilisateur ${user.email} vérifié manuellement avec succès`,
+        user: { id: user.id, email: user.email, isVerified: true }
+      });
+
+    } catch (error: any) {
+      console.error("Error in manual verification:", error);
+      res.status(500).json({ message: "Erreur serveur lors de la vérification manuelle" });
+    }
+  });
+
   // Admin: Get all orders
   app.get("/api/admin/orders", authenticateToken, requireAdmin, async (req, res) => {
     try {
