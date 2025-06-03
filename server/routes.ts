@@ -932,9 +932,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const order = await storage.createOrder(orderData);
 
-      // Send test emails
+      // Send test emails using SendGrid
       try {
-        await emailService.sendConfirmationEmail(order);
+        const { sendGridService } = await import("./sendgridService");
+        // Create a simple user object with just the required fields
+        const testUser = {
+          id: 0,
+          firstName: customer.firstName,
+          lastName: customer.lastName,
+          email: customer.email,
+          phone: customer.phone || "",
+          password: "",
+          role: "client",
+          isVerified: true,
+          verificationToken: null,
+          resetPasswordToken: null,
+          resetPasswordExpires: null,
+          loginAttempts: 0,
+          lockUntil: null,
+          lastLogin: null,
+          twoFactorEnabled: false,
+          twoFactorSecret: null,
+          address: null,
+          postalCode: null,
+          city: null,
+          company: customer.company || null,
+          siret: customer.siret || null,
+          isActive: true,
+          profilePicture: null,
+          companyName: customer.company || null,
+          country: "France",
+          preferredLanguage: "fr",
+          marketingConsent: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        await sendGridService.sendOrderConfirmationEmail(order, testUser);
         console.log(`Email de confirmation test envoyé pour commande ${orderNumber}`);
       } catch (emailError) {
         console.error("Erreur envoi email test:", emailError);

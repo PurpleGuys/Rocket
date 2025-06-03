@@ -422,7 +422,7 @@ export class SendGridService {
             <h3>Détails de votre commande</h3>
             <p><strong>Numéro de commande :</strong> ${order.orderNumber}</p>
             <p><strong>Date de commande :</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
-            <p><strong>Montant total :</strong> ${order.totalAmount}€</p>
+            <p><strong>Montant total :</strong> ${order.totalTTC || order.basePrice}€</p>
             <p><strong>Statut :</strong> En attente de traitement</p>
           </div>
           
@@ -451,7 +451,7 @@ export class SendGridService {
     Détails :
     - Numéro : ${order.orderNumber}
     - Date : ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
-    - Montant : ${order.totalAmount}€
+    - Montant : ${order.totalTTC || order.basePrice}€
     - Statut : En attente de traitement
     
     Vous recevrez une confirmation de livraison dès validation.
