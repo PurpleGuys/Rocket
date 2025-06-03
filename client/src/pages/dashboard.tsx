@@ -1037,44 +1037,7 @@ function DashboardHome() {
           {/* Section Gestion des Commandes */}
           <OrdersManagementSection allOrders={allOrders} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Commandes Récentes</CardTitle>
-                <CardDescription>Dernières commandes avec paiement confirmé</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {allOrders && allOrders.length > 0 ? (
-                    allOrders.slice(0, 5).map((order: any) => (
-                      <div key={order.id} className="flex items-center space-x-3">
-                        <div className={`w-2 h-2 rounded-full ${
-                          order.status === 'delivered' ? 'bg-green-500' :
-                          order.status === 'confirmed' ? 'bg-blue-500' :
-                          order.paymentStatus === 'paid' ? 'bg-yellow-500' : 'bg-gray-400'
-                        }`}></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            {order.orderNumber} - {order.customerFirstName} {order.customerLastName}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {order.deliveryCity} - {order.totalTTC}€ - {order.paymentStatus}
-                          </p>
-                        </div>
-                        <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
-                          {order.status}
-                        </Badge>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500">Aucune commande récente</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
 
-
-          </div>
         </div>
       )}
 
