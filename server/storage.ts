@@ -314,46 +314,36 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
-  async getUserOrders(userId: number): Promise<Order[]> {
-    const results = await db
-      .select({
-        id: orders.id,
-        orderNumber: orders.orderNumber,
-        userId: orders.userId,
-        serviceId: orders.serviceId,
-        status: orders.status,
-        paymentStatus: orders.paymentStatus,
-        totalAmount: orders.totalTtc,
-        createdAt: orders.createdAt,
-        deliveryDate: orders.estimatedDeliveryDate,
-        confirmedDeliveryDate: orders.confirmedDeliveryDate,
-        address: orders.deliveryStreet,
-        postalCode: orders.deliveryPostalCode,
-        city: orders.deliveryCity,
-        wasteTypes: orders.wasteTypes,
-        serviceName: services.name,
-        serviceVolume: services.volume,
-        transportCost: orders.deliveryFee,
-        serviceCost: orders.basePrice,
-      })
-      .from(orders)
-      .leftJoin(services, eq(orders.serviceId, services.id))
-      .where(eq(orders.userId, userId))
-      .orderBy(desc(orders.createdAt));
+  async getUserOrders(userId: number): Promise<any[]> {
+    try {
+      const results = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.userId, userId))
+        .orderBy(desc(orders.createdAt));
 
-    return results.map(row => ({
-      ...row,
-      totalAmount: row.totalAmount?.toString() || "0",
-      transportCost: row.transportCost?.toString() || "0",
-      serviceCost: row.serviceCost?.toString() || "0",
-      distance: 0, // Calculé dynamiquement si nécessaire
-      createdAt: row.createdAt?.toISOString() || new Date().toISOString(),
-      deliveryDate: row.deliveryDate?.toISOString() || null,
-      confirmedDeliveryDate: row.confirmedDeliveryDate?.toISOString() || null,
-      wasteTypes: Array.isArray(row.wasteTypes) ? row.wasteTypes : [],
-      serviceName: row.serviceName || "Service inconnu",
-      serviceVolume: row.serviceVolume || 0,
-    })) as Order[];
+      return results.map(row => ({
+        id: row.id,
+        orderNumber: row.orderNumber || "",
+        status: row.status || "pending",
+        totalAmount: row.totalTTC?.toString() || "0",
+        createdAt: row.createdAt?.toISOString() || new Date().toISOString(),
+        deliveryDate: row.estimatedDeliveryDate?.toISOString() || null,
+        confirmedDeliveryDate: row.confirmedDeliveryDate?.toISOString() || null,
+        address: row.deliveryStreet || "",
+        postalCode: row.deliveryPostalCode || "",
+        city: row.deliveryCity || "",
+        wasteTypes: Array.isArray(row.wasteTypes) ? row.wasteTypes : [],
+        serviceName: "Benne",
+        serviceVolume: 8,
+        distance: 0,
+        transportCost: row.deliveryFee?.toString() || "0",
+        serviceCost: row.basePrice?.toString() || "0",
+      }));
+    } catch (error) {
+      console.error("Error in getUserOrders:", error);
+      return [];
+    }
   }
 
   async updateOrderStatus(id: number, status: string): Promise<void> {

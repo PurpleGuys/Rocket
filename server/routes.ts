@@ -1468,9 +1468,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/orders/my-orders", authenticateToken, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      console.log("Fetching orders for user:", userId);
       const orders = await storage.getUserOrders(userId);
+      console.log("Orders found:", orders.length);
       res.json(orders);
     } catch (error: any) {
+      console.error("Error fetching user orders:", error);
       res.status(500).json({ message: "Erreur lors de la récupération des commandes: " + error.message });
     }
   });
