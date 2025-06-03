@@ -196,14 +196,11 @@ export default function ServiceSelection() {
 
     // Ajouter le supplément de durée si applicable
     if (durationSupplement > 0) {
-      const appliedThreshold = priceData.duration?.appliedThreshold;
-      const durationLabel = appliedThreshold 
-        ? `Supplément durée (à partir de ${appliedThreshold} jours)` 
-        : `Supplément durée (${durationDays} jours)`;
-      details.push({ label: durationLabel, amount: durationSupplement });
+      details.push({ label: `Supplément durée (${durationDays} jours)`, amount: durationSupplement });
     }
 
-    details.push({ label: `Transport (${distance.toFixed(1)} km)`, amount: transportCost });
+    const roundTripKm = priceData.distance?.roundTripKm || (distance * 2);
+    details.push({ label: `Transport (${roundTripKm.toFixed(1)} km aller-retour)`, amount: transportCost });
 
     // Ajouter les détails des coûts de traitement si disponibles
     if (totalTreatmentCost > 0) {
