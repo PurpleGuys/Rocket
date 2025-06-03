@@ -1586,17 +1586,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice += transportCost;
 
         // Add treatment costs for each waste type
-        for (const wasteTypeName of wasteTypes) {
-          const wasteType = await storage.getWasteTypes();
-          const wasteTypeObj = wasteType.find(wt => wt.name === wasteTypeName);
-          
-          if (wasteTypeObj) {
-            const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeObj.id);
-            if (treatmentPricing) {
-              const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
-              breakdown.treatment += treatmentCost;
-              totalPrice += treatmentCost;
-            }
+        for (const wasteTypeId of wasteTypes) {
+          const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeId);
+          if (treatmentPricing) {
+            const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
+            breakdown.treatment += treatmentCost;
+            totalPrice += treatmentCost;
           }
         }
 
@@ -1641,17 +1636,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice += transportCost;
 
         // Add treatment costs for each waste type
-        for (const wasteTypeName of wasteTypes) {
-          const wasteType = await storage.getWasteTypes();
-          const wasteTypeObj = wasteType.find(wt => wt.name === wasteTypeName);
-          
-          if (wasteTypeObj) {
-            const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeObj.id);
-            if (treatmentPricing) {
-              const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
-              breakdown.treatment += treatmentCost;
-              totalPrice += treatmentCost;
-            }
+        for (const wasteTypeId of wasteTypes) {
+          const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeId);
+          if (treatmentPricing) {
+            const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
+            breakdown.treatment += treatmentCost;
+            totalPrice += treatmentCost;
           }
         }
 
@@ -1669,6 +1659,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           service: {
             name: service.name,
             volume: service.volume
+          },
+          duration: {
+            days: durationDays,
+            supplement: durationSupplement,
+            appliedThreshold: durationSupplement > 0 ? 
+              (durationDays >= (rentalPricing.durationThreshold3 || 999) ? rentalPricing.durationThreshold3 :
+               durationDays >= (rentalPricing.durationThreshold2 || 999) ? rentalPricing.durationThreshold2 :
+               durationDays >= (rentalPricing.durationThreshold1 || 999) ? rentalPricing.durationThreshold1 : null) : null
           }
         });
       }
