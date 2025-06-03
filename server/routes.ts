@@ -1469,9 +1469,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       console.log("Fetching orders for user:", userId);
-      const orders = await storage.getUserOrders(userId);
-      console.log("Orders found:", orders.length);
-      res.json(orders);
+      
+      // Récupérer toutes les commandes et filtrer par userId
+      const allOrders = await storage.getOrders();
+      const userOrders = allOrders.filter(order => order.userId === userId);
+      
+      console.log("Orders found:", userOrders.length);
+      res.json(userOrders);
     } catch (error: any) {
       console.error("Error fetching user orders:", error);
       res.status(500).json({ message: "Erreur lors de la récupération des commandes: " + error.message });

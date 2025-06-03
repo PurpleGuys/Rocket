@@ -7,7 +7,7 @@ interface HeroHeaderProps {
   description?: string;
   children?: ReactNode;
   backgroundImage?: string;
-  variant?: 'default' | 'legal' | 'dashboard' | 'privacy';
+  variant?: 'default' | 'legal' | 'dashboard' | 'privacy' | 'retraction';
   className?: string;
 }
 
@@ -36,6 +36,11 @@ export function HeroHeader({
         return {
           background: 'linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%)',
           pattern: 'bg-[radial-gradient(circle_at_75%_25%,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[length:28px_28px]'
+        };
+      case 'retraction':
+        return {
+          background: 'linear-gradient(135deg, #ea580c 0%, #dc2626 50%, #b91c1c 100%)',
+          pattern: 'bg-[radial-gradient(circle_at_30%_70%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]'
         };
       default:
         return {

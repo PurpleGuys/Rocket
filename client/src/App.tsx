@@ -14,6 +14,8 @@ import NotFound from "@/pages/not-found";
 import Checkout from "@/pages/checkout";
 import PaymentSuccess from "@/pages/payment-success";
 import Legal from "@/pages/legal";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import RetractionRights from "@/pages/retraction-rights";
 import CookieConsent from "@/components/CookieConsent";
 
 function Router() {
@@ -46,6 +48,8 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/legal" component={Legal} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/retraction-rights" component={RetractionRights} />
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
