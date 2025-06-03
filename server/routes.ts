@@ -1349,22 +1349,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Calculate duration supplement based on daily rate and days exceeding threshold
+      // Calculate duration supplement based on configured thresholds and supplements
       const calculateDurationSupplement = (days: number, pricing: any) => {
         const daysNum = parseInt(days.toString());
-        const dailyRate = parseFloat(pricing.dailyRate) || 0;
-        let extraDays = 0;
+        let supplement = 0;
         
-        // Find the applicable threshold and calculate extra days beyond base period
-        if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3) {
-          extraDays = daysNum - pricing.durationThreshold3;
-        } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2) {
-          extraDays = daysNum - pricing.durationThreshold2;
-        } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1) {
-          extraDays = daysNum - pricing.durationThreshold1;
+        // Apply the highest applicable supplement based on configured thresholds
+        if (pricing.durationThreshold3 && daysNum >= pricing.durationThreshold3 && pricing.durationSupplement3) {
+          supplement = parseFloat(pricing.durationSupplement3);
+        } else if (pricing.durationThreshold2 && daysNum >= pricing.durationThreshold2 && pricing.durationSupplement2) {
+          supplement = parseFloat(pricing.durationSupplement2);
+        } else if (pricing.durationThreshold1 && daysNum >= pricing.durationThreshold1 && pricing.durationSupplement1) {
+          supplement = parseFloat(pricing.durationSupplement1);
         }
         
-        return extraDays * dailyRate;
+        return supplement;
       };
 
       const durationSupplement = calculateDurationSupplement(durationDays, rentalPricing);
