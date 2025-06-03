@@ -1,14 +1,56 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { InsertUser, insertUserSchema } from "@shared/schema";
-import { useRegister } from "@/hooks/useAuth";
+import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Lock, Mail, User, Phone, Building } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Eye, EyeOff, Lock, Mail, User, Phone, Building, FileText } from "lucide-react";
+
+// Schema de validation pour l'inscription
+const registerSchema = z.object({
+  email: z.string().email("Email invalide"),
+  password: z.string()
+    .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre"),
+  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  phone: z.string().min(10, "Numéro de téléphone invalide"),
+  address: z.string().optional(),
+  postalCode: z.string().optional(),
+  city: z.string().optional(),
+  accountType: z.enum(["particulier", "entreprise"]),
+  // Champs entreprise (conditionnels)
+  companyName: z.string().optional(),
+  siret: z.string().optional(),
+  // Consentements
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: "Vous devez accepter les conditions générales"
+  }),
+  acceptPrivacy: z.boolean().refine(val => val === true, {
+    message: "Vous devez accepter la politique de confidentialité"
+  }),
+  marketingConsent: z.boolean().optional(),
+}).refine((data) => {
+  // Validation conditionnelle pour les entreprises
+  if (data.accountType === "entreprise") {
+    return data.companyName && data.companyName.length >= 2 && 
+           data.siret && data.siret.length === 14;
+  }
+  return true;
+}, {
+  message: "Les champs nom de l'entreprise et SIRET sont obligatoires pour les entreprises",
+  path: ["companyName"],
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -17,28 +59,55 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const registerMutation = useRegister();
+  const { toast } = useToast();
 
-  const form = useForm<InsertUser>({
-    resolver: zodResolver(insertUserSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
       firstName: "",
       lastName: "",
       phone: "",
+      address: "",
+      postalCode: "",
+      city: "",
+      accountType: "particulier",
       companyName: "",
+      siret: "",
+      acceptTerms: false,
+      acceptPrivacy: false,
       marketingConsent: false,
     },
   });
 
-  const onSubmit = async (data: InsertUser) => {
-    try {
-      await registerMutation.mutateAsync(data);
+  const accountType = form.watch("accountType");
+
+  const registerMutation = useMutation({
+    mutationFn: async (data: RegisterFormData) => {
+      return apiRequest("POST", "/api/auth/register", {
+        ...data,
+        isCompany: data.accountType === "entreprise",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Inscription réussie",
+        description: "Un email de vérification a été envoyé à votre adresse.",
+      });
       onSuccess?.();
-    } catch (error) {
-      // Error is handled by the mutation
-    }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur d'inscription",
+        description: error.message || "Une erreur est survenue",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: RegisterFormData) => {
+    registerMutation.mutate(data);
   };
 
   return (
