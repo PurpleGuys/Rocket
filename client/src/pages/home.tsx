@@ -144,6 +144,16 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
+                  {/* Price Simulation Button */}
+                  <Button 
+                    variant="outline" 
+                    className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                    onClick={() => navigate("/price-simulation")}
+                  >
+                    <Calculator className="h-4 w-4 mr-2" />
+                    Simulation Prix
+                  </Button>
+
                   {/* Admin Panel Button */}
                   {user?.role === 'admin' && (
                     <Button 

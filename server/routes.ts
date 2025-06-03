@@ -910,22 +910,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         deliveryDate: new Date(deliveryDate),
         pickupDate: new Date(pickupDate),
         durationDays: parseInt(durationDays),
-        address,
-        postalCode,
-        city,
         basePrice: "0.00", // Test order at 0€
-        totalPrice: "0.00", // Test order at 0€
         status: "pending",
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        email: customer.email,
-        phone: customer.phone,
-        company: customer.company,
-        siret: customer.siret,
+        customerFirstName: customer.firstName,
+        customerLastName: customer.lastName,
+        customerEmail: customer.email,
+        customerPhone: customer.phone,
+        customerCompany: customer.company,
+        customerSiret: customer.siret,
+        deliveryStreet: address,
+        deliveryCity: city,
+        deliveryPostalCode: postalCode,
         notes: `COMMANDE TEST - ${customer.notes}`,
         // Add pricing breakdown as JSON
         pricingBreakdown: JSON.stringify(pricing),
-        isTestOrder: true
+        // Tax fields for test order
+        totalHT: "0.00",
+        vat: "0.00", 
+        totalTTC: "0.00"
       };
 
       const order = await storage.createOrder(orderData);
