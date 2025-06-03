@@ -1,15 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { HeroHeader } from "@/components/ui/hero-header";
+import { ArrowLeft, FileText, Shield, Scale } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Legal() {
+  const [, navigate] = useLocation();
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mentions légales et CGV</h1>
-          <p className="text-gray-600">Conditions générales de vente et informations légales</p>
-        </div>
+      <HeroHeader
+        variant="legal"
+        subtitle="INFORMATIONS LÉGALES"
+        title="Mentions légales & CGV"
+        description="Conditions générales de vente, mentions légales et politique de confidentialité pour tous nos services de collecte et traitement de déchets."
+      >
+        <Button 
+          variant="secondary" 
+          size="lg"
+          onClick={() => navigate("/")}
+          className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Retour à l'accueil
+        </Button>
+      </HeroHeader>
+
+      <div className="container mx-auto px-4 py-12 max-w-4xl -mt-8 relative z-10">
 
         {/* Informations légales */}
         <Card className="mb-6">

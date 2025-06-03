@@ -10,8 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { HeroHeader } from "@/components/ui/hero-header";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { 
   Package, 
   Plus, 
@@ -27,7 +30,9 @@ import {
   Settings,
   Bell,
   CreditCard,
-  User
+  User,
+  ArrowLeft,
+  Home
 } from "lucide-react";
 
 interface Order {
@@ -83,6 +88,8 @@ const statusLabels = {
 
 export default function ClientDashboard() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
   const [selectedTab, setSelectedTab] = useState("orders");
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [newRecurringOrder, setNewRecurringOrder] = useState({
@@ -211,12 +218,35 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* En-tête */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Mon tableau de bord</h1>
-          <p className="text-gray-600 mt-2">Gérez vos commandes et réservations REMONDIS</p>
+      <HeroHeader
+        variant="dashboard"
+        subtitle="ESPACE CLIENT"
+        title={`Bonjour ${user?.firstName || 'Client'}`}
+        description="Gérez vos commandes, suivez vos livraisons et configurez vos collectes récurrentes depuis votre espace personnel sécurisé."
+      >
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => navigate("/")}
+            className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+          >
+            <Home className="h-5 w-5 mr-2" />
+            Accueil
+          </Button>
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => setSelectedTab("new-order")}
+            className="bg-red-600 hover:bg-red-700 text-white border-0"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Nouvelle commande
+          </Button>
         </div>
+      </HeroHeader>
+
+      <div className="container mx-auto px-4 py-12 -mt-8 relative z-10">
 
         {/* Statistiques rapides */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
