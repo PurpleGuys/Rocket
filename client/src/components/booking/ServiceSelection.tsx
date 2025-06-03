@@ -82,9 +82,18 @@ export default function ServiceSelection() {
     setDistanceError("");
 
     try {
+      // Convertir le nom du type de déchet en ID
+      const wasteType = wasteTypes.find((wt: any) => wt.name === selectedWasteType);
+      const wasteTypeId = wasteType ? wasteType.id : null;
+      
+      if (!wasteTypeId) {
+        setDistanceError("Type de déchet non valide");
+        return;
+      }
+
       const response = await apiRequest('POST', '/api/calculate-pricing', {
         serviceId: selectedServiceId,
-        wasteTypes: [selectedWasteType],
+        wasteTypes: [wasteTypeId],
         address: deliveryAddress,
         postalCode: postalCode,
         city: city,
