@@ -146,6 +146,110 @@ export class SendGridService {
     }
   }
 
+  async sendDeliveryDateConfirmedEmail(order: Order, user: User): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.error('SendGrid not configured');
+      return false;
+    }
+
+    try {
+      const template = this.generateDeliveryDateConfirmedTemplate(order, user);
+      
+      const msg = {
+        to: user.email,
+        from: this.fromEmail,
+        subject: template.subject,
+        text: template.text,
+        html: template.html,
+      };
+
+      await sgMail.send(msg);
+      console.log('Delivery date confirmed email sent to:', user.email);
+      return true;
+    } catch (error) {
+      console.error('Error sending delivery date confirmed email:', error);
+      return false;
+    }
+  }
+
+  async sendDeliveryDateProposalEmail(order: Order, user: User, validationToken: string): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.error('SendGrid not configured');
+      return false;
+    }
+
+    try {
+      const template = this.generateDeliveryDateProposalTemplate(order, user, validationToken);
+      
+      const msg = {
+        to: user.email,
+        from: this.fromEmail,
+        subject: template.subject,
+        text: template.text,
+        html: template.html,
+      };
+
+      await sgMail.send(msg);
+      console.log('Delivery date proposal email sent to:', user.email);
+      return true;
+    } catch (error) {
+      console.error('Error sending delivery date proposal email:', error);
+      return false;
+    }
+  }
+
+  async sendDeliveryDateAcceptedEmail(order: Order, user: User): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.error('SendGrid not configured');
+      return false;
+    }
+
+    try {
+      const template = this.generateDeliveryDateAcceptedTemplate(order, user);
+      
+      const msg = {
+        to: user.email,
+        from: this.fromEmail,
+        subject: template.subject,
+        text: template.text,
+        html: template.html,
+      };
+
+      await sgMail.send(msg);
+      console.log('Delivery date accepted email sent to:', user.email);
+      return true;
+    } catch (error) {
+      console.error('Error sending delivery date accepted email:', error);
+      return false;
+    }
+  }
+
+  async sendDeliveryDateRejectedEmail(order: Order, user: User): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.error('SendGrid not configured');
+      return false;
+    }
+
+    try {
+      const template = this.generateDeliveryDateRejectedTemplate(order, user);
+      
+      const msg = {
+        to: user.email,
+        from: this.fromEmail,
+        subject: template.subject,
+        text: template.text,
+        html: template.html,
+      };
+
+      await sgMail.send(msg);
+      console.log('Delivery date rejected email sent to:', user.email);
+      return true;
+    } catch (error) {
+      console.error('Error sending delivery date rejected email:', error);
+      return false;
+    }
+  }
+
   private generateVerificationTemplate(user: User, verificationUrl: string): EmailTemplate {
     const subject = 'Vérifiez votre adresse email - REMONDIS France';
     
@@ -455,6 +559,294 @@ export class SendGridService {
     - Statut : En attente de traitement
     
     Vous recevrez une confirmation de livraison dès validation.
+    
+    Cordialement,
+    L'équipe REMONDIS France
+    `;
+
+    return { subject, html, text };
+  }
+
+  private generateDeliveryDateConfirmedTemplate(order: Order, user: User): EmailTemplate {
+    const subject = `Date de livraison confirmée - Commande ${order.orderNumber}`;
+    const deliveryDate = new Date(order.confirmedDeliveryDate || order.estimatedDeliveryDate!).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Date de livraison confirmée</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; }
+        .date-box { background: #f0f9ff; border: 2px solid #0369a1; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Date de livraison confirmée</h1>
+        </div>
+        <div class="content">
+          <h2>Bonjour ${user.firstName || order.customerFirstName},</h2>
+          <p>Nous avons le plaisir de vous confirmer la date de livraison de votre commande <strong>${order.orderNumber}</strong>.</p>
+          
+          <div class="date-box">
+            <h3 style="margin: 0; color: #0369a1;">Date de livraison confirmée</h3>
+            <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #0369a1;">${deliveryDate}</p>
+          </div>
+          
+          <p><strong>Détails de la commande :</strong></p>
+          <ul>
+            <li>Numéro de commande : ${order.orderNumber}</li>
+            <li>Adresse de livraison : ${order.deliveryStreet}, ${order.deliveryPostalCode} ${order.deliveryCity}</li>
+            <li>Montant total : ${order.totalTTC}€ TTC</li>
+          </ul>
+          
+          <p>Notre équipe se chargera de la livraison à l'adresse indiquée. Merci de vous assurer qu'une personne soit présente pour réceptionner la benne.</p>
+        </div>
+        <div class="footer">
+          <p>REMONDIS France - Gestion des déchets professionnelle<br>
+          Email : contact@remondis.fr | Téléphone : 01 23 45 67 89</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const text = `
+    Date de livraison confirmée - Commande ${order.orderNumber}
+    
+    Bonjour ${user.firstName || order.customerFirstName},
+    
+    Nous avons le plaisir de vous confirmer la date de livraison de votre commande ${order.orderNumber}.
+    
+    Date de livraison confirmée : ${deliveryDate}
+    
+    Détails de la commande :
+    - Numéro de commande : ${order.orderNumber}
+    - Adresse de livraison : ${order.deliveryStreet}, ${order.deliveryPostalCode} ${order.deliveryCity}
+    - Montant total : ${order.totalTTC}€ TTC
+    
+    Notre équipe se chargera de la livraison à l'adresse indiquée.
+    
+    Cordialement,
+    L'équipe REMONDIS France
+    `;
+
+    return { subject, html, text };
+  }
+
+  private generateDeliveryDateProposalTemplate(order: Order, user: User, validationToken: string): EmailTemplate {
+    const subject = `Nouvelle date de livraison proposée - Commande ${order.orderNumber}`;
+    const proposedDate = new Date(order.proposedDeliveryDate!).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const acceptUrl = `${process.env.FRONTEND_URL || 'https://remondis-app.replit.app'}/validate-delivery?token=${validationToken}&action=accept`;
+    const rejectUrl = `${process.env.FRONTEND_URL || 'https://remondis-app.replit.app'}/validate-delivery?token=${validationToken}&action=reject`;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Nouvelle date de livraison proposée</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; }
+        .date-box { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .button { display: inline-block; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 10px 5px; font-weight: bold; }
+        .accept { background: #059669; color: white; }
+        .reject { background: #dc2626; color: white; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Nouvelle date de livraison proposée</h1>
+        </div>
+        <div class="content">
+          <h2>Bonjour ${user.firstName || order.customerFirstName},</h2>
+          <p>Nous vous proposons une nouvelle date de livraison pour votre commande <strong>${order.orderNumber}</strong>.</p>
+          
+          <div class="date-box">
+            <h3 style="margin: 0; color: #f59e0b;">Nouvelle date proposée</h3>
+            <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #f59e0b;">${proposedDate}</p>
+          </div>
+          
+          <p>Merci de nous indiquer si cette nouvelle date vous convient en cliquant sur l'un des boutons ci-dessous :</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${acceptUrl}" class="button accept">✓ J'accepte cette date</a>
+            <a href="${rejectUrl}" class="button reject">✗ Je refuse cette date</a>
+          </div>
+          
+          <p><strong>Détails de la commande :</strong></p>
+          <ul>
+            <li>Numéro de commande : ${order.orderNumber}</li>
+            <li>Adresse de livraison : ${order.deliveryStreet}, ${order.deliveryPostalCode} ${order.deliveryCity}</li>
+          </ul>
+          
+          <p><em>Ce lien expire dans 7 jours. Si vous ne répondez pas d'ici là, vous devrez nous contacter directement.</em></p>
+        </div>
+        <div class="footer">
+          <p>REMONDIS France - Gestion des déchets professionnelle<br>
+          Email : contact@remondis.fr | Téléphone : 01 23 45 67 89</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const text = `
+    Nouvelle date de livraison proposée - Commande ${order.orderNumber}
+    
+    Bonjour ${user.firstName || order.customerFirstName},
+    
+    Nous vous proposons une nouvelle date de livraison pour votre commande ${order.orderNumber}.
+    
+    Nouvelle date proposée : ${proposedDate}
+    
+    Pour accepter cette date : ${acceptUrl}
+    Pour refuser cette date : ${rejectUrl}
+    
+    Ce lien expire dans 7 jours.
+    
+    Cordialement,
+    L'équipe REMONDIS France
+    `;
+
+    return { subject, html, text };
+  }
+
+  private generateDeliveryDateAcceptedTemplate(order: Order, user: User): EmailTemplate {
+    const subject = `Date de livraison acceptée - Commande ${order.orderNumber}`;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Date de livraison acceptée</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #059669, #047857); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; }
+        .success-box { background: #d1fae5; border: 2px solid #059669; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>✓ Date acceptée</h1>
+        </div>
+        <div class="content">
+          <h2>Bonjour ${user.firstName || order.customerFirstName},</h2>
+          <p>Merci d'avoir accepté la nouvelle date de livraison pour votre commande <strong>${order.orderNumber}</strong>.</p>
+          
+          <div class="success-box">
+            <h3 style="margin: 0; color: #059669;">Date confirmée</h3>
+            <p style="margin: 10px 0;">Votre livraison est maintenant programmée et confirmée.</p>
+          </div>
+          
+          <p>Vous recevrez un email de confirmation final avec tous les détails de livraison.</p>
+        </div>
+        <div class="footer">
+          <p>REMONDIS France - Gestion des déchets professionnelle</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const text = `
+    Date de livraison acceptée - Commande ${order.orderNumber}
+    
+    Bonjour ${user.firstName || order.customerFirstName},
+    
+    Merci d'avoir accepté la nouvelle date de livraison pour votre commande ${order.orderNumber}.
+    
+    Votre livraison est maintenant programmée et confirmée.
+    
+    Cordialement,
+    L'équipe REMONDIS France
+    `;
+
+    return { subject, html, text };
+  }
+
+  private generateDeliveryDateRejectedTemplate(order: Order, user: User): EmailTemplate {
+    const subject = `Date de livraison refusée - Commande ${order.orderNumber}`;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Date de livraison refusée</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; }
+        .info-box { background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Date refusée</h1>
+        </div>
+        <div class="content">
+          <h2>Bonjour ${user.firstName || order.customerFirstName},</h2>
+          <p>Nous avons bien noté que vous avez refusé la date de livraison proposée pour votre commande <strong>${order.orderNumber}</strong>.</p>
+          
+          <div class="info-box">
+            <h3 style="margin: 0; color: #dc2626;">Prochaines étapes</h3>
+            <p style="margin: 10px 0;">Notre équipe va vous proposer une nouvelle date de livraison sous 48h.</p>
+          </div>
+          
+          <p>Vous pouvez également nous contacter directement pour discuter d'une date qui vous conviendrait mieux.</p>
+          
+          <p><strong>Contact :</strong><br>
+          Email : contact@remondis.fr<br>
+          Téléphone : 01 23 45 67 89</p>
+        </div>
+        <div class="footer">
+          <p>REMONDIS France - Gestion des déchets professionnelle</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const text = `
+    Date de livraison refusée - Commande ${order.orderNumber}
+    
+    Bonjour ${user.firstName || order.customerFirstName},
+    
+    Nous avons bien noté que vous avez refusé la date de livraison proposée pour votre commande ${order.orderNumber}.
+    
+    Notre équipe va vous proposer une nouvelle date de livraison sous 48h.
+    
+    Contact :
+    Email : contact@remondis.fr
+    Téléphone : 01 23 45 67 89
     
     Cordialement,
     L'équipe REMONDIS France
