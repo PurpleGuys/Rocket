@@ -279,13 +279,26 @@ function UsersManagementPage() {
               Gérez tous les comptes utilisateurs - Total: {users?.length || 0} utilisateurs
             </CardDescription>
           </div>
-          <Button 
-            onClick={() => setIsCreateDialogOpen(true)}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Créer un utilisateur
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => {
+                // Export to Excel
+                window.open('/api/admin/users/export', '_blank');
+              }}
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Exporter Excel
+            </Button>
+            <Button 
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Créer un utilisateur
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

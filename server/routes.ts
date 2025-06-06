@@ -606,6 +606,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Export users to Excel
+  app.get("/api/admin/users/export", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const XLSX = await import('xlsx');
+      const users = await storage.getUsers();
+      
+      // Prepare data for Excel export with French headers
+      const exportData = users.map((user: any) => ({
+        'ID': user.id,
+        'Email': user.email,
+        'Prénom': user.firstName || user.first_name,
+        'Nom': user.lastName || user.last_name,
+        'Téléphone': user.phone,
+        'Entreprise': user.companyName,
+        'SIRET': user.siret,
+        'Adresse': user.address,
+        'Ville': user.city,
+        'Code postal': user.postalCode,
+        'Rôle': user.role,
+        'Vérifié': user.isVerified ? 'Oui' : 'Non',
+        'Actif': user.isActive ? 'Oui' : 'Non',
+        'Date de création': user.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '',
+        'Dernière connexion': user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR') : '',
+        'Notifications activées': user.notifyOnInactivity ? 'Oui' : 'Non'
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportData);
+
+      // Auto-size columns
+      const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+        wch: Math.max(key.length, 15)
+      }));
+      ws['!cols'] = colWidths;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Utilisateurs');
+
+      // Generate buffer
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+      // Set headers for download
+      const filename = `utilisateurs_${new Date().toISOString().split('T')[0]}.xlsx`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      
+      res.send(buffer);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de l'export: " + error.message });
+    }
+  });
+
   // Admin: Create new user
   app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) => {
     try {
