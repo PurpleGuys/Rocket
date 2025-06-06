@@ -22,6 +22,10 @@ export default function Home() {
   const [, navigate] = useLocation();
 
   const handleStartBooking = () => {
+    if (!isAuthenticated) {
+      navigate('/auth');
+      return;
+    }
     setShowBooking(true);
     setCurrentStep(1);
   };
