@@ -2007,6 +2007,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes pour les questionnaires de satisfaction
+  app.get('/api/admin/satisfaction-surveys', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const surveys = await storage.getSatisfactionSurveys();
+      res.json(surveys);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des questionnaires:', error);
+      res.status(500).json({ message: 'Erreur lors de la récupération des questionnaires' });
+    }
+  });
+
+  // Statistiques des questionnaires de satisfaction (admin only)
+  app.get('/api/admin/satisfaction-surveys/stats', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const surveys = await storage.getSatisfactionSurveys();
+      const completed = surveys.filter(s => s.completed);
+      
+      const totalSurveys = surveys.length;
+      const completedSurveys = completed.length;
+      const completionRate = totalSurveys > 0 ? Math.round((completedSurveys / totalSurveys) * 100) : 0;
+      
+      const averageNPS = completed.length > 0 
+        ? Math.round(completed.reduce((sum, s) => sum + (s.npsScore || 0), 0) / completed.length) 
+        : 0;
+      
+      const averageOverallSatisfaction = completed.length > 0
+        ? Math.round((completed.reduce((sum, s) => sum + (s.overallSatisfaction || 0), 0) / completed.length) * 10) / 10
+        : 0;
+      
+      const wouldRecommendRate = completed.length > 0
+        ? Math.round((completed.filter(s => s.wouldRecommend).length / completed.length) * 100)
+        : 0;
+      
+      const wouldUseAgainRate = completed.length > 0
+        ? Math.round((completed.filter(s => s.wouldUseAgain).length / completed.length) * 100)
+        : 0;
+
+      res.json({
+        totalSurveys,
+        completedSurveys,
+        completionRate,
+        averageNPS,
+        averageOverallSatisfaction,
+        wouldRecommendRate,
+        wouldUseAgainRate,
+      });
+    } catch (error) {
+      console.error('Erreur lors du calcul des statistiques:', error);
+      res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
+    }
+  });
+
+  // Route publique pour afficher un questionnaire via token
+  app.get('/api/satisfaction-survey/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      const survey = await storage.getSatisfactionSurveyByToken(token);
+      if (!survey) {
+        return res.status(404).json({ message: 'Questionnaire non trouvé' });
+      }
+
+      // Vérifier si le questionnaire a expiré
+      if (survey.expiresAt < new Date()) {
+        return res.status(410).json({ message: 'Ce questionnaire a expiré' });
+      }
+
+      // Vérifier si le questionnaire est déjà complété
+      if (survey.completed) {
+        return res.status(410).json({ message: 'Ce questionnaire a déjà été complété' });
+      }
+
+      const order = await storage.getOrder(survey.orderId);
+      const user = await storage.getUserById(survey.userId);
+
+      res.json({
+        survey: {
+          id: survey.id,
+          token: survey.token,
+          expiresAt: survey.expiresAt,
+          completed: survey.completed,
+        },
+        order: order ? {
+          orderNumber: order.orderNumber,
+          createdAt: order.createdAt,
+        } : null,
+        user: user ? {
+          firstName: user.firstName,
+          lastName: user.lastName,
+        } : null,
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération du questionnaire:', error);
+      res.status(500).json({ message: 'Erreur lors de la récupération du questionnaire' });
+    }
+  });
+
+  // Soumettre les réponses d'un questionnaire (route publique)
+  app.post('/api/satisfaction-survey/:token/submit', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const {
+        overallSatisfaction,
+        serviceQuality,
+        deliveryTiming,
+        pickupTiming,
+        customerService,
+        valueForMoney,
+        positiveComments,
+        negativeComments,
+        suggestions,
+        npsScore,
+        wouldUseAgain,
+        wouldRecommend,
+      } = req.body;
+
+      const survey = await storage.getSatisfactionSurveyByToken(token);
+      if (!survey) {
+        return res.status(404).json({ message: 'Questionnaire non trouvé' });
+      }
+
+      // Vérifier si le questionnaire a expiré
+      if (survey.expiresAt < new Date()) {
+        return res.status(410).json({ message: 'Ce questionnaire a expiré' });
+      }
+
+      // Vérifier si le questionnaire est déjà complété
+      if (survey.completed) {
+        return res.status(410).json({ message: 'Ce questionnaire a déjà été complété' });
+      }
+
+      // Récupérer les métadonnées de la requête
+      const ipAddress = req.ip || req.socket.remoteAddress;
+      const userAgent = req.get('User-Agent');
+
+      const updatedSurvey = await storage.updateSatisfactionSurvey(survey.id, {
+        overallSatisfaction: parseInt(overallSatisfaction),
+        serviceQuality: parseInt(serviceQuality),
+        deliveryTiming: parseInt(deliveryTiming),
+        pickupTiming: parseInt(pickupTiming),
+        customerService: parseInt(customerService),
+        valueForMoney: parseInt(valueForMoney),
+        positiveComments: positiveComments || null,
+        negativeComments: negativeComments || null,
+        suggestions: suggestions || null,
+        npsScore: parseInt(npsScore),
+        wouldUseAgain: wouldUseAgain === 'true' || wouldUseAgain === true,
+        wouldRecommend: wouldRecommend === 'true' || wouldRecommend === true,
+        ipAddress,
+        userAgent,
+        completed: true,
+        completedAt: new Date(),
+      });
+
+      res.json({ message: 'Questionnaire soumis avec succès', survey: updatedSurvey });
+    } catch (error) {
+      console.error('Erreur lors de la soumission du questionnaire:', error);
+      res.status(500).json({ message: 'Erreur lors de la soumission du questionnaire' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

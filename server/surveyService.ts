@@ -27,7 +27,7 @@ class SurveyService {
     try {
       const surveyUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/questionnaire/${survey.token}`;
       
-      const emailSent = await sendgridService.sendSatisfactionSurveyEmail(
+      const emailSent = await sendGridService.sendSatisfactionSurveyEmail(
         user.email,
         {
           firstName: user.firstName,
@@ -94,12 +94,12 @@ class SurveyService {
       const user = await storage.getUserById(survey.userId);
       if (!user) return false;
 
-      const order = await storage.getOrderById(survey.orderId);
+      const order = await storage.getOrder(survey.orderId);
       if (!order) return false;
 
       const surveyUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/questionnaire/${survey.token}`;
       
-      const emailSent = await sendgridService.sendSatisfactionSurveyReminder(
+      const emailSent = await sendGridService.sendSatisfactionSurveyReminder(
         user.email,
         {
           firstName: user.firstName,
