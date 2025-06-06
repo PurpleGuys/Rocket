@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,25 +7,145 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useBookingState } from "@/hooks/useBookingState";
 import { useAuth } from "@/hooks/useAuth";
-import { MapPin, Search, Building2, Construction } from "lucide-react";
+import { MapPin, Search, Building2, Construction, Phone } from "lucide-react";
+
+interface AddressSuggestion {
+  description: string;
+  place_id: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+}
+
+interface PlaceDetails {
+  street_number?: string;
+  route?: string;
+  locality?: string;
+  postal_code?: string;
+  country?: string;
+}
 
 export default function AddressInput() {
   const { bookingData, updateAddress } = useBookingState();
   const { user } = useAuth();
   
-  const [deliveryLocationType, setDeliveryLocationType] = useState<"company" | "construction_site">("company");
+  const [deliveryLocationType, setDeliveryLocationType] = useState<"company" | "construction_site">(
+    bookingData.address?.deliveryLocationType || "company"
+  );
   const [formData, setFormData] = useState({
     street: bookingData.address?.street || "",
     city: bookingData.address?.city || "",
     postalCode: bookingData.address?.postalCode || "",
     country: bookingData.address?.country || "FR",
     deliveryNotes: bookingData.address?.deliveryNotes || "",
-    constructionSiteContactPhone: "",
+    constructionSiteContactPhone: bookingData.address?.constructionSiteContactPhone || "",
   });
 
   const [addressSearch, setAddressSearch] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
   const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Search for address suggestions
+  const searchAddressSuggestions = async (query: string) => {
+    if (query.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(query)}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        const suggestions = (data.suggestions || []).map((s: any) => ({
+          description: s.description,
+          place_id: s.place_id,
+          structured_formatting: {
+            main_text: s.main_text,
+            secondary_text: s.secondary_text
+          }
+        }));
+        setAddressSuggestions(suggestions);
+        setShowSuggestions(true);
+      } else {
+        console.error('Failed to fetch address suggestions');
+        setAddressSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error('Error fetching address suggestions:', error);
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Get place details and populate form
+  const selectAddressSuggestion = async (suggestion: AddressSuggestion) => {
+    try {
+      const response = await fetch(`/api/places/details?place_id=${encodeURIComponent(suggestion.place_id)}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        const components = data.address_components || [];
+        
+        // Extract address components
+        let street_number = '';
+        let route = '';
+        let locality = '';
+        let postal_code = '';
+        
+        components.forEach((component: any) => {
+          const types = component.types;
+          if (types.includes('street_number')) {
+            street_number = component.long_name;
+          } else if (types.includes('route')) {
+            route = component.long_name;
+          } else if (types.includes('locality')) {
+            locality = component.long_name;
+          } else if (types.includes('postal_code')) {
+            postal_code = component.long_name;
+          }
+        });
+        
+        // Auto-populate form fields
+        const street = `${street_number} ${route}`.trim();
+        
+        setFormData(prev => ({
+          ...prev,
+          street: street,
+          city: locality,
+          postalCode: postal_code,
+        }));
+        
+        setAddressSearch(suggestion.description);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error('Error fetching place details:', error);
+    }
+  };
+
+  // Handle address search input with debouncing
+  const handleAddressSearchChange = (value: string) => {
+    setAddressSearch(value);
+    
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      searchAddressSuggestions(value);
+    }, 300);
+  };
 
   // Auto-populate company address when delivery type is "company"
   useEffect(() => {
@@ -84,6 +204,33 @@ export default function AddressInput() {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Formatage spécifique pour le code postal français
+    if (field === 'postalCode') {
+      // Supprimer tous les caractères non numériques et limiter à 5 chiffres
+      value = value.replace(/\D/g, '').slice(0, 5);
+    }
+    
+    // Formatage pour le numéro de téléphone
+    if (field === 'constructionSiteContactPhone') {
+      // Supprimer tous les caractères non numériques
+      const numbersOnly = value.replace(/\D/g, '');
+      // Formater le numéro français (XX XX XX XX XX)
+      if (numbersOnly.length <= 10) {
+        const formatted = numbersOnly.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+        value = formatted;
+      } else {
+        // Limiter à 10 chiffres pour les numéros français
+        return;
+      }
+    }
+    
+    // Capitalisation automatique pour la ville
+    if (field === 'city') {
+      value = value.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ');
+    }
+    
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -182,23 +329,57 @@ export default function AddressInput() {
             </div>
           )}
 
-          {/* Address Search */}
-          <div>
+          {/* Address Search with Autocomplete */}
+          <div className="relative">
             <Label htmlFor="address-search" className="text-sm font-medium text-slate-700 mb-2 block">
               Rechercher une adresse
             </Label>
             <div className="relative">
               <Input
                 id="address-search"
-                placeholder="Tapez votre adresse..."
+                placeholder="Tapez votre adresse pour l'autocomplétion..."
                 value={addressSearch}
-                onChange={(e) => setAddressSearch(e.target.value)}
+                onChange={(e) => handleAddressSearchChange(e.target.value)}
                 className="pr-10"
+                onFocus={() => addressSuggestions.length > 0 && setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                {isLoadingSuggestions ? (
+                  <div className="animate-spin h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full"></div>
+                ) : (
+                  <Search className="text-slate-400 h-4 w-4" />
+                )}
+              </div>
             </div>
+            
+            {/* Address suggestions dropdown */}
+            {showSuggestions && addressSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                {addressSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                    onClick={() => selectAddressSuggestion(suggestion)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">
+                          {suggestion.structured_formatting.main_text}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">
+                          {suggestion.structured_formatting.secondary_text}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <p className="text-sm text-slate-500 mt-1">
-              Nous utilisons la géolocalisation pour calculer les frais de livraison
+              Sélectionnez une adresse dans la liste pour remplir automatiquement les champs
             </p>
           </div>
 
