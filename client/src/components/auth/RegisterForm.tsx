@@ -25,10 +25,12 @@ const registerSchema = z.object({
   address: z.string().optional(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
-  accountType: z.enum(["particulier", "entreprise"]),
-  // Champs entreprise (conditionnels)
+  accountType: z.enum(["particulier", "professionnel"]),
+  // Champs professionnels (conditionnels)
   companyName: z.string().optional(),
   siret: z.string().optional(),
+  tvaNumber: z.string().optional(),
+  apeCode: z.string().optional(),
   // Consentements
   acceptTerms: z.boolean().refine(val => val === true, {
     message: "Vous devez accepter les conditions générales"
@@ -38,14 +40,16 @@ const registerSchema = z.object({
   }),
   marketingConsent: z.boolean().optional(),
 }).refine((data) => {
-  // Validation conditionnelle pour les entreprises
-  if (data.accountType === "entreprise") {
+  // Validation conditionnelle pour les professionnels
+  if (data.accountType === "professionnel") {
     return data.companyName && data.companyName.length >= 2 && 
-           data.siret && data.siret.length === 14;
+           data.siret && data.siret.length === 14 &&
+           data.tvaNumber && data.tvaNumber.length >= 11 &&
+           data.apeCode && data.apeCode.length >= 4;
   }
   return true;
 }, {
-  message: "Les champs nom de l'entreprise et SIRET sont obligatoires pour les entreprises",
+  message: "Les champs nom de l'entreprise, SIRET, numéro de TVA et code APE sont obligatoires pour les professionnels",
   path: ["companyName"],
 });
 
@@ -74,6 +78,8 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
       accountType: "particulier",
       companyName: "",
       siret: "",
+      tvaNumber: "",
+      apeCode: "",
       acceptTerms: false,
       acceptPrivacy: false,
       marketingConsent: false,
@@ -86,7 +92,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
     mutationFn: async (data: RegisterFormData) => {
       return apiRequest("POST", "/api/auth/register", {
         ...data,
-        isCompany: data.accountType === "entreprise",
+        isCompany: data.accountType === "professionnel",
       });
     },
     onSuccess: () => {
@@ -179,8 +185,8 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
               />
             </div>
 
-            {/* Champs entreprise conditionnels */}
-            {accountType === "entreprise" && (
+            {/* Champs professionnels conditionnels */}
+            {accountType === "professionnel" && (
               <>
                 <FormField
                   control={form.control}

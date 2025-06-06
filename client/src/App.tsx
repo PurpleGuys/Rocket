@@ -18,6 +18,8 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import RetractionRights from "@/pages/retraction-rights";
 import PriceSimulation from "@/pages/price-simulation";
 import ValidateDelivery from "@/pages/validate-delivery";
+import FAQ from "@/pages/FAQ";
+import Introduction from "@/components/Introduction";
 import CookieConsent from "@/components/CookieConsent";
 
 function Router() {
@@ -55,7 +57,10 @@ function Router() {
       <Route path="/retraction-rights" component={RetractionRights} />
       <Route path="/price-simulation" component={PriceSimulation} />
       <Route path="/validate-delivery" component={ValidateDelivery} />
-      <Route path="/" component={Home} />
+      <Route path="/faq" component={FAQ} />
+      <Route path="/introduction" component={Introduction} />
+      <Route path="/booking" component={Home} />
+      <Route path="/" component={Introduction} />
       <Route component={NotFound} />
     </Switch>
   );
