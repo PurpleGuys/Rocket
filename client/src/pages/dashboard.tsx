@@ -4946,6 +4946,19 @@ export default function Dashboard() {
                 </li>
                 <li>
                   <button
+                    onClick={() => setCurrentPage("client-map")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      currentPage === "client-map"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <MapPin className="mr-3 h-4 w-4" />
+                    Carte des Clients
+                  </button>
+                </li>
+                <li>
+                  <button
                     onClick={() => setCurrentPage("rental-pricing")}
                     className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === "rental-pricing"
