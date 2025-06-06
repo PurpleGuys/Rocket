@@ -138,10 +138,12 @@ export default function Introduction() {
                     <Calculator className="h-5 w-5 text-red-200" />
                     <span>Obtenez votre prix</span>
                   </div>
-                  <Button className="w-full bg-white text-red-600 hover:bg-red-50 font-semibold py-3">
-                    Calculer mon devis
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                  <Link href="/booking">
+                    <Button className="w-full bg-white text-red-600 hover:bg-red-50 font-semibold py-3">
+                      Calculer mon devis
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -240,9 +242,11 @@ export default function Introduction() {
                       </ul>
                     </div>
                     
-                    <Button className="w-full bg-black text-white hover:bg-gray-800 group-hover:bg-red-600 transition-colors duration-300">
-                      Choisir cette benne
-                    </Button>
+                    <Link href="/booking">
+                      <Button className="w-full bg-black text-white hover:bg-gray-800 group-hover:bg-red-600 transition-colors duration-300">
+                        Choisir cette benne
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
