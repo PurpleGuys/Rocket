@@ -123,29 +123,12 @@ export default function Introduction() {
             </div>
             
             <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                <h3 className="text-2xl font-bold mb-6">Devis instantané</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 bg-white/20 rounded-lg p-4">
-                    <MapPin className="h-5 w-5 text-red-200" />
-                    <span>Entrez votre code postal</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-white/20 rounded-lg p-4">
-                    <Construction className="h-5 w-5 text-red-200" />
-                    <span>Sélectionnez vos déchets</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-white/20 rounded-lg p-4">
-                    <Calculator className="h-5 w-5 text-red-200" />
-                    <span>Obtenez votre prix</span>
-                  </div>
-                  <Link href="/booking">
-                    <Button className="w-full bg-white text-red-600 hover:bg-red-50 font-semibold py-3">
-                      Calculer mon devis
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+              <Link href="/booking">
+                <Button size="lg" className="w-full bg-white text-red-600 hover:bg-red-50 font-semibold py-6 text-xl shadow-2xl">
+                  Calculer mon devis
+                  <ArrowRight className="ml-3 h-6 w-6" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
