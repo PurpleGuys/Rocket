@@ -105,33 +105,60 @@ export default function AddressInput() {
         <CardContent className="p-6 space-y-6">
           {/* Delivery Location Type Selection */}
           <div className="space-y-4">
-            <Label className="text-base font-medium">Type de livraison</Label>
-            <RadioGroup 
-              value={deliveryLocationType} 
-              onValueChange={handleLocationTypeChange}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
-              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                <RadioGroupItem value="company" id="company" />
-                <Label htmlFor="company" className="flex items-center space-x-2 cursor-pointer">
+            <Label className="text-base font-medium">Où souhaitez-vous la livraison ?</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  deliveryLocationType === "company" 
+                    ? "border-primary-500 bg-primary-50" 
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => handleLocationTypeChange("company")}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    deliveryLocationType === "company" 
+                      ? "border-primary-500 bg-primary-500" 
+                      : "border-gray-300"
+                  }`}>
+                    {deliveryLocationType === "company" && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    )}
+                  </div>
                   <Building2 className="h-5 w-5 text-primary-600" />
                   <div>
                     <div className="font-medium">Adresse de l'entreprise</div>
                     <div className="text-sm text-slate-600">Livraison à votre adresse principale</div>
                   </div>
-                </Label>
+                </div>
               </div>
-              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                <RadioGroupItem value="construction_site" id="construction_site" />
-                <Label htmlFor="construction_site" className="flex items-center space-x-2 cursor-pointer">
+              
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  deliveryLocationType === "construction_site" 
+                    ? "border-primary-500 bg-primary-50" 
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => handleLocationTypeChange("construction_site")}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    deliveryLocationType === "construction_site" 
+                      ? "border-primary-500 bg-primary-500" 
+                      : "border-gray-300"
+                  }`}>
+                    {deliveryLocationType === "construction_site" && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    )}
+                  </div>
                   <Construction className="h-5 w-5 text-primary-600" />
                   <div>
                     <div className="font-medium">Chantier spécifique</div>
                     <div className="text-sm text-slate-600">Livraison sur un chantier</div>
                   </div>
-                </Label>
+                </div>
               </div>
-            </RadioGroup>
+            </div>
           </div>
 
           {/* Construction Site Contact Phone (only if construction_site is selected) */}
