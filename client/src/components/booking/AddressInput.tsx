@@ -4,24 +4,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useBookingState } from "@/hooks/useBookingState";
-import { MapPin, Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { MapPin, Search, Building2, Construction } from "lucide-react";
 
 export default function AddressInput() {
   const { bookingData, updateAddress } = useBookingState();
+  const { user } = useAuth();
+  
+  const [deliveryLocationType, setDeliveryLocationType] = useState<"company" | "construction_site">("company");
   const [formData, setFormData] = useState({
     street: bookingData.address?.street || "",
     city: bookingData.address?.city || "",
     postalCode: bookingData.address?.postalCode || "",
     country: bookingData.address?.country || "FR",
     deliveryNotes: bookingData.address?.deliveryNotes || "",
+    constructionSiteContactPhone: "",
   });
 
   const [addressSearch, setAddressSearch] = useState("");
-  const [calculatedDistance] = useState(12); // Mock distance calculation
+  const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
+  const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
 
+  // Auto-populate company address when delivery type is "company"
   useEffect(() => {
-    // Update address when form data changes
+    if (deliveryLocationType === "company" && user?.address) {
+      setFormData(prev => ({
+        ...prev,
+        street: user.address || "",
+        city: user.city || "",
+        postalCode: user.postalCode || "",
+        country: user.country || "FR",
+      }));
+    }
+  }, [deliveryLocationType, user]);
+
+  // Calculate distance when address changes
+  useEffect(() => {
     if (formData.street && formData.city && formData.postalCode) {
       updateAddress({
         street: formData.street,
@@ -29,12 +49,45 @@ export default function AddressInput() {
         postalCode: formData.postalCode,
         country: formData.country,
         deliveryNotes: formData.deliveryNotes,
+        deliveryLocationType,
+        constructionSiteContactPhone: formData.constructionSiteContactPhone,
       });
+      calculateDistance();
     }
-  }, [formData, updateAddress]);
+  }, [formData, deliveryLocationType, updateAddress]);
+
+  const calculateDistance = async () => {
+    if (!formData.street || !formData.city || !formData.postalCode) return;
+    
+    setIsCalculatingDistance(true);
+    try {
+      const deliveryAddress = `${formData.street}, ${formData.city}, ${formData.postalCode}, ${formData.country}`;
+      const response = await fetch('/api/calculate-distance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deliveryAddress }),
+      });
+      
+      if (response.ok) {
+        const { distance } = await response.json();
+        setCalculatedDistance(distance);
+      }
+    } catch (error) {
+      console.error('Error calculating distance:', error);
+    } finally {
+      setIsCalculatingDistance(false);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleLocationTypeChange = (value: "company" | "construction_site") => {
+    setDeliveryLocationType(value);
+    if (value === "company") {
+      setFormData(prev => ({ ...prev, constructionSiteContactPhone: "" }));
+    }
   };
 
   return (
@@ -46,6 +99,58 @@ export default function AddressInput() {
 
       <Card>
         <CardContent className="p-6 space-y-6">
+          {/* Delivery Location Type Selection */}
+          <div className="space-y-4">
+            <Label className="text-base font-medium">Type de livraison</Label>
+            <RadioGroup 
+              value={deliveryLocationType} 
+              onValueChange={handleLocationTypeChange}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 cursor-pointer">
+                <RadioGroupItem value="company" id="company" />
+                <Label htmlFor="company" className="flex items-center space-x-2 cursor-pointer">
+                  <Building2 className="h-5 w-5 text-primary-600" />
+                  <div>
+                    <div className="font-medium">Adresse de l'entreprise</div>
+                    <div className="text-sm text-slate-600">Livraison à votre adresse principale</div>
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-slate-50 cursor-pointer">
+                <RadioGroupItem value="construction_site" id="construction_site" />
+                <Label htmlFor="construction_site" className="flex items-center space-x-2 cursor-pointer">
+                  <Construction className="h-5 w-5 text-primary-600" />
+                  <div>
+                    <div className="font-medium">Chantier spécifique</div>
+                    <div className="text-sm text-slate-600">Livraison sur un chantier</div>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Construction Site Contact Phone (only if construction_site is selected) */}
+          {deliveryLocationType === "construction_site" && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <Label htmlFor="constructionSiteContactPhone" className="text-sm font-medium text-amber-800">
+                Numéro de téléphone de contact sur le chantier *
+              </Label>
+              <Input
+                id="constructionSiteContactPhone"
+                type="tel"
+                placeholder="Ex: 06 12 34 56 78"
+                value={formData.constructionSiteContactPhone}
+                onChange={(e) => handleInputChange("constructionSiteContactPhone", e.target.value)}
+                className="mt-2"
+                required
+              />
+              <p className="text-xs text-amber-700 mt-1">
+                Ce numéro sera utilisé pour coordonner la livraison sur le chantier
+              </p>
+            </div>
+          )}
+
           {/* Address Search */}
           <div>
             <Label htmlFor="address-search" className="text-sm font-medium text-slate-700 mb-2 block">

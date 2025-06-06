@@ -16,6 +16,8 @@ interface AddressInfo {
   postalCode: string;
   country: string;
   deliveryNotes?: string;
+  deliveryLocationType?: "company" | "construction_site";
+  constructionSiteContactPhone?: string;
 }
 
 interface BookingData {

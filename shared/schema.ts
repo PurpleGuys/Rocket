@@ -90,12 +90,16 @@ export const orders = pgTable("orders", {
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone").notNull(),
   
-  // Delivery address
+  // Delivery location type and address
+  deliveryLocationType: text("delivery_location_type").notNull().default("company"), // "company" or "construction_site"
   deliveryStreet: text("delivery_street").notNull(),
   deliveryCity: text("delivery_city").notNull(),
   deliveryPostalCode: text("delivery_postal_code").notNull(),
   deliveryCountry: text("delivery_country").default("FR"),
   deliveryNotes: text("delivery_notes"),
+  
+  // Construction site specific contact info
+  constructionSiteContactPhone: text("construction_site_contact_phone"), // Required if deliveryLocationType is "construction_site"
   
   // Pricing
   basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(),
