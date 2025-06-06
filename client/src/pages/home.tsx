@@ -222,74 +222,40 @@ export default function Home() {
           </p>
         </div>
 
-        {/* DELIVERY LOCATION - FORCED DISPLAY */}
-        <div style={{
-          backgroundColor: '#ff0000', 
-          color: 'white', 
-          padding: '30px', 
-          margin: '20px auto',
-          maxWidth: '800px',
-          borderRadius: '15px',
-          border: '5px solid #000000',
-          textAlign: 'center'
-        }}>
-          <h1 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '25px'}}>
-            🏗️ LIEU DE LIVRAISON DE VOTRE BENNE
-          </h1>
+        {/* DELIVERY LOCATION SELECTION - ABSOLUTE FORCED */}
+        <div className="bg-red-600 text-white p-8 rounded-lg mb-8 max-w-4xl mx-auto border-4 border-black">
+          <h2 className="text-3xl font-bold text-center mb-6">
+            🏗️ OÙ SOUHAITEZ-VOUS LA LIVRAISON ?
+          </h2>
           
-          <div style={{display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '25px'}}>
-            <button style={{
-              padding: '20px',
-              backgroundColor: '#ffffff',
-              color: '#000000',
-              border: '3px solid #0000ff',
-              borderRadius: '10px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              minWidth: '250px'
-            }}>
-              🏢 ADRESSE ENTREPRISE
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <button className="bg-white text-black p-6 rounded-lg border-2 border-blue-600 hover:bg-blue-50 font-bold text-lg">
+              🏢 ADRESSE DE L'ENTREPRISE
+              <div className="text-sm font-normal mt-2">Livraison à votre adresse principale</div>
             </button>
             
-            <button style={{
-              padding: '20px',
-              backgroundColor: '#ffffff',
-              color: '#000000',
-              border: '3px solid #0000ff',
-              borderRadius: '10px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              minWidth: '250px'
-            }}>
-              🚧 CHANTIER SPECIFIQUE
+            <button className="bg-white text-black p-6 rounded-lg border-2 border-blue-600 hover:bg-blue-50 font-bold text-lg">
+              🚧 CHANTIER SPÉCIFIQUE
+              <div className="text-sm font-normal mt-2">Livraison sur un chantier</div>
             </button>
           </div>
           
-          <div style={{
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            padding: '20px',
-            borderRadius: '10px',
-            border: '3px solid #000000'
-          }}>
-            <label style={{fontWeight: 'bold', fontSize: '18px', display: 'block', marginBottom: '10px'}}>
-              📞 TELEPHONE CONTACT CHANTIER
+          <div className="bg-white text-black p-6 rounded-lg border-2 border-black">
+            <label className="block font-bold text-lg mb-3">
+              📞 TÉLÉPHONE DE CONTACT CHANTIER
             </label>
             <input
               type="tel"
-              placeholder="06 12 34 56 78"
-              style={{
-                width: '100%',
-                padding: '15px',
-                fontSize: '18px',
-                border: '3px solid #000000',
-                borderRadius: '8px'
-              }}
+              placeholder="Ex: 06 12 34 56 78"
+              className="w-full p-4 text-lg border-2 border-gray-400 rounded"
             />
+            <p className="text-sm mt-2 text-gray-700">
+              Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
+            </p>
           </div>
         </div>
+
+
 
         {/* Quick Booking Form */}
         <Card className="max-w-4xl mx-auto shadow-xl">
