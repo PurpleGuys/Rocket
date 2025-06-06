@@ -18,6 +18,7 @@ import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ServiceImageGallery } from "@/components/ui/service-image-gallery";
+import FidForm from "./FidForm";
 
 export default function ServiceSelection() {
   const [, setLocation] = useLocation();
@@ -44,6 +45,11 @@ export default function ServiceSelection() {
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [durationDays, setDurationDays] = useState<number>(7); // Durée par défaut: 1 semaine
+  
+  // Variables pour l'option BSD et FID
+  const [bsdOption, setBsdOption] = useState<boolean>(false);
+  const [fidData, setFidData] = useState<any>(null);
+  const [showFidForm, setShowFidForm] = useState<boolean>(false);
 
   const { data: services, isLoading, error } = useQuery({
     queryKey: ['/api/services'],
@@ -226,7 +232,7 @@ export default function ServiceSelection() {
     const durationSupplement = priceData.pricing?.durationSupplement || 0;
     const transportCost = priceData.pricing?.transport || 0;
     const totalTreatmentCost = priceData.pricing?.treatment || 0;
-    const total = priceData.pricing?.total || (servicePrice + durationSupplement + transportCost + totalTreatmentCost);
+    let total = priceData.pricing?.total || (servicePrice + durationSupplement + transportCost + totalTreatmentCost);
 
     const details = [
       { label: "Service de base", amount: servicePrice },
@@ -250,12 +256,21 @@ export default function ServiceSelection() {
       });
     }
 
+    // Ajouter l'option BSD si cochée
+    let bsdCost = 0;
+    if (bsdOption) {
+      bsdCost = 15;
+      details.push({ label: "Option BSD", amount: bsdCost });
+      total += bsdCost;
+    }
+
     details.push({ label: "Total TTC", amount: total });
 
     return {
       service: servicePrice,
       transport: transportCost,
       treatment: totalTreatmentCost,
+      bsd: bsdCost,
       total: total,
       details: details
     };
@@ -278,6 +293,27 @@ export default function ServiceSelection() {
       toast({
         title: "Erreur",
         description: "Service non sélectionné",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Vérifier que la FID est remplie si l'option BSD est cochée
+    if (bsdOption && !fidData) {
+      toast({
+        title: "FID obligatoire",
+        description: "Vous devez remplir la Fiche d'Identification des Déchets pour l'option BSD",
+        variant: "destructive",
+      });
+      setShowFidForm(true);
+      return;
+    }
+
+    // Vérifier le téléphone de contact pour chantier spécifique
+    if (deliveryLocationType === "construction_site" && !constructionSiteContactPhone) {
+      toast({
+        title: "Téléphone manquant",
+        description: "Le numéro de téléphone de contact chantier est obligatoire",
         variant: "destructive",
       });
       return;
@@ -631,6 +667,51 @@ export default function ServiceSelection() {
             </div>
           )}
         </div>
+
+        {/* Option BSD (Bordereau de Suivi des Déchets) */}
+        {selectedWasteType && (
+          <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="bsd-option"
+                    checked={bsdOption}
+                    onChange={(e) => {
+                      setBsdOption(e.target.checked);
+                      if (e.target.checked) {
+                        setShowFidForm(true);
+                      } else {
+                        setShowFidForm(false);
+                        setFidData(null);
+                      }
+                    }}
+                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="bsd-option" className="ml-3 text-lg font-semibold text-gray-900">
+                    Option BSD (Bordereau de Suivi des Déchets)
+                  </label>
+                </div>
+              </div>
+              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                +15€
+              </Badge>
+            </div>
+            
+            <div className="text-sm text-gray-700">
+              <p className="mb-2">
+                <strong>Le Bordereau de Suivi des Déchets (BSD)</strong> est un document obligatoire pour certains types de déchets selon la réglementation française.
+              </p>
+              <p className="mb-2">
+                Il permet de tracer le parcours de vos déchets de leur production jusqu'à leur traitement final, garantissant une gestion conforme à la réglementation environnementale.
+              </p>
+              <p className="text-yellow-700 font-medium">
+                ⚠️ Si vous cochez cette option, vous devrez remplir une Fiche d'Identification des Déchets (FID) avant le paiement.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* NEW: Delivery Location Type Selection */}
         <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
