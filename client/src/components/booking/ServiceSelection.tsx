@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { ServiceImageGallery } from "@/components/ui/service-image-gallery";
 
 export default function ServiceSelection() {
   const [, setLocation] = useLocation();

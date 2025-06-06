@@ -1,4 +1,4 @@
-import { users, services, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit } from "@shared/schema";
+import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
 
@@ -36,10 +36,15 @@ export interface IStorage {
   getUserSessions(userId: number): Promise<Session[]>;
   
   // Services
-  getServices(): Promise<Service[]>;
-  getService(id: number): Promise<Service | undefined>;
+  getServices(): Promise<(Service & { images: ServiceImage[] })[]>;
+  getService(id: number): Promise<(Service & { images: ServiceImage[] }) | undefined>;
   createService(service: InsertService): Promise<Service>;
   updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined>;
+  
+  // Service Images
+  getServiceImages(serviceId: number): Promise<ServiceImage[]>;
+  createServiceImage(image: InsertServiceImage): Promise<ServiceImage>;
+  deleteServiceImage(id: number): Promise<void>;
   
   // Time slots
   getAvailableTimeSlots(date: string): Promise<TimeSlot[]>;
@@ -231,13 +236,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Services
-  async getServices(): Promise<Service[]> {
-    return await db.select().from(services).where(eq(services.isActive, true));
+  async getServices(): Promise<(Service & { images: ServiceImage[] })[]> {
+    const servicesData = await db.select().from(services).where(eq(services.isActive, true));
+    
+    const servicesWithImages = await Promise.all(
+      servicesData.map(async (service) => {
+        const images = await this.getServiceImages(service.id);
+        return { ...service, images };
+      })
+    );
+    
+    return servicesWithImages;
   }
 
-  async getService(id: number): Promise<Service | undefined> {
+  async getService(id: number): Promise<(Service & { images: ServiceImage[] }) | undefined> {
     const [service] = await db.select().from(services).where(eq(services.id, id));
-    return service || undefined;
+    if (!service) return undefined;
+    
+    const images = await this.getServiceImages(id);
+    return { ...service, images };
   }
 
   async createService(service: InsertService): Promise<Service> {
@@ -255,6 +272,27 @@ export class DatabaseStorage implements IStorage {
       .where(eq(services.id, id))
       .returning();
     return updatedService || undefined;
+  }
+
+  // Service Images
+  async getServiceImages(serviceId: number): Promise<ServiceImage[]> {
+    return await db
+      .select()
+      .from(serviceImages)
+      .where(eq(serviceImages.serviceId, serviceId))
+      .orderBy(serviceImages.sortOrder, serviceImages.id);
+  }
+
+  async createServiceImage(image: InsertServiceImage): Promise<ServiceImage> {
+    const [newImage] = await db
+      .insert(serviceImages)
+      .values(image)
+      .returning();
+    return newImage;
+  }
+
+  async deleteServiceImage(id: number): Promise<void> {
+    await db.delete(serviceImages).where(eq(serviceImages.id, id));
   }
 
   // Time slots
