@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Separator } from "@/components/ui/separator";
 
+// Footer REMONDIS DD - Mise à jour complète
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white mt-auto">
@@ -78,10 +79,9 @@ export default function Footer() {
 
           <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-400">
             <div className="mb-2 md:mb-0">
-              <p>&copy; 2025 REMONDIS France. Tous droits réservés.</p>
+              <p>&copy; 2025 REMONDIS DD. Tous droits réservés.</p>
             </div>
             <div className="flex space-x-4">
-
               <span>Juridiction: Beauvais</span>
               <span>Droit applicable: France</span>
             </div>
