@@ -65,6 +65,11 @@ export default function ServiceSelection() {
     queryKey: ['/api/treatment-pricing'],
   });
 
+  // Récupérer les données utilisateur pour l'adresse de l'entreprise
+  const { data: user } = useQuery({
+    queryKey: ['/api/auth/me'],
+  });
+
   const service = services ? services.find((s: Service) => s.id === selectedServiceId) : undefined;
 
   // Calculer automatiquement la date de fin basée sur la date de début et la durée
@@ -74,6 +79,34 @@ export default function ServiceSelection() {
       setEndDate(calculatedEndDate);
     }
   }, [startDate, durationDays]);
+
+  // Pré-remplir automatiquement l'adresse de l'entreprise quand sélectionnée
+  useEffect(() => {
+    if (deliveryLocationType === "company" && user && typeof user === 'object') {
+      // Construire l'adresse complète de l'entreprise
+      const userAddress = (user as any).address || '';
+      const userPostalCode = (user as any).postalCode || '';
+      const userCity = (user as any).city || '';
+      const companyAddress = `${userAddress}, ${userPostalCode} ${userCity}`.trim();
+      
+      if (companyAddress !== ', ') {
+        setDeliveryAddress(companyAddress);
+        setPostalCode(userPostalCode);
+        setCity(userCity);
+        
+        // Calculer automatiquement la distance pour l'adresse de l'entreprise
+        if (companyAddress.length > 10) {
+          handleDistanceCalculation(companyAddress);
+        }
+      }
+    } else if (deliveryLocationType === "construction_site") {
+      // Réinitialiser les champs pour un chantier spécifique
+      setDeliveryAddress('');
+      setPostalCode('');
+      setCity('');
+      setDistance(0);
+    }
+  }, [deliveryLocationType, user]);
 
   // Calcul automatique de la distance quand les données changent
   useEffect(() => {
@@ -834,14 +867,26 @@ export default function ServiceSelection() {
           
           <div className="space-y-4">
             <div className="relative">
-              <Label htmlFor="address">Adresse *</Label>
+              <Label htmlFor="address">
+                {deliveryLocationType === "company" ? "Adresse de l'entreprise *" : "Adresse du chantier *"}
+              </Label>
+              {deliveryLocationType === "company" && user && (
+                <p className="text-sm text-blue-600 mb-2">
+                  ✓ Adresse automatiquement remplie depuis votre profil
+                </p>
+              )}
               <Input
                 id="address"
                 type="text"
                 value={deliveryAddress}
                 onChange={(e) => handleAddressChange(e.target.value)}
-                placeholder="Tapez votre adresse..."
+                placeholder={
+                  deliveryLocationType === "company" 
+                    ? "Adresse de votre entreprise..." 
+                    : "Tapez l'adresse du chantier..."
+                }
                 className="mt-1"
+                disabled={deliveryLocationType === "company"}
               />
               
               {/* Suggestions d'adresses */}
