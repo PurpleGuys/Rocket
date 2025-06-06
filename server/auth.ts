@@ -104,20 +104,25 @@ export class AuthService {
 
   // Validate session
   static async validateSession(token: string): Promise<User | null> {
-    const session = await storage.getSessionByToken(token);
-    if (!session || session.expiresAt < new Date()) {
-      if (session) {
-        await storage.deleteSession(session.id);
+    try {
+      const session = await storage.getSessionByToken(token);
+      if (!session || session.expiresAt < new Date()) {
+        if (session) {
+          await storage.deleteSession(session.id);
+        }
+        return null;
       }
+
+      const user = await storage.getUser(session.userId);
+      if (!user || !user.isActive) {
+        return null;
+      }
+
+      return user || null;
+    } catch (error) {
+      console.error('Database error in validateSession:', error);
       return null;
     }
-
-    const user = await storage.getUser(session.userId);
-    if (!user || !user.isActive) {
-      return null;
-    }
-
-    return user || null;
   }
 
   // Delete session (logout)
@@ -139,36 +144,47 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
   let user: User | null = null;
 
-  // Try JWT first, then session token
-  if (token) {
-    const decoded = AuthService.verifyToken(token);
-    if (decoded) {
-      const foundUser = await storage.getUser(decoded.userId);
-      user = foundUser || null;
+  try {
+    // Try JWT first, then session token
+    if (token) {
+      const decoded = AuthService.verifyToken(token);
+      if (decoded) {
+        const foundUser = await storage.getUser(decoded.userId);
+        user = foundUser || null;
+      }
+    } else if (sessionToken) {
+      user = await AuthService.validateSession(sessionToken);
     }
-  } else if (sessionToken) {
-    user = await AuthService.validateSession(sessionToken);
-  }
 
-  if (!user) {
-    return res.status(401).json({ message: 'Accès non autorisé' });
-  }
+    if (!user) {
+      return res.status(401).json({ message: 'Accès non autorisé' });
+    }
 
-  // Check if account is locked
-  if (await AuthService.isAccountLocked(user)) {
-    return res.status(423).json({ message: 'Compte temporairement verrouillé' });
-  }
+    // Check if account is locked
+    if (await AuthService.isAccountLocked(user)) {
+      return res.status(423).json({ message: 'Compte temporairement verrouillé' });
+    }
 
-  // Check if account is verified (except for verification endpoints)
-  if (!user.isVerified && !req.path.includes('/verify')) {
-    return res.status(403).json({ 
-      message: 'Compte non vérifié. Vérifiez votre email.',
-      requiresVerification: true 
-    });
-  }
+    // Check if account is verified (except for verification endpoints)
+    if (!user.isVerified && !req.path.includes('/verify')) {
+      return res.status(403).json({ 
+        message: 'Compte non vérifié. Vérifiez votre email.',
+        requiresVerification: true 
+      });
+    }
 
-  req.user = user;
-  next();
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Database connection error in auth middleware:', error);
+    // If database is unavailable, allow access for development but log the error
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Database unavailable - allowing development access');
+      next();
+    } else {
+      return res.status(503).json({ message: 'Service temporairement indisponible' });
+    }
+  }
 };
 
 // Middleware to check admin role
