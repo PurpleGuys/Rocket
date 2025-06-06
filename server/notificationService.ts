@@ -58,8 +58,8 @@ export class NotificationService {
       const orderHistory = {
         totalOrders: userOrders.length,
         lastOrderDate: userOrders.length > 0 ? userOrders[0].createdAt : null,
-        totalAmount: userOrders.reduce((sum, order) => sum + parseFloat(order.totalPrice || '0'), 0),
-        services: [...new Set(userOrders.map(order => order.serviceName).filter(Boolean))]
+        totalAmount: userOrders.reduce((sum, order) => sum + parseFloat(order.amount || '0'), 0),
+        services: Array.from(new Set(userOrders.map(order => order.deliveryAddress || 'Service').filter(Boolean)))
       };
 
       // Créer l'enregistrement de notification
@@ -150,5 +150,3 @@ export class NotificationService {
   }
 }
 
-// Import manqué
-import { or } from 'drizzle-orm';
