@@ -6,11 +6,11 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Informations entreprise */}
           <div>
-            <h3 className="font-bold text-red-500 text-lg mb-4">REMONDIS France</h3>
+            <h3 className="font-bold text-red-500 text-lg mb-4">REMONDIS DD</h3>
             <div className="space-y-2 text-sm text-gray-300">
-              <p>Zone Industrielle des Alouettes</p>
-              <p>72700 Allonnes, France</p>
-              <p>Tél: 02.43.39.00.00</p>
+              <p>3 Rue du bois d'Aumont</p>
+              <p>ZI de Warluis, 60000 Allonne</p>
+              <p>Tél: 03 44 45 11 58</p>
               <p>Email: contact@remondis.fr</p>
             </div>
           </div>
@@ -47,6 +47,7 @@ export default function Footer() {
             <h3 className="font-bold text-white text-lg mb-4">Certifications</h3>
             <div className="space-y-2 text-sm text-gray-300">
               <p>ISO 14001</p>
+              <p>MASE ISO Privé</p>
               <p>Centres agréés ICPE</p>
               <p>Conformité BSD</p>
               <p>Code environnement</p>
@@ -60,9 +61,9 @@ export default function Footer() {
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4 text-xs text-gray-400">
             <div>
-              <p><strong>REMONDIS France SAS</strong> - SAS au capital de 1 000 000 €</p>
-              <p>SIRET: 123 456 789 00012 - RCS Beauvais B 123 456 789</p>
-              <p>Code APE: 3811Z - TVA: FR 12 123 456 789</p>
+              <p><strong>REMONDIS DD SAS</strong> - SAS au capital de 1 000 000 €</p>
+              <p>SIRET: 379 163 413 00047 - RCS Beauvais B 379 163 413</p>
+              <p>Code APE: 3811Z - TVA: FR 81 379 163 413</p>
             </div>
             <div>
               <p>Activité soumise au Code de l'environnement</p>
@@ -75,10 +76,9 @@ export default function Footer() {
 
           <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-400">
             <div className="mb-2 md:mb-0">
-              <p>&copy; 2025 REMONDIS France. Tous droits réservés.</p>
+              <p>&copy; 2025 REMONDIS DD. Tous droits réservés.</p>
             </div>
             <div className="flex space-x-4">
-              <span>Médiation: CNPM</span>
               <span>Juridiction: Beauvais</span>
               <span>Droit applicable: France</span>
             </div>
