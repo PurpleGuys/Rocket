@@ -93,17 +93,13 @@ export default function Introduction() {
                 </p>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex justify-center">
                 <Link href="/booking">
                   <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 px-8 py-4 text-lg font-semibold shadow-xl">
                     <Calendar className="mr-2 h-5 w-5" />
                     Réserver ma benne
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg">
-                  <Play className="mr-2 h-5 w-5" />
-                  Voir la démo
-                </Button>
               </div>
 
               <div className="flex items-center space-x-8 pt-4">
@@ -487,18 +483,11 @@ export default function Introduction() {
               de notre expertise reconnue dans toute la France
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <div className="flex justify-center">
               <Link href="/booking">
                 <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 px-10 py-5 text-xl font-bold shadow-2xl">
                   <Calendar className="mr-3 h-6 w-6" />
                   Commencer ma commande
-                </Button>
-              </Link>
-              
-              <Link href="/price-simulation">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 px-10 py-5 text-xl">
-                  <Calculator className="mr-3 h-6 w-6" />
-                  Simuler un prix
                 </Button>
               </Link>
             </div>
