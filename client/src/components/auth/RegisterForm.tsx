@@ -226,6 +226,51 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
                     </FormItem>
                   )}
                 />
+                
+                <FormField
+                  control={form.control}
+                  name="tvaNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Numéro de TVA intracommunautaire *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input 
+                            placeholder="FR12345678901" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-xs text-gray-500">Format: FR + 11 chiffres</p>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="apeCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Code APE *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input 
+                            placeholder="3811Z" 
+                            className="pl-10" 
+                            maxLength={5}
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-xs text-gray-500">Code activité principale (4 chiffres + 1 lettre)</p>
+                    </FormItem>
+                  )}
+                />
               </>
             )}
 
