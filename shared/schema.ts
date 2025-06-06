@@ -30,6 +30,9 @@ export const users = pgTable("users", {
   marketingConsent: boolean("marketing_consent").default(false),
   isActive: boolean("is_active").default(true),
   profilePicture: text("profile_picture"),
+  // Notification settings for sales team
+  notifyOnInactivity: boolean("notify_on_inactivity").default(true),
+  lastInactivityNotification: timestamp("last_inactivity_notification"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -250,6 +253,44 @@ export const bankDeposits = pgTable("bank_deposits", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Table pour suivre les commandes abandonnées
+export const abandonedCheckouts = pgTable("abandoned_checkouts", {
+  id: serial("id").primaryKey(),
+  customerEmail: text("customer_email").notNull(),
+  customerFirstName: text("customer_first_name"),
+  customerLastName: text("customer_last_name"),
+  customerPhone: text("customer_phone"),
+  serviceId: integer("service_id").references(() => services.id),
+  serviceName: text("service_name"),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
+  deliveryAddress: text("delivery_address"),
+  deliveryCity: text("delivery_city"),
+  deliveryPostalCode: text("delivery_postal_code"),
+  wasteTypes: text("waste_types").array(),
+  durationDays: integer("duration_days"),
+  paymentIntentId: text("payment_intent_id"),
+  notificationSent: boolean("notification_sent").default(false),
+  notificationSentAt: timestamp("notification_sent_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Table pour suivre les notifications d'inactivité
+export const inactivityNotifications = pgTable("inactivity_notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  lastLoginDate: timestamp("last_login_date"),
+  orderHistory: jsonb("order_history").$type<{
+    totalOrders: number;
+    lastOrderDate: Date | null;
+    totalAmount: number;
+    services: string[];
+  }>(),
+  notificationSent: boolean("notification_sent").default(false),
+  notificationSentAt: timestamp("notification_sent_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -364,6 +405,17 @@ export const updateTreatmentPricingSchema = createInsertSchema(treatmentPricing)
   updatedAt: true,
 });
 
+export const insertAbandonedCheckoutSchema = createInsertSchema(abandonedCheckouts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertInactivityNotificationSchema = createInsertSchema(inactivityNotifications).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Relations
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
@@ -398,6 +450,12 @@ export type InsertWasteType = z.infer<typeof insertWasteTypeSchema>;
 export type TreatmentPricing = typeof treatmentPricing.$inferSelect;
 export type InsertTreatmentPricing = z.infer<typeof insertTreatmentPricingSchema>;
 export type UpdateTreatmentPricing = z.infer<typeof updateTreatmentPricingSchema>;
+
+export type AbandonedCheckout = typeof abandonedCheckouts.$inferSelect;
+export type InsertAbandonedCheckout = z.infer<typeof insertAbandonedCheckoutSchema>;
+
+export type InactivityNotification = typeof inactivityNotifications.$inferSelect;
+export type InsertInactivityNotification = z.infer<typeof insertInactivityNotificationSchema>;
 
 // Company Activities Configuration
 export const companyActivities = pgTable("company_activities", {
