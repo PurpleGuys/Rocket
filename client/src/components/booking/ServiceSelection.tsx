@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { apiRequest } from "@/lib/queryClient";
 import { Service } from "@shared/schema";
-import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2, Building2, Construction } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -34,6 +34,10 @@ export default function ServiceSelection() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [priceData, setPriceData] = useState<any>(null);
+  
+  // Variables pour la sélection du lieu de livraison
+  const [deliveryLocationType, setDeliveryLocationType] = useState<"company" | "construction_site">("company");
+  const [constructionSiteContactPhone, setConstructionSiteContactPhone] = useState("");
   
   // Nouvelles variables pour la durée de location
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -401,11 +405,96 @@ export default function ServiceSelection() {
           )}
         </div>
 
+        {/* Delivery Location Type Selection */}
+        <div>
+          <div className="flex items-center mb-4">
+            <MapPin className="h-5 w-5 mr-2 text-red-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Lieu de livraison</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div 
+              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                deliveryLocationType === "company" 
+                  ? "border-red-500 bg-red-50" 
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+              onClick={() => setDeliveryLocationType("company")}
+            >
+              <div className="flex items-center space-x-3">
+                <div className={`w-4 h-4 rounded-full border-2 ${
+                  deliveryLocationType === "company" 
+                    ? "border-red-500 bg-red-500" 
+                    : "border-gray-300"
+                }`}>
+                  {deliveryLocationType === "company" && (
+                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                  )}
+                </div>
+                <Building2 className="h-5 w-5 text-red-600" />
+                <div>
+                  <div className="font-medium">Adresse de l'entreprise</div>
+                  <div className="text-sm text-gray-600">Livraison à votre adresse principale</div>
+                </div>
+              </div>
+            </div>
+            
+            <div 
+              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                deliveryLocationType === "construction_site" 
+                  ? "border-red-500 bg-red-50" 
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+              onClick={() => setDeliveryLocationType("construction_site")}
+            >
+              <div className="flex items-center space-x-3">
+                <div className={`w-4 h-4 rounded-full border-2 ${
+                  deliveryLocationType === "construction_site" 
+                    ? "border-red-500 bg-red-500" 
+                    : "border-gray-300"
+                }`}>
+                  {deliveryLocationType === "construction_site" && (
+                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                  )}
+                </div>
+                <Construction className="h-5 w-5 text-red-600" />
+                <div>
+                  <div className="font-medium">Chantier spécifique</div>
+                  <div className="text-sm text-gray-600">Livraison sur un chantier</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Construction Site Contact Phone */}
+          {deliveryLocationType === "construction_site" && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <Label htmlFor="constructionSiteContactPhone" className="text-sm font-medium text-amber-800">
+                Numéro de téléphone de contact sur le chantier *
+              </Label>
+              <Input
+                id="constructionSiteContactPhone"
+                type="tel"
+                placeholder="Ex: 06 12 34 56 78"
+                value={constructionSiteContactPhone}
+                onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
+                className="mt-2"
+                required
+              />
+              <p className="text-xs text-amber-700 mt-1">
+                Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Address Section */}
         <div>
           <div className="flex items-center mb-4">
             <MapPin className="h-5 w-5 mr-2 text-red-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Adresse de livraison</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {deliveryLocationType === "company" ? "Confirmation de l'adresse" : "Adresse du chantier"}
+            </h3>
           </div>
           
           <div className="space-y-4">
