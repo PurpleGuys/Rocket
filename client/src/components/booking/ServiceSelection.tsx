@@ -47,7 +47,7 @@ export default function ServiceSelection() {
   const [durationDays, setDurationDays] = useState<number>(7); // Durée par défaut: 1 semaine
   
   // Variables pour l'option BSD et FID
-  const [bsdOption, setBsdOption] = useState<boolean>(true); // BSD obligatoire par défaut
+  const [bsdOption, setBsdOption] = useState<boolean>(false); // BSD optionnel par défaut
   const [fidData, setFidData] = useState<any>(null);
   const [showFidForm, setShowFidForm] = useState(false);
 
@@ -220,7 +220,7 @@ export default function ServiceSelection() {
       return;
     }
 
-    // Validation FID obligatoire pour l'option BSD
+    // Validation FID obligatoire seulement si l'option BSD est activée
     if (bsdOption && !fidData) {
       toast({
         title: "FID obligatoire",
@@ -399,7 +399,7 @@ export default function ServiceSelection() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez votre benne</h3>
           {Array.isArray(services) && services.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-6">
               {services.map((service: Service) => (
                 <div key={service.id}>
                   <Card 
@@ -410,38 +410,52 @@ export default function ServiceSelection() {
                     }`}
                     onClick={() => handleServiceSelect(service)}
                   >
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
+                    <CardContent className="p-6">
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {/* Image plus grande */}
                         {service.imageUrl && (
-                          <ServiceImageGallery 
-                            images={[{
-                              url: service.imageUrl, 
-                              alt: service.name,
-                              caption: service.description || ''
-                            }]}
-                            className="w-full h-32 object-cover rounded-md"
-                          />
-                        )}
-                        
-                        <div>
-                          <h4 className="font-semibold text-lg">{service.name}</h4>
-                          <p className="text-gray-600 text-sm">{service.description}</p>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="text-lg font-bold text-red-600">
-                            À partir de {service.basePrice}€/jour
-                          </div>
-                          <Badge variant="outline">
-                            {service.volume}m³
-                          </Badge>
-                        </div>
-                        
-                        {selectedServiceId === service.id && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <Badge className="bg-red-600 text-white">✓ Sélectionné</Badge>
+                          <div className="md:col-span-1">
+                            <img 
+                              src={service.imageUrl}
+                              alt={service.name}
+                              className="w-full h-48 md:h-56 object-cover rounded-lg shadow-md"
+                            />
                           </div>
                         )}
+                        
+                        {/* Informations du service */}
+                        <div className={`${service.imageUrl ? 'md:col-span-2' : 'md:col-span-3'} flex flex-col justify-between`}>
+                          <div>
+                            <h4 className="font-bold text-xl text-gray-900 mb-2">{service.name}</h4>
+                            <p className="text-gray-600 text-base mb-4">{service.description}</p>
+                            
+                            {/* Caractéristiques techniques */}
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                              <div className="bg-gray-50 p-3 rounded-lg">
+                                <div className="text-sm text-gray-500">Volume</div>
+                                <div className="font-semibold text-lg">{service.volume}m³</div>
+                              </div>
+                              {service.length && service.width && service.height && (
+                                <div className="bg-gray-50 p-3 rounded-lg">
+                                  <div className="text-sm text-gray-500">Dimensions</div>
+                                  <div className="font-semibold text-sm">{service.length} × {service.width} × {service.height}m</div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Prix et sélection */}
+                          <div className="flex justify-between items-center">
+                            <div className="text-2xl font-bold text-red-600">
+                              À partir de {service.basePrice}€/jour
+                            </div>
+                            {selectedServiceId === service.id && (
+                              <Badge className="bg-red-600 text-white text-sm px-3 py-1">
+                                ✓ Sélectionné
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -482,27 +496,27 @@ export default function ServiceSelection() {
           </div>
         )}
 
-        {/* Option BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE */}
+        {/* Option BSD (Bordereau de Suivi des Déchets) - OPTIONNELLE */}
         {selectedWasteType && (
-          <Card className="border-red-200 bg-red-50">
+          <Card className="border-orange-200 bg-orange-50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
-                  <Shield className="h-5 w-5 mr-2 text-red-600" />
+                  <Shield className="h-5 w-5 mr-2 text-orange-600" />
                   <div className="flex items-center">
                     <input
                       type="checkbox"
                       id="bsd-option"
                       checked={bsdOption}
-                      disabled={true}
-                      className="h-4 w-4 text-red-600 bg-red-100 border-red-300 rounded opacity-75"
+                      onChange={(e) => setBsdOption(e.target.checked)}
+                      className="h-4 w-4 text-orange-600 bg-orange-100 border-orange-300 rounded cursor-pointer"
                     />
-                    <label htmlFor="bsd-option" className="ml-3 text-lg font-semibold text-gray-900">
-                      BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE
+                    <label htmlFor="bsd-option" className="ml-3 text-lg font-semibold text-gray-900 cursor-pointer">
+                      BSD (Bordereau de Suivi des Déchets)
                     </label>
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
                   +15€
                 </Badge>
               </div>

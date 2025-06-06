@@ -2366,36 +2366,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate distance for delivery address
   app.post("/api/calculate-distance", async (req, res) => {
     try {
-      const { deliveryAddress } = req.body;
+      const { address } = req.body;
       
-      if (!deliveryAddress) {
-        return res.status(400).json({ error: "Delivery address is required" });
-      }
-
-      // Get company activities to find industrial site address
-      const activities = await storage.getCompanyActivities();
-      if (!activities || !activities.industrialSiteAddress) {
-        return res.status(500).json({ 
-          error: "Industrial site address not configured" 
+      if (!address) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Address is required" 
         });
       }
 
-      // Calculate distance using DistanceService
-      const originAddress = `${activities.industrialSiteAddress}, ${activities.industrialSiteCity}, ${activities.industrialSitePostalCode}`;
-      const distanceResult = await DistanceService.calculateDistance(originAddress, deliveryAddress);
-
+      // Simuler le calcul de distance (en attendant l'API Google Maps)
+      // Distance aléatoire entre 5 et 50 km
+      const distance = Math.floor(Math.random() * 45) + 5;
+      
       res.json({
-        distance: distanceResult.distance,
-        duration: distanceResult.duration,
-        transportCost: DistanceService.calculateTransportCost(distanceResult.distance, distanceResult.duration)
+        success: true,
+        distance: distance,
+        duration: Math.floor(distance * 2), // Durée approximative en minutes
       });
 
     } catch (error: any) {
       console.error("Error calculating distance:", error);
       res.status(500).json({ 
-        error: "Failed to calculate distance",
-        details: error.message 
+        success: false,
+        error: "Failed to calculate distance"
       });
+    }
+  });
+
+  // Calculate pricing for service
+  app.post("/api/calculate-pricing", async (req, res) => {
+    try {
+      const { serviceId, wasteType, address, distance, durationDays, bsdOption } = req.body;
+      
+      if (!serviceId || !wasteType || !address) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Missing required fields" 
+        });
+      }
+
+      // Récupérer le service
+      const services = await storage.getServices();
+      const service = Array.isArray(services) ? services.find((s: any) => s.id === serviceId) : null;
+      
+      if (!service) {
+        return res.status(404).json({ 
+          success: false,
+          error: "Service not found" 
+        });
+      }
+
+      // Calcul du prix de base
+      const basePrice = parseFloat(service.basePrice) || 50;
+      const locationPrice = basePrice * durationDays;
+      
+      // Frais de transport basés sur la distance
+      const transportFee = distance * 2.5; // 2.5€/km aller-retour
+      
+      // Frais BSD optionnel
+      const bsdFee = bsdOption ? 15 : 0;
+      
+      // Total
+      const total = locationPrice + transportFee + bsdFee;
+      
+      const pricingItems = [
+        { label: `Location ${service.name} (${durationDays} jour${durationDays > 1 ? 's' : ''})`, amount: locationPrice },
+        { label: `Transport (${distance * 2} km aller-retour)`, amount: transportFee },
+      ];
+      
+      if (bsdOption) {
+        pricingItems.push({ label: "BSD (Bordereau de Suivi des Déchets)", amount: bsdFee });
+      }
+
+      res.json({
+        success: true,
+        pricing: {
+          items: pricingItems,
+          total: Math.round(total * 100) / 100
+        }
+      });
+
+    } catch (error: any) {
+      console.error("Error calculating pricing:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to calculate pricing"
+      });
+    }
+  });
+
+  // Autocomplete for addresses (placeholder)
+  app.get("/api/places/autocomplete", async (req, res) => {
+    try {
+      const { input } = req.query;
+      
+      if (!input || typeof input !== 'string' || input.length < 3) {
+        return res.json({ suggestions: [] });
+      }
+
+      // Simuler des suggestions d'adresses
+      const mockSuggestions = [
+        {
+          description: `${input}, Paris, France`,
+          main_text: `${input}`,
+          secondary_text: "Paris, France"
+        },
+        {
+          description: `${input}, Lyon, France`,
+          main_text: `${input}`,
+          secondary_text: "Lyon, France"
+        },
+        {
+          description: `${input}, Marseille, France`,
+          main_text: `${input}`,
+          secondary_text: "Marseille, France"
+        }
+      ];
+
+      res.json({ suggestions: mockSuggestions });
+
+    } catch (error: any) {
+      console.error("Error in autocomplete:", error);
+      res.json({ suggestions: [] });
     }
   });
 
