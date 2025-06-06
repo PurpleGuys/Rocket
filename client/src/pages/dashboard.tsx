@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +53,170 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
+
+// Composant Google Maps pour affichage interactif
+function GoogleMapComponent({ clients }: { clients: any[] }) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [geocodingError, setGeocodingError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY}&libraries=geometry,places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => setIsLoaded(true);
+    script.onerror = () => setGeocodingError('Erreur de chargement de l\'API Google Maps');
+    
+    if (!document.querySelector(`script[src*="maps.googleapis.com"]`)) {
+      document.head.appendChild(script);
+    } else {
+      setIsLoaded(true);
+    }
+
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded || !mapRef.current || !clients?.length) return;
+
+    initializeMap();
+  }, [isLoaded, clients]);
+
+  const initializeMap = async () => {
+    if (!mapRef.current) return;
+
+    // Centre de la France pour l'initialisation
+    const map = new google.maps.Map(mapRef.current, {
+      zoom: 6,
+      center: { lat: 46.603354, lng: 1.888334 }, // Centre de la France
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: [
+        {
+          featureType: "poi.business",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "labels.icon",
+          stylers: [{ visibility: "off" }]
+        }
+      ]
+    });
+
+    mapInstanceRef.current = map;
+
+    // Nettoyer les anciens marqueurs
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    // Créer les marqueurs pour chaque client
+    const bounds = new google.maps.LatLngBounds();
+    let validLocations = 0;
+
+    for (const client of clients) {
+      if (!client.address || !client.city) continue;
+
+      const fullAddress = `${client.address}, ${client.postalCode || ''} ${client.city}, France`;
+      
+      try {
+        const results = await geocodeAddress(fullAddress);
+        if (results) {
+          const marker = new google.maps.Marker({
+            position: results,
+            map: map,
+            title: client.companyName || `${client.firstName} ${client.lastName}`,
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+                  <circle cx="12" cy="10" r="3" fill="#ffffff"/>
+                </svg>
+              `),
+              scaledSize: new google.maps.Size(24, 24),
+              anchor: new google.maps.Point(12, 24)
+            }
+          });
+
+          // InfoWindow pour afficher les détails
+          const infoWindow = new google.maps.InfoWindow({
+            content: `
+              <div class="p-3 max-w-xs">
+                <h3 class="font-semibold text-gray-800">${client.companyName || 'Particulier'}</h3>
+                <p class="text-sm text-gray-600">${client.firstName} ${client.lastName}</p>
+                <p class="text-sm text-gray-500 mt-1">${client.address}</p>
+                <p class="text-sm text-gray-500">${client.postalCode || ''} ${client.city}</p>
+                ${client.phone ? `<p class="text-sm text-blue-600 mt-1">📞 ${client.phone}</p>` : ''}
+                ${client.siret ? `<p class="text-xs text-gray-400 mt-1">SIRET: ${client.siret}</p>` : ''}
+              </div>
+            `
+          });
+
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+
+          markersRef.current.push(marker);
+          bounds.extend(results);
+          validLocations++;
+        }
+      } catch (error) {
+        console.warn('Erreur géocodage pour:', fullAddress, error);
+      }
+    }
+
+    // Ajuster la vue pour inclure tous les marqueurs
+    if (validLocations > 0) {
+      if (validLocations === 1) {
+        map.setCenter(bounds.getCenter());
+        map.setZoom(12);
+      } else {
+        map.fitBounds(bounds);
+        map.panToBounds(bounds);
+      }
+    }
+  };
+
+  const geocodeAddress = (address: string): Promise<google.maps.LatLng | null> => {
+    return new Promise((resolve) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          resolve(results[0].geometry.location);
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  };
+
+  if (geocodingError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+        <MapPin className="h-12 w-12 text-red-500 mb-4" />
+        <h3 className="text-lg font-medium text-gray-700 mb-2">Erreur de chargement</h3>
+        <p className="text-gray-500">{geocodingError}</p>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full mb-4"></div>
+        <p className="text-gray-600">Chargement de la carte...</p>
+      </div>
+    );
+  }
+
+  return <div ref={mapRef} className="w-full h-full" />;
+}
 
 // Composant de carte géographique des clients
 function ClientMapPage() {
@@ -153,25 +317,30 @@ function ClientMapPage() {
             </div>
           </div>
 
-          {/* Zone de carte - Placeholder pour l'intégration Google Maps */}
-          <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
-            <MapPin className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Carte Interactive</h3>
-            <p className="text-gray-500 mb-4">
-              La carte interactive nécessite une clé API Google Maps pour afficher les emplacements clients.
-            </p>
-            <Button 
-              onClick={() => {
-                toast({
-                  title: "Information",
-                  description: "Intégration Google Maps en cours de développement. Consultez la liste des adresses ci-dessous.",
-                });
-              }}
-              variant="outline"
+          {/* Zone de carte interactive Google Maps */}
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-red-600" />
+                Carte Interactive des Clients
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Localisation géographique des entreprises clientes
+              </p>
+            </div>
+            <div 
+              id="google-map"
+              className="w-full h-96 bg-gray-100 flex items-center justify-center"
             >
-              <Settings className="h-4 w-4 mr-2" />
-              Configurer l'API Maps
-            </Button>
+              {clients && clients.length > 0 ? (
+                <GoogleMapComponent clients={clients} />
+              ) : (
+                <div className="text-center">
+                  <MapPin className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <p className="text-gray-500">Aucune adresse client disponible pour la cartographie</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Liste des clients par ville */}
