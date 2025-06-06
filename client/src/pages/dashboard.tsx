@@ -54,6 +54,225 @@ import {
   TrendingDown
 } from "lucide-react";
 
+// Composant de carte géographique des clients
+function ClientMapPage() {
+  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const { toast } = useToast();
+
+  // Récupérer tous les utilisateurs avec leurs adresses
+  const { data: clients, isLoading } = useQuery({
+    queryKey: ['/api/admin/users'],
+    select: (data) => (data || []).filter((user: any) => 
+      user.address && user.city && user.role === 'user'
+    )
+  });
+
+  // Initialiser la carte
+  useEffect(() => {
+    if (typeof window !== 'undefined' && clients?.length > 0) {
+      loadGoogleMaps();
+    }
+  }, [clients]);
+
+  const loadGoogleMaps = () => {
+    // Pour l'instant, utiliser une carte simple avec les adresses listées
+    // L'intégration Google Maps nécessitera une clé API
+    setIsMapLoaded(true);
+  };
+
+  const getClientStats = () => {
+    const totalClients = clients?.length || 0;
+    const citiesCount = new Set(clients?.map((c: any) => c.city)).size;
+    const companiesCount = clients?.filter((c: any) => c.companyName).length;
+    
+    return { totalClients, citiesCount, companiesCount };
+  };
+
+  const { totalClients, citiesCount, companiesCount } = getClientStats();
+
+  // Grouper les clients par ville
+  const clientsByCity = clients?.reduce((acc: any, client: any) => {
+    const city = client.city;
+    if (!acc[city]) {
+      acc[city] = [];
+    }
+    acc[city].push(client);
+    return acc;
+  }, {}) || {};
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-red-600" />
+            Répartition Géographique des Clients
+          </CardTitle>
+          <CardDescription>
+            Visualisation des adresses d'entreprises de vos clients
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Statistiques rapides */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-600">Total Clients</p>
+                  <p className="text-2xl font-bold text-blue-700">{totalClients}</p>
+                </div>
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-green-600">Villes Couvertes</p>
+                  <p className="text-2xl font-bold text-green-700">{citiesCount}</p>
+                </div>
+                <MapPin className="h-8 w-8 text-green-500" />
+              </div>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-purple-600">Entreprises</p>
+                  <p className="text-2xl font-bold text-purple-700">{companiesCount}</p>
+                </div>
+                <Settings className="h-8 w-8 text-purple-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Zone de carte - Placeholder pour l'intégration Google Maps */}
+          <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
+            <MapPin className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-700 mb-2">Carte Interactive</h3>
+            <p className="text-gray-500 mb-4">
+              La carte interactive nécessite une clé API Google Maps pour afficher les emplacements clients.
+            </p>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Information",
+                  description: "Intégration Google Maps en cours de développement. Consultez la liste des adresses ci-dessous.",
+                });
+              }}
+              variant="outline"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Configurer l'API Maps
+            </Button>
+          </div>
+
+          {/* Liste des clients par ville */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">Répartition par Ville</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(clientsByCity).map(([city, cityClients]: [string, any]) => (
+                <Card key={city} className="border-l-4 border-l-red-500">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      {city}
+                      <Badge variant="secondary">{cityClients.length}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {cityClients.slice(0, 3).map((client: any) => (
+                        <div key={client.id} className="flex items-center gap-2 text-sm">
+                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <div className="flex-1">
+                            <div className="font-medium">{client.companyName || `${client.firstName} ${client.lastName}`}</div>
+                            <div className="text-gray-500 text-xs">{client.address}</div>
+                          </div>
+                        </div>
+                      ))}
+                      {cityClients.length > 3 && (
+                        <div className="text-xs text-gray-500 mt-2">
+                          +{cityClients.length - 3} autres clients
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Liste détaillée des clients */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Liste Détaillée des Adresses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Entreprise</TableHead>
+                  <TableHead>Adresse Complète</TableHead>
+                  <TableHead>Contact</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {clients?.map((client: any) => (
+                  <TableRow key={client.id}>
+                    <TableCell>
+                      <div className="font-medium">{client.firstName} {client.lastName}</div>
+                      <div className="text-sm text-gray-500">{client.email}</div>
+                    </TableCell>
+                    <TableCell>
+                      {client.companyName ? (
+                        <div>
+                          <div className="font-medium">{client.companyName}</div>
+                          {client.siret && (
+                            <div className="text-sm text-gray-500">SIRET: {client.siret}</div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">Particulier</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div>{client.address}</div>
+                        <div className="text-sm text-gray-500">
+                          {client.postalCode} {client.city}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {client.phone && (
+                        <div className="flex items-center gap-1 text-sm">
+                          <Phone className="h-3 w-3" />
+                          {client.phone}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // Composant de gestion complète des utilisateurs
 function UsersManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -4628,6 +4847,8 @@ export default function Dashboard() {
         return <OrdersPage />;
       case "users":
         return <UsersManagementPage />;
+      case "client-map":
+        return <ClientMapPage />;
       case "configuration":
         return <ConfigurationPage />;
       case "activities":

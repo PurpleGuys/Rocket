@@ -18,7 +18,8 @@ import {
   ChevronRight,
   Home,
   LogOut,
-  Users
+  Users,
+  MapPin
 } from "lucide-react";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 
@@ -75,6 +76,12 @@ export default function Sidebar({ className }: SidebarProps) {
       href: `${baseUrl}/users`,
       icon: Users,
       description: "Vérification et gestion des comptes"
+    },
+    {
+      title: "Carte des Clients",
+      href: `${baseUrl}/client-map`,
+      icon: MapPin,
+      description: "Répartition géographique des clients"
     },
     {
       title: "Prix de Location",
