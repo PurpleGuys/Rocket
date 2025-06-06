@@ -222,74 +222,78 @@ export default function Home() {
           </p>
         </div>
 
+        {/* DELIVERY LOCATION - FORCED DISPLAY */}
+        <div style={{
+          backgroundColor: '#ff0000', 
+          color: 'white', 
+          padding: '30px', 
+          margin: '20px auto',
+          maxWidth: '800px',
+          borderRadius: '15px',
+          border: '5px solid #000000',
+          textAlign: 'center'
+        }}>
+          <h1 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '25px'}}>
+            🏗️ LIEU DE LIVRAISON DE VOTRE BENNE
+          </h1>
+          
+          <div style={{display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '25px'}}>
+            <button style={{
+              padding: '20px',
+              backgroundColor: '#ffffff',
+              color: '#000000',
+              border: '3px solid #0000ff',
+              borderRadius: '10px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              minWidth: '250px'
+            }}>
+              🏢 ADRESSE ENTREPRISE
+            </button>
+            
+            <button style={{
+              padding: '20px',
+              backgroundColor: '#ffffff',
+              color: '#000000',
+              border: '3px solid #0000ff',
+              borderRadius: '10px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              minWidth: '250px'
+            }}>
+              🚧 CHANTIER SPECIFIQUE
+            </button>
+          </div>
+          
+          <div style={{
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            padding: '20px',
+            borderRadius: '10px',
+            border: '3px solid #000000'
+          }}>
+            <label style={{fontWeight: 'bold', fontSize: '18px', display: 'block', marginBottom: '10px'}}>
+              📞 TELEPHONE CONTACT CHANTIER
+            </label>
+            <input
+              type="tel"
+              placeholder="06 12 34 56 78"
+              style={{
+                width: '100%',
+                padding: '15px',
+                fontSize: '18px',
+                border: '3px solid #000000',
+                borderRadius: '8px'
+              }}
+            />
+          </div>
+        </div>
+
         {/* Quick Booking Form */}
         <Card className="max-w-4xl mx-auto shadow-xl">
           <CardContent className="p-8">
-            {/* DELIVERY LOCATION SELECTION - DIRECT ON HOME PAGE */}
-            <div style={{backgroundColor: '#fef3c7', border: '3px solid #f59e0b', padding: '25px', borderRadius: '12px', marginBottom: '30px'}}>
-              <h2 style={{fontSize: '22px', fontWeight: 'bold', marginBottom: '20px', color: '#92400e', textAlign: 'center'}}>
-                🏗️ OÙ SOUHAITEZ-VOUS LA LIVRAISON DE VOTRE BENNE ?
-              </h2>
-              
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px'}}>
-                <div 
-                  style={{
-                    padding: '20px',
-                    border: '3px solid #3b82f6',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    backgroundColor: '#dbeafe',
-                    textAlign: 'center'
-                  }}
-                  onClick={() => {
-                    console.log('Company address selected');
-                  }}
-                >
-                  <div style={{fontSize: '40px', marginBottom: '10px'}}>🏢</div>
-                  <div style={{fontWeight: 'bold', fontSize: '18px'}}>Adresse de l'entreprise</div>
-                  <div style={{fontSize: '14px', color: '#6b7280'}}>Livraison à votre adresse principale</div>
-                </div>
-                
-                <div 
-                  style={{
-                    padding: '20px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    backgroundColor: 'white',
-                    textAlign: 'center'
-                  }}
-                  onClick={() => {
-                    console.log('Construction site selected');
-                  }}
-                >
-                  <div style={{fontSize: '40px', marginBottom: '10px'}}>🚧</div>
-                  <div style={{fontWeight: 'bold', fontSize: '18px'}}>Chantier spécifique</div>
-                  <div style={{fontSize: '14px', color: '#6b7280'}}>Livraison sur un chantier</div>
-                </div>
-              </div>
-              
-              <div style={{padding: '20px', backgroundColor: '#fef2f2', border: '2px solid #fca5a5', borderRadius: '8px'}}>
-                <label style={{fontWeight: 'bold', color: '#dc2626', marginBottom: '10px', display: 'block'}}>
-                  📞 Numéro de téléphone de contact sur le chantier
-                </label>
-                <input
-                  type="tel"
-                  placeholder="Ex: 06 12 34 56 78"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '2px solid #f87171',
-                    borderRadius: '6px',
-                    fontSize: '16px'
-                  }}
-                />
-                <p style={{fontSize: '12px', color: '#dc2626', marginTop: '8px'}}>
-                  Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
-                </p>
-              </div>
-            </div>
-
             <ServiceSelection />
           </CardContent>
         </Card>
