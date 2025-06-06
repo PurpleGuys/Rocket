@@ -447,7 +447,7 @@ export default function ServiceSelection() {
                           {/* Prix et sélection */}
                           <div className="flex justify-between items-center">
                             <div className="text-2xl font-bold text-red-600">
-                              À partir de {service.basePrice}€/jour
+                              À partir de {service.basePrice}€
                             </div>
                             {selectedServiceId === service.id && (
                               <Badge className="bg-red-600 text-white text-sm px-3 py-1">
