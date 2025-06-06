@@ -421,7 +421,14 @@ export default function ServiceSelection() {
                 type="tel"
                 placeholder="06 12 34 56 78"
                 value={constructionSiteContactPhone}
-                onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
+                onChange={(e) => {
+                  // Formatage automatique du numéro de téléphone français
+                  const numbersOnly = e.target.value.replace(/\D/g, '');
+                  if (numbersOnly.length <= 10) {
+                    const formatted = numbersOnly.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+                    setConstructionSiteContactPhone(formatted);
+                  }
+                }}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -761,9 +768,14 @@ export default function ServiceSelection() {
                   id="postalCode"
                   type="text"
                   value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
+                  onChange={(e) => {
+                    // Formatage automatique code postal français (5 chiffres uniquement)
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+                    setPostalCode(value);
+                  }}
                   placeholder="75001"
                   className="mt-1"
+                  maxLength={5}
                 />
               </div>
               <div>
@@ -772,7 +784,13 @@ export default function ServiceSelection() {
                   id="city"
                   type="text"
                   value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  onChange={(e) => {
+                    // Formatage automatique ville (première lettre majuscule)
+                    const value = e.target.value.split(' ').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    ).join(' ');
+                    setCity(value);
+                  }}
                   placeholder="Paris"
                   className="mt-1"
                 />
