@@ -217,6 +217,39 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Calculez le prix de votre benne en temps réel
           </h1>
+          
+          {/* FORCED DELIVERY LOCATION SECTION */}
+          <div className="bg-red-600 text-white p-8 rounded-lg mb-8 shadow-2xl border-4 border-black">
+            <h2 className="text-3xl font-bold text-center mb-6">
+              🏗️ OÙ SOUHAITEZ-VOUS LA LIVRAISON ?
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <button className="bg-white text-black p-6 rounded-lg border-2 border-blue-600 hover:bg-blue-50 font-bold text-lg transition-all">
+                🏢 ADRESSE DE L'ENTREPRISE
+                <div className="text-sm font-normal mt-2">Livraison à votre adresse principale</div>
+              </button>
+              
+              <button className="bg-white text-black p-6 rounded-lg border-2 border-blue-600 hover:bg-blue-50 font-bold text-lg transition-all">
+                🚧 CHANTIER SPÉCIFIQUE
+                <div className="text-sm font-normal mt-2">Livraison sur un chantier</div>
+              </button>
+            </div>
+            
+            <div className="bg-white text-black p-6 rounded-lg border-2 border-black">
+              <label className="block font-bold text-lg mb-3">
+                📞 TÉLÉPHONE DE CONTACT CHANTIER
+              </label>
+              <input
+                type="tel"
+                placeholder="Ex: 06 12 34 56 78"
+                className="w-full p-4 text-lg border-2 border-gray-400 rounded"
+              />
+              <p className="text-sm mt-2 text-gray-700">
+                Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
+              </p>
+            </div>
+          </div>
           <p className="text-xl text-gray-600">
             Choisissez votre benne, indiquez vos déchets et obtenez instantanément votre devis
           </p>
