@@ -1803,11 +1803,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         breakdown.transport = transportCost;
         totalPrice += transportCost;
 
-        // Add treatment costs for each waste type
+        // Add treatment costs for each waste type (prix par tonne × tonnage max configuré)
+        const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
         for (const wasteTypeId of wasteTypes) {
           const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeId);
-          if (treatmentPricing) {
-            const treatmentCost = parseFloat(treatmentPricing.pricePerTon);
+          if (treatmentPricing && maxTonnage > 0) {
+            const pricePerTon = parseFloat(treatmentPricing.pricePerTon);
+            const treatmentCost = pricePerTon * maxTonnage;
             breakdown.treatment += treatmentCost;
             totalPrice += treatmentCost;
           }
@@ -2242,6 +2244,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error getting Maps API key:", error);
       res.status(500).json({ 
         error: "Failed to retrieve Maps configuration" 
+      });
+    }
+  });
+
+  // Places autocomplete endpoint with address component extraction
+  app.get("/api/places/autocomplete", async (req, res) => {
+    try {
+      const { input } = req.query;
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      
+      if (!apiKey) {
+        return res.status(500).json({ 
+          error: "Google Maps API key not configured" 
+        });
+      }
+
+      if (!input || typeof input !== 'string') {
+        return res.json({ suggestions: [] });
+      }
+
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=address&components=country:FR&key=${apiKey}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.status === 'OK') {
+        const suggestions = data.predictions.map((prediction: any) => ({
+          place_id: prediction.place_id,
+          description: prediction.description,
+          main_text: prediction.structured_formatting?.main_text || '',
+          secondary_text: prediction.structured_formatting?.secondary_text || ''
+        }));
+        
+        res.json({ suggestions });
+      } else {
+        res.json({ suggestions: [] });
+      }
+    } catch (error: any) {
+      console.error("Error fetching Places autocomplete:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch address suggestions" 
+      });
+    }
+  });
+
+  // Place details endpoint to get full address components
+  app.get("/api/places/details", async (req, res) => {
+    try {
+      const { place_id } = req.query;
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      
+      if (!apiKey) {
+        return res.status(500).json({ 
+          error: "Google Maps API key not configured" 
+        });
+      }
+
+      if (!place_id || typeof place_id !== 'string') {
+        return res.status(400).json({ 
+          error: "Place ID is required" 
+        });
+      }
+
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=address_components,formatted_address&key=${apiKey}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.result) {
+        const addressComponents = data.result.address_components;
+        
+        // Extract address components
+        let streetNumber = '';
+        let route = '';
+        let locality = '';
+        let postalCode = '';
+        let country = '';
+        
+        addressComponents.forEach((component: any) => {
+          const types = component.types;
+          
+          if (types.includes('street_number')) {
+            streetNumber = component.long_name;
+          } else if (types.includes('route')) {
+            route = component.long_name;
+          } else if (types.includes('locality')) {
+            locality = component.long_name;
+          } else if (types.includes('postal_code')) {
+            postalCode = component.long_name;
+          } else if (types.includes('country')) {
+            country = component.short_name;
+          }
+        });
+        
+        const street = `${streetNumber} ${route}`.trim();
+        
+        res.json({
+          success: true,
+          address: {
+            street: street,
+            city: locality,
+            postalCode: postalCode,
+            country: country,
+            formatted_address: data.result.formatted_address
+          }
+        });
+      } else {
+        res.status(404).json({ 
+          error: "Place not found" 
+        });
+      }
+    } catch (error: any) {
+      console.error("Error fetching Place details:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch place details" 
       });
     }
   });
