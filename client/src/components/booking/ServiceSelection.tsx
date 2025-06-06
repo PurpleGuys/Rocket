@@ -324,13 +324,11 @@ export default function ServiceSelection() {
                     <div className="grid md:grid-cols-3 gap-4">
                       {/* Image de la benne */}
                       <div className="md:col-span-1">
-                        {service.imageUrl && (
-                          <img 
-                            src={service.imageUrl} 
-                            alt={service.name}
-                            className="w-full h-32 object-contain bg-gray-50 rounded-lg"
-                          />
-                        )}
+                        <ServiceImageGallery 
+                          images={service.images || []}
+                          serviceName={service.name}
+                          className="w-full"
+                        />
                       </div>
                       
                       {/* Informations principales */}
