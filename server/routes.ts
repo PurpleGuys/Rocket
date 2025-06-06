@@ -2246,6 +2246,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calculate distance for delivery address
+  app.post("/api/calculate-distance", async (req, res) => {
+    try {
+      const { deliveryAddress } = req.body;
+      
+      if (!deliveryAddress) {
+        return res.status(400).json({ error: "Delivery address is required" });
+      }
+
+      // Get company activities to find industrial site address
+      const activities = await storage.getCompanyActivities();
+      if (!activities || !activities.industrialSiteAddress) {
+        return res.status(500).json({ 
+          error: "Industrial site address not configured" 
+        });
+      }
+
+      // Calculate distance using DistanceService
+      const originAddress = `${activities.industrialSiteAddress}, ${activities.industrialSiteCity}, ${activities.industrialSitePostalCode}`;
+      const distanceResult = await DistanceService.calculateDistance(originAddress, deliveryAddress);
+
+      res.json({
+        distance: distanceResult.distance,
+        duration: distanceResult.duration,
+        transportCost: DistanceService.calculateTransportCost(distanceResult.distance, distanceResult.duration)
+      });
+
+    } catch (error: any) {
+      console.error("Error calculating distance:", error);
+      res.status(500).json({ 
+        error: "Failed to calculate distance",
+        details: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

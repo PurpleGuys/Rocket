@@ -243,11 +243,26 @@ export default function AddressInput() {
           </div>
 
           {/* Delivery Distance Calculator */}
-          <div className="bg-slate-50 p-4 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium text-slate-700">Distance calculée:</span>
-                <span className="ml-2 text-lg font-semibold text-slate-900">{calculatedDistance} km</span>
+          {(formData.street && formData.city && formData.postalCode) && (
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <MapPin className="h-4 w-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">Distance de livraison:</span>
+                </div>
+                {isCalculatingDistance ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full"></div>
+                    <span className="text-sm text-slate-600">Calcul en cours...</span>
+                  </div>
+                ) : calculatedDistance !== null ? (
+                  <div className="flex items-center space-x-4">
+                    <span className="text-lg font-semibold text-slate-900">{calculatedDistance.toFixed(1)} km</span>
+                    <span className="text-sm text-slate-600">aller-retour</span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-amber-600">Distance non calculée</span>
+                )}
               </div>
               <div>
                 <span className="text-sm text-slate-600">Frais de livraison:</span>
