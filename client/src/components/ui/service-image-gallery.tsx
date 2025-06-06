@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Image as ImageIcon } from "lucide-react";
+import facePng from "@assets/Face.png";
+import withPersonPng from "@assets/22M3 petit man.png";
+import rightSidePng from "@assets/cotédroit.png";
+import leftSidePng from "@assets/cotégauche.png";
 
 interface ServiceImage {
   id: number;
@@ -13,31 +17,72 @@ interface ServiceImage {
 }
 
 interface ServiceImageGalleryProps {
-  images: ServiceImage[];
+  images?: ServiceImage[];
   serviceName: string;
+  serviceVolume?: number;
   className?: string;
 }
 
-export function ServiceImageGallery({ images, serviceName, className }: ServiceImageGalleryProps) {
+// Images de la benne 22m³ directement importées
+const benne22Images = [
+  {
+    id: 1,
+    imagePath: facePng,
+    imageType: 'face',
+    altText: 'Vue de face de la benne 22m³ Remondis',
+    isMain: true,
+    sortOrder: 1
+  },
+  {
+    id: 2,
+    imagePath: withPersonPng,
+    imageType: 'with_person',
+    altText: 'Benne 22m³ Remondis avec personne pour échelle',
+    isMain: false,
+    sortOrder: 2
+  },
+  {
+    id: 3,
+    imagePath: rightSidePng,
+    imageType: 'side_right',
+    altText: 'Vue du côté droit de la benne 22m³ Remondis',
+    isMain: false,
+    sortOrder: 3
+  },
+  {
+    id: 4,
+    imagePath: leftSidePng,
+    imageType: 'side_left',
+    altText: 'Vue du côté gauche de la benne 22m³ Remondis',
+    isMain: false,
+    sortOrder: 4
+  }
+];
+
+export function ServiceImageGallery({ images, serviceName, serviceVolume, className }: ServiceImageGalleryProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  if (!images || images.length === 0) {
+  // Utiliser les images de la benne 22m³ si le service est de 22m³
+  const imagesToShow = serviceVolume === 22 ? benne22Images : (images || []);
+
+  if (!imagesToShow || imagesToShow.length === 0) {
     return (
       <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-        <span className="text-gray-500">Aucune image disponible</span>
+        <ImageIcon className="h-12 w-12 text-gray-400 mb-2" />
+        <span className="text-gray-500">Image bientôt disponible</span>
       </div>
     );
   }
 
-  const currentImage = images[currentImageIndex];
-  const hasMultipleImages = images.length > 1;
+  const currentImage = imagesToShow[currentImageIndex];
+  const hasMultipleImages = imagesToShow.length > 1;
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % imagesToShow.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev) => (prev - 1 + imagesToShow.length) % imagesToShow.length);
   };
 
   const getImageTypeLabel = (imageType: string) => {
@@ -101,7 +146,7 @@ export function ServiceImageGallery({ images, serviceName, className }: ServiceI
             </span>
             {hasMultipleImages && (
               <span className="text-sm text-gray-500">
-                {currentImageIndex + 1} / {images.length}
+                {currentImageIndex + 1} / {imagesToShow.length}
               </span>
             )}
           </div>
@@ -109,7 +154,7 @@ export function ServiceImageGallery({ images, serviceName, className }: ServiceI
           {/* Thumbnails pour navigation rapide */}
           {hasMultipleImages && (
             <div className="mt-3 flex gap-2 overflow-x-auto">
-              {images.map((image, index) => (
+              {imagesToShow.map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setCurrentImageIndex(index)}
