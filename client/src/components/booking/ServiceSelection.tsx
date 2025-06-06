@@ -124,15 +124,20 @@ export default function ServiceSelection() {
     setDistanceError("");
     
     try {
-      const response = await apiRequest('/api/calculate-distance', {
+      const response = await fetch('/api/calculate-distance', {
         method: 'POST',
-        body: { address: address.trim() }
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address: address.trim() })
       });
 
-      if (response.success) {
-        setDistance(response.distance);
+      const data = await response.json();
+
+      if (data.success) {
+        setDistance(data.distance);
       } else {
-        setDistanceError(response.error || "Erreur lors du calcul de distance");
+        setDistanceError(data.error || "Erreur lors du calcul de distance");
         setDistance(0);
       }
     } catch (error) {
@@ -149,20 +154,25 @@ export default function ServiceSelection() {
     if (!selectedServiceId || !selectedWasteType || !deliveryAddress) return;
 
     try {
-      const response = await apiRequest('/api/calculate-pricing', {
+      const response = await fetch('/api/calculate-pricing', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           serviceId: selectedServiceId,
           wasteType: selectedWasteType,
           address: deliveryAddress,
           distance: distance,
           durationDays: durationDays,
           bsdOption: bsdOption
-        }
+        })
       });
 
-      if (response.success) {
-        setPriceData(response.pricing);
+      const data = await response.json();
+
+      if (data.success) {
+        setPriceData(data.pricing);
       }
     } catch (error) {
       console.error('Pricing calculation error:', error);

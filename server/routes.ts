@@ -1681,7 +1681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate pricing with real distance and duration supplements
   app.post("/api/calculate-pricing", async (req, res) => {
     try {
-      const { serviceId, wasteTypes, address, postalCode, city, durationDays = 7 } = req.body;
+      const { serviceId, wasteType, address, postalCode, city, durationDays = 7 } = req.body;
 
       // Get service pricing
       const service = await storage.getService(serviceId);
@@ -1752,14 +1752,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         breakdown.transport = transportCost;
 
-        // Add treatment costs for each waste type (prix par tonne × tonnage max configuré)
+        // Add treatment costs for the selected waste type (prix par tonne × tonnage max configuré)
         const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
-        for (const wasteTypeId of wasteTypes) {
-          const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeId);
-          if (treatmentPricing && maxTonnage > 0) {
-            const pricePerTon = parseFloat(treatmentPricing.pricePerTon);
-            const treatmentCost = pricePerTon * maxTonnage;
-            breakdown.treatment += treatmentCost;
+        if (wasteType && maxTonnage > 0) {
+          // Get waste type ID based on name
+          const wasteTypes = await storage.getWasteTypes();
+          const selectedWasteType = wasteTypes.find(wt => wt.name === wasteType);
+          
+          if (selectedWasteType) {
+            const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(selectedWasteType.id);
+            if (treatmentPricing) {
+              const pricePerTon = parseFloat(treatmentPricing.pricePerTon);
+              const treatmentCost = pricePerTon * maxTonnage;
+              breakdown.treatment += treatmentCost;
+            }
           }
         }
 
