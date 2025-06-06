@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -43,7 +44,9 @@ import {
   Lock,
   Unlock,
   CalendarCheck,
-  CalendarX
+  CalendarX,
+  Bell,
+  BellOff
 } from "lucide-react";
 
 // Composant de gestion complète des utilisateurs
@@ -147,6 +150,30 @@ function UsersManagementPage() {
       toast({
         title: "Erreur",
         description: error.message || "Impossible de supprimer l'utilisateur.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutation pour gérer les notifications d'inactivité
+  const toggleNotificationMutation = useMutation({
+    mutationFn: async ({ userId, enabled }: { userId: number; enabled: boolean }) => {
+      const response = await apiRequest("PATCH", `/api/admin/users/${userId}/notifications`, {
+        notifyOnInactivity: enabled
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Paramètres mis à jour",
+        description: "Les paramètres de notification ont été modifiés.",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de modifier les paramètres de notification.",
         variant: "destructive",
       });
     }
@@ -306,6 +333,7 @@ function UsersManagementPage() {
                 <TableHead>Entreprise</TableHead>
                 <TableHead>Rôle</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Notifications</TableHead>
                 <TableHead>Inscription</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -385,6 +413,30 @@ function UsersManagementPage() {
                           </>
                         )}
                       </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        {user.notifyOnInactivity ? (
+                          <Bell className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <BellOff className="h-4 w-4 text-gray-400" />
+                        )}
+                        <Switch
+                          checked={user.notifyOnInactivity || false}
+                          onCheckedChange={(checked) => 
+                            toggleNotificationMutation.mutate({ 
+                              userId: user.id, 
+                              enabled: checked 
+                            })
+                          }
+                          disabled={toggleNotificationMutation.isPending}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {user.notifyOnInactivity ? "Activées" : "Désactivées"}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>

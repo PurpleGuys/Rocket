@@ -1978,6 +1978,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route pour gérer les paramètres de notification d'inactivité (admin uniquement)
+  app.patch("/api/admin/users/:userId/notifications", authenticateToken, requireAdmin, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const { notifyOnInactivity } = req.body;
+
+      if (typeof notifyOnInactivity !== 'boolean') {
+        return res.status(400).json({ message: "Le paramètre notifyOnInactivity doit être un booléen" });
+      }
+
+      // Vérifier que l'utilisateur existe
+      const user = await storage.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+
+      // Mettre à jour le paramètre de notification
+      await storage.updateUserNotificationSettings(userId, notifyOnInactivity);
+
+      res.json({ 
+        message: "Paramètres de notification mis à jour",
+        notifyOnInactivity 
+      });
+    } catch (error: any) {
+      console.error("Erreur lors de la mise à jour des paramètres de notification:", error);
+      res.status(500).json({ message: "Erreur lors de la mise à jour des paramètres de notification: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
