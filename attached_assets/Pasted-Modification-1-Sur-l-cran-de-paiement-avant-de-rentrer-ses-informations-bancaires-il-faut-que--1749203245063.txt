@@ -1,0 +1,78 @@
+Modification +1 : 
+Sur l’écran de paiement avant de rentrer ses informations bancaires, il faut que tu retires la date car elle est déjà rentrée lors du devis. 
+
+Fonctionnalité + 6 : 
+Ajouter au formulaire d’inscription client une case pro ou particulier et s’il coche pro, il doit obligatoirement rentrer son numéro de TVA, SIRET et code APE. 
+
+Régle le formatage des adresses, le code postal et la ville doivent être pré remplis par les données google maps d’autocomplétion 
+
+Dans le footer il faut rajouter le MASE ISO Privé
+Rajouter un encart si d’autres demandes contactez nous etc 
+Au début avant la commande il faut faire une introduction une jolie mise en forme etc
+Réaliser une page FAQ en copiant le site 
+FAQ - questions et réponses
+Vous avez des questions sur la procédure de commande et d'élimination ?
+Vous cherchez des informations sur nos services de conteneurs et de location de toilettes ?
+Dans notre section FAQ, vous trouverez des réponses et des faits intéressants concernant votre commande dans la boutique REMONDIS. Cela commence par votre commande en ligne, se poursuit avec la mise en place et la collecte des conteneurs et se termine par le recyclage de vos déchets - au niveau local, régional et national.
+1. Questions générales sur l'ordonnance
+2. Questions sur le service de conteneurs
+3. Questions sur le service de location de toilettes
+4. Les questions concernant la livraison et la collecte
+Questions générales sur l'ordonnance
+ (1) Comment puis-je commander une solution d'élimination sur mesure auprès du magasin REMONDIS?
+C'est aussi simple que cela:
+1)  Sélection des déchets à éliminer
+2)  Indication du code postal de votre lieu de livraison
+3)  Choix de la solution d'élimination appropriée
+4)  Saisie de vos données personnelles
+5)  Paiement à l'avance
+6)  Vérifiez et envoyez votre commande - C'est fait !
+(2) Est-il possible de commander plusieurs conteneurs (différents) et des toilettes de location en même temps? 
+Si vous le souhaitez, vous pouvez commander jusqu'à cinq conteneurs différents. Veuillez noter qu'il peut ne pas être possible de fournir toutes les solutions d'élimination en une seule livraison en même temps. Votre interlocuteur personnel se fera un plaisir de vous informer à ce sujet et de fixer un rendez-vous avec vous.
+(3) Un enregistrement obligatoire est-il nécessaire pour passer une commande dans le magasin REMONDIS ? Dois-je créer mon propre compte client?
+Non, vous n'avez pas besoin de vous inscrire pour passer une commande dans le REMONDIS Shop! Toutefois, au cours du processus de commande, il vous sera demandé de saisir vos données personnelles pour le traitement de la commande et, le cas échéant, pour la facturation.
+(4) Quel est le coût de la commande dans la boutique REMONDIS? Devrai-je payer des frais supplémentaires par la suite?
+Le prix total indiqué dans le panier d'achat et également lorsque vous terminez votre commande est le prix complet. Cela vous garantit une période de stationnement de 14 jours pour le service de conteneurs, au moins quatre semaines pour les toilettes de chantier et trois jours pour les toilettes de manifestation. La période de location peut être prolongée à volonté moyennant une redevance appropriée. Il n'y a pas de coûts supplémentaires dans le cadre des conditions contractuelles convenues.
+(5) Existe-t-il une solution d'élimination pour l'accumulation régulière des déchets?
+Bien entendu, nos conteneurs et nos services d'élimination sont également à votre disposition à intervalles réguliers. Pour les clients commerciaux et les demandes individuelles d'élimination des déchets, nous vous proposons un service d'élimination des déchets sur mesure, que nous serions heureux de développer avec vous. Il suffit de nous contacter en utilisant notre formulaire de contact ou notre service d'assistance téléphonique gratuit +32 (0) 800 54 438!
+(6) Vous avez des questions concernant votre commande ou vous avez fait une erreur dans votre commande?
+Vous pouvez alors contacter directement votre interlocuteur personnel sur place. Vous le trouverez dans votre e-mail de confirmation de commande. Vous y trouverez un aperçu de votre commande ainsi que l'adresse de la société REMONDIS qui fournit le service, votre adresse de livraison et les conditions de paiement choisies.
+Questions sur le service de conteneurs
+(1) Quelle est la bonne taille de conteneur?
+Dans la boutique REMONDIS, vous trouverez un grand nombre de conteneurs de différentes tailles, selon le type de service d'élimination des déchets que vous souhaitez. La taille du conteneur nécessaire dépend du volume de vos déchets. Vous trouverez un aperçu des différentes tailles de conteneurs et des rythmes de collecte dans les informations sur les articles correspondants et dans notre lexique détaillé des conteneurs. Vous y trouverez également des recommandations quant à la taille du conteneur qui vous convient le mieux. Veuillez noter que vous devez toujours ajouter au moins 30 % du volume lors de la commande d'un conteneur, en raison d'éventuelles lacunes, afin de pouvoir éliminer tous les déchets à l'aide du conteneur sélectionné.
+(2) Quelles sont les dimensions des différents conteneurs?
+Dans la boutique REMONDIS, vous trouverez un grand nombre de conteneurs de différentes dimensions selon le type de service d'élimination des déchets que vous souhaitez. Vous trouverez toutes les informations sur nos solutions de gestion des déchets dans la description détaillée.
+C'est aussi simple que cela:
+1) Sélectionnez les déchets à éliminer et indiquez votre code postal (lieu de livraison)
+2) Sélection du conteneur approprié parmi notre vaste gamme de services
+3)  Appelez les informations sous les images des conteneurs
+(3) Quel est le contenu de mon conteneur? Qu'est-ce qui ne l'est pas?
+Les déchets que vous êtes autorisé à remplir dans votre conteneur dépendent du type de déchets que vous avez choisi lors de votre commande. Vous trouverez les définitions correspondantes des différents types de déchets dans la description détaillée des différentes fractions : Que peut-on mettre dans le conteneur? Qu'est-ce qui n'est pas autorisé dans le conteneur?
+(4) Jusqu'à quelle hauteur le conteneur peut-il être rempli ?
+Tous les conteneurs peuvent être remplis uniformément sur toute la surface du conteneur, au maximum jusqu'au bord de chargement avant ou arrière, afin de garantir la sécurité du transport. La hauteur des parois avant et arrière ne doit pas être dépassée par le matériel chargé stocké de manière centralisée. Il n'est pas permis de soulever les murs (par exemple par des planches, des plaques de métal, etc.) sous votre propre responsabilité. En outre, aucun objet (par exemple, des planches, des tuyaux métalliques, des branches, etc.) ne doit dépasser le bord de chargement pour garantir la sécurité du transport.
+(5) Que se passe-t-il si mon conteneur n'est pas correctement rempli ?
+Les déchets que vous êtes autorisé à remplir dans votre conteneur dépendent du type de déchets que vous avez choisi lors de votre commande. Si votre conteneur contient d'autres types de déchets, le conteneur entier sera à nouveau déclaré et facturé en fonction du contenu effectivement rempli. Vous devez donc vérifier attentivement les conditions et modalités de remplissage avant de passer votre commande et, si nécessaire, commander plusieurs conteneurs pour éviter des frais et un travail supplémentaires.
+(6)  Comment puis-je protéger mon conteneur contre le remplissage extérieur ?
+Pour presque tous les conteneurs, nous proposons un couvercle à charnière ou une bâche enroulable. Elles offrent non seulement une protection contre le remplissage par des personnes extérieures, mais aussi contre le vol ou les influences climatiques. Il suffit de choisir l'équipement supplémentaire couvercle à charnière / bâche roulante lors du choix du conteneur approprié.
+Questions sur le service de location de toilettes
+(1) Quelle est la différence entre les toilettes de chantier et les toilettes d'un événement?
+La différence entre les toilettes de chantier et les toilettes de manifestation est la finalité de l'utilisation. Les toilettes de chantier sont conçues pour les chantiers de construction publics et privés dont la durée d'utilisation est plus longue. Veuillez noter que l'installation d'une toilette de location sur les chantiers publics et privés est obligatoire. Les toilettes événementielles, quant à elles, sont conçues pour des événements privés (par exemple, anniversaires, enterrements de vie de garçon, célébrations de mariage) ou de grandes manifestations (par exemple, carnaval, match de tir, fête foraine), mais aussi pour les fêtes de la ville, les jours de marché, les festivals, les manifestations, les concerts, les démonstrations et autres événements. Elles ont donc une durée courte de quelques jours.
+(2) Quelle est la durée de stationnement d'une toilette de location ?
+Les toilettes de chantier ont une durée de location de 4 semaines. Les toilettes de manifestation peuvent être louées pour un à trois jours, en fonction de l'événement prévu. Vous pouvez prolonger la période de location comme vous le souhaitez moyennant une redevance correspondante.
+(3)Aurai-je des frais supplémentaires pour le nettoyage des toilettes louées?
+Le prix total, qui s'affiche dans le panier d'achat et également lorsque vous terminez votre commande, est le prix total. Le prix comprend, outre le transport de la toilette de location, le nettoyage et l'entretien réguliers.
+(4) Puis-je également louer desremorques sanitaires ou d'autres toilettes?
+Nous proposons des remorques sanitaires (séparation hommes/femmes), des toilettes pour personnes à mobilité réduite et des urinoirs. Il suffit de nous contacter en utilisant notre formulaire de contact ou notre ligne d'assistance gratuite +32 (0) 80 88 08 81!
+Questions sur la livraison et la collecte
+(1) Quand la livraison de mon conteneur / ma toilette de location aura-t-elle lieu?
+La livraison est toujours effectuée à la date de votre choix : il vous suffit de sélectionner la date de livraison souhaitée dans votre commande et, après avoir vérifié la disponibilité, vous recevrez une confirmation de votre commande de la part de la société REMONDIS locale qui fournit le service dans les plus brefs délais. Plus vous commandez tôt, plus la position de votre conteneur / toilette de location à la date souhaitée est sûre.
+(2)  Où peut-on placer le conteneur / la toilette de location?
+Lors de la commande, vous avez le choix : vous pouvez placer votre conteneur / toilette de location sur un espace public (par exemple, rue, trottoir, etc.) ou sur votre propriété privée. Aucun permis spécial n'est nécessaire pour l'installation sur votre propre site. Si vous souhaitez installer le système sur un espace public, vous devrez obtenir une autorisation spéciale d'utilisation auprès de votre ville ou de votre municipalité. Vous pouvez l'obtenir auprès du bureau de l'ordre public qui vous concerne. Le tarif dépend de la ville ou de la municipalité responsable ainsi que du nombre et de la durée du stationnement commandé.
+(3) Que faut-il prendre en considération lors du choix d'un emplacement ? De combien d'espace le camion a-t-il besoin pour la livraison et l'enlèvement?
+Pour garantir une installation / collecte sans problème, la route d'accès doit être accessible au camion et ne pas être bloquée par des arbres bas, des lanternes, des panneaux, etc. Les règles de circulation prévues par la loi sur la circulation routière doivent être respectées. En outre, les conteneurs / toilettes de location ne peuvent être installés / collectés que dans un parking avec une aire de stationnement fixe ou une aire de roulement. Les dimensions requises dépendent de la taille du conteneur commandé.
+(4) Ma présence est-elle requise pour la livraison / collecte ?
+Nous vous recommandons d'être présent lors de la livraison et de la collecte afin de vous assurer que le conteneur / la toilette de location est placé au bon endroit. En outre, la livraison ou la collecte doit être confirmée au conducteur du véhicule porte-conteneurs. Si la condition paiement comptant (lorsque le service est fourni) est choisie, la commande doit également être payée directement au chauffeur.
+(5) Quelle est la durée de la période de positionnement? Peut-elle être prolongée?
+Le prix d'un conteneur comprend une période de stockage maximale de 7 jours. Pendant cette période, vous pouvez quitter le conteneur et le remplir sans problème. Après cette période, nous vous facturerons un prix de location mensuel. Vous pouvez demander à votre interlocuteur personnel les conditions applicables et, si nécessaire, convenir immédiatement d'une période de location prolongée. Le moment de la collecte du conteneur peut être fixé individuellement avec votre personne de contact locale. Dans le cas contraire, un recouvrement automatique aura lieu après 7 jours.
+(6) Puis-je déplacer, relocaliser ou retourner le conteneur / la toilette de location ?
+Afin de garantir une collecte sans problème, vous ne devez pas déplacer, déplacer ou tourner le conteneur/la toilette, surtout si le site d'installation est limité. En fonction de la taille et du contenu de votre conteneur, il peut s'avérer impossible de le remettre dans sa position initiale après le remplissage. Les frais supplémentaires qui en découlent vous seront facturés dans une facture séparée.

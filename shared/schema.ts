@@ -20,8 +20,12 @@ export const users = pgTable("users", {
   lockUntil: timestamp("lock_until"),
   twoFactorSecret: text("two_factor_secret"),
   twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  // Type de compte et informations professionnelles
+  accountType: text("account_type").notNull().default("particulier"), // particulier, professionnel
   companyName: text("company_name"),
   siret: text("siret"),
+  tvaNumber: text("tva_number"),
+  apeCode: text("ape_code"),
   address: text("address"),
   city: text("city"),
   postalCode: text("postal_code"),
