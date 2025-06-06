@@ -69,11 +69,15 @@ export default function AddressInput() {
       });
       
       if (response.ok) {
-        const { distance } = await response.json();
-        setCalculatedDistance(distance);
+        const result = await response.json();
+        setCalculatedDistance(result.distance);
+      } else {
+        console.error('Failed to calculate distance:', response.statusText);
+        setCalculatedDistance(null);
       }
     } catch (error) {
       console.error('Error calculating distance:', error);
+      setCalculatedDistance(null);
     } finally {
       setIsCalculatingDistance(false);
     }
@@ -264,12 +268,12 @@ export default function AddressInput() {
                   <span className="text-sm text-amber-600">Distance non calculée</span>
                 )}
               </div>
-              <div>
+              <div className="mt-2">
                 <span className="text-sm text-slate-600">Frais de livraison:</span>
                 <span className="ml-2 text-lg font-semibold text-primary-600">+24€</span>
               </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
