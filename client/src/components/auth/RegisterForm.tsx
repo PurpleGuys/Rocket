@@ -141,7 +141,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="particulier">Particulier</SelectItem>
-                      <SelectItem value="entreprise">Entreprise</SelectItem>
+                      <SelectItem value="professionnel">Entreprise</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
