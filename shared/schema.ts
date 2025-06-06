@@ -134,6 +134,18 @@ export const orders = pgTable("orders", {
   // Selected waste types
   wasteTypes: text("waste_types").array(),
   
+  // BSD Option (Bordereau de Suivi des Déchets)
+  bsdOption: boolean("bsd_option").default(false),
+  bsdPrice: decimal("bsd_price", { precision: 10, scale: 2 }).default("0"),
+  
+  // FID (Fiche d'Identification des Déchets) - required when BSD option is selected
+  fidRequired: boolean("fid_required").default(false),
+  fidCompleted: boolean("fid_completed").default(false),
+  fidValidated: boolean("fid_validated").default(false),
+  fidValidatedBy: integer("fid_validated_by"), // Admin qui a validé la FID
+  fidValidatedAt: timestamp("fid_validated_at"),
+  fidData: jsonb("fid_data"), // Données de la FID au format JSON
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
