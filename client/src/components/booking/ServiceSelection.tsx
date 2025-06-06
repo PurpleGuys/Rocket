@@ -77,6 +77,52 @@ export default function ServiceSelection() {
   }, [selectedServiceId, deliveryAddress, postalCode, city, selectedWasteType, durationDays]);
 
   // Fonction pour valider et calculer la distance
+  // Fonction pour rechercher des suggestions d'adresses
+  const searchAddressSuggestions = async (input: string) => {
+    if (input.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(input)}`);
+      const data = await response.json();
+      
+      if (data.suggestions) {
+        setAddressSuggestions(data.suggestions);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la recherche d\'adresses:', error);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Fonction pour sélectionner une adresse et pré-remplir les champs
+  const selectAddress = async (suggestion: any) => {
+    try {
+      const response = await fetch(`/api/places/details?place_id=${suggestion.place_id}`);
+      const data = await response.json();
+      
+      if (data.success && data.address) {
+        setDeliveryAddress(data.address.street || suggestion.main_text);
+        setCity(data.address.city || '');
+        setPostalCode(data.address.postalCode || '');
+        setShowSuggestions(false);
+        setAddressSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des détails d\'adresse:', error);
+      // Fallback: utiliser seulement le texte principal
+      setDeliveryAddress(suggestion.main_text);
+      setShowSuggestions(false);
+      setAddressSuggestions([]);
+    }
+  };
+
   const calculateDistance = async () => {
     if (!selectedServiceId || !deliveryAddress || !postalCode || !city || !selectedWasteType) {
       setDistance(0);
@@ -163,24 +209,11 @@ export default function ServiceSelection() {
 
   const handleAddressChange = (value: string) => {
     setDeliveryAddress(value);
-    fetchAddressSuggestions(value);
+    searchAddressSuggestions(value);
   };
 
   const handleSuggestionSelect = (suggestion: any) => {
-    setDeliveryAddress(suggestion.description);
-    setShowSuggestions(false);
-    
-    // Extraire code postal et ville de la suggestion
-    const parts = suggestion.description.split(', ');
-    if (parts.length >= 2) {
-      const lastPart = parts[parts.length - 1];
-      const postalMatch = lastPart.match(/\b\d{5}\b/);
-      if (postalMatch) {
-        setPostalCode(postalMatch[0]);
-        const cityPart = lastPart.replace(postalMatch[0], '').trim();
-        setCity(cityPart);
-      }
-    }
+    selectAddress(suggestion);
   };
 
   // Calculer le prix en fonction de la sélection
