@@ -325,8 +325,8 @@ export default function ServiceSelection() {
                       {/* Image de la benne */}
                       <div className="md:col-span-1">
                         <ServiceImageGallery 
-                          images={service.images || []}
                           serviceName={service.name}
+                          serviceVolume={service.volume}
                           className="w-full"
                         />
                       </div>
