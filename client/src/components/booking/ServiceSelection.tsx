@@ -328,6 +328,8 @@ export default function ServiceSelection() {
       postalCode: postalCode,
       city: city,
       wasteTypes: [selectedWasteType],
+      bsdOption: bsdOption,
+      fidData: fidData,
       distance: distance * 2, // Distance aller-retour
       // Nouvelles données de durée de location
       startDate: startDate.toISOString(),
@@ -344,6 +346,21 @@ export default function ServiceSelection() {
     // Sauvegarder dans sessionStorage et rediriger vers checkout
     sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
     setLocation('/checkout');
+  };
+
+  // Fonction pour gérer la soumission du formulaire FID
+  const handleFidSubmit = (fidFormData: any) => {
+    setFidData(fidFormData);
+    setShowFidForm(false);
+    toast({
+      title: "FID enregistrée",
+      description: "La Fiche d'Identification des Déchets a été enregistrée avec succès.",
+    });
+  };
+
+  // Fonction pour annuler le formulaire FID
+  const handleFidCancel = () => {
+    setShowFidForm(false);
   };
 
   // Obtenir les types de déchets disponibles depuis les configurations admin
@@ -693,14 +710,30 @@ export default function ServiceSelection() {
             
             <div className="text-sm text-gray-700">
               <p className="mb-2">
-                <strong>Le Bordereau de Suivi des Déchets (BSD)</strong> est un document obligatoire pour certains types de déchets selon la réglementation française.
+                <strong>Le Bordereau de Suivi des Déchets (BSD)</strong> est un document obligatoire selon la réglementation française.
               </p>
               <p className="mb-2">
                 Il permet de tracer le parcours de vos déchets de leur production jusqu'à leur traitement final, garantissant une gestion conforme à la réglementation environnementale.
               </p>
-              <p className="text-yellow-700 font-medium">
-                ⚠️ Si vous cochez cette option, vous devrez remplir une Fiche d'Identification des Déchets (FID) avant le paiement.
+              <p className="text-red-700 font-medium mb-4">
+                ⚠️ Vous devez remplir une Fiche d'Identification des Déchets (FID) obligatoire avant le paiement.
               </p>
+              
+              {/* Bouton pour ouvrir le formulaire FID */}
+              <div className="flex items-center justify-between">
+                <Button
+                  onClick={() => setShowFidForm(true)}
+                  variant={fidData ? "outline" : "default"}
+                  className={fidData ? "border-green-500 text-green-700" : ""}
+                >
+                  {fidData ? "✓ FID Remplie - Modifier" : "Remplir la FID (obligatoire)"}
+                </Button>
+                {fidData && (
+                  <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                    FID Complétée
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1047,6 +1080,19 @@ export default function ServiceSelection() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Formulaire FID Modal */}
+      {showFidForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <FidForm
+              onSubmit={handleFidSubmit}
+              onCancel={handleFidCancel}
+              initialData={fidData}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
