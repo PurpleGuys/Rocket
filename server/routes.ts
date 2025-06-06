@@ -2224,6 +2224,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Maps API key endpoint (secured for admin only)
+  app.get("/api/maps/config", authenticateToken, requireAdmin, (req, res) => {
+    try {
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ 
+          error: "Google Maps API key not configured" 
+        });
+      }
+      
+      res.json({ 
+        apiKey: apiKey,
+        success: true 
+      });
+    } catch (error: any) {
+      console.error("Error getting Maps API key:", error);
+      res.status(500).json({ 
+        error: "Failed to retrieve Maps configuration" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

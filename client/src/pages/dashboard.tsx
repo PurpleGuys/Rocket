@@ -62,9 +62,20 @@ function GoogleMapComponent({ clients }: { clients: any[] }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
 
+  // Récupérer la clé API Google Maps depuis le backend
+  const { data: mapsConfig } = useQuery({
+    queryKey: ['/api/maps/config'],
+    retry: false,
+    onError: (error: any) => {
+      setGeocodingError('Impossible de récupérer la configuration Google Maps');
+    }
+  });
+
   useEffect(() => {
+    if (!mapsConfig?.apiKey) return;
+
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY}&libraries=geometry,places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsConfig.apiKey}&libraries=geometry,places`;
     script.async = true;
     script.defer = true;
     script.onload = () => setIsLoaded(true);
@@ -81,7 +92,7 @@ function GoogleMapComponent({ clients }: { clients: any[] }) {
         script.parentNode.removeChild(script);
       }
     };
-  }, []);
+  }, [mapsConfig]);
 
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !clients?.length) return;
