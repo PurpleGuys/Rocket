@@ -1,0 +1,54 @@
+<svg width="380" height="260" viewBox="0 0 380 260" xmlns="http://www.w3.org/2000/svg">
+  <!-- Benne 30m³ -->
+  <defs>
+    <linearGradient id="benneGradient30" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shadowGradient30" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#2c3e50;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Ombre -->
+  <ellipse cx="190" cy="245" rx="120" ry="8" fill="url(#shadowGradient30)" />
+  
+  <!-- Corps de la benne (extra large) -->
+  <rect x="20" y="95" width="340" height="130" fill="url(#benneGradient30)" stroke="#95a5a6" stroke-width="2" rx="5" />
+  
+  <!-- Parois latérales -->
+  <polygon points="20,95 45,70 375,70 350,95" fill="#f39c12" stroke="#95a5a6" stroke-width="1" />
+  <polygon points="350,95 375,70 375,195 350,225" fill="#e67e22" stroke="#95a5a6" stroke-width="1" />
+  
+  <!-- Détails et renforts -->
+  <rect x="25" y="100" width="330" height="4" fill="#34495e" opacity="0.6" />
+  <rect x="25" y="110" width="330" height="2" fill="#34495e" opacity="0.4" />
+  <rect x="25" y="210" width="330" height="4" fill="#34495e" opacity="0.6" />
+  
+  <!-- Renforts verticaux multiples -->
+  <rect x="90" y="100" width="2" height="120" fill="#34495e" opacity="0.4" />
+  <rect x="150" y="100" width="2" height="120" fill="#34495e" opacity="0.4" />
+  <rect x="210" y="100" width="2" height="120" fill="#34495e" opacity="0.4" />
+  <rect x="270" y="100" width="2" height="120" fill="#34495e" opacity="0.4" />
+  
+  <!-- Poignées renforcées -->
+  <rect x="15" y="135" width="8" height="45" fill="#7f8c8d" stroke="#95a5a6" stroke-width="1" rx="4" />
+  <rect x="357" y="135" width="8" height="45" fill="#7f8c8d" stroke="#95a5a6" stroke-width="1" rx="4" />
+  
+  <!-- 6 roues pour la stabilité -->
+  <circle cx="70" cy="235" r="18" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="70" cy="235" r="9" fill="#7f8c8d" />
+  <circle cx="140" cy="235" r="18" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="140" cy="235" r="9" fill="#7f8c8d" />
+  <circle cx="190" cy="235" r="18" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="190" cy="235" r="9" fill="#7f8c8d" />
+  <circle cx="240" cy="235" r="18" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="240" cy="235" r="9" fill="#7f8c8d" />
+  <circle cx="310" cy="235" r="18" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="310" cy="235" r="9" fill="#7f8c8d" />
+  
+  <!-- Étiquette volume -->
+  <rect x="160" y="35" width="60" height="20" fill="#ffffff" stroke="#f39c12" stroke-width="2" rx="3" />
+  <text x="190" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f39c12">30m³</text>
+</svg>

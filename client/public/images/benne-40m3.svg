@@ -1,0 +1,59 @@
+<svg width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- Benne 40m³ -->
+  <defs>
+    <linearGradient id="benneGradient40" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9b59b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8e44ad;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shadowGradient40" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#2c3e50;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Ombre -->
+  <ellipse cx="200" cy="265" rx="130" ry="8" fill="url(#shadowGradient40)" />
+  
+  <!-- Corps de la benne (très large et haute) -->
+  <rect x="15" y="100" width="370" height="140" fill="url(#benneGradient40)" stroke="#95a5a6" stroke-width="2" rx="5" />
+  
+  <!-- Parois latérales -->
+  <polygon points="15,100 40,75 390,75 365,100" fill="#9b59b6" stroke="#95a5a6" stroke-width="1" />
+  <polygon points="365,100 390,75 390,215 365,240" fill="#8e44ad" stroke="#95a5a6" stroke-width="1" />
+  
+  <!-- Détails et renforts -->
+  <rect x="20" y="105" width="360" height="5" fill="#34495e" opacity="0.6" />
+  <rect x="20" y="115" width="360" height="2" fill="#34495e" opacity="0.4" />
+  <rect x="20" y="225" width="360" height="5" fill="#34495e" opacity="0.6" />
+  
+  <!-- Renforts verticaux multiples -->
+  <rect x="80" y="105" width="2" height="130" fill="#34495e" opacity="0.4" />
+  <rect x="140" y="105" width="2" height="130" fill="#34495e" opacity="0.4" />
+  <rect x="200" y="105" width="2" height="130" fill="#34495e" opacity="0.4" />
+  <rect x="260" y="105" width="2" height="130" fill="#34495e" opacity="0.4" />
+  <rect x="320" y="105" width="2" height="130" fill="#34495e" opacity="0.4" />
+  
+  <!-- Renforts horizontaux -->
+  <rect x="20" y="150" width="360" height="2" fill="#34495e" opacity="0.3" />
+  <rect x="20" y="180" width="360" height="2" fill="#34495e" opacity="0.3" />
+  
+  <!-- Poignées renforcées -->
+  <rect x="10" y="145" width="8" height="50" fill="#7f8c8d" stroke="#95a5a6" stroke-width="1" rx="4" />
+  <rect x="382" y="145" width="8" height="50" fill="#7f8c8d" stroke="#95a5a6" stroke-width="1" rx="4" />
+  
+  <!-- 6 roues pour la stabilité -->
+  <circle cx="65" cy="255" r="20" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="65" cy="255" r="10" fill="#7f8c8d" />
+  <circle cx="135" cy="255" r="20" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="135" cy="255" r="10" fill="#7f8c8d" />
+  <circle cx="200" cy="255" r="20" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="200" cy="255" r="10" fill="#7f8c8d" />
+  <circle cx="265" cy="255" r="20" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="265" cy="255" r="10" fill="#7f8c8d" />
+  <circle cx="335" cy="255" r="20" fill="#2c3e50" stroke="#34495e" stroke-width="2" />
+  <circle cx="335" cy="255" r="10" fill="#7f8c8d" />
+  
+  <!-- Étiquette volume -->
+  <rect x="170" y="30" width="60" height="20" fill="#ffffff" stroke="#9b59b6" stroke-width="2" rx="3" />
+  <text x="200" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#9b59b6">40m³</text>
+</svg>
