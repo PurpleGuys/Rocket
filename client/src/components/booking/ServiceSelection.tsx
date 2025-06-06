@@ -47,7 +47,7 @@ export default function ServiceSelection() {
   const [durationDays, setDurationDays] = useState<number>(7); // Durée par défaut: 1 semaine
   
   // Variables pour l'option BSD et FID
-  const [bsdOption, setBsdOption] = useState<boolean>(false);
+  const [bsdOption, setBsdOption] = useState<boolean>(true); // BSD obligatoire par défaut
   const [fidData, setFidData] = useState<any>(null);
   const [showFidForm, setShowFidForm] = useState<boolean>(false);
 
@@ -271,7 +271,7 @@ export default function ServiceSelection() {
       transport: transportCost,
       treatment: totalTreatmentCost,
       bsd: bsdCost,
-      total: total,
+      total: total + bsdCost,
       details: details
     };
   };
@@ -668,9 +668,9 @@ export default function ServiceSelection() {
           )}
         </div>
 
-        {/* Option BSD (Bordereau de Suivi des Déchets) */}
+        {/* Option BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE */}
         {selectedWasteType && (
-          <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+          <div className="bg-red-50 p-6 rounded-lg border border-red-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <div className="flex items-center">
@@ -678,23 +678,15 @@ export default function ServiceSelection() {
                     type="checkbox"
                     id="bsd-option"
                     checked={bsdOption}
-                    onChange={(e) => {
-                      setBsdOption(e.target.checked);
-                      if (e.target.checked) {
-                        setShowFidForm(true);
-                      } else {
-                        setShowFidForm(false);
-                        setFidData(null);
-                      }
-                    }}
-                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                    disabled={true}
+                    className="h-4 w-4 text-red-600 bg-red-100 border-red-300 rounded opacity-75"
                   />
                   <label htmlFor="bsd-option" className="ml-3 text-lg font-semibold text-gray-900">
-                    Option BSD (Bordereau de Suivi des Déchets)
+                    BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE
                   </label>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
                 +15€
               </Badge>
             </div>
