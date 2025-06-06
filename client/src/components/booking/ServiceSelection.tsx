@@ -304,6 +304,111 @@ export default function ServiceSelection() {
     <div className="grid lg:grid-cols-3 gap-8">
       {/* Left Column - Configuration */}
       <div className="lg:col-span-2 space-y-6">
+        {/* DELIVERY LOCATION SELECTION - TOP OF QUOTE */}
+        <div style={{
+          backgroundColor: '#dc2626',
+          color: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          border: '4px solid #000000'
+        }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}>
+            🏗️ LIEU DE LIVRAISON DE VOTRE BENNE
+          </h2>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '16px',
+            marginBottom: '20px'
+          }}>
+            <button 
+              style={{
+                backgroundColor: deliveryLocationType === "company" ? '#3b82f6' : 'white',
+                color: deliveryLocationType === "company" ? 'white' : 'black',
+                padding: '16px',
+                borderRadius: '8px',
+                border: '2px solid #3b82f6',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                textAlign: 'center'
+              }}
+              onClick={() => setDeliveryLocationType("company")}
+            >
+              🏢 ADRESSE ENTREPRISE
+              <div style={{fontSize: '12px', fontWeight: 'normal', marginTop: '4px'}}>
+                Livraison à votre adresse principale
+              </div>
+            </button>
+            
+            <button 
+              style={{
+                backgroundColor: deliveryLocationType === "construction_site" ? '#3b82f6' : 'white',
+                color: deliveryLocationType === "construction_site" ? 'white' : 'black',
+                padding: '16px',
+                borderRadius: '8px',
+                border: '2px solid #3b82f6',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                textAlign: 'center'
+              }}
+              onClick={() => setDeliveryLocationType("construction_site")}
+            >
+              🚧 CHANTIER SPÉCIFIQUE
+              <div style={{fontSize: '12px', fontWeight: 'normal', marginTop: '4px'}}>
+                Livraison sur un chantier
+              </div>
+            </button>
+          </div>
+          
+          {deliveryLocationType === "construction_site" && (
+            <div style={{
+              backgroundColor: 'white',
+              color: 'black',
+              padding: '16px',
+              borderRadius: '8px',
+              border: '2px solid black'
+            }}>
+              <label style={{
+                display: 'block',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                marginBottom: '8px'
+              }}>
+                📞 TÉLÉPHONE CONTACT CHANTIER *
+              </label>
+              <input
+                type="tel"
+                placeholder="06 12 34 56 78"
+                value={constructionSiteContactPhone}
+                onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '14px',
+                  border: '2px solid #6b7280',
+                  borderRadius: '6px'
+                }}
+                required
+              />
+              <p style={{
+                fontSize: '11px',
+                color: '#6b7280',
+                marginTop: '4px'
+              }}>
+                Numéro utilisé par le chauffeur pour vous contacter
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Container Type Selection */}
         <div>
           <div className="flex items-center mb-4">
