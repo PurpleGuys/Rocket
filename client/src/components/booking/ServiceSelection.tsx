@@ -405,33 +405,33 @@ export default function ServiceSelection() {
           )}
         </div>
 
-        {/* Delivery Location Type Selection */}
-        <div>
+        {/* NEW: Delivery Location Type Selection */}
+        <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
           <div className="flex items-center mb-4">
-            <MapPin className="h-5 w-5 mr-2 text-red-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Lieu de livraison</h3>
+            <MapPin className="h-5 w-5 mr-2 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Où souhaitez-vous la livraison ?</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div 
               className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 deliveryLocationType === "company" 
-                  ? "border-red-500 bg-red-50" 
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "border-blue-500 bg-blue-100" 
+                  : "border-gray-200 hover:border-gray-300 bg-white"
               }`}
               onClick={() => setDeliveryLocationType("company")}
             >
               <div className="flex items-center space-x-3">
                 <div className={`w-4 h-4 rounded-full border-2 ${
                   deliveryLocationType === "company" 
-                    ? "border-red-500 bg-red-500" 
+                    ? "border-blue-500 bg-blue-500" 
                     : "border-gray-300"
                 }`}>
                   {deliveryLocationType === "company" && (
                     <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
                   )}
                 </div>
-                <Building2 className="h-5 w-5 text-red-600" />
+                <Building2 className="h-5 w-5 text-blue-600" />
                 <div>
                   <div className="font-medium">Adresse de l'entreprise</div>
                   <div className="text-sm text-gray-600">Livraison à votre adresse principale</div>
@@ -442,22 +442,22 @@ export default function ServiceSelection() {
             <div 
               className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 deliveryLocationType === "construction_site" 
-                  ? "border-red-500 bg-red-50" 
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "border-blue-500 bg-blue-100" 
+                  : "border-gray-200 hover:border-gray-300 bg-white"
               }`}
               onClick={() => setDeliveryLocationType("construction_site")}
             >
               <div className="flex items-center space-x-3">
                 <div className={`w-4 h-4 rounded-full border-2 ${
                   deliveryLocationType === "construction_site" 
-                    ? "border-red-500 bg-red-500" 
+                    ? "border-blue-500 bg-blue-500" 
                     : "border-gray-300"
                 }`}>
                   {deliveryLocationType === "construction_site" && (
                     <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
                   )}
                 </div>
-                <Construction className="h-5 w-5 text-red-600" />
+                <Construction className="h-5 w-5 text-blue-600" />
                 <div>
                   <div className="font-medium">Chantier spécifique</div>
                   <div className="text-sm text-gray-600">Livraison sur un chantier</div>
@@ -468,8 +468,8 @@ export default function ServiceSelection() {
 
           {/* Construction Site Contact Phone */}
           {deliveryLocationType === "construction_site" && (
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <Label htmlFor="constructionSiteContactPhone" className="text-sm font-medium text-amber-800">
+            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <Label htmlFor="constructionSiteContactPhone" className="text-sm font-medium text-orange-800">
                 Numéro de téléphone de contact sur le chantier *
               </Label>
               <Input
@@ -481,12 +481,14 @@ export default function ServiceSelection() {
                 className="mt-2"
                 required
               />
-              <p className="text-xs text-amber-700 mt-1">
+              <p className="text-xs text-orange-700 mt-1">
                 Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
               </p>
             </div>
           )}
         </div>
+
+
 
         {/* Address Section */}
         <div>
