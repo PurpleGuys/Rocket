@@ -306,9 +306,10 @@ export default function ServiceSelection() {
   }
 
   return (
-    <div className="grid lg:grid-cols-3 gap-8">
-      {/* Left Column - Configuration */}
-      <div className="lg:col-span-2 space-y-6">
+    <div className="container-responsive min-h-screen-safe">
+      <div className="grid grid-responsive gap-4 lg:gap-8">
+        {/* Left Column - Configuration */}
+        <div className="space-y-6 spacing-md">
         
         {/* Delivery Location Selection */}
         <Card className="border-blue-200 bg-blue-50">
@@ -784,6 +785,7 @@ export default function ServiceSelection() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

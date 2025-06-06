@@ -25,16 +25,16 @@ function Router() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <div className="mb-8">
+      <div className="min-h-screen-safe bg-white flex flex-col items-center justify-center container-responsive">
+        <div className="spacing-md">
           <img 
             src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
             alt="Remondis" 
-            className="h-12 w-auto"
+            className="h-12 w-auto img-responsive"
           />
         </div>
         <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
-        <p className="mt-4 text-gray-600">Chargement...</p>
+        <p className="spacing-sm text-gray-600">Chargement...</p>
       </div>
     );
   }
