@@ -5,6 +5,7 @@ import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
 export interface IStorage {
   // Users
   getUser(id: number): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
@@ -19,6 +20,7 @@ export interface IStorage {
     isVerified?: boolean;
   }): Promise<void>;
   updateUserPassword(id: number, hashedPassword: string): Promise<void>;
+  updateUserNotificationSettings(id: number, notifyOnInactivity: boolean): Promise<void>;
   deleteUser(id: number): Promise<void>;
   
   // Sessions
@@ -134,6 +136,11 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserById(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
@@ -182,6 +189,16 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({
         password: hashedPassword,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
+  }
+
+  async updateUserNotificationSettings(id: number, notifyOnInactivity: boolean): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        notifyOnInactivity,
         updatedAt: new Date()
       })
       .where(eq(users.id, id));
