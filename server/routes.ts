@@ -9,6 +9,7 @@ import { AuthService, authenticateToken, requireAdmin } from "./auth";
 import { DistanceService } from "./distanceService";
 import { emailService } from "./emailService";
 import { sendGridService } from "./sendgridService";
+import { NotificationService } from "./notificationService";
 import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -1235,6 +1236,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: "Default data initialized" });
     } catch (error: any) {
       res.status(500).json({ message: "Error initializing data: " + error.message });
+    }
+  });
+
+  // Admin: Trigger manual inactivity check
+  app.post("/api/admin/check-inactive-users", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      await NotificationService.runInactivityCheck();
+      res.json({ message: "Vérification d'inactivité lancée avec succès" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la vérification d'inactivité: " + error.message });
+    }
+  });
+
+  // Admin: Record abandoned checkout
+  app.post("/api/admin/abandoned-checkout", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const abandonedCheckoutData = req.body;
+      await NotificationService.recordAbandonedCheckout(abandonedCheckoutData);
+      res.json({ message: "Commande abandonnée enregistrée et notification envoyée" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de l'enregistrement: " + error.message });
+    }
+  });
+
+  // Admin: Toggle user notification settings
+  app.patch("/api/admin/users/:id/notifications", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { notifyOnInactivity } = req.body;
+      
+      const updatedUser = await storage.updateUser(userId, {
+        notifyOnInactivity: notifyOnInactivity
+      });
+      
+      res.json(updatedUser);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour: " + error.message });
     }
   });
 

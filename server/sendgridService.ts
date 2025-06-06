@@ -854,6 +854,257 @@ export class SendGridService {
 
     return { subject, html, text };
   }
+
+  /**
+   * Envoie une notification à l'équipe commerciale pour un utilisateur inactif
+   */
+  async sendInactiveUserNotification(user: any, orderHistory: any, salesEmail: string): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.log('SendGrid not configured, skipping inactive user notification');
+      return false;
+    }
+
+    try {
+      const template = this.generateInactiveUserNotificationTemplate(user, orderHistory);
+      
+      await sgMail.send({
+        to: salesEmail,
+        from: this.fromEmail,
+        subject: template.subject,
+        html: template.html,
+        text: template.text,
+      });
+
+      console.log(`Inactive user notification sent to ${salesEmail} for user ${user.email}`);
+      return true;
+    } catch (error) {
+      console.error('Error sending inactive user notification:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Envoie une notification à l'équipe commerciale pour une commande abandonnée
+   */
+  async sendAbandonedCheckoutNotification(abandonedCheckout: any, salesEmail: string): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.log('SendGrid not configured, skipping abandoned checkout notification');
+      return false;
+    }
+
+    try {
+      const template = this.generateAbandonedCheckoutNotificationTemplate(abandonedCheckout);
+      
+      await sgMail.send({
+        to: salesEmail,
+        from: this.fromEmail,
+        subject: template.subject,
+        html: template.html,
+        text: template.text,
+      });
+
+      console.log(`Abandoned checkout notification sent to ${salesEmail} for customer ${abandonedCheckout.customerEmail}`);
+      return true;
+    } catch (error) {
+      console.error('Error sending abandoned checkout notification:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Template pour notification d'utilisateur inactif
+   */
+  private generateInactiveUserNotificationTemplate(user: any, orderHistory: any): EmailTemplate {
+    const lastLoginFormatted = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR') : 'Jamais connecté';
+    const lastOrderFormatted = orderHistory.lastOrderDate ? new Date(orderHistory.lastOrderDate).toLocaleDateString('fr-FR') : 'Aucune commande';
+    
+    const subject = `Alerte Client Inactif - ${user.firstName} ${user.lastName}`;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Client Inactif</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; }
+        .alert-box { background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .info-box { background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .history-box { background: #fef3c7; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .action-box { background: #dbeafe; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>⚠️ Alerte Client Inactif</h1>
+        </div>
+        <div class="content">
+          <div class="alert-box">
+            <p><strong>Un client n'a pas utilisé nos services depuis plus d'un mois.</strong></p>
+          </div>
+          
+          <div class="info-box">
+            <h3>Informations Client :</h3>
+            <p><strong>Nom :</strong> ${user.firstName} ${user.lastName}</p>
+            <p><strong>Email :</strong> ${user.email}</p>
+            <p><strong>Téléphone :</strong> ${user.phone || 'Non renseigné'}</p>
+            <p><strong>Entreprise :</strong> ${user.companyName || 'Non renseignée'}</p>
+            <p><strong>Dernière connexion :</strong> ${lastLoginFormatted}</p>
+          </div>
+
+          <div class="history-box">
+            <h3>Historique des commandes :</h3>
+            <p><strong>Nombre total de commandes :</strong> ${orderHistory.totalOrders}</p>
+            <p><strong>Dernière commande :</strong> ${lastOrderFormatted}</p>
+            <p><strong>Montant total :</strong> ${orderHistory.totalAmount.toFixed(2)} €</p>
+            ${orderHistory.services.length > 0 ? `<p><strong>Services utilisés :</strong> ${orderHistory.services.join(', ')}</p>` : ''}
+          </div>
+          
+          <div class="action-box">
+            <h3>Action recommandée :</h3>
+            <p>Nous vous recommandons de contacter ce client pour :</p>
+            <ul>
+              <li>Vérifier s'il a des besoins actuels</li>
+              <li>Lui proposer nos nouveaux services</li>
+              <li>Maintenir la relation commerciale</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer">
+          <p>Notification automatique - Système de gestion des clients REMONDIS</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const text = `
+    ALERTE CLIENT INACTIF
+
+    Un client n'a pas utilisé nos services depuis plus d'un mois :
+
+    Informations Client :
+    Nom : ${user.firstName} ${user.lastName}
+    Email : ${user.email}
+    Téléphone : ${user.phone || 'Non renseigné'}
+    Entreprise : ${user.companyName || 'Non renseignée'}
+    Dernière connexion : ${lastLoginFormatted}
+
+    Historique des commandes :
+    Nombre total : ${orderHistory.totalOrders}
+    Dernière commande : ${lastOrderFormatted}
+    Montant total : ${orderHistory.totalAmount.toFixed(2)} €
+    Services utilisés : ${orderHistory.services.join(', ')}
+
+    Action recommandée :
+    Contacter ce client pour vérifier ses besoins actuels et maintenir la relation commerciale.
+    `;
+
+    return { subject, html, text };
+  }
+
+  /**
+   * Template pour notification de commande abandonnée
+   */
+  private generateAbandonedCheckoutNotificationTemplate(abandonedCheckout: any): EmailTemplate {
+    const wasteTypesText = abandonedCheckout.wasteTypes ? abandonedCheckout.wasteTypes.join(', ') : 'Non spécifiés';
+    
+    const subject = `Commande abandonnée - ${abandonedCheckout.customerFirstName} ${abandonedCheckout.customerLastName}`;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Commande Abandonnée</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; }
+        .alert-box { background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .info-box { background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .order-box { background: #fef3c7; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .action-box { background: #dbeafe; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🛒 Commande Abandonnée</h1>
+        </div>
+        <div class="content">
+          <div class="alert-box">
+            <p><strong>Un client a abandonné sa commande lors du tunnel de paiement.</strong></p>
+          </div>
+          
+          <div class="info-box">
+            <h3>Informations Client :</h3>
+            <p><strong>Nom :</strong> ${abandonedCheckout.customerFirstName} ${abandonedCheckout.customerLastName}</p>
+            <p><strong>Email :</strong> ${abandonedCheckout.customerEmail}</p>
+            <p><strong>Téléphone :</strong> ${abandonedCheckout.customerPhone || 'Non renseigné'}</p>
+          </div>
+
+          <div class="order-box">
+            <h3>Détails de la commande abandonnée :</h3>
+            <p><strong>Service :</strong> ${abandonedCheckout.serviceName || 'Non spécifié'}</p>
+            <p><strong>Montant :</strong> ${abandonedCheckout.totalAmount ? `${abandonedCheckout.totalAmount} €` : 'Non calculé'}</p>
+            <p><strong>Durée :</strong> ${abandonedCheckout.durationDays ? `${abandonedCheckout.durationDays} jours` : 'Non spécifiée'}</p>
+            <p><strong>Types de déchets :</strong> ${wasteTypesText}</p>
+            <p><strong>Adresse de livraison :</strong> ${abandonedCheckout.deliveryAddress || 'Non renseignée'}</p>
+            ${abandonedCheckout.deliveryCity ? `<p><strong>Ville :</strong> ${abandonedCheckout.deliveryCity} ${abandonedCheckout.deliveryPostalCode || ''}</p>` : ''}
+          </div>
+          
+          <div class="action-box">
+            <h3>Action recommandée :</h3>
+            <p>Contactez rapidement ce client pour :</p>
+            <ul>
+              <li>Comprendre les raisons de l'abandon</li>
+              <li>L'aider à finaliser sa commande</li>
+              <li>Proposer des solutions adaptées</li>
+              <li>Récupérer cette vente potentielle</li>
+            </ul>
+          </div>
+          
+          <p><small>Date d'abandon : ${new Date(abandonedCheckout.createdAt).toLocaleString('fr-FR')}</small></p>
+        </div>
+        <div class="footer">
+          <p>Notification automatique - Système de gestion des commandes REMONDIS</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const text = `
+    COMMANDE ABANDONNÉE
+
+    Un client a abandonné sa commande lors du paiement :
+
+    Informations Client :
+    Nom : ${abandonedCheckout.customerFirstName} ${abandonedCheckout.customerLastName}
+    Email : ${abandonedCheckout.customerEmail}
+    Téléphone : ${abandonedCheckout.customerPhone || 'Non renseigné'}
+
+    Détails de la commande :
+    Service : ${abandonedCheckout.serviceName || 'Non spécifié'}
+    Montant : ${abandonedCheckout.totalAmount ? `${abandonedCheckout.totalAmount} €` : 'Non calculé'}
+    Durée : ${abandonedCheckout.durationDays ? `${abandonedCheckout.durationDays} jours` : 'Non spécifiée'}
+    Types de déchets : ${wasteTypesText}
+    Adresse : ${abandonedCheckout.deliveryAddress || 'Non renseignée'}
+
+    Action recommandée :
+    Contacter ce client rapidement pour comprendre les raisons de l'abandon et l'aider à finaliser sa commande.
+
+    Date d'abandon : ${new Date(abandonedCheckout.createdAt).toLocaleString('fr-FR')}
+    `;
+
+    return { subject, html, text };
+  }
 }
 
 export const sendGridService = new SendGridService();

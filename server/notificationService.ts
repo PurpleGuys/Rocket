@@ -58,8 +58,8 @@ export class NotificationService {
       const orderHistory = {
         totalOrders: userOrders.length,
         lastOrderDate: userOrders.length > 0 ? userOrders[0].createdAt : null,
-        totalAmount: userOrders.reduce((sum, order) => sum + parseFloat(order.amount || '0'), 0),
-        services: Array.from(new Set(userOrders.map(order => order.deliveryAddress || 'Service').filter(Boolean)))
+        totalAmount: userOrders.reduce((sum, order) => sum + parseFloat(order.deliveryPrice || '0'), 0),
+        services: Array.from(new Set(userOrders.map(order => `${order.serviceType || 'Service'} - ${order.deliveryCity || 'Ville'}`).filter(Boolean)))
       };
 
       // Créer l'enregistrement de notification
