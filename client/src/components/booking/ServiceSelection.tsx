@@ -381,6 +381,88 @@ export default function ServiceSelection() {
           </div>
         </div>
 
+        {/* Delivery Location Selection - FORCED DISPLAY */}
+        <div style={{backgroundColor: '#fef3c7', border: '2px solid #f59e0b', padding: '20px', borderRadius: '10px', marginBottom: '20px'}}>
+          <h3 style={{fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#92400e'}}>🏗️ OÙ SOUHAITEZ-VOUS LA LIVRAISON ?</h3>
+          
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px'}}>
+            <div 
+              style={{
+                padding: '15px',
+                border: deliveryLocationType === "company" ? '3px solid #3b82f6' : '2px solid #d1d5db',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                backgroundColor: deliveryLocationType === "company" ? '#dbeafe' : 'white'
+              }}
+              onClick={() => setDeliveryLocationType("company")}
+            >
+              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  border: '2px solid #3b82f6',
+                  backgroundColor: deliveryLocationType === "company" ? '#3b82f6' : 'transparent'
+                }}></div>
+                <div>
+                  <div style={{fontWeight: 'bold'}}>🏢 Adresse de l'entreprise</div>
+                  <div style={{fontSize: '14px', color: '#6b7280'}}>Livraison à votre adresse principale</div>
+                </div>
+              </div>
+            </div>
+            
+            <div 
+              style={{
+                padding: '15px',
+                border: deliveryLocationType === "construction_site" ? '3px solid #3b82f6' : '2px solid #d1d5db',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                backgroundColor: deliveryLocationType === "construction_site" ? '#dbeafe' : 'white'
+              }}
+              onClick={() => setDeliveryLocationType("construction_site")}
+            >
+              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  border: '2px solid #3b82f6',
+                  backgroundColor: deliveryLocationType === "construction_site" ? '#3b82f6' : 'transparent'
+                }}></div>
+                <div>
+                  <div style={{fontWeight: 'bold'}}>🚧 Chantier spécifique</div>
+                  <div style={{fontSize: '14px', color: '#6b7280'}}>Livraison sur un chantier</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {deliveryLocationType === "construction_site" && (
+            <div style={{padding: '15px', backgroundColor: '#fef2f2', border: '2px solid #fca5a5', borderRadius: '8px'}}>
+              <label style={{fontWeight: 'bold', color: '#dc2626', marginBottom: '8px', display: 'block'}}>
+                📞 Numéro de téléphone de contact sur le chantier *
+              </label>
+              <input
+                type="tel"
+                placeholder="Ex: 06 12 34 56 78"
+                value={constructionSiteContactPhone}
+                onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '2px solid #f87171',
+                  borderRadius: '6px',
+                  fontSize: '16px'
+                }}
+                required
+              />
+              <p style={{fontSize: '12px', color: '#dc2626', marginTop: '5px'}}>
+                Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Waste Type Selection */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Type de déchet</h3>
