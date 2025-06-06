@@ -46,7 +46,12 @@ import {
   CalendarCheck,
   CalendarX,
   Bell,
-  BellOff
+  BellOff,
+  BarChart3,
+  Star,
+  MessageSquare,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 
 // Composant de gestion complète des utilisateurs
@@ -4197,6 +4202,410 @@ function BankDepositsPage() {
   );
 }
 
+// Composant principal de gestion des questionnaires de satisfaction
+function SatisfactionSurveysPage() {
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
+
+  // Récupérer tous les questionnaires
+  const { data: surveys = [], isLoading, refetch } = useQuery({
+    queryKey: ['/api/admin/satisfaction-surveys'],
+    select: (data) => data || []
+  });
+
+  // Récupérer les statistiques
+  const { data: stats } = useQuery({
+    queryKey: ['/api/admin/satisfaction-surveys/stats'],
+    select: (data) => data || {}
+  });
+
+  // Filtrer les questionnaires
+  const filteredSurveys = surveys.filter((survey: any) => {
+    const matchesStatus = filterStatus === 'all' || 
+      (filterStatus === 'completed' && survey.completed) ||
+      (filterStatus === 'pending' && !survey.completed) ||
+      (filterStatus === 'expired' && !survey.completed && new Date(survey.expiresAt) < new Date());
+    
+    const matchesSearch = !searchTerm || 
+      survey.orderId?.toString().includes(searchTerm) ||
+      survey.customerName?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesStatus && matchesSearch;
+  });
+
+  const getStatusBadge = (survey: any) => {
+    if (survey.completed) {
+      return <Badge className="bg-green-100 text-green-800">Complété</Badge>;
+    }
+    if (new Date(survey.expiresAt) < new Date()) {
+      return <Badge variant="destructive">Expiré</Badge>;
+    }
+    return <Badge variant="secondary">En attente</Badge>;
+  };
+
+  const getRatingStars = (rating: number) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`h-4 w-4 ${
+              star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+            }`}
+          />
+        ))}
+        <span className="ml-2 text-sm text-gray-600">{rating}/5</span>
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Questionnaires de Satisfaction</h1>
+        <p className="text-gray-600">Gérez et analysez les retours clients envoyés 1 semaine après livraison</p>
+      </div>
+
+      {/* Statistiques */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total questionnaires</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalSurveys || 0}</p>
+                </div>
+                <FileText className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Taux de réponse</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.completionRate || 0}%</p>
+                </div>
+                <BarChart3 className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Note moyenne</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.averageOverallSatisfaction || 0}/5</p>
+                </div>
+                <Star className="h-8 w-8 text-yellow-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">NPS moyen</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.averageNPS || 0}/10</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Filtres et recherche */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Rechercher par numéro de commande ou nom client..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="completed">Complétés</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="expired">Expirés</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Liste des questionnaires */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Questionnaires ({filteredSurveys.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredSurveys.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun questionnaire trouvé</h3>
+              <p className="text-gray-600">
+                {filterStatus === 'all' 
+                  ? "Aucun questionnaire n'a encore été envoyé"
+                  : `Aucun questionnaire ${filterStatus === 'completed' ? 'complété' : filterStatus === 'pending' ? 'en attente' : 'expiré'} trouvé`
+                }
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Commande</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Envoyé le</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Note globale</TableHead>
+                    <TableHead>NPS</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSurveys.map((survey: any) => (
+                    <TableRow key={survey.id}>
+                      <TableCell className="font-medium">
+                        #{survey.orderId}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{survey.customerName || 'N/A'}</div>
+                          <div className="text-sm text-gray-500">{survey.customerEmail || 'N/A'}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {survey.emailSent && survey.emailSentAt 
+                          ? new Date(survey.emailSentAt).toLocaleDateString('fr-FR')
+                          : 'Non envoyé'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(survey)}
+                      </TableCell>
+                      <TableCell>
+                        {survey.completed && survey.overallSatisfaction 
+                          ? getRatingStars(survey.overallSatisfaction)
+                          : '-'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        {survey.completed && survey.npsScore !== null 
+                          ? `${survey.npsScore}/10`
+                          : '-'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {survey.completed ? (
+                            <SurveyDetailsDialog survey={survey} />
+                          ) : (
+                            <Button variant="outline" size="sm" disabled>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Composant de dialogue pour afficher les détails d'un questionnaire
+function SurveyDetailsDialog({ survey }: { survey: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getRatingDisplay = (rating: number) => {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="flex">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              className={`h-4 w-4 ${
+                star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+        <span className="text-sm font-medium">{rating}/5</span>
+      </div>
+    );
+  };
+
+  const getNPSColor = (score: number) => {
+    if (score >= 9) return 'text-green-600';
+    if (score >= 7) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Détails du questionnaire - Commande #{survey.orderId}</DialogTitle>
+          <DialogDescription>
+            Questionnaire complété le {survey.completedAt ? formatDate(survey.completedAt) : 'N/A'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Informations générales */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-semibold mb-2">Informations client</h4>
+              <div className="space-y-1 text-sm">
+                <p><span className="font-medium">Nom:</span> {survey.customerName || 'N/A'}</p>
+                <p><span className="font-medium">Email:</span> {survey.customerEmail || 'N/A'}</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">Métadonnées</h4>
+              <div className="space-y-1 text-sm">
+                <p><span className="font-medium">IP:</span> {survey.ipAddress || 'N/A'}</p>
+                <p><span className="font-medium">Navigateur:</span> {survey.userAgent ? survey.userAgent.substring(0, 50) + '...' : 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Évaluations par critères */}
+          <div>
+            <h4 className="font-semibold mb-4">Évaluations détaillées</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Satisfaction globale</span>
+                  {getRatingDisplay(survey.overallSatisfaction || 0)}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Qualité du service</span>
+                  {getRatingDisplay(survey.serviceQuality || 0)}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Ponctualité livraison</span>
+                  {getRatingDisplay(survey.deliveryTiming || 0)}
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Ponctualité collecte</span>
+                  {getRatingDisplay(survey.pickupTiming || 0)}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Service client</span>
+                  {getRatingDisplay(survey.customerService || 0)}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Rapport qualité-prix</span>
+                  {getRatingDisplay(survey.valueForMoney || 0)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Score NPS et recommandations */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center p-4 border rounded-lg">
+              <h5 className="font-semibold mb-2">Score NPS</h5>
+              <div className={`text-2xl font-bold ${getNPSColor(survey.npsScore || 0)}`}>
+                {survey.npsScore || 0}/10
+              </div>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+              <h5 className="font-semibold mb-2">Recommanderait</h5>
+              <div className={`text-2xl font-bold ${survey.wouldRecommend ? 'text-green-600' : 'text-red-600'}`}>
+                {survey.wouldRecommend ? 'Oui' : 'Non'}
+              </div>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+              <h5 className="font-semibold mb-2">Utiliserait à nouveau</h5>
+              <div className={`text-2xl font-bold ${survey.wouldUseAgain ? 'text-green-600' : 'text-red-600'}`}>
+                {survey.wouldUseAgain ? 'Oui' : 'Non'}
+              </div>
+            </div>
+          </div>
+
+          {/* Commentaires */}
+          <div className="space-y-4">
+            {survey.positiveComments && (
+              <div>
+                <h5 className="font-semibold mb-2 text-green-700">Points positifs</h5>
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm">{survey.positiveComments}</p>
+                </div>
+              </div>
+            )}
+
+            {survey.negativeComments && (
+              <div>
+                <h5 className="font-semibold mb-2 text-red-700">Points d'amélioration</h5>
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm">{survey.negativeComments}</p>
+                </div>
+              </div>
+            )}
+
+            {survey.suggestions && (
+              <div>
+                <h5 className="font-semibold mb-2 text-blue-700">Suggestions</h5>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm">{survey.suggestions}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState("dashboard");
 
@@ -4223,6 +4632,8 @@ export default function Dashboard() {
         return <BankDepositsPage />;
       case "my-activities":
         return <MyActivitiesPage />;
+      case "satisfaction-surveys":
+        return <SatisfactionSurveysPage />;
       default:
         return <DashboardHome />;
     }
@@ -4376,6 +4787,19 @@ export default function Dashboard() {
                   >
                     <Settings className="mr-3 h-4 w-4" />
                     Mes activités
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("satisfaction-surveys")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      currentPage === "satisfaction-surveys"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <FileText className="mr-3 h-4 w-4" />
+                    Questionnaires
                   </button>
                 </li>
               </ul>

@@ -1060,6 +1060,63 @@ export class DatabaseStorage implements IStorage {
       );
     return deposit || null;
   }
+
+  // Méthodes pour les questionnaires de satisfaction
+  async getSatisfactionSurveys(): Promise<SatisfactionSurvey[]> {
+    const surveys = await db
+      .select()
+      .from(satisfactionSurveys)
+      .orderBy(desc(satisfactionSurveys.createdAt));
+    return surveys;
+  }
+
+  async getSatisfactionSurveyById(id: number): Promise<SatisfactionSurvey | null> {
+    const [survey] = await db
+      .select()
+      .from(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.id, id));
+    return survey || null;
+  }
+
+  async getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | null> {
+    const [survey] = await db
+      .select()
+      .from(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.token, token));
+    return survey || null;
+  }
+
+  async getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]> {
+    const surveys = await db
+      .select()
+      .from(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.orderId, orderId));
+    return surveys;
+  }
+
+  async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
+    const [newSurvey] = await db
+      .insert(satisfactionSurveys)
+      .values(survey)
+      .returning();
+    return newSurvey;
+  }
+
+  async updateSatisfactionSurvey(id: number, updates: Partial<SatisfactionSurvey>): Promise<SatisfactionSurvey | null> {
+    const [updatedSurvey] = await db
+      .update(satisfactionSurveys)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(satisfactionSurveys.id, id))
+      .returning();
+    return updatedSurvey || null;
+  }
+
+  async deleteSatisfactionSurvey(id: number): Promise<boolean> {
+    const result = await db
+      .delete(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.id, id));
+    return result.rowCount > 0;
+  }
 }
 
 export const storage = new DatabaseStorage();
