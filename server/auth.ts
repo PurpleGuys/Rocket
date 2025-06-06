@@ -180,6 +180,32 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     // If database is unavailable, allow access for development but log the error
     if (process.env.NODE_ENV === 'development') {
       console.log('Database unavailable - allowing development access');
+      // Set a default user for development when database is unavailable
+      req.user = {
+        id: 1,
+        email: 'dev@example.com',
+        firstName: 'Development',
+        lastName: 'User',
+        role: 'admin',
+        isVerified: true,
+        phone: '+33123456789',
+        password: '',
+        verificationToken: null,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+        address: null,
+        siret: null,
+        isActive: true,
+        failedLoginAttempts: 0,
+        lastLoginAttempt: null,
+        accountLockedUntil: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        emailVerificationExpires: null,
+        lastPasswordChange: null,
+        notifyOnInactivity: true,
+        lastInactivityNotification: null
+      } as any;
       next();
     } else {
       return res.status(503).json({ message: 'Service temporairement indisponible' });

@@ -1119,7 +1119,4 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Database endpoint is disabled, using mock storage temporarily
-// export const storage = new DatabaseStorage();
-import { mockStorage } from "./mockStorage";
-export const storage = mockStorage;
+export const storage = new DatabaseStorage();

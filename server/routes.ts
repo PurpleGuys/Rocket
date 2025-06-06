@@ -172,7 +172,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current user
   app.get("/api/auth/me", authenticateToken, async (req, res) => {
     try {
-      const { password, verificationToken, resetPasswordToken, twoFactorSecret, ...safeUser } = req.user!;
+      if (!req.user) {
+        return res.status(401).json({ message: "Utilisateur non authentifié" });
+      }
+      const { password, verificationToken, resetPasswordToken, twoFactorSecret, ...safeUser } = req.user;
       res.json(safeUser);
     } catch (error: any) {
       res.status(500).json({ message: "Erreur lors de la récupération du profil: " + error.message });
