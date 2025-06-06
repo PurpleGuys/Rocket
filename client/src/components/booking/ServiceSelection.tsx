@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { apiRequest } from "@/lib/queryClient";
 import { Service } from "@shared/schema";
-import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2, Building2, Construction } from "lucide-react";
+import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2, Building2, Construction, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -49,8 +49,9 @@ export default function ServiceSelection() {
   // Variables pour l'option BSD et FID
   const [bsdOption, setBsdOption] = useState<boolean>(true); // BSD obligatoire par défaut
   const [fidData, setFidData] = useState<any>(null);
-  const [showFidForm, setShowFidForm] = useState<boolean>(false);
+  const [showFidForm, setShowFidForm] = useState(false);
 
+  // Queries pour récupérer les données
   const { data: services, isLoading, error } = useQuery({
     queryKey: ['/api/services'],
   });
@@ -70,7 +71,7 @@ export default function ServiceSelection() {
     queryKey: ['/api/auth/me'],
   });
 
-  const service = services ? services.find((s: Service) => s.id === selectedServiceId) : undefined;
+  const service = Array.isArray(services) ? services.find((s: Service) => s.id === selectedServiceId) : undefined;
 
   // Calculer automatiquement la date de fin basée sur la date de début et la durée
   useEffect(() => {
@@ -96,7 +97,7 @@ export default function ServiceSelection() {
         
         // Calculer automatiquement la distance pour l'adresse de l'entreprise
         if (companyAddress.length > 10) {
-          handleDistanceCalculation(companyAddress);
+          calculateDistance(companyAddress);
         }
       }
     } else if (deliveryLocationType === "construction_site") {
@@ -111,231 +112,119 @@ export default function ServiceSelection() {
   // Calcul automatique de la distance quand les données changent
   useEffect(() => {
     if (selectedServiceId && deliveryAddress && postalCode && city && selectedWasteType) {
-      calculateDistance();
+      calculatePricing();
     }
-  }, [selectedServiceId, deliveryAddress, postalCode, city, selectedWasteType, durationDays]);
+  }, [selectedServiceId, deliveryAddress, postalCode, city, selectedWasteType, distance, startDate, endDate, durationDays, bsdOption]);
 
-  // Fonction pour valider et calculer la distance
-  // Fonction pour rechercher des suggestions d'adresses
-  const searchAddressSuggestions = async (input: string) => {
-    if (input.length < 3) {
-      setAddressSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-
-    setIsLoadingSuggestions(true);
-    try {
-      const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(input)}`);
-      const data = await response.json();
-      
-      if (data.suggestions) {
-        setAddressSuggestions(data.suggestions);
-        setShowSuggestions(true);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la recherche d\'adresses:', error);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  };
-
-  // Fonction pour sélectionner une adresse et pré-remplir les champs
-  const selectAddress = async (suggestion: any) => {
-    try {
-      const response = await fetch(`/api/places/details?place_id=${suggestion.place_id}`);
-      const data = await response.json();
-      
-      if (data.success && data.address) {
-        setDeliveryAddress(data.address.street || suggestion.main_text);
-        setCity(data.address.city || '');
-        setPostalCode(data.address.postalCode || '');
-        setShowSuggestions(false);
-        setAddressSuggestions([]);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des détails d\'adresse:', error);
-      // Fallback: utiliser seulement le texte principal
-      setDeliveryAddress(suggestion.main_text);
-      setShowSuggestions(false);
-      setAddressSuggestions([]);
-    }
-  };
-
-  const calculateDistance = async () => {
-    if (!selectedServiceId || !deliveryAddress || !postalCode || !city || !selectedWasteType) {
-      setDistance(0);
-      return;
-    }
+  // Fonction pour calculer la distance
+  const calculateDistance = async (address: string) => {
+    if (!address || address.length < 5) return;
 
     setIsCalculatingDistance(true);
     setDistanceError("");
-
+    
     try {
-      // Convertir le nom du type de déchet en ID
-      const wasteType = wasteTypes.find((wt: any) => wt.name === selectedWasteType);
-      const wasteTypeId = wasteType ? wasteType.id : null;
-      
-      if (!wasteTypeId) {
-        setDistanceError("Type de déchet non valide");
-        return;
-      }
-
-      const response = await apiRequest('POST', '/api/calculate-pricing', {
-        serviceId: selectedServiceId,
-        wasteTypes: [wasteTypeId],
-        address: deliveryAddress,
-        postalCode: postalCode,
-        city: city,
-        durationDays: durationDays
+      const response = await apiRequest('/api/calculate-distance', {
+        method: 'POST',
+        body: { address: address.trim() }
       });
-      
-      const data = await response.json();
-      
-      if (data.success && data.distance) {
-        setDistance(data.distance.kilometers);
-        setPriceData(data); // Sauvegarder toutes les données de prix
-        setDistanceError("");
+
+      if (response.success) {
+        setDistance(response.distance);
       } else {
-        setDistanceError(data.message || "Impossible de calculer la distance");
-        setDistance(15); // Distance estimée par défaut
-        setPriceData(null);
+        setDistanceError(response.error || "Erreur lors du calcul de distance");
+        setDistance(0);
       }
-    } catch (error: any) {
-      console.error('Erreur calcul distance:', error);
-      if (error.message.includes('Adresse du site industriel non configurée')) {
-        setDistanceError("Configuration requise : veuillez configurer l'adresse du site industriel dans le panneau d'administration");
-      } else {
-        setDistanceError("Erreur lors du calcul de distance");
-      }
-      setDistance(15); // Distance estimée par défaut
+    } catch (error) {
+      console.error('Distance calculation error:', error);
+      setDistanceError("Impossible de calculer la distance");
+      setDistance(0);
     } finally {
       setIsCalculatingDistance(false);
     }
   };
 
-  // Fonction pour récupérer les suggestions d'adresses
-  const fetchAddressSuggestions = async (input: string) => {
-    if (input.length < 3) {
-      setAddressSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
+  // Fonction pour calculer le prix total
+  const calculatePricing = async () => {
+    if (!selectedServiceId || !selectedWasteType || !deliveryAddress) return;
 
-    setIsLoadingSuggestions(true);
     try {
-      const response = await apiRequest('GET', `/api/places/autocomplete?input=${encodeURIComponent(input)}`);
-      const data = await response.json();
-      
-      if (data.suggestions) {
-        setAddressSuggestions(data.suggestions);
-        setShowSuggestions(true);
+      const response = await apiRequest('/api/calculate-pricing', {
+        method: 'POST',
+        body: {
+          serviceId: selectedServiceId,
+          wasteType: selectedWasteType,
+          address: deliveryAddress,
+          distance: distance,
+          durationDays: durationDays,
+          bsdOption: bsdOption
+        }
+      });
+
+      if (response.success) {
+        setPriceData(response.pricing);
       }
     } catch (error) {
-      console.error('Erreur autocomplétion:', error);
-    } finally {
-      setIsLoadingSuggestions(false);
+      console.error('Pricing calculation error:', error);
     }
   };
 
+  // Fonction pour gérer les suggestions d'adresses
+  const handleAddressChange = async (value: string) => {
+    setDeliveryAddress(value);
+    
+    if (value.length > 3) {
+      setIsLoadingSuggestions(true);
+      try {
+        const response = await apiRequest(`/api/places/autocomplete?input=${encodeURIComponent(value)}`);
+        if (response.suggestions) {
+          setAddressSuggestions(response.suggestions);
+          setShowSuggestions(true);
+        }
+      } catch (error) {
+        console.error('Address suggestions error:', error);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  // Fonction pour sélectionner une suggestion d'adresse
+  const handleSuggestionSelect = (suggestion: any) => {
+    setDeliveryAddress(suggestion.description || suggestion.main_text);
+    setShowSuggestions(false);
+    calculateDistance(suggestion.description || suggestion.main_text);
+  };
+
+  // Fonction pour gérer le changement de type de déchet
+  const handleWasteTypeChange = (value: string) => {
+    setSelectedWasteType(value);
+  };
+
+  // Fonction pour sélectionner un service
   const handleServiceSelect = (service: Service) => {
     setSelectedServiceId(service.id);
   };
 
-  const handleWasteTypeChange = (wasteType: string) => {
-    setSelectedWasteType(wasteType);
-  };
-
-  const handleAddressChange = (value: string) => {
-    setDeliveryAddress(value);
-    searchAddressSuggestions(value);
-  };
-
-  const handleSuggestionSelect = (suggestion: any) => {
-    selectAddress(suggestion);
-  };
-
-  // Calculer le prix en fonction de la sélection
-  const calculatePrice = () => {
-    if (!service || !priceData) {
-      return { service: 0, transport: 0, treatment: 0, total: 0, details: [] };
-    }
-
-    const servicePrice = priceData.pricing?.service || parseFloat(service.basePrice);
-    const durationSupplement = priceData.pricing?.durationSupplement || 0;
-    const transportCost = priceData.pricing?.transport || 0;
-    const totalTreatmentCost = priceData.pricing?.treatment || 0;
-    let total = priceData.pricing?.total || (servicePrice + durationSupplement + transportCost + totalTreatmentCost);
-
-    const details = [
-      { label: "Service de base", amount: servicePrice },
-    ];
-
-    // Ajouter le supplément de durée si applicable
-    if (durationSupplement > 0) {
-      details.push({ label: `Supplément durée (${durationDays} jours)`, amount: durationSupplement });
-    }
-
-    const roundTripKm = priceData.distance?.roundTripKm || (distance * 2);
-    details.push({ label: `Transport (${roundTripKm.toFixed(1)} km aller-retour)`, amount: transportCost });
-
-    // Ajouter les détails des coûts de traitement si disponibles
-    if (totalTreatmentCost > 0) {
-      const maxTonnage = priceData.service?.maxTonnage || service.volume || 0;
-      const wasteTypeName = selectedWasteType || "Déchets";
-      details.push({ 
-        label: `Traitement ${wasteTypeName} (${maxTonnage}T max)`, 
-        amount: totalTreatmentCost 
-      });
-    }
-
-    // Ajouter l'option BSD si cochée
-    let bsdCost = 0;
-    if (bsdOption) {
-      bsdCost = 15;
-      details.push({ label: "Option BSD", amount: bsdCost });
-      total += bsdCost;
-    }
-
-    details.push({ label: "Total TTC", amount: total });
-
-    return {
-      service: servicePrice,
-      transport: transportCost,
-      treatment: totalTreatmentCost,
-      bsd: bsdCost,
-      total: total + bsdCost,
-      details: details
-    };
-  };
-
-  const priceCalculation = calculatePrice();
-
-  // Fonction pour gérer la réservation
+  // Fonction pour procéder à la réservation
   const handleBooking = () => {
-    if (!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city || !startDate || !endDate) {
+    // Validation complète avant de procéder au checkout
+    if (!selectedServiceId || !deliveryAddress.trim() || !selectedWasteType) {
       toast({
         title: "Informations manquantes",
-        description: "Veuillez remplir tous les champs requis y compris les dates de location",
+        description: "Veuillez remplir tous les champs obligatoires.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!service) {
-      toast({
-        title: "Erreur",
-        description: "Service non sélectionné",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Vérifier que la FID est remplie si l'option BSD est cochée
+    // Validation FID obligatoire pour l'option BSD
     if (bsdOption && !fidData) {
       toast({
         title: "FID obligatoire",
-        description: "Vous devez remplir la Fiche d'Identification des Déchets pour l'option BSD",
+        description: "Vous devez remplir la Fiche d'Identification des Déchets avant de continuer.",
         variant: "destructive",
       });
       setShowFidForm(true);
@@ -355,8 +244,8 @@ export default function ServiceSelection() {
     // Préparer les données de réservation avec les nouvelles informations de durée
     const bookingDetails = {
       serviceId: selectedServiceId,
-      serviceName: service.name,
-      serviceVolume: service.volume,
+      serviceName: service?.name,
+      serviceVolume: service?.volume,
       address: deliveryAddress,
       postalCode: postalCode,
       city: city,
@@ -365,15 +254,12 @@ export default function ServiceSelection() {
       fidData: fidData,
       distance: distance * 2, // Distance aller-retour
       // Nouvelles données de durée de location
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      startDate: startDate?.toISOString(),
+      endDate: endDate?.toISOString(),
       durationDays: durationDays,
-      deliveryDate: startDate.toISOString(), // Date de livraison = date de début
-      pricing: {
-        service: priceCalculation.service,
-        transport: priceCalculation.transport,
-        total: priceCalculation.total
-      }
+      deliveryLocationType: deliveryLocationType,
+      constructionSiteContactPhone: constructionSiteContactPhone,
+      pricing: priceData
     };
 
     // Sauvegarder dans sessionStorage et rediriger vers checkout
@@ -423,547 +309,358 @@ export default function ServiceSelection() {
     <div className="grid lg:grid-cols-3 gap-8">
       {/* Left Column - Configuration */}
       <div className="lg:col-span-2 space-y-6">
-        {/* DELIVERY LOCATION SELECTION - TOP OF QUOTE */}
-        <div style={{
-          backgroundColor: '#dc2626',
-          color: 'white',
-          padding: '24px',
-          borderRadius: '12px',
-          border: '4px solid #000000'
-        }}>
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginBottom: '20px'
-          }}>
-            🏗️ LIEU DE LIVRAISON DE VOTRE BENNE
-          </h2>
-          
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '16px',
-            marginBottom: '20px'
-          }}>
-            <button 
-              style={{
-                backgroundColor: deliveryLocationType === "company" ? '#3b82f6' : 'white',
-                color: deliveryLocationType === "company" ? 'white' : 'black',
-                padding: '16px',
-                borderRadius: '8px',
-                border: '2px solid #3b82f6',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                textAlign: 'center'
-              }}
-              onClick={() => setDeliveryLocationType("company")}
-            >
-              🏢 ADRESSE ENTREPRISE
-              <div style={{fontSize: '12px', fontWeight: 'normal', marginTop: '4px'}}>
-                Livraison à votre adresse principale
-              </div>
-            </button>
-            
-            <button 
-              style={{
-                backgroundColor: deliveryLocationType === "construction_site" ? '#3b82f6' : 'white',
-                color: deliveryLocationType === "construction_site" ? 'white' : 'black',
-                padding: '16px',
-                borderRadius: '8px',
-                border: '2px solid #3b82f6',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                textAlign: 'center'
-              }}
-              onClick={() => setDeliveryLocationType("construction_site")}
-            >
-              🚧 CHANTIER SPÉCIFIQUE
-              <div style={{fontSize: '12px', fontWeight: 'normal', marginTop: '4px'}}>
-                Livraison sur un chantier
-              </div>
-            </button>
-          </div>
-          
-          {deliveryLocationType === "construction_site" && (
-            <div style={{
-              backgroundColor: 'white',
-              color: 'black',
-              padding: '16px',
-              borderRadius: '8px',
-              border: '2px solid black'
-            }}>
-              <label style={{
-                display: 'block',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                marginBottom: '8px'
-              }}>
-                📞 TÉLÉPHONE CONTACT CHANTIER *
-              </label>
-              <input
-                type="tel"
-                placeholder="06 12 34 56 78"
-                value={constructionSiteContactPhone}
-                onChange={(e) => {
-                  // Formatage automatique du numéro de téléphone français
-                  const numbersOnly = e.target.value.replace(/\D/g, '');
-                  if (numbersOnly.length <= 10) {
-                    const formatted = numbersOnly.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
-                    setConstructionSiteContactPhone(formatted);
-                  }
-                }}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '2px solid #6b7280',
-                  borderRadius: '6px'
-                }}
-                required
-              />
-              <p style={{
-                fontSize: '11px',
-                color: '#6b7280',
-                marginTop: '4px'
-              }}>
-                Numéro utilisé par le chauffeur pour vous contacter
-              </p>
+        
+        {/* Delivery Location Selection */}
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="p-6">
+            <div className="flex items-center mb-4">
+              <MapPin className="h-5 w-5 mr-2 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Où souhaitez-vous la livraison ?</h3>
             </div>
-          )}
-        </div>
-
-        {/* Container Type Selection */}
-        <div>
-          <div className="flex items-center mb-4">
-            <Truck className="h-5 w-5 mr-2 text-red-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Choisissez votre benne</h3>
-          </div>
-          <div className="grid lg:grid-cols-1 gap-6">
-            {Array.isArray(services) && services.map((service: Service) => (
-              <div
-                key={service.id}
-                className={`relative cursor-pointer transition-all ${
-                  selectedServiceId === service.id ? "ring-2 ring-red-500" : ""
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  deliveryLocationType === "company" 
+                    ? "border-blue-500 bg-blue-100" 
+                    : "border-gray-200 hover:border-gray-300 bg-white"
                 }`}
-                onClick={() => handleServiceSelect(service)}
+                onClick={() => setDeliveryLocationType("company")}
               >
-                <Card className={`${
-                  selectedServiceId === service.id
-                    ? "border-red-500 bg-red-50"
-                    : "border-gray-200 hover:border-red-300"
-                }`}>
-                  <CardContent className="p-6">
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {/* Image de la benne */}
-                      <div className="md:col-span-1">
-                        <ServiceImageGallery 
-                          serviceName={service.name}
-                          serviceVolume={service.volume}
-                          className="w-full"
-                        />
-                      </div>
-                      
-                      {/* Informations principales */}
-                      <div className="md:col-span-1">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-lg font-semibold text-gray-900">{service.name}</h4>
-                          <span className="text-red-600 font-bold text-xl">
-                            {parseFloat(service.basePrice).toFixed(0)}€
-                          </span>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    deliveryLocationType === "company" 
+                      ? "border-blue-500 bg-blue-500" 
+                      : "border-gray-300"
+                  }`}>
+                    {deliveryLocationType === "company" && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    )}
+                  </div>
+                  <Building2 className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <div className="font-medium">Adresse de l'entreprise</div>
+                    <div className="text-sm text-gray-600">Livraison à votre adresse principale</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  deliveryLocationType === "construction_site" 
+                    ? "border-blue-500 bg-blue-100" 
+                    : "border-gray-200 hover:border-gray-300 bg-white"
+                }`}
+                onClick={() => setDeliveryLocationType("construction_site")}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    deliveryLocationType === "construction_site" 
+                      ? "border-blue-500 bg-blue-500" 
+                      : "border-gray-300"
+                  }`}>
+                    {deliveryLocationType === "construction_site" && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    )}
+                  </div>
+                  <Construction className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <div className="font-medium">Chantier spécifique</div>
+                    <div className="text-sm text-gray-600">Livraison sur un chantier</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Construction Site Contact Phone */}
+            {deliveryLocationType === "construction_site" && (
+              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <Label htmlFor="constructionSiteContactPhone" className="text-sm font-medium text-orange-800">
+                  Numéro de téléphone de contact sur le chantier *
+                </Label>
+                <Input
+                  id="constructionSiteContactPhone"
+                  type="tel"
+                  placeholder="Ex: 06 12 34 56 78"
+                  value={constructionSiteContactPhone}
+                  onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
+                  className="mt-2"
+                  required
+                />
+                <p className="text-xs text-orange-700 mt-1">
+                  Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Service Selection */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez votre benne</h3>
+          {Array.isArray(services) && services.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-4">
+              {services.map((service: Service) => (
+                <div key={service.id}>
+                  <Card 
+                    className={`cursor-pointer transition-all ${
+                      selectedServiceId === service.id 
+                        ? "ring-2 ring-red-500 border-red-300" 
+                        : "hover:border-gray-300"
+                    }`}
+                    onClick={() => handleServiceSelect(service)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        {service.imageUrl && (
+                          <ServiceImageGallery 
+                            images={[{
+                              url: service.imageUrl, 
+                              alt: service.name,
+                              caption: service.description || ''
+                            }]}
+                            className="w-full h-32 object-cover rounded-md"
+                          />
+                        )}
+                        
+                        <div>
+                          <h4 className="font-semibold text-lg">{service.name}</h4>
+                          <p className="text-gray-600 text-sm">{service.description}</p>
                         </div>
                         
-                        <div className="space-y-2 text-sm text-gray-600">
-                          <p><strong>Volume:</strong> {service.volume}m³</p>
-                          {service.length && service.width && service.height && (
-                            <p><strong>Dimensions:</strong> {service.length}m × {service.width}m × {service.height}m</p>
-                          )}
-                          {service.description && (
-                            <p className="text-gray-700 mt-2">{service.description}</p>
-                          )}
+                        <div className="flex justify-between items-center">
+                          <div className="text-lg font-bold text-red-600">
+                            À partir de {service.basePrice}€/jour
+                          </div>
+                          <Badge variant="outline">
+                            {service.volume}m³
+                          </Badge>
                         </div>
+                        
+                        {selectedServiceId === service.id && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <Badge className="bg-red-600 text-white">✓ Sélectionné</Badge>
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Prestations incluses */}
-                      <div className="md:col-span-1">
-                        <h5 className="font-medium text-gray-900 mb-2">Prestations incluses</h5>
-                        <div className="space-y-1">
-                          {service.includedServices?.map((includedService: string, index: number) => (
-                            <div key={index} className="flex items-center text-xs text-gray-600">
-                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                              {includedService}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {selectedServiceId === service.id && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <Badge className="bg-red-600 text-white">✓ Sélectionné</Badge>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Delivery Location Selection - FORCED DISPLAY */}
-        <div style={{backgroundColor: '#fef3c7', border: '2px solid #f59e0b', padding: '20px', borderRadius: '10px', marginBottom: '20px'}}>
-          <h3 style={{fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#92400e'}}>🏗️ OÙ SOUHAITEZ-VOUS LA LIVRAISON ?</h3>
-          
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px'}}>
-            <div 
-              style={{
-                padding: '15px',
-                border: deliveryLocationType === "company" ? '3px solid #3b82f6' : '2px solid #d1d5db',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                backgroundColor: deliveryLocationType === "company" ? '#dbeafe' : 'white'
-              }}
-              onClick={() => setDeliveryLocationType("company")}
-            >
-              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  border: '2px solid #3b82f6',
-                  backgroundColor: deliveryLocationType === "company" ? '#3b82f6' : 'transparent'
-                }}></div>
-                <div>
-                  <div style={{fontWeight: 'bold'}}>🏢 Adresse de l'entreprise</div>
-                  <div style={{fontSize: '14px', color: '#6b7280'}}>Livraison à votre adresse principale</div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </div>
+              ))}
             </div>
-            
-            <div 
-              style={{
-                padding: '15px',
-                border: deliveryLocationType === "construction_site" ? '3px solid #3b82f6' : '2px solid #d1d5db',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                backgroundColor: deliveryLocationType === "construction_site" ? '#dbeafe' : 'white'
-              }}
-              onClick={() => setDeliveryLocationType("construction_site")}
-            >
-              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  border: '2px solid #3b82f6',
-                  backgroundColor: deliveryLocationType === "construction_site" ? '#3b82f6' : 'transparent'
-                }}></div>
-                <div>
-                  <div style={{fontWeight: 'bold'}}>🚧 Chantier spécifique</div>
-                  <div style={{fontSize: '14px', color: '#6b7280'}}>Livraison sur un chantier</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {deliveryLocationType === "construction_site" && (
-            <div style={{padding: '15px', backgroundColor: '#fef2f2', border: '2px solid #fca5a5', borderRadius: '8px'}}>
-              <label style={{fontWeight: 'bold', color: '#dc2626', marginBottom: '8px', display: 'block'}}>
-                📞 Numéro de téléphone de contact sur le chantier *
-              </label>
-              <input
-                type="tel"
-                placeholder="Ex: 06 12 34 56 78"
-                value={constructionSiteContactPhone}
-                onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  border: '2px solid #f87171',
-                  borderRadius: '6px',
-                  fontSize: '16px'
-                }}
-                required
-              />
-              <p style={{fontSize: '12px', color: '#dc2626', marginTop: '5px'}}>
-                Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
-              </p>
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              <Truck className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <p>Aucun service disponible</p>
             </div>
           )}
         </div>
 
         {/* Waste Type Selection */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Type de déchet</h3>
-          {availableWasteTypes.length > 0 ? (
-            <Select value={selectedWasteType} onValueChange={handleWasteTypeChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sélectionnez un type de déchet" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableWasteTypes.map((wasteType: string) => (
-                  <SelectItem key={wasteType} value={wasteType}>
-                    {wasteType}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="text-center text-gray-500 py-4 border-2 border-dashed border-gray-200 rounded-lg">
-              <p className="text-sm">Aucun type de déchet configuré.</p>
-              <p className="text-xs text-gray-400 mt-1">Contactez l'administrateur pour configurer les types de déchets.</p>
-            </div>
-          )}
-        </div>
+        {selectedServiceId && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Type de déchet</h3>
+            {availableWasteTypes.length > 0 ? (
+              <Select value={selectedWasteType} onValueChange={handleWasteTypeChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Sélectionnez un type de déchet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableWasteTypes.map((wasteType: string) => (
+                    <SelectItem key={wasteType} value={wasteType}>
+                      {wasteType}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="text-center text-gray-500 py-4 border-2 border-dashed border-gray-200 rounded-lg">
+                <p className="text-sm">Aucun type de déchet configuré.</p>
+                <p className="text-xs text-gray-400 mt-1">Contactez l'administrateur pour configurer les types de déchets.</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Option BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE */}
         {selectedWasteType && (
-          <div className="bg-red-50 p-6 rounded-lg border border-red-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="bsd-option"
-                    checked={bsdOption}
-                    disabled={true}
-                    className="h-4 w-4 text-red-600 bg-red-100 border-red-300 rounded opacity-75"
-                  />
-                  <label htmlFor="bsd-option" className="ml-3 text-lg font-semibold text-gray-900">
-                    BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE
-                  </label>
+                  <Shield className="h-5 w-5 mr-2 text-red-600" />
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="bsd-option"
+                      checked={bsdOption}
+                      disabled={true}
+                      className="h-4 w-4 text-red-600 bg-red-100 border-red-300 rounded opacity-75"
+                    />
+                    <label htmlFor="bsd-option" className="ml-3 text-lg font-semibold text-gray-900">
+                      BSD (Bordereau de Suivi des Déchets) - OBLIGATOIRE
+                    </label>
+                  </div>
+                </div>
+                <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                  +15€
+                </Badge>
+              </div>
+              
+              <div className="text-sm text-gray-700">
+                <p className="mb-2">
+                  <strong>Le Bordereau de Suivi des Déchets (BSD)</strong> est un document obligatoire selon la réglementation française.
+                </p>
+                <p className="mb-2">
+                  Il permet de tracer le parcours de vos déchets de leur production jusqu'à leur traitement final, garantissant une gestion conforme à la réglementation environnementale.
+                </p>
+                <p className="text-red-700 font-medium mb-4">
+                  ⚠️ Vous devez remplir une Fiche d'Identification des Déchets (FID) obligatoire avant le paiement.
+                </p>
+                
+                {/* Bouton pour ouvrir le formulaire FID */}
+                <div className="flex items-center justify-between">
+                  <Button
+                    onClick={() => setShowFidForm(true)}
+                    variant={fidData ? "outline" : "default"}
+                    className={fidData ? "border-green-500 text-green-700" : ""}
+                  >
+                    {fidData ? "✓ FID Remplie - Modifier" : "Remplir la FID (obligatoire)"}
+                  </Button>
+                  {fidData && (
+                    <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                      FID Complétée
+                    </Badge>
+                  )}
                 </div>
               </div>
-              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
-                +15€
-              </Badge>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Address Section */}
+        {selectedWasteType && (
+          <div>
+            <div className="flex items-center mb-4">
+              <MapPin className="h-5 w-5 mr-2 text-red-600" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                {deliveryLocationType === "company" ? "Confirmation de l'adresse" : "Adresse du chantier"}
+              </h3>
             </div>
             
-            <div className="text-sm text-gray-700">
-              <p className="mb-2">
-                <strong>Le Bordereau de Suivi des Déchets (BSD)</strong> est un document obligatoire selon la réglementation française.
-              </p>
-              <p className="mb-2">
-                Il permet de tracer le parcours de vos déchets de leur production jusqu'à leur traitement final, garantissant une gestion conforme à la réglementation environnementale.
-              </p>
-              <p className="text-red-700 font-medium mb-4">
-                ⚠️ Vous devez remplir une Fiche d'Identification des Déchets (FID) obligatoire avant le paiement.
-              </p>
-              
-              {/* Bouton pour ouvrir le formulaire FID */}
-              <div className="flex items-center justify-between">
-                <Button
-                  onClick={() => setShowFidForm(true)}
-                  variant={fidData ? "outline" : "default"}
-                  className={fidData ? "border-green-500 text-green-700" : ""}
-                >
-                  {fidData ? "✓ FID Remplie - Modifier" : "Remplir la FID (obligatoire)"}
-                </Button>
-                {fidData && (
-                  <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                    FID Complétée
-                  </Badge>
+            <div className="space-y-4">
+              <div className="relative">
+                <Label htmlFor="address">
+                  {deliveryLocationType === "company" ? "Adresse de l'entreprise *" : "Adresse du chantier *"}
+                </Label>
+                {deliveryLocationType === "company" && user && (
+                  <p className="text-sm text-blue-600 mb-2">
+                    ✓ Adresse automatiquement remplie depuis votre profil
+                  </p>
+                )}
+                <Input
+                  id="address"
+                  type="text"
+                  value={deliveryAddress}
+                  onChange={(e) => handleAddressChange(e.target.value)}
+                  placeholder={
+                    deliveryLocationType === "company" 
+                      ? "Adresse de votre entreprise..." 
+                      : "Tapez l'adresse du chantier..."
+                  }
+                  className="mt-1"
+                  disabled={deliveryLocationType === "company"}
+                />
+                
+                {/* Suggestions d'adresses */}
+                {showSuggestions && addressSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {addressSuggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        <div className="font-medium">{suggestion.main_text}</div>
+                        <div className="text-gray-500 text-xs">{suggestion.secondary_text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {isLoadingSuggestions && (
+                  <div className="absolute right-3 top-9">
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  </div>
                 )}
               </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="postalCode">Code postal *</Label>
+                  <Input
+                    id="postalCode"
+                    type="text"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    placeholder="Ex: 75001"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="city">Ville *</Label>
+                  <Input
+                    id="city"
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Ex: Paris"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              {/* Distance Display */}
+              {distance > 0 && (
+                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                  <div className="flex items-center text-green-800">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <span className="text-sm font-medium">
+                      Distance calculée: {distance} km (aller-retour: {distance * 2} km)
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {isCalculatingDistance && (
+                <div className="flex items-center text-blue-600">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <span className="text-sm">Calcul de la distance en cours...</span>
+                </div>
+              )}
+
+              {distanceError && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>{distanceError}</AlertDescription>
+                </Alert>
+              )}
             </div>
           </div>
         )}
 
-        {/* NEW: Delivery Location Type Selection */}
-        <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-          <div className="flex items-center mb-4">
-            <MapPin className="h-5 w-5 mr-2 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Où souhaitez-vous la livraison ?</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div 
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                deliveryLocationType === "company" 
-                  ? "border-blue-500 bg-blue-100" 
-                  : "border-gray-200 hover:border-gray-300 bg-white"
-              }`}
-              onClick={() => setDeliveryLocationType("company")}
-            >
-              <div className="flex items-center space-x-3">
-                <div className={`w-4 h-4 rounded-full border-2 ${
-                  deliveryLocationType === "company" 
-                    ? "border-blue-500 bg-blue-500" 
-                    : "border-gray-300"
-                }`}>
-                  {deliveryLocationType === "company" && (
-                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
-                  )}
-                </div>
-                <Building2 className="h-5 w-5 text-blue-600" />
-                <div>
-                  <div className="font-medium">Adresse de l'entreprise</div>
-                  <div className="text-sm text-gray-600">Livraison à votre adresse principale</div>
-                </div>
-              </div>
-            </div>
+        {/* Duration Selection */}
+        {selectedWasteType && deliveryAddress && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Durée de location</h3>
             
-            <div 
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                deliveryLocationType === "construction_site" 
-                  ? "border-blue-500 bg-blue-100" 
-                  : "border-gray-200 hover:border-gray-300 bg-white"
-              }`}
-              onClick={() => setDeliveryLocationType("construction_site")}
-            >
-              <div className="flex items-center space-x-3">
-                <div className={`w-4 h-4 rounded-full border-2 ${
-                  deliveryLocationType === "construction_site" 
-                    ? "border-blue-500 bg-blue-500" 
-                    : "border-gray-300"
-                }`}>
-                  {deliveryLocationType === "construction_site" && (
-                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
-                  )}
-                </div>
-                <Construction className="h-5 w-5 text-blue-600" />
-                <div>
-                  <div className="font-medium">Chantier spécifique</div>
-                  <div className="text-sm text-gray-600">Livraison sur un chantier</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Construction Site Contact Phone */}
-          {deliveryLocationType === "construction_site" && (
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <Label htmlFor="constructionSiteContactPhone" className="text-sm font-medium text-orange-800">
-                Numéro de téléphone de contact sur le chantier *
-              </Label>
-              <Input
-                id="constructionSiteContactPhone"
-                type="tel"
-                placeholder="Ex: 06 12 34 56 78"
-                value={constructionSiteContactPhone}
-                onChange={(e) => setConstructionSiteContactPhone(e.target.value)}
-                className="mt-2"
-                required
-              />
-              <p className="text-xs text-orange-700 mt-1">
-                Ce numéro sera utilisé par le chauffeur pour vous contacter lors de la livraison.
-              </p>
-            </div>
-          )}
-        </div>
-
-
-
-        {/* Address Section */}
-        <div>
-          <div className="flex items-center mb-4">
-            <MapPin className="h-5 w-5 mr-2 text-red-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
-              {deliveryLocationType === "company" ? "Confirmation de l'adresse" : "Adresse du chantier"}
-            </h3>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="relative">
-              <Label htmlFor="address">
-                {deliveryLocationType === "company" ? "Adresse de l'entreprise *" : "Adresse du chantier *"}
-              </Label>
-              {deliveryLocationType === "company" && user && (
-                <p className="text-sm text-blue-600 mb-2">
-                  ✓ Adresse automatiquement remplie depuis votre profil
-                </p>
-              )}
-              <Input
-                id="address"
-                type="text"
-                value={deliveryAddress}
-                onChange={(e) => handleAddressChange(e.target.value)}
-                placeholder={
-                  deliveryLocationType === "company" 
-                    ? "Adresse de votre entreprise..." 
-                    : "Tapez l'adresse du chantier..."
-                }
-                className="mt-1"
-                disabled={deliveryLocationType === "company"}
-              />
-              
-              {/* Suggestions d'adresses */}
-              {showSuggestions && addressSuggestions.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {addressSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                      onClick={() => handleSuggestionSelect(suggestion)}
-                    >
-                      <div className="font-medium">{suggestion.main_text}</div>
-                      <div className="text-gray-500 text-xs">{suggestion.secondary_text}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {isLoadingSuggestions && (
-                <div className="absolute right-3 top-9">
-                  <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                </div>
-              )}
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
               <div>
-                <Label htmlFor="postalCode">Code postal *</Label>
-                <Input
-                  id="postalCode"
-                  type="text"
-                  value={postalCode}
-                  onChange={(e) => {
-                    // Formatage automatique code postal français (5 chiffres uniquement)
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-                    setPostalCode(value);
-                  }}
-                  placeholder="75001"
-                  className="mt-1"
-                  maxLength={5}
-                />
-              </div>
-              <div>
-                <Label htmlFor="city">Ville *</Label>
-                <Input
-                  id="city"
-                  type="text"
-                  value={city}
-                  onChange={(e) => {
-                    // Formatage automatique ville (première lettre majuscule)
-                    const value = e.target.value.split(' ').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                    ).join(' ');
-                    setCity(value);
-                  }}
-                  placeholder="Paris"
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section Durée de location */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <CalendarIcon className="h-5 w-5 mr-2 text-red-600" />
-              Durée de location
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Date de début */}
-              <div>
-                <Label>Date de début de location *</Label>
+                <Label>Date de début *</Label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
-                      variant="outline"
+                      variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal mt-1",
                         !startDate && "text-muted-foreground"
@@ -973,7 +670,7 @@ export default function ServiceSelection() {
                       {startDate ? format(startDate, "PPP", { locale: fr }) : "Sélectionner une date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
                       selected={startDate}
@@ -981,137 +678,72 @@ export default function ServiceSelection() {
                         setStartDate(date);
                         setIsCalendarOpen(false);
                       }}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
               </div>
-
-              {/* Durée en jours */}
+              
               <div>
                 <Label htmlFor="duration">Durée (jours) *</Label>
                 <Select value={durationDays.toString()} onValueChange={(value) => setDurationDays(parseInt(value))}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="w-full mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 jour</SelectItem>
                     <SelectItem value="3">3 jours</SelectItem>
-                    <SelectItem value="7">1 semaine (7 jours)</SelectItem>
-                    <SelectItem value="14">2 semaines (14 jours)</SelectItem>
-                    <SelectItem value="21">3 semaines (21 jours)</SelectItem>
-                    <SelectItem value="30">1 mois (30 jours)</SelectItem>
-                    <SelectItem value="60">2 mois (60 jours)</SelectItem>
-                    <SelectItem value="90">3 mois (90 jours)</SelectItem>
+                    <SelectItem value="7">1 semaine</SelectItem>
+                    <SelectItem value="14">2 semaines</SelectItem>
+                    <SelectItem value="30">1 mois</SelectItem>
+                    <SelectItem value="60">2 mois</SelectItem>
+                    <SelectItem value="90">3 mois</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Résumé des dates */}
             {startDate && endDate && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center text-sm text-blue-800">
-                  <CalendarIcon className="h-4 w-4 mr-2" />
-                  <span className="font-medium">Période de location :</span>
-                </div>
-                <div className="mt-2 text-sm text-blue-700">
-                  <div><strong>Début :</strong> {format(startDate, "EEEE d MMMM yyyy", { locale: fr })}</div>
-                  <div><strong>Fin :</strong> {format(endDate, "EEEE d MMMM yyyy", { locale: fr })}</div>
-                  <div><strong>Durée :</strong> {durationDays} jour{durationDays > 1 ? 's' : ''}</div>
-                </div>
-                <div className="mt-2 text-xs text-blue-600">
-                  📋 La livraison sera programmée le {format(startDate, "d MMMM yyyy", { locale: fr })} sauf en cas d'indisponibilité
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div className="text-blue-800 text-sm">
+                  <strong>Période de location:</strong> du {format(startDate, "dd/MM/yyyy", { locale: fr })} au {format(endDate, "dd/MM/yyyy", { locale: fr })} ({durationDays} jour{durationDays > 1 ? 's' : ''})
                 </div>
               </div>
             )}
           </div>
-
-          {/* Distance et erreurs */}
-          {isCalculatingDistance && (
-            <div className="mt-4 flex items-center text-sm text-gray-600">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Calcul de la distance en cours...
-            </div>
-          )}
-          
-          {distanceError && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{distanceError}</AlertDescription>
-            </Alert>
-          )}
-          
-          {distance > 0 && !isCalculatingDistance && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800">
-                Distance calculée : {distance.toFixed(1)} km (aller-retour : {(distance * 2).toFixed(1)} km)
-              </p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Right Column - Price Summary */}
+      {/* Right Column - Pricing Summary */}
       <div className="lg:col-span-1">
-        <Card className="sticky top-4 shadow-lg border-red-100">
+        <Card className="sticky top-4">
           <CardContent className="p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Devis instantané</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Récapitulatif</h3>
             
-            {priceCalculation.total > 0 ? (
-              <div className="space-y-3">
-                {priceCalculation.details.map((item, index) => {
-                  const isTotal = item.label === "Total TTC";
-                  const isSubItem = item.isSubItem;
-                  
-                  return (
-                    <div key={index} className={`flex justify-between text-sm ${
-                      isSubItem ? "ml-4 text-xs text-gray-500" : ""
-                    }`}>
-                      <span className={
-                        isTotal ? "font-medium" : 
-                        isSubItem ? "text-gray-500" : "text-gray-600"
-                      }>
-                        {item.label}
-                      </span>
-                      <span className={
-                        isTotal ? "font-medium" : 
-                        isSubItem ? "text-gray-500" : ""
-                      }>
-                        {item.amount.toFixed(2)}€
-                      </span>
+            {priceData ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  {priceData.items?.map((item: any, index: number) => (
+                    <div key={index} className="flex justify-between text-sm">
+                      <span className={item.isSubItem ? "ml-4 text-gray-600" : ""}>{item.label}</span>
+                      <span>{item.amount}€</span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
                 
-                {/* Affichage spécial du tonnage si disponible */}
-                {priceData?.maxTonnage > 0 && (
-                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-blue-800">Capacité / prix de traitement:</span>
-                      <span className="text-blue-800 font-medium">{priceData.maxTonnage} tonnes</span>
-                    </div>
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span>Total</span>
+                    <span className="text-red-600">{priceData.total}€</span>
                   </div>
-                )}
-                
-                <hr className="border-gray-200" />
-                <div className="flex justify-between text-xl font-bold text-red-600">
-                  <span>Total TTC</span>
-                  <span>{priceCalculation.total.toFixed(2)}€</span>
                 </div>
-                
-                {/* Mentions légales TVA */}
-                <div className="text-xs text-gray-500 mt-2 space-y-1">
-                  <p>• Prix TTC (TVA 20% incluse)</p>
-                  <p>• Facture émise après prestation</p>
-                  <p>• Conforme aux réglementations environnementales</p>
-                </div>
-                
+
                 <Button 
-                  className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white"
                   onClick={handleBooking}
-                  disabled={!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city || !startDate || !endDate}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  size="lg"
+                  disabled={!selectedServiceId || !deliveryAddress || !selectedWasteType || (bsdOption && !fidData)}
                 >
                   Réserver maintenant
                 </Button>

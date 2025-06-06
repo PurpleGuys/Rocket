@@ -1,0 +1,72 @@
+[vite] connecting... client:495:8
+[vite] connected. client:618:14
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools react-dom.development.js:29895:16
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WOOG5QLI.js?v=c5fccbcb
+URL du lien source : chunk-WOOG5QLI.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react.js?v=c5fccbcb
+URL du lien source : react.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/clsx.js?v=c5fccbcb
+URL du lien source : clsx.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-slot.js?v=c5fccbcb
+URL du lien source : @radix-ui_react-slot.js.map
+
+Uncaught ReferenceError: handleDistanceCalculation is not defined
+    ServiceSelection ServiceSelection.tsx:99
+    React 4
+ServiceSelection.tsx:99:10
+Uncaught ReferenceError: handleDistanceCalculation is not defined
+    ServiceSelection ServiceSelection.tsx:99
+    React 4
+ServiceSelection.tsx:99:10
+The above error occurred in the <ServiceSelection> component:
+
+ServiceSelection@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/components/booking/ServiceSelection.tsx:40:27
+div
+_c9@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/components/ui/card.jsx:71:19
+div
+_c@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/components/ui/card.jsx:31:19
+div
+div
+Home@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/pages/home.jsx:35:20
+Route@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c5fccbcb:323:13
+Switch@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c5fccbcb:379:14
+Router@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/App.tsx?v=7PI-R_JWa54JrDPGQKrqU:41:42
+Provider@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-M3NVYRND.js?v=c5fccbcb:48:47
+TooltipProvider@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c5fccbcb:64:7
+QueryClientProvider@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=c5fccbcb:2804:27
+App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. 2 react-dom.development.js:18704:14
+Uncaught ReferenceError: handleDistanceCalculation is not defined
+    ServiceSelection ServiceSelection.tsx:99
+    React 4
+ServiceSelection.tsx:99:10
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/v3/controller-with-preconnect-9794a5c5948d953d59a06dfefb746828.html#__shared_params__[version]=basil&apiKey=pk_test_51RTkOhQWGRGBWlNRc4IflKqJ0d1kAUBXOhgn22ZYYj6MawLbuwXqTBBuFcnOandCkhqYxeNZKxR6H7KEZa7SYCWg00j7ZlAw82&apiVersion=2025-03-31.basil&stripeJsId=be73fc99-9a3d-4bad-abc2-a6785533845e&firstStripeInstanceCreatedLatency=54&controllerCount=1&isCheckout=false&stripeJsLoadTime=1749201750868&manualBrowserDeprecationRollout=false&mids[guid]=NA&mids[muid]=8de5a382-ad43-48dd-8282-96b8cdea3c91149923&mids[sid]=e261d13f-7555-4d5d-a468-351511cfb4efe51a87&referrer=https%3A%2F%2F42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev%2F&controllerId=__privateStripeController6891 » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+controller-with-preconnect-ea838d8226c375bda20a40f650fb94b5.js:1:26907
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-hook-form.js?v=c5fccbcb
+URL du lien source : react-hook-form.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/drizzle-orm.js?v=c5fccbcb
+URL du lien source : drizzle-orm.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/zod.js?v=c5fccbcb
+URL du lien source : zod.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/date-fns.js?v=c5fccbcb
+URL du lien source : date-fns.js.map
+
+Erreur dans les liens source : No sources are declared in this source map.
+URL de la ressource : https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/date-fns_locale.js?v=c5fccbcb
+URL du lien source : date-fns_locale.js.map
