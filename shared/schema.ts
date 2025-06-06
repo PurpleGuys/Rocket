@@ -591,7 +591,96 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   createdAt: true,
 });
 
+// Table des questionnaires de satisfaction
+export const satisfactionSurveys = pgTable("satisfaction_surveys", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(), // Token unique pour accéder au questionnaire
+  emailSent: boolean("email_sent").default(false),
+  emailSentAt: timestamp("email_sent_at"),
+  completed: boolean("completed").default(false),
+  completedAt: timestamp("completed_at"),
+  expiresAt: timestamp("expires_at").notNull(), // Expire après 30 jours
+  
+  // Questions et réponses du questionnaire
+  overallSatisfaction: integer("overall_satisfaction"), // 1-5 étoiles
+  serviceQuality: integer("service_quality"), // 1-5 étoiles
+  deliveryTiming: integer("delivery_timing"), // 1-5 étoiles
+  pickupTiming: integer("pickup_timing"), // 1-5 étoiles
+  customerService: integer("customer_service"), // 1-5 étoiles
+  valueForMoney: integer("value_for_money"), // 1-5 étoiles
+  
+  // Questions ouvertes
+  positiveComments: text("positive_comments"),
+  negativeComments: text("negative_comments"),
+  suggestions: text("suggestions"),
+  
+  // Recommandation Net Promoter Score
+  npsScore: integer("nps_score"), // 0-10
+  
+  // Fidélisation
+  wouldUseAgain: boolean("would_use_again"),
+  wouldRecommend: boolean("would_recommend"),
+  
+  // Métadonnées
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  responseTimeSeconds: integer("response_time_seconds"), // Temps pour remplir le questionnaire
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Table pour les notifications de questionnaire (suivi des envois)
+export const surveyNotifications = pgTable("survey_notifications", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => satisfactionSurveys.id, { onDelete: "cascade" }),
+  reminderSent: boolean("reminder_sent").default(false),
+  reminderSentAt: timestamp("reminder_sent_at"),
+  reminderCount: integer("reminder_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Relations pour les questionnaires
+export const satisfactionSurveysRelations = relations(satisfactionSurveys, ({ one }) => ({
+  order: one(orders, {
+    fields: [satisfactionSurveys.orderId],
+    references: [orders.id],
+  }),
+  user: one(users, {
+    fields: [satisfactionSurveys.userId],
+    references: [users.id],
+  }),
+}));
+
+export const surveyNotificationsRelations = relations(surveyNotifications, ({ one }) => ({
+  survey: one(satisfactionSurveys, {
+    fields: [surveyNotifications.surveyId],
+    references: [satisfactionSurveys.id],
+  }),
+}));
+
+// Schémas Zod pour les questionnaires
+export const insertSatisfactionSurveySchema = createInsertSchema(satisfactionSurveys).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSurveyNotificationSchema = createInsertSchema(surveyNotifications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type EmailLog = typeof emailLogs.$inferSelect;
 export type InsertEmailLog = z.infer<typeof insertEmailLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type SatisfactionSurvey = typeof satisfactionSurveys.$inferSelect;
+export type InsertSatisfactionSurvey = z.infer<typeof insertSatisfactionSurveySchema>;
+export type SurveyNotification = typeof surveyNotifications.$inferSelect;
+export type InsertSurveyNotification = z.infer<typeof insertSurveyNotificationSchema>;

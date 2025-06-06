@@ -1,4 +1,4 @@
-import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit } from "@shared/schema";
+import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, satisfactionSurveys, surveyNotifications, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit, type SatisfactionSurvey, type InsertSatisfactionSurvey, type SurveyNotification, type InsertSurveyNotification } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
 
@@ -112,6 +112,19 @@ export interface IStorage {
 
   // Order Email Status
   updateOrderEmailStatus(orderId: number, status: { confirmationEmailSent?: boolean; validationEmailSent?: boolean }): Promise<void>;
+  
+  // Satisfaction Surveys
+  createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey>;
+  getSatisfactionSurvey(id: number): Promise<SatisfactionSurvey | undefined>;
+  getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | undefined>;
+  getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]>;
+  getSatisfactionSurveys(): Promise<(SatisfactionSurvey & { order: Order; user: User })[]>;
+  updateSatisfactionSurvey(id: number, survey: Partial<InsertSatisfactionSurvey>): Promise<SatisfactionSurvey | undefined>;
+  getOrdersReadyForSurvey(): Promise<Order[]>; // Commandes terminées depuis 1 semaine sans questionnaire
+  
+  // Survey Notifications
+  createSurveyNotification(notification: InsertSurveyNotification): Promise<SurveyNotification>;
+  updateSurveyNotification(surveyId: number, notification: Partial<InsertSurveyNotification>): Promise<SurveyNotification | undefined>;
   
   // Order Delivery Date Management
   updateOrderDeliveryDate(orderId: number, confirmedDate: Date, adminUserId: number, adminNotes?: string): Promise<Order | undefined>;
@@ -933,6 +946,92 @@ export class DatabaseStorage implements IStorage {
       .where(eq(bankDeposits.id, id))
       .returning();
     return deposit;
+  }
+
+  // Satisfaction Surveys operations
+  async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
+    const [created] = await db
+      .insert(satisfactionSurveys)
+      .values(survey)
+      .returning();
+    return created;
+  }
+
+  async getSatisfactionSurvey(id: number): Promise<SatisfactionSurvey | undefined> {
+    const [survey] = await db
+      .select()
+      .from(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.id, id));
+    return survey;
+  }
+
+  async getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | undefined> {
+    const [survey] = await db
+      .select()
+      .from(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.token, token));
+    return survey;
+  }
+
+  async getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]> {
+    return await db
+      .select()
+      .from(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.orderId, orderId));
+  }
+
+  async getSatisfactionSurveys(): Promise<(SatisfactionSurvey & { order: Order; user: User })[]> {
+    return await db
+      .select()
+      .from(satisfactionSurveys)
+      .leftJoin(orders, eq(satisfactionSurveys.orderId, orders.id))
+      .leftJoin(users, eq(satisfactionSurveys.userId, users.id))
+      .orderBy(desc(satisfactionSurveys.createdAt)) as any;
+  }
+
+  async updateSatisfactionSurvey(id: number, survey: Partial<InsertSatisfactionSurvey>): Promise<SatisfactionSurvey | undefined> {
+    const [updated] = await db
+      .update(satisfactionSurveys)
+      .set({ ...survey, updatedAt: new Date() })
+      .where(eq(satisfactionSurveys.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getOrdersReadyForSurvey(): Promise<Order[]> {
+    // Récupère les commandes terminées depuis plus de 7 jours sans questionnaire de satisfaction
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    return await db
+      .select()
+      .from(orders)
+      .leftJoin(satisfactionSurveys, eq(orders.id, satisfactionSurveys.orderId))
+      .where(
+        and(
+          eq(orders.status, 'completed'),
+          lt(orders.updatedAt, oneWeekAgo),
+          sql`${satisfactionSurveys.id} IS NULL` // Pas de questionnaire existant
+        )
+      ) as any;
+  }
+
+  // Survey Notifications operations
+  async createSurveyNotification(notification: InsertSurveyNotification): Promise<SurveyNotification> {
+    const [created] = await db
+      .insert(surveyNotifications)
+      .values(notification)
+      .returning();
+    return created;
+  }
+
+  async updateSurveyNotification(surveyId: number, notification: Partial<InsertSurveyNotification>): Promise<SurveyNotification | undefined> {
+    const [updated] = await db
+      .update(surveyNotifications)
+      .set({ ...notification, updatedAt: new Date() })
+      .where(eq(surveyNotifications.surveyId, surveyId))
+      .returning();
+    return updated;
   }
 
   async deleteBankDeposit(id: number): Promise<void> {

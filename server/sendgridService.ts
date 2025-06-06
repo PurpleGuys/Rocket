@@ -1105,6 +1105,194 @@ export class SendGridService {
 
     return { subject, html, text };
   }
+
+  // Envoyer un questionnaire de satisfaction
+  async sendSatisfactionSurveyEmail(
+    to: string,
+    data: {
+      firstName: string;
+      lastName: string;
+      orderNumber: string;
+      surveyUrl: string;
+      expiryDate: Date;
+    }
+  ): Promise<boolean> {
+    const subject = `Votre avis nous intéresse - Commande ${data.orderNumber}`;
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Questionnaire de satisfaction</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #2563eb; color: white; padding: 20px; text-align: center; }
+          .content { background: #f9fafb; padding: 30px; }
+          .button { display: inline-block; background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { background: #e5e7eb; padding: 20px; font-size: 12px; color: #6b7280; }
+          .stars { color: #fbbf24; font-size: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📋 Questionnaire de Satisfaction</h1>
+            <p>Votre avis compte pour nous !</p>
+          </div>
+          
+          <div class="content">
+            <h2>Bonjour ${data.firstName} ${data.lastName},</h2>
+            
+            <p>Nous espérons que notre service de location de bennes pour votre commande <strong>${data.orderNumber}</strong> vous a donné entière satisfaction.</p>
+            
+            <p>Afin d'améliorer continuellement nos services, nous aimerions connaître votre avis sur votre expérience récente avec Remondis.</p>
+            
+            <div style="background: white; padding: 20px; border-left: 4px solid #2563eb; margin: 20px 0;">
+              <h3>🎯 Votre avis en 2 minutes</h3>
+              <p>Ce questionnaire ne vous prendra que quelques minutes et nous aidera à :</p>
+              <ul>
+                <li>✅ Améliorer la qualité de nos services</li>
+                <li>✅ Optimiser nos délais de livraison et collecte</li>
+                <li>✅ Mieux répondre à vos besoins futurs</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${data.surveyUrl}" class="button">🚀 Répondre au questionnaire</a>
+            </div>
+            
+            <p><strong>⏰ Important :</strong> Ce questionnaire est disponible jusqu'au ${data.expiryDate.toLocaleDateString('fr-FR')}.</p>
+            
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <p><strong>🎁 Merci pour votre fidélité !</strong></p>
+              <p>Vos réponses nous aident à vous offrir le meilleur service possible. En tant que client fidèle, votre satisfaction est notre priorité.</p>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <p>Cet email concerne votre commande ${data.orderNumber}. Si vous avez des questions, contactez-nous à contact@remondis.fr</p>
+            <p>Remondis - Solutions durables pour la gestion des déchets</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+Bonjour ${data.firstName} ${data.lastName},
+
+Nous espérons que notre service de location de bennes pour votre commande ${data.orderNumber} vous a donné entière satisfaction.
+
+Afin d'améliorer continuellement nos services, nous aimerions connaître votre avis sur votre expérience récente avec Remondis.
+
+Répondez à notre questionnaire en cliquant sur ce lien : ${data.surveyUrl}
+
+Ce questionnaire est disponible jusqu'au ${data.expiryDate.toLocaleDateString('fr-FR')}.
+
+Merci pour votre temps et votre fidélité !
+
+L'équipe Remondis
+    `;
+
+    return await this.sendEmailNotification({
+      to,
+      from: 'satisfaction@remondis.fr',
+      subject,
+      text,
+      html,
+    });
+  }
+
+  // Envoyer un rappel de questionnaire de satisfaction
+  async sendSatisfactionSurveyReminder(
+    to: string,
+    data: {
+      firstName: string;
+      lastName: string;
+      orderNumber: string;
+      surveyUrl: string;
+      expiryDate: Date;
+    }
+  ): Promise<boolean> {
+    const subject = `⏰ Rappel - Votre avis nous intéresse - Commande ${data.orderNumber}`;
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Rappel - Questionnaire de satisfaction</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #f59e0b; color: white; padding: 20px; text-align: center; }
+          .content { background: #f9fafb; padding: 30px; }
+          .button { display: inline-block; background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { background: #e5e7eb; padding: 20px; font-size: 12px; color: #6b7280; }
+          .urgent { background: #fef2f2; border: 1px solid #fca5a5; padding: 15px; border-radius: 6px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>⏰ Rappel Important</h1>
+            <p>Votre questionnaire expire bientôt !</p>
+          </div>
+          
+          <div class="content">
+            <h2>Bonjour ${data.firstName} ${data.lastName},</h2>
+            
+            <p>Nous vous avions récemment envoyé un questionnaire de satisfaction concernant votre commande <strong>${data.orderNumber}</strong>.</p>
+            
+            <div class="urgent">
+              <h3>⚠️ Dernière chance !</h3>
+              <p>Votre questionnaire expire le <strong>${data.expiryDate.toLocaleDateString('fr-FR')}</strong>. Ne manquez pas cette opportunité de nous faire part de votre expérience.</p>
+            </div>
+            
+            <p>Vos commentaires sont précieux pour nous aider à améliorer nos services. Cela ne prend que 2 minutes !</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${data.surveyUrl}" class="button">🔥 Répondre maintenant</a>
+            </div>
+            
+            <p>Merci de prendre quelques instants pour partager votre avis.</p>
+          </div>
+          
+          <div class="footer">
+            <p>Cet email concerne votre commande ${data.orderNumber}. Si vous avez des questions, contactez-nous à contact@remondis.fr</p>
+            <p>Remondis - Solutions durables pour la gestion des déchets</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+Bonjour ${data.firstName} ${data.lastName},
+
+RAPPEL - Votre questionnaire de satisfaction expire bientôt !
+
+Nous vous avions récemment envoyé un questionnaire concernant votre commande ${data.orderNumber}.
+
+Votre questionnaire expire le ${data.expiryDate.toLocaleDateString('fr-FR')}.
+
+Répondez maintenant : ${data.surveyUrl}
+
+Merci pour votre temps !
+
+L'équipe Remondis
+    `;
+
+    return await this.sendEmailNotification({
+      to,
+      from: 'satisfaction@remondis.fr',
+      subject,
+      text,
+      html,
+    });
+  }
 }
 
 export const sendGridService = new SendGridService();
