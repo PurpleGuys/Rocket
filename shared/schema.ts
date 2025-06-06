@@ -52,6 +52,17 @@ export const services = pgTable("services", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const serviceImages = pgTable("service_images", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  imagePath: text("image_path").notNull(),
+  imageType: text("image_type").notNull(), // 'face', 'side_right', 'side_left', 'with_person', 'back'
+  altText: text("alt_text"),
+  isMain: boolean("is_main").default(false),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const timeSlots = pgTable("time_slots", {
   id: serial("id").primaryKey(),
   date: text("date").notNull(), // YYYY-MM-DD format
@@ -146,6 +157,14 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const servicesRelations = relations(services, ({ many }) => ({
   orders: many(orders),
+  images: many(serviceImages),
+}));
+
+export const serviceImagesRelations = relations(serviceImages, ({ one }) => ({
+  service: one(services, {
+    fields: [serviceImages.serviceId],
+    references: [services.id],
+  }),
 }));
 
 // Add session table for secure session management
@@ -285,6 +304,11 @@ export const insertServiceSchema = createInsertSchema(services).omit({
   id: true,
 });
 
+export const insertServiceImageSchema = createInsertSchema(serviceImages).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertTimeSlotSchema = createInsertSchema(timeSlots).omit({
   id: true,
 });
@@ -357,6 +381,8 @@ export type ChangePassword = z.infer<typeof changePasswordSchema>;
 export type Session = typeof sessions.$inferSelect;
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
+export type ServiceImage = typeof serviceImages.$inferSelect;
+export type InsertServiceImage = z.infer<typeof insertServiceImageSchema>;
 export type TimeSlot = typeof timeSlots.$inferSelect;
 export type InsertTimeSlot = z.infer<typeof insertTimeSlotSchema>;
 export type Order = typeof orders.$inferSelect;
