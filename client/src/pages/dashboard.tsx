@@ -5099,6 +5099,28 @@ export default function Dashboard() {
                     }`}
                   >
                     <Truck className="mr-3 h-4 w-4" />
+                    Commandes
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => window.location.href = "/admin/fids"}
+                    className="w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                  >
+                    <FileText className="mr-3 h-4 w-4" />
+                    Gestion des FID
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("users")}
+                    className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      currentPage === "users"
+                        ? "bg-red-100 text-red-700 border-r-2 border-red-500"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Truck className="mr-3 h-4 w-4" />
                     Mes Commandes
                   </button>
                 </li>

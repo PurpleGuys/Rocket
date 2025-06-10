@@ -140,6 +140,12 @@ export interface IStorage {
     status?: string;
   }): Promise<Order | undefined>;
   getOrderByValidationToken(token: string): Promise<Order | undefined>;
+
+  // FIDs
+  getFids(filters?: { status?: string; search?: string }): Promise<any[]>;
+  getFidById(id: number): Promise<any | undefined>;
+  createFid(fid: InsertFid): Promise<Fid>;
+  updateFid(id: number, fid: Partial<UpdateFid>): Promise<Fid | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1115,7 +1121,137 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(satisfactionSurveys)
       .where(eq(satisfactionSurveys.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
+  }
+
+  // FIDs
+  async getFids(filters?: { status?: string; search?: string }): Promise<any[]> {
+    let query = db
+      .select({
+        id: fids.id,
+        userId: fids.userId,
+        orderId: fids.orderId,
+        clientCompanyName: fids.clientCompanyName,
+        clientContactName: fids.clientContactName,
+        clientEmail: fids.clientEmail,
+        wasteName: fids.wasteName,
+        nomenclatureCode: fids.nomenclatureCode,
+        status: fids.status,
+        validatedBy: fids.validatedBy,
+        validatedAt: fids.validatedAt,
+        rejectionReason: fids.rejectionReason,
+        adminComments: fids.adminComments,
+        createdAt: fids.createdAt,
+        updatedAt: fids.updatedAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        },
+        validatedByUser: {
+          firstName: sql`validated_user.first_name`,
+          lastName: sql`validated_user.last_name`
+        }
+      })
+      .from(fids)
+      .leftJoin(users, eq(fids.userId, users.id))
+      .leftJoin(sql`users AS validated_user`, sql`fids.validated_by = validated_user.id`)
+      .orderBy(desc(fids.createdAt));
+
+    if (filters?.status && filters.status !== 'all') {
+      query = query.where(eq(fids.status, filters.status));
+    }
+
+    if (filters?.search) {
+      const searchTerm = `%${filters.search}%`;
+      query = query.where(
+        sql`(
+          ${fids.clientCompanyName} ILIKE ${searchTerm} OR
+          ${fids.clientContactName} ILIKE ${searchTerm} OR
+          ${fids.wasteName} ILIKE ${searchTerm} OR
+          ${fids.nomenclatureCode} ILIKE ${searchTerm}
+        )`
+      );
+    }
+
+    return await query;
+  }
+
+  async getFidById(id: number): Promise<any | undefined> {
+    const [fid] = await db
+      .select({
+        id: fids.id,
+        userId: fids.userId,
+        orderId: fids.orderId,
+        clientCompanyName: fids.clientCompanyName,
+        clientContactName: fids.clientContactName,
+        clientEmail: fids.clientEmail,
+        clientAddress: fids.clientAddress,
+        clientVatNumber: fids.clientVatNumber,
+        clientPhone: fids.clientPhone,
+        clientSiret: fids.clientSiret,
+        clientActivity: fids.clientActivity,
+        sameAsClient: fids.sameAsClient,
+        producerCompanyName: fids.producerCompanyName,
+        producerContactName: fids.producerContactName,
+        producerAddress: fids.producerAddress,
+        producerVatNumber: fids.producerVatNumber,
+        producerPhone: fids.producerPhone,
+        producerSiret: fids.producerSiret,
+        producerActivity: fids.producerActivity,
+        wasteName: fids.wasteName,
+        wasteDescription: fids.wasteDescription,
+        wasteOrigin: fids.wasteOrigin,
+        wasteProductionProcess: fids.wasteProductionProcess,
+        nomenclatureCode: fids.nomenclatureCode,
+        constituents: fids.constituents,
+        isDangerous: fids.isDangerous,
+        dangerCode: fids.dangerCode,
+        packaging: fids.packaging,
+        estimatedQuantity: fids.estimatedQuantity,
+        quantityUnit: fids.quantityUnit,
+        frequency: fids.frequency,
+        conditionalAcceptance: fids.conditionalAcceptance,
+        conditionalAcceptanceConditions: fids.conditionalAcceptanceConditions,
+        rgpdConsent: fids.rgpdConsent,
+        status: fids.status,
+        validatedBy: fids.validatedBy,
+        validatedAt: fids.validatedAt,
+        rejectionReason: fids.rejectionReason,
+        adminComments: fids.adminComments,
+        createdAt: fids.createdAt,
+        updatedAt: fids.updatedAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        }
+      })
+      .from(fids)
+      .leftJoin(users, eq(fids.userId, users.id))
+      .where(eq(fids.id, id));
+
+    return fid || undefined;
+  }
+
+  async createFid(fid: InsertFid): Promise<Fid> {
+    const [newFid] = await db
+      .insert(fids)
+      .values(fid)
+      .returning();
+    return newFid;
+  }
+
+  async updateFid(id: number, fid: Partial<UpdateFid>): Promise<Fid | undefined> {
+    const [updatedFid] = await db
+      .update(fids)
+      .set({
+        ...fid,
+        updatedAt: new Date()
+      })
+      .where(eq(fids.id, id))
+      .returning();
+    return updatedFid || undefined;
   }
 }
 
