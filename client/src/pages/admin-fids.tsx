@@ -108,16 +108,84 @@ export default function AdminFids() {
   const exportToPdf = async (fidId: number) => {
     try {
       const response = await apiRequest("GET", `/api/admin/fids/${fidId}/export-pdf`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `FID-${fidId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || "Erreur lors de la récupération des données");
+      }
+
+      // Import jsPDF dynamically
+      const { jsPDF } = await import('jspdf');
+      const doc = new jsPDF();
+
+      // Configure font and margins
+      const pageWidth = doc.internal.pageSize.width;
+      const margin = 20;
+      let yPosition = margin;
+
+      // Header
+      doc.setFontSize(20);
+      doc.text('REMONDIS', margin, yPosition);
+      yPosition += 10;
+      
+      doc.setFontSize(16);
+      doc.text(data.pdfContent.title, margin, yPosition);
+      yPosition += 15;
+
+      // Generate content for each section
+      data.pdfContent.sections.forEach((section: any) => {
+        // Check if we need a new page
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = margin;
+        }
+
+        // Section title
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(section.title, margin, yPosition);
+        yPosition += 10;
+
+        // Section fields
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        
+        section.fields.forEach((field: any) => {
+          if (yPosition > 270) {
+            doc.addPage();
+            yPosition = margin;
+          }
+          
+          const text = `${field.label}: ${field.value || 'Non renseigné'}`;
+          const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+          doc.text(lines, margin, yPosition);
+          yPosition += lines.length * 5;
+        });
+        
+        yPosition += 10; // Space between sections
+      });
+
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.text(
+          `Page ${i} sur ${pageCount} - Généré le ${new Date().toLocaleDateString('fr-FR')}`,
+          margin,
+          doc.internal.pageSize.height - 10
+        );
+      }
+
+      // Save the PDF
+      doc.save(`FID-${fidId}.pdf`);
+      
+      toast({
+        title: "Succès",
+        description: "PDF généré avec succès",
+      });
     } catch (error) {
+      console.error('Erreur export PDF:', error);
       toast({
         title: "Erreur",
         description: "Erreur lors de l'export PDF",

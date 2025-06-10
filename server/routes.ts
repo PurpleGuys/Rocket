@@ -13,6 +13,67 @@ import { NotificationService } from "./notificationService";
 import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema, insertFidSchema, updateFidSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Helper function to generate PDF content structure
+function generateFidPdfContent(fid: any) {
+  return {
+    title: `Fiche d'Identification des Déchets - FID #${fid.id}`,
+    sections: [
+      {
+        title: "Informations générales",
+        fields: [
+          { label: "ID FID", value: fid.id },
+          { label: "Date de création", value: new Date(fid.createdAt).toLocaleDateString('fr-FR') },
+          { label: "Statut", value: fid.status },
+          { label: "Nom du déchet", value: fid.wasteName },
+          { label: "Code nomenclature", value: fid.nomenclatureCode }
+        ]
+      },
+      {
+        title: "Informations client",
+        fields: [
+          { label: "Entreprise", value: fid.clientCompanyName },
+          { label: "Contact", value: fid.clientContactName },
+          { label: "Email", value: fid.clientEmail },
+          { label: "Téléphone", value: fid.clientPhone || "Non renseigné" },
+          { label: "Adresse", value: fid.clientAddress }
+        ]
+      },
+      {
+        title: "Informations producteur",
+        fields: [
+          { label: "Entreprise", value: fid.producerCompanyName || "Identique au client" },
+          { label: "Contact", value: fid.producerContactName || "Identique au client" },
+          { label: "Email", value: fid.producerEmail || "Identique au client" },
+          { label: "Téléphone", value: fid.producerPhone || "Identique au client" },
+          { label: "Adresse", value: fid.producerAddress || "Identique au client" }
+        ]
+      },
+      {
+        title: "Caractérisation du déchet",
+        fields: [
+          { label: "Origine", value: fid.wasteOrigin },
+          { label: "Processus de production", value: fid.wasteProductionProcess },
+          { label: "État physique", value: fid.physicalState },
+          { label: "Aspect", value: fid.appearance },
+          { label: "Couleur", value: fid.color },
+          { label: "Odeur", value: fid.odor },
+          { label: "Conditionnement", value: fid.packaging },
+          { label: "Quantité estimée", value: `${fid.estimatedQuantity} ${fid.quantityUnit}` },
+          { label: "Déchet dangereux", value: fid.isDangerous ? "Oui" : "Non" }
+        ]
+      },
+      {
+        title: "Informations réglementaires",
+        fields: [
+          { label: "Code du déchet", value: fid.wasteCode },
+          { label: "Mode de traitement", value: fid.treatmentMethod },
+          { label: "Numéro d'autorisation", value: fid.authorizationNumber || "Non applicable" }
+        ]
+      }
+    ]
+  };
+}
+
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
@@ -2693,9 +2754,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!fid) {
         return res.status(404).json({ message: "FID not found" });
       }
+
+      // Generate PDF content
+      const pdfContent = generateFidPdfContent(fid);
       
-      // TODO: Implement PDF generation
-      res.status(501).json({ message: "PDF export not implemented yet" });
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="FID-${fidId}.json"`);
+      res.json({ 
+        success: true, 
+        fidData: fid,
+        pdfContent: pdfContent,
+        message: "PDF data ready for client-side generation" 
+      });
     } catch (error: any) {
       res.status(500).json({ message: "Error exporting FID: " + error.message });
     }
