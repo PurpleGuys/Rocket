@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { ServiceImageGallery } from "@/components/ui/service-image-gallery";
+import { ServiceImageDisplay } from "@/components/ui/ServiceImageDisplay";
 import FidForm from "./FidForm";
 
 export default function ServiceSelection() {
@@ -70,6 +70,14 @@ export default function ServiceSelection() {
   const { data: user } = useQuery({
     queryKey: ['/api/auth/me'],
   });
+
+  // Hook pour récupérer les images d'un service spécifique
+  const useServiceImages = (serviceId: number) => {
+    return useQuery({
+      queryKey: [`/api/admin/services/${serviceId}/images`],
+      enabled: !!serviceId,
+    });
+  };
 
   const service = Array.isArray(services) ? services.find((s: Service) => s.id === selectedServiceId) : undefined;
 
@@ -423,19 +431,17 @@ export default function ServiceSelection() {
                   >
                     <CardContent className="p-6">
                       <div className="grid md:grid-cols-3 gap-6">
-                        {/* Image plus grande */}
-                        {service.imageUrl && (
-                          <div className="md:col-span-1">
-                            <img 
-                              src={service.imageUrl}
-                              alt={service.name}
-                              className="w-full h-48 md:h-56 object-cover rounded-lg shadow-md"
-                            />
-                          </div>
-                        )}
+                        {/* Photos de la benne */}
+                        <div className="md:col-span-1">
+                          <ServiceImageDisplay 
+                            serviceId={service.id}
+                            serviceName={service.name}
+                            className="w-full h-48 md:h-56"
+                          />
+                        </div>
                         
                         {/* Informations du service */}
-                        <div className={`${service.imageUrl ? 'md:col-span-2' : 'md:col-span-3'} flex flex-col justify-between`}>
+                        <div className="md:col-span-2 flex flex-col justify-between">
                           <div>
                             <h4 className="font-bold text-xl text-gray-900 mb-2">{service.name}</h4>
                             <p className="text-gray-600 text-base mb-4">{service.description}</p>
