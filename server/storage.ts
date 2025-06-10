@@ -332,6 +332,28 @@ export class DatabaseStorage implements IStorage {
     await db.delete(serviceImages).where(eq(serviceImages.id, id));
   }
 
+  async setMainServiceImage(id: number): Promise<void> {
+    // First get the service ID for this image
+    const [image] = await db
+      .select({ serviceId: serviceImages.serviceId })
+      .from(serviceImages)
+      .where(eq(serviceImages.id, id));
+    
+    if (!image) return;
+
+    // Reset all images for this service to not be main
+    await db
+      .update(serviceImages)
+      .set({ isMain: false })
+      .where(eq(serviceImages.serviceId, image.serviceId));
+
+    // Set the specified image as main
+    await db
+      .update(serviceImages)
+      .set({ isMain: true })
+      .where(eq(serviceImages.id, id));
+  }
+
   // Time slots
   async getAvailableTimeSlots(date: string): Promise<TimeSlot[]> {
     return await db
