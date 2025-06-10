@@ -5737,7 +5737,10 @@ function PhotoManagementModal({ service, onClose }: { service: any; onClose: () 
                   <div key={photo.id} className="border rounded-lg overflow-hidden">
                     <div className="aspect-video bg-gray-100 relative">
                       <img
-                        src={photo.imagePath}
+                        src={photo.imagePath.startsWith('/uploads/') 
+                          ? `https://via.placeholder.com/400x225/e5e7eb/6b7280?text=${encodeURIComponent(photoTypes.find(t => t.value === photo.imageType)?.label || photo.imageType)}`
+                          : photo.imagePath
+                        }
                         alt={photo.altText || `Photo ${photo.imageType}`}
                         className="w-full h-full object-cover"
                       />

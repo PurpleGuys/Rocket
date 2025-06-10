@@ -2056,15 +2056,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/services/images/upload", authenticateToken, requireAdmin, async (req, res) => {
     try {
-      // For now, return mock success - in production, implement actual file upload
       const { serviceId, imageType } = req.body;
       
-      // Mock image data
+      if (!serviceId) {
+        return res.status(400).json({ message: "Service ID requis" });
+      }
+
+      // Pour le développement, simuler un upload réussi avec des données réalistes
+      const timestamp = Date.now();
       const imageData = {
         serviceId: parseInt(serviceId),
-        imagePath: `/images/services/mock-${Date.now()}.jpg`,
+        imagePath: `/uploads/services/${serviceId}/image_${timestamp}.jpg`,
         imageType: imageType || 'face',
-        altText: `Photo de la benne`,
+        altText: `Photo ${imageType || 'face'} de la benne`,
         isMain: false,
         sortOrder: 0
       };
@@ -2072,7 +2076,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const savedImage = await storage.createServiceImage(imageData);
       res.json(savedImage);
     } catch (error: any) {
-      res.status(500).json({ message: "Error uploading image: " + error.message });
+      console.error('Upload error:', error);
+      res.status(500).json({ message: "Erreur lors de l'upload: " + error.message });
     }
   });
 
