@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { FileText, AlertTriangle, CheckCircle, Plus, Trash2, Upload } from "lucide-react";
+import { FileText, AlertTriangle, CheckCircle, Plus, Trash2, Upload, X } from "lucide-react";
+import { useDropzone } from "react-dropzone";
 
 interface FidFormProps {
   onSubmit: (fidData: any) => void;
@@ -21,7 +22,14 @@ interface Constituent {
   percentage: string;
 }
 
+interface FileUpload {
+  file: File;
+  preview: string;
+  name: string;
+}
+
 export default function FidForm({ onSubmit, onCancel, initialData }: FidFormProps) {
+  const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>([]);
   const [formData, setFormData] = useState({
     // 1. Coordonnées client
     clientCompanyName: initialData?.clientCompanyName || "",
@@ -127,6 +135,36 @@ export default function FidForm({ onSubmit, onCancel, initialData }: FidFormProp
   const [constituents, setConstituents] = useState<Constituent[]>(
     initialData?.constituents || [{ name: "", percentage: "" }]
   );
+
+  // File upload handlers
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const newFiles = acceptedFiles.map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      name: file.name
+    }));
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png']
+    },
+    maxSize: 10 * 1024 * 1024, // 10MB
+    multiple: true
+  });
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => {
+      const newFiles = [...prev];
+      URL.revokeObjectURL(newFiles[index].preview);
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
+  };
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value } as any));
@@ -719,15 +757,51 @@ export default function FidForm({ onSubmit, onCancel, initialData }: FidFormProp
                 
                 <div className="mt-4">
                   <Label>Échantillon ou FDS (PDF, JPG)</Label>
-                  <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                  <div
+                    {...getRootProps()}
+                    className={`mt-2 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                      isDragActive 
+                        ? 'border-blue-400 bg-blue-50' 
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <input {...getInputProps()} />
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600">
-                      Glissez vos fichiers ici ou cliquez pour parcourir
+                      {isDragActive 
+                        ? 'Déposez les fichiers ici...' 
+                        : 'Glissez vos fichiers ici ou cliquez pour parcourir'
+                      }
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       Formats acceptés: PDF, JPG, PNG (max 10 Mo)
                     </p>
                   </div>
+                  
+                  {uploadedFiles.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      {uploadedFiles.map((fileUpload, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
+                          <div className="flex items-center space-x-2">
+                            <FileText className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm text-gray-700">{fileUpload.name}</span>
+                            <span className="text-xs text-gray-500">
+                              ({(fileUpload.file.size / 1024 / 1024).toFixed(2)} Mo)
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeFile(index)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -812,25 +886,30 @@ export default function FidForm({ onSubmit, onCancel, initialData }: FidFormProp
                       checked={formData.lackOfInformation}
                       onCheckedChange={(checked) => updateField("lackOfInformation", checked)}
                     />
-                    <Label htmlFor="lackOfInformation">☑ Absence d'information sur le déchet</Label>
+                    <Label htmlFor="lackOfInformation">Absence d'information sur le déchet</Label>
                   </div>
-                  
-                  <Alert className="bg-red-50 border-red-200">
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <AlertDescription className="text-red-800">
-                      <strong>Ne peuvent être admis :</strong>
-                      <ul className="list-disc list-inside mt-2 space-y-1">
-                        <li>Substances radioactives</li>
-                        <li>DASRI sauf exception</li>
-                        <li>PCB/PCT (polychlorobiphényles / terphényles)</li>
-                        <li>Tétrachlorure de carbone</li>
-                        <li>Explosifs</li>
-                        <li>Amiante libre</li>
-                        <li>Acide picrique / fluorhydrique</li>
-                      </ul>
-                    </AlertDescription>
-                  </Alert>
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* Section spéciale: Déchets non admis */}
+              <div className="border-t-2 border-red-200 pt-6">
+                <Alert className="bg-red-50 border-red-200">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    <strong className="text-lg">Ne peuvent être admis :</strong>
+                    <ul className="list-disc list-inside mt-3 space-y-2 text-sm">
+                      <li>Substances radioactives</li>
+                      <li>DASRI sauf exception</li>
+                      <li>PCB/PCT (polychlorobiphényles / terphényles)</li>
+                      <li>Tétrachlorure de carbone</li>
+                      <li>Explosifs</li>
+                      <li>Amiante libre</li>
+                      <li>Acide picrique / fluorhydrique</li>
+                    </ul>
+                  </AlertDescription>
+                </Alert>
               </div>
 
               <Separator />
