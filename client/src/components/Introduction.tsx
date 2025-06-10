@@ -277,7 +277,7 @@ export default function Introduction() {
                 description: "Traitement responsable et recyclage maximal de vos déchets",
                 color: "bg-green-500",
                 bgColor: "bg-green-50",
-                stat: "95%",
+                stat: "75%",
                 statLabel: "Taux recyclage"
               },
               {
