@@ -161,9 +161,7 @@ export default function Home() {
                   <User className="h-4 w-4 mr-1"/>
                   Connexion / Inscription
                 </Button>)}
-              <Button onClick={handleStartBooking} className="bg-red-600 hover:bg-red-700 text-white">
-                Réserver une benne
-              </Button>
+              
             </div>
           </div>
         </div>
