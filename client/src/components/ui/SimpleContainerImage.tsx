@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Package } from 'lucide-react';
 
 interface SimpleContainerImageProps {
   serviceName: string;
@@ -41,22 +42,31 @@ export function SimpleContainerImage({ serviceName, volume, className = "" }: Si
   const [currentView, setCurrentView] = useState(0);
   
   const views = [
-    { type: 'face', label: 'Vue de face' },
-    { type: 'right_side', label: 'Côté droit' },
-    { type: 'left_side', label: 'Côté gauche' },
-    { type: 'rear', label: 'Vue arrière' },
-    { type: 'with_person', label: 'Avec échelle' }
+    { type: 'face', label: 'Vue de face', color: '#3B82F6' },
+    { type: 'right_side', label: 'Côté droit', color: '#10B981' },
+    { type: 'left_side', label: 'Côté gauche', color: '#EF4444' },
+    { type: 'rear', label: 'Vue arrière', color: '#F59E0B' },
+    { type: 'with_person', label: 'Avec échelle', color: '#8B5CF6' }
   ];
 
+  const currentViewData = views[currentView];
+
   return (
-    <div className={`relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
-      <div className="aspect-[3/2]">
-        <img
-          src={generateSimpleContainerSVG(serviceName, volume, views[currentView].type)}
-          alt={`${serviceName} - ${views[currentView].label}`}
-          className="w-full h-full object-contain"
-          style={{ display: 'block' }}
+    <div className={`relative rounded-lg overflow-hidden ${className}`} style={{ backgroundColor: currentViewData.color + '20' }}>
+      <div className="aspect-[3/2] flex flex-col items-center justify-center p-4" style={{ backgroundColor: currentViewData.color }}>
+        <Package 
+          className="w-16 h-16 text-white mb-3" 
+          strokeWidth={1.5}
         />
+        <h3 className="text-white font-bold text-lg text-center mb-1">
+          {serviceName}
+        </h3>
+        <p className="text-white text-sm mb-1">
+          Volume: {volume}m³
+        </p>
+        <p className="text-white text-xs opacity-90">
+          {currentViewData.label}
+        </p>
       </div>
       
       {/* Navigation */}
@@ -64,8 +74,8 @@ export function SimpleContainerImage({ serviceName, volume, className = "" }: Si
         {views.map((_, index) => (
           <button
             key={index}
-            className={`w-2 h-2 rounded-full transition-colors ${
-              index === currentView ? 'bg-blue-500' : 'bg-white bg-opacity-50'
+            className={`w-3 h-3 rounded-full transition-all duration-200 ${
+              index === currentView ? 'bg-white shadow-lg' : 'bg-white bg-opacity-60 hover:bg-opacity-80'
             }`}
             onClick={() => setCurrentView(index)}
           />
@@ -74,7 +84,7 @@ export function SimpleContainerImage({ serviceName, volume, className = "" }: Si
       
       {/* Label */}
       <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-        {views[currentView].label}
+        {currentViewData.label}
       </div>
     </div>
   );
