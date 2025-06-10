@@ -47,6 +47,7 @@ export interface IStorage {
   getServiceImages(serviceId: number): Promise<ServiceImage[]>;
   createServiceImage(image: InsertServiceImage): Promise<ServiceImage>;
   deleteServiceImage(id: number): Promise<void>;
+  setMainServiceImage(id: number): Promise<void>;
   
   // Time slots
   getAvailableTimeSlots(date: string): Promise<TimeSlot[]>;

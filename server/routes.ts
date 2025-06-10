@@ -2043,6 +2043,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Service images management routes
+  app.get("/api/admin/services/:id/images", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const images = await storage.getServiceImages(serviceId);
+      res.json(images);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching service images: " + error.message });
+    }
+  });
+
+  app.post("/api/admin/services/images/upload", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      // For now, return mock success - in production, implement actual file upload
+      const { serviceId, imageType } = req.body;
+      
+      // Mock image data
+      const imageData = {
+        serviceId: parseInt(serviceId),
+        imagePath: `/images/services/mock-${Date.now()}.jpg`,
+        imageType: imageType || 'face',
+        altText: `Photo de la benne`,
+        isMain: false,
+        sortOrder: 0
+      };
+
+      const savedImage = await storage.createServiceImage(imageData);
+      res.json(savedImage);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error uploading image: " + error.message });
+    }
+  });
+
+  app.put("/api/admin/services/images/:id/set-main", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      await storage.setMainServiceImage(imageId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error setting main image: " + error.message });
+    }
+  });
+
+  app.delete("/api/admin/services/images/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      await storage.deleteServiceImage(imageId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error deleting image: " + error.message });
+    }
+  });
+
   // Bank deposits routes
   app.get("/api/admin/bank-deposits", authenticateToken, requireAdmin, async (req, res) => {
     try {
