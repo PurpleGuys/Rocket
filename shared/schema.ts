@@ -547,6 +547,132 @@ export type BankDeposit = typeof bankDeposits.$inferSelect;
 export type InsertBankDeposit = z.infer<typeof insertBankDepositSchema>;
 export type UpdateBankDeposit = z.infer<typeof updateBankDepositSchema>;
 
+// FID (Fiche d'Identification des Déchets) table
+export const fids = pgTable("fids", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  orderId: integer("order_id").references(() => orders.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  
+  // 1. Coordonnées client
+  clientCompanyName: text("client_company_name").notNull(),
+  clientContactName: text("client_contact_name").notNull(),
+  clientAddress: text("client_address").notNull(),
+  clientVatNumber: text("client_vat_number"),
+  clientPhone: text("client_phone").notNull(),
+  clientEmail: text("client_email").notNull(),
+  clientSiret: text("client_siret").notNull(),
+  clientActivity: text("client_activity").notNull(),
+  
+  // 2. Producteur
+  sameAsClient: boolean("same_as_client").default(true),
+  producerCompanyName: text("producer_company_name"),
+  producerContactName: text("producer_contact_name"),
+  producerAddress: text("producer_address"),
+  producerVatNumber: text("producer_vat_number"),
+  producerPhone: text("producer_phone"),
+  producerEmail: text("producer_email"),
+  producerSiret: text("producer_siret"),
+  producerActivity: text("producer_activity"),
+  
+  // 3. Information déchet
+  wasteName: text("waste_name").notNull(),
+  nomenclatureCode: text("nomenclature_code").notNull(),
+  annualQuantity: text("annual_quantity").notNull(),
+  collectionFrequency: text("collection_frequency").notNull(),
+  
+  // Procédé ayant généré le déchet
+  generationProcess: jsonb("generation_process").$type<{
+    destockage: boolean;
+    depollution: boolean;
+    production: boolean;
+    fabricationIncident: boolean;
+    other: boolean;
+    otherText: string;
+  }>().notNull(),
+  
+  // Conditionnement
+  packaging: jsonb("packaging").$type<{
+    containers: boolean;
+    smallConfinements: boolean;
+    drums200L: boolean;
+    bigBag: boolean;
+    other: boolean;
+    otherText: string;
+  }>().notNull(),
+  
+  // Aspect physique
+  physicalAspect: jsonb("physical_aspect").$type<{
+    liquid: boolean;
+    solid: boolean;
+    pasty: boolean;
+    powdery: boolean;
+    gas: boolean;
+    other: boolean;
+    otherText: string;
+  }>().notNull(),
+  
+  // 4. Constituants principaux
+  constituents: jsonb("constituents").$type<Array<{
+    name: string;
+    percentage: string;
+  }>>().notNull(),
+  
+  // 5. Nature du déchet (HP1 à HP15)
+  hazardousProperties: jsonb("hazardous_properties").$type<{
+    hp1: boolean;
+    hp2: boolean;
+    hp3: boolean;
+    hp4: boolean;
+    hp5: boolean;
+    hp6: boolean;
+    hp7: boolean;
+    hp8: boolean;
+    hp9: boolean;
+    hp10: boolean;
+    hp11: boolean;
+    hp12: boolean;
+    hp13: boolean;
+    hp14: boolean;
+    hp15: boolean;
+  }>().notNull(),
+  
+  // 6. Déchet POP (PFAS)
+  isPop: boolean("is_pop").default(false),
+  popSubstances: text("pop_substances"),
+  
+  // 7. Absence d'information
+  lackOfInformation: boolean("lack_of_information").default(false),
+  
+  // 8. Transport
+  transportResponsible: text("transport_responsible").notNull(), // client, remondis, others
+  dangerClass: text("danger_class"),
+  unCode: text("un_code"),
+  packagingGroup: text("packaging_group"),
+  transportDesignation: text("transport_designation"),
+  
+  // Fichiers joints
+  attachedFiles: jsonb("attached_files").$type<Array<{
+    filename: string;
+    url: string;
+    fileType: string;
+    uploadedAt: string;
+  }>>().default([]),
+  
+  // Validation
+  status: text("status").notNull().default("pending"), // pending, validated, rejected, modified
+  validatedBy: integer("validated_by").references(() => users.id),
+  validatedAt: timestamp("validated_at"),
+  rejectionReason: text("rejection_reason"),
+  adminComments: text("admin_comments"),
+  
+  // RGPD
+  rgpdConsent: boolean("rgpd_consent").notNull().default(false),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Email logs table for audit trail
 export const emailLogs = pgTable("email_logs", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
@@ -575,6 +701,22 @@ export const auditLogs = pgTable("audit_logs", {
   userAgent: text("user_agent"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// FID relations
+export const fidsRelations = relations(fids, ({ one }) => ({
+  user: one(users, {
+    fields: [fids.userId],
+    references: [users.id],
+  }),
+  order: one(orders, {
+    fields: [fids.orderId],
+    references: [orders.id],
+  }),
+  validatedByUser: one(users, {
+    fields: [fids.validatedBy],
+    references: [users.id],
+  }),
+}));
 
 // Email logs relations
 export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
@@ -610,6 +752,26 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   id: true,
   createdAt: true,
 });
+
+// FID schemas
+export const insertFidSchema = createInsertSchema(fids).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  validatedBy: true,
+  validatedAt: true,
+});
+
+export const updateFidSchema = createInsertSchema(fids).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+});
+
+export type Fid = typeof fids.$inferSelect;
+export type InsertFid = z.infer<typeof insertFidSchema>;
+export type UpdateFid = z.infer<typeof updateFidSchema>;
 
 // Table des questionnaires de satisfaction
 export const satisfactionSurveys = pgTable("satisfaction_surveys", {
