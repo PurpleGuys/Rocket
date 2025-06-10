@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { ServiceImageDisplay } from "@/components/ui/ServiceImageDisplay";
+import { SimpleContainerImage } from "@/components/ui/SimpleContainerImage";
 import FidForm from "./FidForm";
 
 export default function ServiceSelection() {
@@ -433,9 +433,9 @@ export default function ServiceSelection() {
                       <div className="grid md:grid-cols-3 gap-6">
                         {/* Photos de la benne */}
                         <div className="md:col-span-1">
-                          <ServiceImageDisplay 
-                            serviceId={service.id}
+                          <SimpleContainerImage 
                             serviceName={service.name}
+                            volume={service.volume}
                             className="w-full h-48 md:h-56"
                           />
                         </div>
