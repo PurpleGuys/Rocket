@@ -63,12 +63,7 @@ interface ServiceImageDisplayProps {
 export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: ServiceImageDisplayProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { data: images, isLoading } = useQuery({
-    queryKey: [`/api/admin/services/${serviceId}/images`],
-    enabled: !!serviceId,
-  });
-
-  // Types de photos par défaut pour afficher même sans images uploadées
+  // Types de photos par défaut - toujours afficher ces vues
   const defaultPhotoTypes = [
     { value: 'face', label: 'Vue de face' },
     { value: 'right_side', label: 'Côté droit' },
@@ -77,26 +72,13 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
     { value: 'with_person', label: 'Avec personne pour échelle' }
   ];
 
-  // Utiliser les images uploadées si disponibles, sinon utiliser les types par défaut
-  const displayImages = Array.isArray(images) && images.length > 0 
-    ? images 
-    : defaultPhotoTypes.map((type, index) => ({
-        id: index,
-        imageType: type.value,
-        imagePath: null,
-        isMain: index === 0
-      }));
-
-  if (isLoading) {
-    return (
-      <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center">
-          <Image className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-500">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
+  // Toujours utiliser les images SVG par défaut pour garantir l'affichage
+  const displayImages = defaultPhotoTypes.map((type, index) => ({
+    id: index,
+    imageType: type.value,
+    imagePath: null,
+    isMain: index === 0
+  }));
 
   const photoTypes = [
     { value: 'face', label: 'Vue de face' },
@@ -124,17 +106,9 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
       {/* Image principale */}
       <div className="relative">
         <img
-          src={currentImage?.imagePath?.startsWith('/uploads/') 
-            ? currentImage.imagePath 
-            : generateContainerSVG(serviceName, imageTypeLabel)
-          }
+          src={generateContainerSVG(serviceName, imageTypeLabel)}
           alt={`${serviceName} - ${imageTypeLabel}`}
           className="w-full h-full object-cover"
-          onError={(e) => {
-            // Fallback vers une image SVG de conteneur
-            const target = e.target as HTMLImageElement;
-            target.src = generateContainerSVG(serviceName, imageTypeLabel);
-          }}
         />
         
         {/* Badge du type de photo */}
