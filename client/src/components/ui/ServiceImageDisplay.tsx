@@ -3,6 +3,25 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Fonction pour générer des images de conteneurs réalistes
+const getContainerImage = (serviceName: string, imageType?: string) => {
+  const volume = serviceName.match(/(\d+)m3/)?.[1] || '15';
+  const containerType = volume < '10' ? 'small' : volume < '20' ? 'medium' : 'large';
+  
+  // Images réalistes de conteneurs selon le type de vue
+  const imageMap: Record<string, string> = {
+    'Vue de face': `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&crop=center`,
+    'Côté droit': `https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop&crop=center`,
+    'Côté gauche': `https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop&crop=center`,
+    'Vue arrière': `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&crop=center`,
+    'Avec personne pour échelle': `https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop&crop=center`,
+    'En cours de chargement': `https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?w=400&h=300&fit=crop&crop=center`,
+    'Vue complète': `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&crop=center`
+  };
+
+  return imageMap[imageType || 'Vue de face'] || imageMap['Vue de face'];
+};
+
 interface ServiceImageDisplayProps {
   serviceId: number;
   serviceName: string;
@@ -65,9 +84,17 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
       {/* Image principale */}
       <div className="relative">
         <img
-          src={`https://via.placeholder.com/400x300/3b82f6/ffffff?text=${encodeURIComponent(imageTypeLabel || 'Photo')}`}
+          src={currentImage?.imagePath?.startsWith('/uploads/') 
+            ? currentImage.imagePath 
+            : getContainerImage(serviceName, imageTypeLabel)
+          }
           alt={`${serviceName} - ${imageTypeLabel}`}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            // Fallback vers une image de conteneur générique
+            const target = e.target as HTMLImageElement;
+            target.src = getContainerImage(serviceName, imageTypeLabel);
+          }}
         />
         
         {/* Badge du type de photo */}

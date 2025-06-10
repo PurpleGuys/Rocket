@@ -1,5 +1,7 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
+import path from "path";
 import Stripe from "stripe";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
@@ -2967,6 +2969,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ suggestions: [] });
     }
   });
+
+  // Servir les fichiers uploadés statiquement
+  app.use('/uploads', express.static('uploads'));
 
   const httpServer = createServer(app);
   return httpServer;
