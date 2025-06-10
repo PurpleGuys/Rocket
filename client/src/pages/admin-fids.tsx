@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation, useRoute } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,10 +51,13 @@ interface Fid {
 
 export default function AdminFids() {
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
   const [selectedFid, setSelectedFid] = useState<Fid | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const navigate = (path: string) => setLocation(path);
 
   // Fetch FIDs
   const { data: fids = [], isLoading } = useQuery({
@@ -178,12 +182,59 @@ export default function AdminFids() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestion des FID</h1>
-          <p className="text-gray-600">Validation et gestion des Fiches d'Identification des Déchets</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <nav className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
+                alt="Remondis" 
+                className="h-8 w-auto mr-4"
+              />
+              <div className="flex items-center space-x-8">
+                <button 
+                  onClick={() => navigate("/admin")}
+                  className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium"
+                >
+                  Tableau de bord
+                </button>
+                <button 
+                  onClick={() => navigate("/admin/fids")}
+                  className="bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Gestion FID
+                </button>
+                <button 
+                  onClick={() => navigate("/admin/users")}
+                  className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium"
+                >
+                  Utilisateurs
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                Connecté en tant qu'administrateur
+              </span>
+              <button 
+                onClick={() => navigate("/")}
+                className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium"
+              >
+                Retour au site
+              </button>
+            </div>
+          </div>
         </div>
+      </nav>
+
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Gestion des FID</h1>
+            <p className="text-gray-600">Validation et gestion des Fiches d'Identification des Déchets</p>
+          </div>
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
@@ -319,6 +370,7 @@ export default function AdminFids() {
           onClose={closeDetailModal}
         />
       )}
+      </div>
     </div>
   );
 }
