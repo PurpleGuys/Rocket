@@ -157,6 +157,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     }
 
     if (!user) {
+      console.log(`Auth failed - Token: ${token ? token.substring(0, 20) + '...' : 'missing'}, SessionToken: ${sessionToken ? 'present' : 'missing'}`);
+      console.log('AuthHeader:', authHeader);
       return res.status(401).json({ message: 'Accès non autorisé' });
     }
 
