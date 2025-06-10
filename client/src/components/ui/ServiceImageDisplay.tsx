@@ -68,23 +68,31 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
     enabled: !!serviceId,
   });
 
+  // Types de photos par défaut pour afficher même sans images uploadées
+  const defaultPhotoTypes = [
+    { value: 'face', label: 'Vue de face' },
+    { value: 'right_side', label: 'Côté droit' },
+    { value: 'left_side', label: 'Côté gauche' },
+    { value: 'rear', label: 'Vue arrière' },
+    { value: 'with_person', label: 'Avec personne pour échelle' }
+  ];
+
+  // Utiliser les images uploadées si disponibles, sinon utiliser les types par défaut
+  const displayImages = Array.isArray(images) && images.length > 0 
+    ? images 
+    : defaultPhotoTypes.map((type, index) => ({
+        id: index,
+        imageType: type.value,
+        imagePath: null,
+        isMain: index === 0
+      }));
+
   if (isLoading) {
     return (
       <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center">
           <Image className="h-8 w-8 mx-auto mb-2 text-gray-400" />
           <p className="text-sm text-gray-500">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!images || !Array.isArray(images) || images.length === 0) {
-    return (
-      <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center">
-          <Image className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-500">Aucune photo disponible</p>
         </div>
       </div>
     );
@@ -100,15 +108,15 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
     { value: 'full', label: 'Vue complète' }
   ];
 
-  const currentImage = images[currentImageIndex];
+  const currentImage = displayImages[currentImageIndex];
   const imageTypeLabel = photoTypes.find(t => t.value === currentImage?.imageType)?.label || currentImage?.imageType;
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
   };
 
   return (
@@ -143,7 +151,7 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
       </div>
 
       {/* Navigation si plusieurs images */}
-      {images.length > 1 && (
+      {displayImages.length > 1 && (
         <>
           <Button
             variant="ghost"
@@ -164,7 +172,7 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
 
           {/* Indicateurs de pagination */}
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-            {images.map((_, index) => (
+            {displayImages.map((_, index) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full ${
