@@ -48,6 +48,8 @@ import {
   Bell,
   BellOff,
   BarChart3,
+  Camera,
+  Image as ImageIcon,
   Star,
   MessageSquare,
   TrendingUp,
@@ -2170,6 +2172,7 @@ function RentalPricingPage() {
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
   const [formData, setFormData] = useState<{[key: number]: {dailyRate: string, billingStartDay: string, maxTonnage: string}}>({});
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedServiceForPhotos, setSelectedServiceForPhotos] = useState<any>(null);
   const [newServiceForm, setNewServiceForm] = useState({
     name: "",
     volume: "",
@@ -2558,6 +2561,13 @@ function RentalPricingPage() {
                               >
                                 Modifier
                               </button>
+                              <button
+                                onClick={() => setSelectedServiceForPhotos(service)}
+                                className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                title="Gérer les photos"
+                              >
+                                Photos
+                              </button>
                               {currentPricing && (
                                 <button
                                   onClick={() => handleDeletePricing(service.id, service.name)}
@@ -2703,6 +2713,14 @@ function RentalPricingPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modale de gestion des photos */}
+      {selectedServiceForPhotos && (
+        <PhotoManagementModal
+          service={selectedServiceForPhotos}
+          onClose={() => setSelectedServiceForPhotos(null)}
+        />
       )}
     </div>
   );
