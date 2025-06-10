@@ -43,18 +43,27 @@ export default function Introduction() {
                 className="h-12 w-auto"
               />
               <div className="hidden md:flex items-center space-x-8 ml-8">
-                <Link href="#services" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
+                <a href="#services" className="text-gray-700 hover:text-red-600 font-medium transition-colors cursor-pointer" onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
                   Services
-                </Link>
-                <Link href="#process" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
+                </a>
+                <a href="#process" className="text-gray-700 hover:text-red-600 font-medium transition-colors cursor-pointer" onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
                   Comment ça marche
-                </Link>
+                </a>
                 <Link href="/faq" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
                   FAQ
                 </Link>
-                <Link href="#contact" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
+                <a href="#contact" className="text-gray-700 hover:text-red-600 font-medium transition-colors cursor-pointer" onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
                   Contact
-                </Link>
+                </a>
               </div>
             </div>
             <div className="flex items-center space-x-4">
