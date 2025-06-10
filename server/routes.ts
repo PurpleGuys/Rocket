@@ -2629,6 +2629,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export all FIDs to Excel (admin only)
+  app.get("/api/admin/fids/export-excel", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const XLSX = await import('xlsx');
+      const fids = await storage.getFids({});
+      
+      // Prepare data for Excel export with French headers
+      const exportData = fids.map((fid: any) => ({
+        'ID': fid.id,
+        'Nom du déchet': fid.wasteName,
+        'Code nomenclature': fid.nomenclatureCode,
+        'Entreprise cliente': fid.clientCompanyName,
+        'Contact client': fid.clientContactName,
+        'Email client': fid.clientEmail,
+        'Téléphone client': fid.clientPhone,
+        'Adresse client': fid.clientAddress,
+        'Entreprise producteur': fid.producerCompanyName,
+        'Contact producteur': fid.producerContactName,
+        'Email producteur': fid.producerEmail,
+        'Téléphone producteur': fid.producerPhone,
+        'Adresse producteur': fid.producerAddress,
+        'Origine du déchet': fid.wasteOrigin,
+        'État physique': fid.physicalState,
+        'Aspect': fid.appearance,
+        'Couleur': fid.color,
+        'Odeur': fid.odor,
+        'Conditionnement': fid.packaging,
+        'Quantité prévue': fid.estimatedQuantity,
+        'Fréquence': fid.frequency,
+        'Code UN': fid.unCode,
+        'Groupe d\'emballage': fid.packagingGroup,
+        'Désignation transport': fid.transportDesignation,
+        'Contient POP/PFAS': fid.isPop ? 'Oui' : 'Non',
+        'Substances POP': fid.popSubstances || '',
+        'Manque d\'information': fid.lackOfInformation ? 'Oui' : 'Non',
+        'Statut': fid.status,
+        'Validé par': fid.validatedBy ? `User ${fid.validatedBy}` : '',
+        'Date de validation': fid.validatedAt ? new Date(fid.validatedAt).toLocaleDateString('fr-FR') : '',
+        'Commentaires admin': fid.adminComments || '',
+        'Raison de rejet': fid.rejectionReason || '',
+        'Date de création': fid.createdAt ? new Date(fid.createdAt).toLocaleDateString('fr-FR') : '',
+        'Dernière modification': fid.updatedAt ? new Date(fid.updatedAt).toLocaleDateString('fr-FR') : ''
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportData);
+
+      // Auto-size columns
+      const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+        wch: Math.max(key.length, 15)
+      }));
+      ws['!cols'] = colWidths;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'FID');
+
+      // Generate buffer
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+      // Set headers for download
+      const filename = `fid_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      
+      res.send(buffer);
+    } catch (error: any) {
+      console.error("Error exporting FIDs to Excel:", error);
+      res.status(500).json({ message: "Erreur lors de l'export Excel: " + error.message });
+    }
+  });
+
   // Autocomplete for addresses (placeholder)
   app.get("/api/places/autocomplete", async (req, res) => {
     try {

@@ -122,6 +122,43 @@ export default function AdminFids() {
     }
   };
 
+  const exportToExcel = async () => {
+    try {
+      const response = await fetch('/api/admin/fids/export-excel', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'export');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fid_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Export réussi",
+        description: "Le fichier Excel a été téléchargé avec succès.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de l'export Excel",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredFids = fids.filter((fid: Fid) => {
     const matchesStatus = filterStatus === "all" || fid.status === filterStatus;
     const matchesSearch = searchTerm === "" || 
@@ -162,6 +199,15 @@ export default function AdminFids() {
               className="w-64"
             />
           </div>
+          
+          <Button
+            variant="outline"
+            onClick={exportToExcel}
+            className="flex items-center space-x-2"
+          >
+            <Download className="h-4 w-4" />
+            <span>Export Excel</span>
+          </Button>
           
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-48">
