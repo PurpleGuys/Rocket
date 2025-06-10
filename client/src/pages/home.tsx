@@ -148,6 +148,12 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
+                  {/* Connected Status Indicator */}
+                  <div className="flex items-center px-3 py-1 bg-green-100 border border-green-300 rounded-full">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                    <span className="text-sm font-medium text-green-800">Connecté</span>
+                  </div>
+
                   {/* Price Simulation Button */}
                   <Button 
                     variant="outline" 
