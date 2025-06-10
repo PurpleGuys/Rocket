@@ -67,7 +67,7 @@ app.use((req, res, next) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`Port ${port} is already in use. Trying to find an available port...`);
       // Try alternative ports if 5000 is in use
-      const altPort = port === 5000 ? 5001 : parseInt(port) + 1;
+      const altPort = port === 5000 ? 5001 : port + 1;
       server.listen(altPort, "0.0.0.0", () => {
         log(`serving on port ${altPort}`);
       });
