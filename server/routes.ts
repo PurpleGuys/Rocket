@@ -12,6 +12,7 @@ import { sendGridService } from "./sendgridService";
 import { NotificationService } from "./notificationService";
 import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema, insertFidSchema, updateFidSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
 
 // Helper function to generate PDF content structure
 function generateFidPdfContent(fid: any) {
@@ -96,6 +97,21 @@ const generalLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   message: { message: "Trop de requêtes. Réessayez plus tard." },
 }) : (req: any, res: any, next: any) => next();
+
+// Configuration de multer pour l'upload des fichiers
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Seuls les fichiers images sont acceptés'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // REMONDIS favicon route
@@ -2054,19 +2070,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/services/images/upload", authenticateToken, requireAdmin, async (req, res) => {
+  app.post("/api/admin/services/images/upload", authenticateToken, requireAdmin, upload.single('image'), async (req, res) => {
     try {
       const { serviceId, imageType } = req.body;
+      const file = req.file;
       
       if (!serviceId) {
         return res.status(400).json({ message: "Service ID requis" });
+      }
+
+      if (!file) {
+        return res.status(400).json({ message: "Fichier image requis" });
       }
 
       // Pour le développement, simuler un upload réussi avec des données réalistes
       const timestamp = Date.now();
       const imageData = {
         serviceId: parseInt(serviceId),
-        imagePath: `/uploads/services/${serviceId}/image_${timestamp}.jpg`,
+        imagePath: `/uploads/services/${serviceId}/${file.originalname}_${timestamp}`,
         imageType: imageType || 'face',
         altText: `Photo ${imageType || 'face'} de la benne`,
         isMain: false,
