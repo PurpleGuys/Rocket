@@ -3,23 +3,55 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Fonction pour générer des images de conteneurs réalistes
-const getContainerImage = (serviceName: string, imageType?: string) => {
+// Fonction pour générer des images SVG de conteneurs
+const generateContainerSVG = (serviceName: string, imageType?: string) => {
   const volume = serviceName.match(/(\d+)m3/)?.[1] || '15';
-  const containerType = volume < '10' ? 'small' : volume < '20' ? 'medium' : 'large';
   
-  // Images réalistes de conteneurs selon le type de vue
-  const imageMap: Record<string, string> = {
-    'Vue de face': `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&crop=center`,
-    'Côté droit': `https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop&crop=center`,
-    'Côté gauche': `https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop&crop=center`,
-    'Vue arrière': `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&crop=center`,
-    'Avec personne pour échelle': `https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop&crop=center`,
-    'En cours de chargement': `https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?w=400&h=300&fit=crop&crop=center`,
-    'Vue complète': `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop&crop=center`
+  // Couleurs selon le type de vue
+  const colorMap: Record<string, { bg: string; accent: string }> = {
+    'Vue de face': { bg: '#2563eb', accent: '#1e40af' },
+    'Côté droit': { bg: '#059669', accent: '#047857' },
+    'Côté gauche': { bg: '#dc2626', accent: '#b91c1c' },
+    'Vue arrière': { bg: '#ea580c', accent: '#c2410c' },
+    'Avec personne pour échelle': { bg: '#7c3aed', accent: '#6d28d9' },
+    'En cours de chargement': { bg: '#ca8a04', accent: '#a16207' },
+    'Vue complète': { bg: '#1f2937', accent: '#111827' }
   };
 
-  return imageMap[imageType || 'Vue de face'] || imageMap['Vue de face'];
+  const colors = colorMap[imageType || 'Vue de face'] || colorMap['Vue de face'];
+  
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+      <rect width="400" height="300" fill="${colors.bg}"/>
+      
+      <!-- Container body -->
+      <rect x="50" y="100" width="300" height="120" rx="8" fill="${colors.accent}" stroke="white" stroke-width="2"/>
+      
+      <!-- Container handles -->
+      <rect x="30" y="130" width="20" height="30" rx="4" fill="white"/>
+      <rect x="350" y="130" width="20" height="30" rx="4" fill="white"/>
+      
+      <!-- Container lid -->
+      <rect x="40" y="85" width="320" height="15" rx="6" fill="white"/>
+      
+      <!-- Volume text -->
+      <text x="200" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">
+        ${serviceName}
+      </text>
+      
+      <!-- Photo type -->
+      <text x="200" y="170" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16">
+        ${imageType || 'Vue de face'}
+      </text>
+      
+      <!-- Volume indicator -->
+      <text x="200" y="195" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="bold">
+        ${volume}m³
+      </text>
+    </svg>
+  `;
+  
+  return 'data:image/svg+xml;base64,' + btoa(svg);
 };
 
 interface ServiceImageDisplayProps {
@@ -86,14 +118,14 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
         <img
           src={currentImage?.imagePath?.startsWith('/uploads/') 
             ? currentImage.imagePath 
-            : getContainerImage(serviceName, imageTypeLabel)
+            : generateContainerSVG(serviceName, imageTypeLabel)
           }
           alt={`${serviceName} - ${imageTypeLabel}`}
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Fallback vers une image de conteneur générique
+            // Fallback vers une image SVG de conteneur
             const target = e.target as HTMLImageElement;
-            target.src = getContainerImage(serviceName, imageTypeLabel);
+            target.src = generateContainerSVG(serviceName, imageTypeLabel);
           }}
         />
         
