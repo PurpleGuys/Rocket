@@ -5737,10 +5737,7 @@ function PhotoManagementModal({ service, onClose }: { service: any; onClose: () 
                   <div key={photo.id} className="border rounded-lg overflow-hidden">
                     <div className="aspect-video bg-gray-100 relative">
                       <img
-                        src={photo.imagePath.startsWith('/uploads/') 
-                          ? `https://via.placeholder.com/400x225/e5e7eb/6b7280?text=${encodeURIComponent(photoTypes.find(t => t.value === photo.imageType)?.label || photo.imageType)}`
-                          : photo.imagePath
-                        }
+                        src={`https://via.placeholder.com/400x225/3b82f6/ffffff?text=${encodeURIComponent(photoTypes.find(t => t.value === photo.imageType)?.label || photo.imageType)}`}
                         alt={photo.altText || `Photo ${photo.imageType}`}
                         className="w-full h-full object-cover"
                       />
@@ -5758,6 +5755,9 @@ function PhotoManagementModal({ service, onClose }: { service: any; onClose: () 
                           </p>
                           <p className="text-xs text-gray-500">
                             {photoTypes.find(t => t.value === photo.imageType)?.description}
+                          </p>
+                          <p className="text-xs text-blue-600 mt-1">
+                            {photo.imagePath.split('/').pop()?.split('_')[0] || 'Image uploadée'}
                           </p>
                         </div>
                       </div>
