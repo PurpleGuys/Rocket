@@ -1,0 +1,38 @@
+Uncaught ReferenceError: PhotoManagementModal is not defined
+    RentalPricingPage dashboard.tsx:2720
+    React 16
+    onClick dashboard.tsx:2565
+    React 23
+    <anonymous> main.tsx:6
+dashboard.tsx:2720:9
+Uncaught ReferenceError: PhotoManagementModal is not defined
+    RentalPricingPage dashboard.tsx:2720
+    React 17
+    onClick dashboard.tsx:2565
+    React 23
+    <anonymous> main.tsx:6
+dashboard.tsx:2720:9
+The above error occurred in the <RentalPricingPage> component:
+
+RentalPricingPage@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/pages/dashboard.tsx:4705:45
+div
+div
+div
+Dashboard@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/pages/dashboard.tsx:10191:49
+Admin@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/pages/admin.tsx:23:37
+Route@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5963b735:323:13
+Switch@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5963b735:379:14
+Router@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/src/App.tsx?v=_tIezgUDFOHm_PocK_2UX:45:42
+Provider@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7SUNRGEF.js?v=5963b735:38:47
+TooltipProvider@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=5963b735:64:7
+QueryClientProvider@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=5963b735:2804:27
+App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. react-dom.development.js:18704:14
+Uncaught ReferenceError: PhotoManagementModal is not defined
+    RentalPricingPage dashboard.tsx:2720
+    React 14
+    onClick dashboard.tsx:2565
+    React 23
+    <anonymous> main.tsx:6

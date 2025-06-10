@@ -147,6 +147,12 @@ export interface IStorage {
   getFidById(id: number): Promise<any | undefined>;
   createFid(fid: InsertFid): Promise<Fid>;
   updateFid(id: number, fid: Partial<UpdateFid>): Promise<Fid | undefined>;
+
+  // Service Images
+  getServiceImages(serviceId: number): Promise<any[]>;
+  createServiceImage(image: any): Promise<any>;
+  deleteServiceImage(id: number): Promise<void>;
+  setMainServiceImage(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {

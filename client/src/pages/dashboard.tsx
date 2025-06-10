@@ -5494,3 +5494,328 @@ function DeleteOrderDialog({ order, onSuccess }: { order: any; onSuccess: () => 
     </Dialog>
   );
 }
+
+// Composant de gestion des photos pour les bennes
+function PhotoManagementModal({ service, onClose }: { service: any; onClose: () => void }) {
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  // Types de photos disponibles
+  const photoTypes = [
+    { value: 'face', label: 'Vue de face', description: 'Photo frontale de la benne' },
+    { value: 'side_right', label: 'Côté droit', description: 'Vue du côté droit' },
+    { value: 'side_left', label: 'Côté gauche', description: 'Vue du côté gauche' },
+    { value: 'with_person', label: 'Avec personne', description: 'Photo avec une personne pour l\'échelle' },
+    { value: 'back', label: 'Vue arrière', description: 'Photo arrière de la benne' }
+  ];
+
+  // Récupérer les photos existantes
+  const { data: serviceImages, refetch: refetchImages } = useQuery({
+    queryKey: [`/api/admin/services/${service.id}/images`],
+    enabled: !!service.id
+  });
+
+  useEffect(() => {
+    if (serviceImages) {
+      setPhotos(serviceImages);
+    }
+  }, [serviceImages]);
+
+  // Gestion de l'upload de fichiers
+  const handleFileUpload = async (files: FileList, imageType: string = 'face') => {
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Vérifier le type de fichier
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: "Format non supporté",
+            description: `Le fichier ${file.name} n'est pas une image.`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        // Vérifier la taille (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "Fichier trop volumineux",
+            description: `Le fichier ${file.name} dépasse 5MB.`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('imageType', imageType);
+        formData.append('serviceId', service.id.toString());
+
+        const response = await fetch('/api/admin/services/images/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors de l\'upload');
+        }
+
+        const result = await response.json();
+        
+        toast({
+          title: "Photo ajoutée",
+          description: `La photo ${file.name} a été ajoutée avec succès.`,
+        });
+      }
+
+      refetchImages();
+    } catch (error) {
+      toast({
+        title: "Erreur d'upload",
+        description: "Impossible d'uploader les photos.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Supprimer une photo
+  const deletePhoto = async (photoId: number) => {
+    try {
+      const response = await fetch(`/api/admin/services/images/${photoId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression');
+      }
+
+      toast({
+        title: "Photo supprimée",
+        description: "La photo a été supprimée avec succès.",
+      });
+
+      refetchImages();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la photo.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Définir comme photo principale
+  const setMainPhoto = async (photoId: number) => {
+    try {
+      const response = await fetch(`/api/admin/services/images/${photoId}/set-main`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour');
+      }
+
+      toast({
+        title: "Photo principale définie",
+        description: "Cette photo est maintenant la photo principale.",
+      });
+
+      refetchImages();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de définir la photo principale.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Gestion du drag & drop
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="p-6 border-b flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Gérer les photos</h2>
+            <p className="text-gray-600">{service.name} - {service.volume}m³</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {/* Zone d'upload */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ajouter des photos
+            </label>
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                dragActive
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 hover:border-red-400'
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">
+                Glissez-déposez vos photos ici ou
+              </p>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {uploading ? "Upload en cours..." : "Sélectionner des fichiers"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                className="hidden"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Formats supportés: JPG, PNG, WebP (max 5MB par fichier)
+              </p>
+            </div>
+          </div>
+
+          {/* Liste des photos existantes */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Photos actuelles</h3>
+            {photos && photos.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {photos.map((photo) => (
+                  <div key={photo.id} className="border rounded-lg overflow-hidden">
+                    <div className="aspect-video bg-gray-100 relative">
+                      <img
+                        src={photo.imagePath}
+                        alt={photo.altText || `Photo ${photo.imageType}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {photo.isMain && (
+                        <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                          Principale
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium text-sm">
+                            {photoTypes.find(t => t.value === photo.imageType)?.label || photo.imageType}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {photoTypes.find(t => t.value === photo.imageType)?.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {!photo.isMain && (
+                          <button
+                            onClick={() => setMainPhoto(photo.id)}
+                            className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                          >
+                            Définir principale
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deletePhoto(photo.id)}
+                          className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                        >
+                          Supprimer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <ImageIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">Aucune photo pour cette benne</p>
+                <p className="text-sm text-gray-400">
+                  Ajoutez des photos pour améliorer la présentation
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Types de photos recommandés */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-2">Types de photos recommandés</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              {photoTypes.map((type) => (
+                <div key={type.value} className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                  <span className="text-blue-800">
+                    <strong>{type.label}:</strong> {type.description}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 border-t bg-gray-50">
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
