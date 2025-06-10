@@ -1,28 +1,22 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import FidDetailModal from "@/components/admin/FidDetailModal";
 import { 
   FileText, 
   CheckCircle, 
   XCircle, 
-  Eye, 
   Download, 
-  Clock, 
   AlertTriangle,
   Search,
   Filter,
-  MessageSquare,
-  Calendar
+  Edit
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -56,83 +50,35 @@ interface Fid {
 
 export default function AdminFids() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [selectedFid, setSelectedFid] = useState<Fid | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [validationComment, setValidationComment] = useState("");
 
   // Fetch FIDs
   const { data: fids = [], isLoading } = useQuery({
     queryKey: ["/api/admin/fids", filterStatus, searchTerm],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (filterStatus !== "all") params.append("status", filterStatus);
-      if (searchTerm) params.append("search", searchTerm);
-      
-      const response = await apiRequest("GET", `/api/admin/fids?${params}`);
+      const response = await apiRequest("GET", "/api/admin/fids");
       return response.json();
     },
   });
 
-  // Validate FID mutation
-  const validateFidMutation = useMutation({
-    mutationFn: async ({ fidId, status, comment }: { 
-      fidId: number; 
-      status: 'validated' | 'rejected'; 
-      comment?: string;
-    }) => {
-      const response = await apiRequest("PUT", `/api/admin/fids/${fidId}/validate`, {
-        status,
-        adminComments: comment
-      });
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/fids"] });
-      setSelectedFid(null);
-      setValidationComment("");
-      toast({
-        title: "FID mise à jour",
-        description: "Le statut de la FID a été mis à jour avec succès.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Erreur lors de la mise à jour de la FID",
-        variant: "destructive",
-      });
-    },
-  });
+  const openDetailModal = (fid: Fid) => {
+    setSelectedFid(fid);
+    setIsDetailModalOpen(true);
+  };
 
-  // Update FID mutation
-  const updateFidMutation = useMutation({
-    mutationFn: async ({ fidId, data }: { fidId: number; data: any }) => {
-      const response = await apiRequest("PUT", `/api/admin/fids/${fidId}`, data);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/fids"] });
-      toast({
-        title: "FID modifiée",
-        description: "La FID a été modifiée avec succès.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Erreur lors de la modification de la FID",
-        variant: "destructive",
-      });
-    },
-  });
+  const closeDetailModal = () => {
+    setSelectedFid(null);
+    setIsDetailModalOpen(false);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
-          <Clock className="h-3 w-3 mr-1" />
+          <AlertTriangle className="h-3 w-3 mr-1" />
           En attente
         </Badge>;
       case 'validated':
@@ -147,22 +93,12 @@ export default function AdminFids() {
         </Badge>;
       case 'modified':
         return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-          <AlertTriangle className="h-3 w-3 mr-1" />
+          <Edit className="h-3 w-3 mr-1" />
           Modifiée
         </Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
-  };
-
-  const handleValidate = (status: 'validated' | 'rejected') => {
-    if (!selectedFid) return;
-    
-    validateFidMutation.mutate({
-      fidId: selectedFid.id,
-      status,
-      comment: validationComment
-    });
   };
 
   const exportToPdf = async (fidId: number) => {
@@ -243,170 +179,104 @@ export default function AdminFids() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Liste des FID */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Fiches d'Identification des Déchets ({filteredFids.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredFids.length === 0 ? (
-                  <div className="text-center py-8">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">Aucune FID trouvée</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Fiches d'Identification des Déchets ({filteredFids.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {filteredFids.length === 0 ? (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Aucune FID trouvée</p>
+              </div>
+            ) : (
+              filteredFids.map((fid: Fid) => (
+                <div
+                  key={fid.id}
+                  className="p-4 border rounded-lg transition-colors border-gray-200 hover:border-gray-300"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900">
+                      FID #{fid.id} - {fid.clientCompanyName}
+                    </h3>
+                    <div className="flex items-center space-x-2">
+                      {getStatusBadge(fid.status)}
+                    </div>
                   </div>
-                ) : (
-                  filteredFids.map((fid: Fid) => (
-                    <div
-                      key={fid.id}
-                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                        selectedFid?.id === fid.id 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setSelectedFid(fid)}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-900">
-                          FID #{fid.id} - {fid.clientCompanyName}
-                        </h3>
-                        {getStatusBadge(fid.status)}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div>
-                          <p><strong>Contact:</strong> {fid.clientContactName}</p>
-                          <p><strong>Déchet:</strong> {fid.wasteName}</p>
-                        </div>
-                        <div>
-                          <p><strong>Code:</strong> {fid.nomenclatureCode}</p>
-                          <p><strong>Créée le:</strong> {format(new Date(fid.createdAt), 'dd/MM/yyyy', { locale: fr })}</p>
-                        </div>
-                      </div>
-                      
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+                    <div>
+                      <p><strong>Contact:</strong> {fid.clientContactName}</p>
+                      <p><strong>Email:</strong> {fid.clientEmail}</p>
+                    </div>
+                    <div>
+                      <p><strong>Déchet:</strong> {fid.wasteName}</p>
+                      <p><strong>Code:</strong> {fid.nomenclatureCode}</p>
+                    </div>
+                    <div>
+                      <p><strong>Créée le:</strong> {format(new Date(fid.createdAt), 'dd/MM/yyyy', { locale: fr })}</p>
                       {fid.validatedBy && fid.validatedAt && (
-                        <div className="mt-2 text-xs text-gray-500">
-                          Validée par {fid.validatedByUser?.firstName} {fid.validatedByUser?.lastName} 
-                          le {format(new Date(fid.validatedAt), 'dd/MM/yyyy à HH:mm', { locale: fr })}
-                        </div>
+                        <p><strong>Validée le:</strong> {format(new Date(fid.validatedAt), 'dd/MM/yyyy', { locale: fr })}</p>
                       )}
                     </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Panneau de validation */}
-        <div>
-          {selectedFid ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="h-5 w-5" />
-                  <span>FID #{selectedFid.id}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Informations générales</h4>
-                  <div className="space-y-2 text-sm">
-                    <p><strong>Entreprise:</strong> {selectedFid.clientCompanyName}</p>
-                    <p><strong>Contact:</strong> {selectedFid.clientContactName}</p>
-                    <p><strong>Email:</strong> {selectedFid.clientEmail}</p>
-                    <p><strong>Déchet:</strong> {selectedFid.wasteName}</p>
-                    <p><strong>Code nomenclature:</strong> {selectedFid.nomenclatureCode}</p>
-                    <p><strong>Statut:</strong> {getStatusBadge(selectedFid.status)}</p>
                   </div>
-                </div>
 
-                {selectedFid.rejectionReason && (
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Raison du rejet:</strong> {selectedFid.rejectionReason}
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {selectedFid.adminComments && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Commentaires admin</h4>
-                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                      {selectedFid.adminComments}
-                    </p>
-                  </div>
-                )}
-
-                {selectedFid.status === 'pending' && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="validationComment">Commentaire (optionnel)</Label>
-                      <Textarea
-                        id="validationComment"
-                        value={validationComment}
-                        onChange={(e) => setValidationComment(e.target.value)}
-                        placeholder="Ajouter un commentaire sur cette FID..."
-                        rows={3}
-                      />
+                  {fid.validatedBy && fid.validatedAt && (
+                    <div className="mb-3 text-xs text-gray-500">
+                      Validée par {fid.validatedByUser?.firstName} {fid.validatedByUser?.lastName} 
+                      le {format(new Date(fid.validatedAt), 'dd/MM/yyyy à HH:mm', { locale: fr })}
                     </div>
+                  )}
 
+                  {fid.rejectionReason && (
+                    <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                      <strong>Raison du rejet:</strong> {fid.rejectionReason}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
                     <div className="flex space-x-2">
                       <Button
-                        onClick={() => handleValidate('validated')}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                        disabled={validateFidMutation.isPending}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openDetailModal(fid)}
                       >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Valider
+                        <Edit className="h-4 w-4 mr-1" />
+                        Modifier
                       </Button>
+                      
                       <Button
-                        onClick={() => handleValidate('rejected')}
-                        variant="destructive"
-                        className="flex-1"
-                        disabled={validateFidMutation.isPending}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => exportToPdf(fid.id)}
                       >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Rejeter
+                        <Download className="h-4 w-4 mr-1" />
+                        PDF
                       </Button>
                     </div>
-                  </div>
-                )}
 
-                <div className="space-y-2">
-                  <Button
-                    onClick={() => exportToPdf(selectedFid.id)}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Exporter en PDF
-                  </Button>
-                  
-                  <Button
-                    onClick={() => {/* Ouvrir modal de modification */}}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Voir détails complets
-                  </Button>
+                    {fid.adminComments && (
+                      <div className="text-xs text-gray-500 max-w-xs truncate" title={fid.adminComments}>
+                        <strong>Commentaire:</strong> {fid.adminComments}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="text-center py-8">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Sélectionnez une FID pour la gérer</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* FID Detail Modal */}
+      {selectedFid && (
+        <FidDetailModal
+          fid={selectedFid}
+          isOpen={isDetailModalOpen}
+          onClose={closeDetailModal}
+        />
+      )}
     </div>
   );
 }
