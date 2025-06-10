@@ -606,9 +606,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin: Export users to Excel
-  app.get("/api/admin/users/export", async (req, res) => {
-    // In development mode, allow access without authentication
+  // Admin: Export users to Excel (development route)
+  app.get("/api/export/users", async (req, res) => {
     console.log('Export users request - NODE_ENV:', process.env.NODE_ENV);
     try {
       const XLSX = await import('xlsx');
@@ -652,6 +651,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set headers for download
       const filename = `utilisateurs_${new Date().toISOString().split('T')[0]}.xlsx`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      
+      res.send(buffer);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de l'export: " + error.message });
+    }
+  });
+
+  // Export FIDs to Excel (development route)
+  app.get("/api/export/fids", async (req, res) => {
+    console.log('Export FIDs request - NODE_ENV:', process.env.NODE_ENV);
+    try {
+      const XLSX = await import('xlsx');
+      const fids = await storage.getFids({});
+      
+      // Prepare data for Excel export with French headers
+      const exportData = fids.map((fid: any) => ({
+        'ID': fid.id,
+        'Numéro FID': fid.fidNumber,
+        'Statut': fid.status,
+        'Nom de l\'entreprise cliente': fid.clientCompanyName,
+        'Contact client': fid.clientContactName,
+        'Email client': fid.clientEmail,
+        'Téléphone client': fid.clientPhone,
+        'Adresse client': fid.clientAddress,
+        'SIRET client': fid.clientSiret,
+        'Activité client': fid.clientActivity,
+        'Entreprise productrice': fid.producerCompanyName,
+        'Contact producteur': fid.producerContactName,
+        'Email producteur': fid.producerEmail,
+        'Téléphone producteur': fid.producerPhone,
+        'Adresse producteur': fid.producerAddress,
+        'SIRET producteur': fid.producerSiret,
+        'Activité productrice': fid.producerActivity,
+        'Appellation commerciale': fid.commercialName,
+        'Dénomination usuelle': fid.usualName,
+        'Code déchet': fid.wasteCode,
+        'Origine du déchet': fid.wasteOrigin,
+        'Consistance': fid.consistency,
+        'Conditionnement': fid.packaging,
+        'Quantité estimée (tonnes)': fid.estimatedQuantity,
+        'Cadence de production': fid.productionRate,
+        'Durée de stockage': fid.storageDuration,
+        'Conditions de stockage': fid.storageConditions,
+        'Informations complémentaires': fid.additionalInfo,
+        'Date de création': fid.createdAt ? new Date(fid.createdAt).toLocaleDateString('fr-FR') : '',
+        'Date de mise à jour': fid.updatedAt ? new Date(fid.updatedAt).toLocaleDateString('fr-FR') : '',
+        'Validé par admin': fid.adminValidated ? 'Oui' : 'Non',
+        'Date de validation': fid.adminValidatedAt ? new Date(fid.adminValidatedAt).toLocaleDateString('fr-FR') : '',
+        'ID utilisateur validateur': fid.adminValidatedBy || ''
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportData);
+
+      // Auto-size columns
+      const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+        wch: Math.max(key.length, 15)
+      }));
+      ws['!cols'] = colWidths;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'FIDs');
+
+      // Generate buffer
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+      // Set headers for download
+      const filename = `fids_${new Date().toISOString().split('T')[0]}.xlsx`;
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       

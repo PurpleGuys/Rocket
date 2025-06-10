@@ -124,12 +124,8 @@ export default function AdminFids() {
 
   const exportToExcel = async () => {
     try {
-      const response = await fetch('/api/admin/fids/export-excel', {
+      const response = await fetch('/api/export/fids', {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
       });
 
       if (!response.ok) {
@@ -140,7 +136,7 @@ export default function AdminFids() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `fid_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+      a.download = `fids_${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -148,12 +144,12 @@ export default function AdminFids() {
       
       toast({
         title: "Export réussi",
-        description: "Le fichier Excel a été téléchargé avec succès.",
+        description: "Le fichier Excel des FIDs a été téléchargé avec succès.",
       });
     } catch (error) {
       toast({
         title: "Erreur",
-        description: "Erreur lors de l'export Excel",
+        description: "Erreur lors de l'export Excel des FIDs",
         variant: "destructive",
       });
     }
