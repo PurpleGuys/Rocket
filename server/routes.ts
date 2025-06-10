@@ -10,7 +10,7 @@ import { DistanceService } from "./distanceService";
 import { emailService } from "./emailService";
 import { sendGridService } from "./sendgridService";
 import { NotificationService } from "./notificationService";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema, insertFidSchema, updateFidSchema } from "@shared/schema";
 import { z } from "zod";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -2504,6 +2504,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         error: "Failed to calculate pricing"
       });
+    }
+  });
+
+  // ==================== FID ROUTES ====================
+  
+  // Get all FIDs (admin only)
+  app.get("/api/admin/fids", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const { status, search } = req.query;
+      const fids = await storage.getFids({
+        status: status as string,
+        search: search as string
+      });
+      res.json(fids);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching FIDs: " + error.message });
+    }
+  });
+
+  // Get FID by ID (admin only)
+  app.get("/api/admin/fids/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const fidId = parseInt(req.params.id);
+      const fid = await storage.getFidById(fidId);
+      
+      if (!fid) {
+        return res.status(404).json({ message: "FID not found" });
+      }
+      
+      res.json(fid);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching FID: " + error.message });
+    }
+  });
+
+  // Create FID
+  app.post("/api/fids", authenticateToken, async (req, res) => {
+    try {
+      const fidData = insertFidSchema.parse(req.body);
+      const fid = await storage.createFid({
+        ...fidData,
+        userId: req.user!.id
+      });
+      res.status(201).json(fid);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating FID: " + error.message });
+      }
+    }
+  });
+
+  // Update FID (admin only)
+  app.put("/api/admin/fids/:id", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const fidId = parseInt(req.params.id);
+      const updateData = updateFidSchema.parse(req.body);
+      
+      const updatedFid = await storage.updateFid(fidId, updateData);
+      
+      if (!updatedFid) {
+        return res.status(404).json({ message: "FID not found" });
+      }
+      
+      res.json(updatedFid);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Validation error", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Error updating FID: " + error.message });
+      }
+    }
+  });
+
+  // Validate/Reject FID (admin only)
+  app.put("/api/admin/fids/:id/validate", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const fidId = parseInt(req.params.id);
+      const { status, adminComments, rejectionReason } = req.body;
+      
+      if (!['validated', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+      
+      const updateData: any = {
+        status,
+        validatedBy: req.user!.id,
+        validatedAt: new Date(),
+        adminComments
+      };
+      
+      if (status === 'rejected' && rejectionReason) {
+        updateData.rejectionReason = rejectionReason;
+      }
+      
+      const updatedFid = await storage.updateFid(fidId, updateData);
+      
+      if (!updatedFid) {
+        return res.status(404).json({ message: "FID not found" });
+      }
+      
+      res.json(updatedFid);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error validating FID: " + error.message });
+    }
+  });
+
+  // Export FID to PDF (admin only)
+  app.get("/api/admin/fids/:id/export-pdf", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const fidId = parseInt(req.params.id);
+      const fid = await storage.getFidById(fidId);
+      
+      if (!fid) {
+        return res.status(404).json({ message: "FID not found" });
+      }
+      
+      // TODO: Implement PDF generation
+      res.status(501).json({ message: "PDF export not implemented yet" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error exporting FID: " + error.message });
     }
   });
 
