@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import AdminFids from "@/pages/admin-fids";
+import AdminUsers from "@/pages/admin-users";
 import Auth from "@/pages/auth";
 import Profile from "@/pages/profile";
 import Dashboard from "@/pages/dashboard";
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/dashboard/*" component={Dashboard} />
       <Route path="/admin/fids" component={AdminFids} />
+      <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/*" component={Admin} />
       <Route path="/admin" component={Admin} />
       <Route path="/checkout" component={Checkout} />
