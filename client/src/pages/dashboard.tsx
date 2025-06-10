@@ -5065,7 +5065,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-red-700">REMONDIS</h2>
-                <p className="text-xs text-gray-500">Admin Panel</p>
+                <p className="text-xs text-gray-500">Espace Client</p>
               </div>
             </div>
           </div>
