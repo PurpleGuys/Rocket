@@ -40,8 +40,9 @@ export function useLogin() {
         localStorage.setItem("session_token", data.sessionToken);
       }
       
-      // Update cache with user data
+      // Update cache with user data and invalidate to trigger refetch
       queryClient.setQueryData(["/api/auth/me"], data.user);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       
       toast({
         title: "Connexion réussie",
