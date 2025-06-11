@@ -746,7 +746,97 @@ export default function ServiceSelection() {
         )}
       </div>
 
+      {/* Right Column - Pricing Summary */}
+      <div className="lg:col-span-1">
+        <Card className="sticky top-4">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Récapitulatif</h3>
+            
+            {priceData ? (
+              <div className="space-y-4">
+                {/* Service sélectionné */}
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-2">Service sélectionné</h4>
+                  <div className="text-sm text-gray-700">
+                    <div>{service?.name} ({service?.volume}m³)</div>
+                    {selectedWasteType && <div>Type de déchet: {selectedWasteType}</div>}
+                    {deliveryAddress && <div>Livraison: {deliveryAddress}</div>}
+                    {distance > 0 && <div>Distance: {distance} km</div>}
+                    {startDate && <div>Période: du {format(startDate, "dd/MM/yyyy", { locale: fr })} ({durationDays} jour{durationDays > 1 ? 's' : ''})</div>}
+                  </div>
+                </div>
 
+                {/* Détail des coûts */}
+                <div className="space-y-2">
+                  <h4 className="font-medium text-gray-900">Détail du devis</h4>
+                  
+                  {/* Coût de base du service */}
+                  <div className="flex justify-between text-sm">
+                    <span>Benne {service?.name}</span>
+                    <span>{priceData.service?.toFixed(2)}€</span>
+                  </div>
+                  
+                  {/* Supplément durée */}
+                  {priceData.durationSupplement > 0 && (
+                    <div className="flex justify-between text-sm text-blue-600">
+                      <span className="ml-2">• Supplément durée ({durationDays} jours)</span>
+                      <span>+{priceData.durationSupplement?.toFixed(2)}€</span>
+                    </div>
+                  )}
+                  
+                  {/* Coût de transport */}
+                  {priceData.transport > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span className="ml-2">• Transport ({distance} km)</span>
+                      <span>+{priceData.transport?.toFixed(2)}€</span>
+                    </div>
+                  )}
+                  
+                  {/* Coût de traitement */}
+                  {priceData.treatment > 0 && (
+                    <div className="flex justify-between text-sm text-orange-600">
+                      <span className="ml-2">• Traitement des déchets</span>
+                      <span>+{priceData.treatment?.toFixed(2)}€</span>
+                    </div>
+                  )}
+                  
+                  {/* Options */}
+                  {bsdOption && (
+                    <div className="flex justify-between text-sm text-purple-600">
+                      <span className="ml-2">• Bordereau de suivi (BSD)</span>
+                      <span>Inclus</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span>Total TTC</span>
+                    <span className="text-red-600">{priceData.total?.toFixed(2)}€</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    TVA 20% incluse
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleBooking}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  size="lg"
+                  disabled={!selectedServiceId || !deliveryAddress || !selectedWasteType || (bsdOption && !fidData)}
+                >
+                  Réserver maintenant
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">
+                <Truck className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p>Sélectionnez une benne pour voir le prix</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Formulaire FID Modal */}
       {showFidForm && (

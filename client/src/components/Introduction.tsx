@@ -108,7 +108,7 @@ export default function Introduction() {
                       Se connecter
                     </Button>
                   </Link>
-                  <Link href="/booking">
+                  <Link href="/auth">
                     <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
                       Réserver maintenant
                     </Button>

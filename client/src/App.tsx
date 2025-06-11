@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
-import Booking from "@/pages/booking";
 import Admin from "@/pages/admin";
 import AdminFids from "@/pages/admin-fids";
 import AdminUsers from "@/pages/admin-users";
@@ -64,7 +63,7 @@ function Router() {
       <Route path="/validate-delivery" component={ValidateDelivery} />
       <Route path="/faq" component={FAQ} />
       <Route path="/introduction" component={Introduction} />
-      <Route path="/booking" component={Booking} />
+      <Route path="/booking" component={Home} />
       <Route path="/" component={Introduction} />
       <Route component={NotFound} />
     </Switch>
