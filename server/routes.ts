@@ -1842,7 +1842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate pricing with real distance and duration supplements
   app.post("/api/calculate-pricing", async (req, res) => {
     try {
-      const { serviceId, wasteType, address, postalCode, city, durationDays = 7 } = req.body;
+      const { serviceId, wasteType, address, postalCode, city, durationDays = 7, bsdOption = false } = req.body;
 
       // Get service pricing
       const service = await storage.getService(serviceId);
@@ -1895,6 +1895,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         durationSupplement: durationSupplement,
         transport: 0,
         treatment: 0,
+        bsd: bsdOption ? 15 : 0,
         total: 0
       };
 
@@ -1930,7 +1931,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        breakdown.total = breakdown.service + breakdown.durationSupplement + breakdown.transport + breakdown.treatment;
+        breakdown.total = breakdown.service + breakdown.durationSupplement + breakdown.transport + breakdown.treatment + breakdown.bsd;
 
         res.json({
           success: true,
@@ -1982,7 +1983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        breakdown.total = totalPrice;
+        breakdown.total = totalPrice + breakdown.bsd;
 
         res.json({
           success: true,
