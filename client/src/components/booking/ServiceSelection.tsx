@@ -416,58 +416,58 @@ export default function ServiceSelection() {
 
         {/* Service Selection */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez votre benne</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Choisissez votre benne</h3>
           {Array.isArray(services) && services.length > 0 ? (
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               {services.map((service: Service) => (
                 <div key={service.id}>
                   <Card 
                     className={`cursor-pointer transition-all ${
                       selectedServiceId === service.id 
-                        ? "ring-2 ring-red-500 border-red-300" 
-                        : "hover:border-gray-300"
+                        ? "ring-3 ring-red-500 border-red-300 shadow-lg" 
+                        : "hover:border-gray-300 hover:shadow-md"
                     }`}
                     onClick={() => handleServiceSelect(service)}
                   >
-                    <CardContent className="p-6">
-                      <div className="grid md:grid-cols-3 gap-6">
-                        {/* Photos de la benne */}
-                        <div className="md:col-span-1">
+                    <CardContent className="p-8">
+                      <div className="grid lg:grid-cols-2 gap-8">
+                        {/* Photos de la benne - Plus grande */}
+                        <div className="order-1 lg:order-1">
                           <SimpleContainerImage 
                             serviceName={service.name}
                             volume={service.volume}
-                            className="w-full h-48 md:h-56"
+                            className="w-full h-64 lg:h-80"
                           />
                         </div>
                         
                         {/* Informations du service */}
-                        <div className="md:col-span-2 flex flex-col justify-between">
+                        <div className="order-2 lg:order-2 flex flex-col justify-between">
                           <div>
-                            <h4 className="font-bold text-xl text-gray-900 mb-2">{service.name}</h4>
-                            <p className="text-gray-600 text-base mb-4">{service.description}</p>
+                            <h4 className="font-bold text-2xl text-gray-900 mb-3">{service.name}</h4>
+                            <p className="text-gray-600 text-lg mb-6 leading-relaxed">{service.description}</p>
                             
                             {/* Caractéristiques techniques */}
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                              <div className="bg-gray-50 p-3 rounded-lg">
-                                <div className="text-sm text-gray-500">Volume</div>
-                                <div className="font-semibold text-lg">{service.volume}m³</div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                              <div className="bg-gray-50 p-4 rounded-lg border">
+                                <div className="text-sm text-gray-500 font-medium">Volume</div>
+                                <div className="font-bold text-xl text-gray-900">{service.volume}m³</div>
                               </div>
                               {service.length && service.width && service.height && (
-                                <div className="bg-gray-50 p-3 rounded-lg">
-                                  <div className="text-sm text-gray-500">Dimensions</div>
-                                  <div className="font-semibold text-sm">{service.length} × {service.width} × {service.height}m</div>
+                                <div className="bg-gray-50 p-4 rounded-lg border">
+                                  <div className="text-sm text-gray-500 font-medium">Dimensions</div>
+                                  <div className="font-semibold text-base text-gray-900">{service.length} × {service.width} × {service.height}m</div>
                                 </div>
                               )}
                             </div>
                           </div>
                           
                           {/* Prix et sélection */}
-                          <div className="flex justify-between items-center">
-                            <div className="text-2xl font-bold text-red-600">
+                          <div className="flex justify-between items-center pt-4 border-t">
+                            <div className="text-3xl font-bold text-red-600">
                               À partir de {service.basePrice}€
                             </div>
                             {selectedServiceId === service.id && (
-                              <Badge className="bg-red-600 text-white text-sm px-3 py-1">
+                              <Badge className="bg-red-600 text-white text-base px-4 py-2">
                                 ✓ Sélectionné
                               </Badge>
                             )}
