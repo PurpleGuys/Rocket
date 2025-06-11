@@ -61,46 +61,61 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
     enabled: !!serviceId,
   });
 
-  // Fonction pour obtenir l'image spécifique selon le service et le type d'image uploadée
+  // Fonction pour obtenir l'image spécifique selon le type de benne et l'image uploadée
   const getServiceSpecificImage = (imageType: string, serviceId: number) => {
-    // Chaque service aura ses propres images selon son ID et le type
-    const imageMap = {
-      // Service ID 8 (première benne)
-      8: {
-        'face': face,
-        'side_right': coteDroit,
-        'side_left': coteGauche,
-        'with_person': benne22m3,
-        'general': benneGeneral
-      },
-      // Service ID 9 (deuxième benne)
-      9: {
-        'face': coteDroit,  // Image différente pour ce service
-        'side_right': coteGauche,
-        'side_left': benne22m3,
-        'with_person': benneGeneral,
-        'general': unnamedBenne
-      },
-      // Service ID 11 (troisième benne) 
-      11: {
-        'face': coteGauche,  // Image différente pour ce service
-        'side_right': benne22m3,
-        'side_left': benneGeneral,
-        'with_person': unnamedBenne,
-        'general': face
+    const name = serviceName.toLowerCase();
+    
+    // Mapper selon le type de benne réel (Big Bag, 18m³, 10m³)
+    if (name.includes('big') || name.includes('bag')) {
+      // Images spécifiques pour Big Bag
+      switch (imageType) {
+        case 'face': return unnamedBenne;
+        case 'side_right': return benneGeneral;
+        case 'side_left': return benne22m3;
+        case 'with_person': return face;
+        case 'general': return coteDroit;
+        default: return unnamedBenne;
       }
-    };
-
-    // Retourner l'image spécifique pour ce service et type, ou une image par défaut
-    return imageMap[serviceId as keyof typeof imageMap]?.[imageType as keyof typeof imageMap[8]] || face;
+    } else if (volume >= 18 || name.includes('18')) {
+      // Images spécifiques pour Benne 18m³
+      switch (imageType) {
+        case 'face': return face;
+        case 'side_right': return coteDroit;
+        case 'side_left': return coteGauche;
+        case 'with_person': return benne22m3;
+        case 'general': return benneGeneral;
+        default: return face;
+      }
+    } else if (volume >= 10 || name.includes('10')) {
+      // Images spécifiques pour Benne 10m³
+      switch (imageType) {
+        case 'face': return coteDroit;
+        case 'side_right': return coteGauche;
+        case 'side_left': return benneGeneral;
+        case 'with_person': return benne22m3;
+        case 'general': return unnamedBenne;
+        default: return coteDroit;
+      }
+    }
+    
+    // Fallback pour autres bennes
+    return face;
   };
+
+  // Debug : afficher les informations dans la console
+  console.log(`Service: ${serviceName}, Volume: ${volume}, ID: ${serviceId}`);
+  console.log('Images uploadées:', uploadedImages);
 
   // Utiliser les images uploadées si disponibles, sinon utiliser les images par défaut
   const views = Array.isArray(uploadedImages) && uploadedImages.length > 0
-    ? uploadedImages.map((img: any, index: number) => ({
-        image: getServiceSpecificImage(img.imageType, serviceId),
-        label: img.altText || `${img.imageType} - ${serviceName}`
-      }))
+    ? uploadedImages.map((img: any, index: number) => {
+        const selectedImage = getServiceSpecificImage(img.imageType, serviceId);
+        console.log(`Type: ${img.imageType} → Image sélectionnée:`, selectedImage);
+        return {
+          image: selectedImage,
+          label: img.altText || `${img.imageType} - ${serviceName}`
+        };
+      })
     : getDefaultImagesForService(serviceName, volume);
 
   const currentViewData = views[currentView];
