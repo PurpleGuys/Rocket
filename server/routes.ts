@@ -2717,8 +2717,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         success: true,
         pricing: {
-          items: pricingItems,
-          total: Math.round(total * 100) / 100
+          service: locationPrice,
+          transport: transportFee,
+          bsd: bsdFee,
+          total: Math.round(total * 100) / 100,
+          items: pricingItems
         }
       });
 
