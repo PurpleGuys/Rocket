@@ -28,8 +28,15 @@ import {
   Play
 } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { Service } from "@shared/schema";
 
 export default function Introduction() {
+  // Récupérer les services disponibles
+  const { data: services } = useQuery({
+    queryKey: ['/api/services'],
+  });
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
@@ -90,16 +97,16 @@ export default function Introduction() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <Badge className="bg-white/20 text-white border-white/30 px-4 py-2">
-                  🏆 N°1 Européen de la gestion des déchets
+                  🏆 Votre partenaire dans la gestion de vos déchets
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-bold leading-tight">
                   Location de
                   <span className="block text-white">Bennes</span>
-                  <span className="block text-red-200">Professionnelle</span>
+                  <span className="block text-red-200">Particulier & Professionnel</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-red-100 leading-relaxed">
                   Simplifiez la gestion de vos déchets avec notre plateforme digitale. 
-                  Devis instantané, livraison express, traitement éco-responsable.
+                  Devis instantané, planification de la livraison minimum 24h avant intervention, traitement éco-responsable.
                 </p>
               </div>
               

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -13,6 +14,7 @@ import Footer from "@/components/Footer";
 import { useBookingState } from "@/hooks/useBookingState";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Settings, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Service } from "@shared/schema";
 
 export default function Home() {
   const [showBooking, setShowBooking] = useState(false);
@@ -20,6 +22,11 @@ export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const logoutMutation = useLogout();
   const [, navigate] = useLocation();
+
+  // Récupérer les services disponibles
+  const { data: services } = useQuery({
+    queryKey: ['/api/services'],
+  });
 
   const handleStartBooking = () => {
     if (!isAuthenticated) {
