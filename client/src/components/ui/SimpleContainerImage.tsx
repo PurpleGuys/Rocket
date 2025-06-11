@@ -61,11 +61,29 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
     enabled: !!serviceId,
   });
 
+  // Mapper les chemins d'images uploadées vers les vraies images
+  const mapImagePath = (imagePath: string) => {
+    switch (imagePath) {
+      case '/src/assets/Face.png':
+        return face;
+      case '/src/assets/cotédroit.png':
+        return coteDroit;
+      case '/src/assets/cotégauche.png':
+        return coteGauche;
+      case '/src/assets/22M3 petit man.png':
+        return benne22m3;
+      case '/src/assets/667966dbb7a2c-bpfull_1749545669321.jpg':
+        return benneGeneral;
+      default:
+        return benneGeneral; // fallback
+    }
+  };
+
   // Utiliser les images uploadées si disponibles, sinon utiliser les images par défaut
   const views = Array.isArray(uploadedImages) && uploadedImages.length > 0
     ? uploadedImages.map((img: any, index: number) => ({
-        image: img.imagePath,
-        label: img.label || `Vue ${index + 1}`
+        image: mapImagePath(img.imagePath),
+        label: img.altText || `Vue ${index + 1}`
       }))
     : getDefaultImagesForService(serviceName, volume);
 
@@ -75,22 +93,31 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
     <div className={`relative rounded-xl overflow-hidden bg-gray-100 shadow-lg ${className}`}>
       {/* Image principale plus grande */}
       <div className="aspect-[4/3] relative">
-        <img 
-          src={currentViewData.image} 
-          alt={`${serviceName} - ${currentViewData.label}`}
-          className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
-          onError={(e) => {
-            // Fallback en cas d'erreur de chargement
-            e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
-              <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100%" height="100%" fill="#f3f4f6"/>
-                <text x="50%" y="50%" text-anchor="middle" dy="0.3em" font-family="Arial, sans-serif" font-size="18" fill="#6b7280">
-                  ${serviceName} ${volume}m³
-                </text>
-              </svg>
-            `);
-          }}
-        />
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
+              <p className="text-gray-600 text-sm">Chargement des images...</p>
+            </div>
+          </div>
+        ) : (
+          <img 
+            src={currentViewData.image} 
+            alt={`${serviceName} - ${currentViewData.label}`}
+            className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+            onError={(e) => {
+              // Fallback en cas d'erreur de chargement
+              e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
+                <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100%" height="100%" fill="#f3f4f6"/>
+                  <text x="50%" y="50%" text-anchor="middle" dy="0.3em" font-family="Arial, sans-serif" font-size="18" fill="#6b7280">
+                    ${serviceName} ${volume}m³
+                  </text>
+                </svg>
+              `);
+            }}
+          />
+        )}
         
         {/* Overlay avec informations amélioré */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6">

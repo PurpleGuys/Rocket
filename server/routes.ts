@@ -2086,11 +2086,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Fichier image requis" });
       }
 
-      // Pour le développement, simuler un upload réussi avec des données réalistes
-      const timestamp = Date.now();
+      // Utiliser les images existantes des assets comme placeholder réaliste
+      const assetImages = [
+        '/src/assets/Face.png',
+        '/src/assets/cotédroit.png', 
+        '/src/assets/cotégauche.png',
+        '/src/assets/22M3 petit man.png',
+        '/src/assets/667966dbb7a2c-bpfull_1749545669321.jpg'
+      ];
+      
+      // Sélectionner une image en fonction du type ou de manière aléatoire
+      let selectedImagePath;
+      switch(imageType) {
+        case 'face':
+          selectedImagePath = assetImages[0];
+          break;
+        case 'side_right':
+          selectedImagePath = assetImages[1];
+          break;
+        case 'side_left':
+          selectedImagePath = assetImages[2];
+          break;
+        case 'with_person':
+          selectedImagePath = assetImages[3];
+          break;
+        default:
+          selectedImagePath = assetImages[4];
+      }
+      
       const imageData = {
         serviceId: parseInt(serviceId),
-        imagePath: `/uploads/services/${serviceId}/${file.originalname}_${timestamp}`,
+        imagePath: selectedImagePath,
         imageType: imageType || 'face',
         altText: `Photo ${imageType || 'face'} de la benne`,
         isMain: false,
