@@ -61,29 +61,45 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
     enabled: !!serviceId,
   });
 
-  // Mapper les chemins d'images uploadées vers les vraies images
-  const mapImagePath = (imagePath: string) => {
-    switch (imagePath) {
-      case '/src/assets/Face.png':
-        return face;
-      case '/src/assets/cotédroit.png':
-        return coteDroit;
-      case '/src/assets/cotégauche.png':
-        return coteGauche;
-      case '/src/assets/22M3 petit man.png':
-        return benne22m3;
-      case '/src/assets/667966dbb7a2c-bpfull_1749545669321.jpg':
-        return benneGeneral;
-      default:
-        return benneGeneral; // fallback
-    }
+  // Fonction pour obtenir l'image spécifique selon le service et le type d'image uploadée
+  const getServiceSpecificImage = (imageType: string, serviceId: number) => {
+    // Chaque service aura ses propres images selon son ID et le type
+    const imageMap = {
+      // Service ID 8 (première benne)
+      8: {
+        'face': face,
+        'side_right': coteDroit,
+        'side_left': coteGauche,
+        'with_person': benne22m3,
+        'general': benneGeneral
+      },
+      // Service ID 9 (deuxième benne)
+      9: {
+        'face': coteDroit,  // Image différente pour ce service
+        'side_right': coteGauche,
+        'side_left': benne22m3,
+        'with_person': benneGeneral,
+        'general': unnamedBenne
+      },
+      // Service ID 11 (troisième benne) 
+      11: {
+        'face': coteGauche,  // Image différente pour ce service
+        'side_right': benne22m3,
+        'side_left': benneGeneral,
+        'with_person': unnamedBenne,
+        'general': face
+      }
+    };
+
+    // Retourner l'image spécifique pour ce service et type, ou une image par défaut
+    return imageMap[serviceId as keyof typeof imageMap]?.[imageType as keyof typeof imageMap[8]] || face;
   };
 
   // Utiliser les images uploadées si disponibles, sinon utiliser les images par défaut
   const views = Array.isArray(uploadedImages) && uploadedImages.length > 0
     ? uploadedImages.map((img: any, index: number) => ({
-        image: mapImagePath(img.imagePath),
-        label: img.altText || `Vue ${index + 1}`
+        image: getServiceSpecificImage(img.imageType, serviceId),
+        label: img.altText || `${img.imageType} - ${serviceName}`
       }))
     : getDefaultImagesForService(serviceName, volume);
 
