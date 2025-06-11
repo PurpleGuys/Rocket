@@ -102,7 +102,19 @@ const generalLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
 
 // Configuration de multer pour l'upload des fichiers
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const serviceId = req.body.serviceId;
+      const uploadPath = path.join(process.cwd(), 'uploads', 'services', serviceId.toString());
+      // Créer le dossier s'il n'existe pas
+      require('fs').mkdirSync(uploadPath, { recursive: true });
+      cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+      const timestamp = Date.now();
+      cb(null, `${file.originalname}_${timestamp}`);
+    }
+  }),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB max
   },
@@ -2088,9 +2100,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Fichier image requis" });
       }
 
-      // Créer le chemin de stockage pour l'image
-      const timestamp = Date.now();
-      const imagePath = `/uploads/services/${serviceId}/${file.originalname}_${timestamp}`;
+      // Le fichier est maintenant sauvegardé sur disque par multer
+      // Construire le chemin pour la base de données
+      const imagePath = `/uploads/services/${serviceId}/${file.filename}`;
       
       const imageData = {
         serviceId: parseInt(serviceId),
