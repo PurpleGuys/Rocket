@@ -30,12 +30,17 @@ import {
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Service } from "@shared/schema";
+import { useAuth, useLogout } from "@/hooks/useAuth";
 
 export default function Introduction() {
   // Récupérer les services disponibles
   const { data: services } = useQuery({
     queryKey: ['/api/services'],
   });
+
+  // Vérifier l'état de connexion de l'utilisateur
+  const { user } = useAuth();
+  const logoutMutation = useLogout();
 
   return (
     <div className="min-h-screen bg-white">
@@ -74,16 +79,42 @@ export default function Introduction() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/auth">
-                <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
-                  Se connecter
-                </Button>
-              </Link>
-              <Link href="/booking">
-                <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
-                  Réserver maintenant
-                </Button>
-              </Link>
+              {user ? (
+                // Utilisateur connecté
+                <>
+                  <Link href={user.role === 'admin' ? '/dashboard' : '/client-dashboard'}>
+                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+                      {user.role === 'admin' ? 'Admin Panel' : 'Mon Dashboard'}
+                    </Button>
+                  </Link>
+                  <Link href="/booking">
+                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                      Réserver maintenant
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="text-gray-600 hover:text-red-600"
+                    onClick={() => logoutMutation.mutate()}
+                  >
+                    Déconnexion
+                  </Button>
+                </>
+              ) : (
+                // Utilisateur non connecté
+                <>
+                  <Link href="/auth">
+                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+                      Se connecter
+                    </Button>
+                  </Link>
+                  <Link href="/auth">
+                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                      Réserver maintenant
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -129,7 +160,7 @@ export default function Introduction() {
                   <div className="text-sm text-red-200">Satisfaction client</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold">10k+</div>
+                  <div className="text-3xl font-bold">700+</div>
                   <div className="text-sm text-red-200">Bennes livrées</div>
                 </div>
               </div>
@@ -518,7 +549,7 @@ export default function Introduction() {
                 <div className="text-red-200">Planification minimum</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold">10k+</div>
+                <div className="text-3xl font-bold">700+</div>
                 <div className="text-red-200">Clients satisfaits</div>
               </div>
               <div className="text-center">
