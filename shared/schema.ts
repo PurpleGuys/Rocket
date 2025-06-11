@@ -845,17 +845,31 @@ export const surveyNotificationsRelations = relations(surveyNotifications, ({ on
   }),
 }));
 
-// Schémas Zod pour les questionnaires
-export const insertSatisfactionSurveySchema = createInsertSchema(satisfactionSurveys).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Schémas Zod simplifiés pour éviter les timeouts
+export const insertSatisfactionSurveySchema = z.object({
+  orderId: z.number(),
+  userId: z.number().optional(),
+  surveyToken: z.string(),
+  overallSatisfaction: z.number().min(1).max(5),
+  serviceQuality: z.number().min(1).max(5),
+  deliveryTiming: z.number().min(1).max(5),
+  pickupTiming: z.number().min(1).max(5),
+  customerService: z.number().min(1).max(5),
+  valueForMoney: z.number().min(1).max(5),
+  positiveComments: z.string().optional(),
+  negativeComments: z.string().optional(),
+  suggestions: z.string().optional(),
+  npsScore: z.number().min(0).max(10),
+  wouldUseAgain: z.boolean(),
+  wouldRecommend: z.boolean(),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
 });
 
-export const insertSurveyNotificationSchema = createInsertSchema(surveyNotifications).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertSurveyNotificationSchema = z.object({
+  surveyId: z.number(),
+  reminderSent: z.boolean().default(false),
+  reminderCount: z.number().default(0),
 });
 
 export type EmailLog = typeof emailLogs.$inferSelect;

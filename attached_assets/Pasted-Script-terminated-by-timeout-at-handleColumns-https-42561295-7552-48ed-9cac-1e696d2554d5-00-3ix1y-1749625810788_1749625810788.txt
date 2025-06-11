@@ -1,0 +1,24 @@
+Script terminated by timeout at:
+handleColumns@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/drizzle-zod.js?v=1bc294c0:220:40
+createInsertSchema@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/drizzle-zod.js?v=1bc294c0:284:10
+@https://42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev/@fs/home/runner/workspace/shared/schema.js:221:49
+drizzle-zod.js:220:40
+Uncaught undefined
+Échec du chargement pour l’élément <script> dont la source est « https://js.stripe.com/basil/stripe.js ». fids:1:1
+Uncaught (in promise) Error: Failed to load Stripe.js
+    onError2 index.mjs:65
+    1 index.mjs:126
+    loadScript2 index.mjs:87
+    getStripePromise2 index.mjs:166
+    loadStripe2 index.mjs:191
+    <anonymous> stripe.js:5
+Caused by: error { isTrusted: true, eventPhase: 0, bubbles: false, cancelable: false, returnValue: true, defaultPrevented: false, composed: false, timeStamp: 5088, cancelBubble: false, NONE: 0 }
+@stripe_stripe-js.js:53:12
+[vite] connecting... client:495:8
+[vite] connected. client:618:14
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools react-dom.development.js:29895:16
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/v3/controller-with-preconnect-72cd9577895e9661ccb644d2e82ffe66.html#__shared_params__[version]=basil&apiKey=pk_test_51RTkOhQWGRGBWlNRc4IflKqJ0d1kAUBXOhgn22ZYYj6MawLbuwXqTBBuFcnOandCkhqYxeNZKxR6H7KEZa7SYCWg00j7ZlAw82&apiVersion=2025-03-31.basil&stripeJsId=96b3b6af-6a57-491f-b306-3de300eacf6d&firstStripeInstanceCreatedLatency=55&controllerCount=1&isCheckout=false&stripeJsLoadTime=1749625750247&manualBrowserDeprecationRollout=false&mids[guid]=NA&mids[muid]=8de5a382-ad43-48dd-8282-96b8cdea3c91149923&mids[sid]=2625c58b-dc95-4d3b-8789-88ca29c22b66cee753&referrer=https%3A%2F%2F42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev%2F&controllerId=__privateStripeController7261 » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+controller-with-preconnect-b6e6d92bca9531b08f6c0eb685cf287c.js:1:26907
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2F42561295-7552-48ed-9cac-1e696d2554d5-00-3ix1y5lhxt1fu.riker.replit.dev%2F&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=8de5a382-ad43-48dd-8282-96b8cdea3c91149923&sid=2625c58b-dc95-4d3b-8789-88ca29c22b66cee753&version=6&preview=false&__shared_params__[version]=basil » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé.
+out-4.5.44.js:1:39660
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 3 
