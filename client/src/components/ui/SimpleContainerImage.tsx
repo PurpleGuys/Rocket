@@ -61,45 +61,24 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
     enabled: !!serviceId,
   });
 
-  // Fonction pour obtenir l'image spécifique selon le type de benne et l'image uploadée
-  const getServiceSpecificImage = (imageType: string, serviceId: number) => {
-    const name = serviceName.toLowerCase();
-    
-    // Mapper selon le type de benne réel (Big Bag, 18m³, 10m³)
-    if (name.includes('big') || name.includes('bag')) {
-      // Images spécifiques pour Big Bag
-      switch (imageType) {
-        case 'face': return unnamedBenne;
-        case 'side_right': return benneGeneral;
-        case 'side_left': return benne22m3;
-        case 'with_person': return face;
-        case 'general': return coteDroit;
-        default: return unnamedBenne;
-      }
-    } else if (volume >= 18 || name.includes('18')) {
-      // Images spécifiques pour Benne 18m³
-      switch (imageType) {
-        case 'face': return face;
-        case 'side_right': return coteDroit;
-        case 'side_left': return coteGauche;
-        case 'with_person': return benne22m3;
-        case 'general': return benneGeneral;
+  // Fonction pour convertir le chemin d'image uploadée en URL accessible
+  const getImageUrl = (imagePath: string) => {
+    if (imagePath.startsWith('@assets/')) {
+      // Images dans les assets
+      const assetPath = imagePath.replace('@assets/', '');
+      switch (assetPath) {
+        case 'Face.png': return face;
+        case 'cotédroit.png': return coteDroit;
+        case 'cotégauche.png': return coteGauche;
+        case '22M3 petit man.png': return benne22m3;
+        case '667966dbb7a2c-bpfull_1749545669321.jpg': return benneGeneral;
         default: return face;
       }
-    } else if (volume >= 10 || name.includes('10')) {
-      // Images spécifiques pour Benne 10m³
-      switch (imageType) {
-        case 'face': return coteDroit;
-        case 'side_right': return coteGauche;
-        case 'side_left': return benneGeneral;
-        case 'with_person': return benne22m3;
-        case 'general': return unnamedBenne;
-        default: return coteDroit;
-      }
+    } else if (imagePath.startsWith('/uploads/')) {
+      // Images uploadées - servir depuis le serveur
+      return `http://localhost:5000${imagePath}`;
     }
-    
-    // Fallback pour autres bennes
-    return face;
+    return face; // fallback
   };
 
   // Debug : afficher les informations dans la console
@@ -109,10 +88,10 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
   // Utiliser les images uploadées si disponibles, sinon utiliser les images par défaut
   const views = Array.isArray(uploadedImages) && uploadedImages.length > 0
     ? uploadedImages.map((img: any, index: number) => {
-        const selectedImage = getServiceSpecificImage(img.imageType, serviceId);
-        console.log(`Type: ${img.imageType} → Image sélectionnée:`, selectedImage);
+        const imageUrl = getImageUrl(img.imagePath);
+        console.log(`Path: ${img.imagePath} → URL: ${imageUrl}`);
         return {
-          image: selectedImage,
+          image: imageUrl,
           label: img.altText || `${img.imageType} - ${serviceName}`
         };
       })

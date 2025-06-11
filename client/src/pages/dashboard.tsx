@@ -5737,9 +5737,18 @@ function PhotoManagementModal({ service, onClose }: { service: any; onClose: () 
                   <div key={photo.id} className="border rounded-lg overflow-hidden">
                     <div className="aspect-video bg-gray-100 relative">
                       <img
-                        src={`https://via.placeholder.com/400x225/3b82f6/ffffff?text=${encodeURIComponent(photoTypes.find(t => t.value === photo.imageType)?.label || photo.imageType)}`}
+                        src={photo.imagePath.startsWith('@assets/') 
+                          ? `/src/assets/${photo.imagePath.replace('@assets/', '')}`
+                          : photo.imagePath.startsWith('/uploads/') 
+                            ? `http://localhost:5000${photo.imagePath}`
+                            : `https://via.placeholder.com/400x225/3b82f6/ffffff?text=${encodeURIComponent(photoTypes.find(t => t.value === photo.imageType)?.label || photo.imageType)}`
+                        }
                         alt={photo.altText || `Photo ${photo.imageType}`}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          img.src = `https://via.placeholder.com/400x225/dc2626/ffffff?text=${encodeURIComponent('Image non trouvée')}`;
+                        }}
                       />
                       {photo.isMain && (
                         <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs">

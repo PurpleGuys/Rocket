@@ -116,6 +116,8 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Servir les images uploadées
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
   // REMONDIS favicon route
   app.get('/favicon.ico', (req, res) => {
     res.setHeader('Content-Type', 'image/x-icon');
@@ -2086,13 +2088,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Fichier image requis" });
       }
 
-      // Stocker les données de l'image uploadée avec un identifiant unique
+      // Créer le chemin de stockage pour l'image
       const timestamp = Date.now();
-      const uniqueId = `${serviceId}_${imageType || 'face'}_${timestamp}`;
+      const imagePath = `/uploads/services/${serviceId}/${file.originalname}_${timestamp}`;
       
       const imageData = {
         serviceId: parseInt(serviceId),
-        imagePath: uniqueId, // Utiliser un identifiant unique au lieu d'un chemin
+        imagePath: imagePath,
         imageType: imageType || 'face',
         altText: `Photo ${imageType || 'face'} de la benne`,
         isMain: false,
