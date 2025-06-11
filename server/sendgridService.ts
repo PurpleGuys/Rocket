@@ -463,7 +463,7 @@ export class SendGridService {
         </div>
         <div class="footer">
           <p>REMONDIS France SAS - Zone Industrielle Nord, 60000 Beauvais</p>
-          <p>Téléphone : 03 44 XX XX XX | Email : contact@remondis.fr</p>
+          <p>Téléphone : 03 44 45 11 58 | Email : contact@remondis.fr</p>
         </div>
       </div>
     </body>
@@ -538,7 +538,7 @@ export class SendGridService {
         </div>
         <div class="footer">
           <p>REMONDIS France SAS - Zone Industrielle Nord, 60000 Beauvais</p>
-          <p>Téléphone : 03 44 XX XX XX | Email : contact@remondis.fr</p>
+          <p>Téléphone : 03 44 45 11 58 | Email : contact@remondis.fr</p>
         </div>
       </div>
     </body>
@@ -617,7 +617,7 @@ export class SendGridService {
         </div>
         <div class="footer">
           <p>REMONDIS France - Gestion des déchets professionnelle<br>
-          Email : contact@remondis.fr | Téléphone : 01 23 45 67 89</p>
+          Email : contact@remondis.fr | Téléphone : 03 44 45 11 58</p>
         </div>
       </div>
     </body>
@@ -706,7 +706,7 @@ export class SendGridService {
         </div>
         <div class="footer">
           <p>REMONDIS France - Gestion des déchets professionnelle<br>
-          Email : contact@remondis.fr | Téléphone : 01 23 45 67 89</p>
+          Email : contact@remondis.fr | Téléphone : 03 44 45 11 58</p>
         </div>
       </div>
     </body>
@@ -826,7 +826,7 @@ export class SendGridService {
           
           <p><strong>Contact :</strong><br>
           Email : contact@remondis.fr<br>
-          Téléphone : 01 23 45 67 89</p>
+          Téléphone : 03 44 45 11 58</p>
         </div>
         <div class="footer">
           <p>REMONDIS France - Gestion des déchets professionnelle</p>
@@ -846,7 +846,7 @@ export class SendGridService {
     
     Contact :
     Email : contact@remondis.fr
-    Téléphone : 01 23 45 67 89
+    Téléphone : 03 44 45 11 58
     
     Cordialement,
     L'équipe REMONDIS France
