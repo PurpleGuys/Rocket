@@ -48,7 +48,7 @@ export default function Legal() {
               <h3 className="font-semibold mb-2">Siège social :</h3>
               <p>Zone Industrielle des Alouettes</p>
               <p>72700 Allonnes, France</p>
-              <p>Téléphone : 02.43.39.00.00</p>
+              <p>Téléphone : 03 44 45 11 58</p>
               <p>Email : contact@remondis.fr</p>
             </div>
 

@@ -289,7 +289,7 @@ export default function Introduction() {
                 color: "bg-green-500",
                 bgColor: "bg-green-50",
                 stat: "90%",
-                statLabel: "Taux recyclage"
+                statLabel: "Taux recyclage 2022-2023-2024"
               },
               {
                 icon: <Shield className="h-8 w-8" />,
@@ -357,12 +357,11 @@ export default function Introduction() {
               <p className="text-gray-600">Nos labels de qualité et certifications professionnelles</p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-center">
               {[
                 { name: "ISO 14001", desc: "Management environnemental" },
                 { name: "ICPE", desc: "Centres agréés" },
-                { name: "BSD", desc: "Conformité légale" },
-                { name: "Éco-organisme", desc: "Partenaire certifié" }
+                { name: "BSD", desc: "Conformité légale" }
               ].map((cert, index) => (
                 <div key={index} className="text-center">
                   <div className="w-16 h-16 bg-white rounded-2xl shadow-md flex items-center justify-center mx-auto mb-4">
@@ -516,10 +515,10 @@ export default function Introduction() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-white/20">
               <div className="text-center">
                 <div className="text-3xl font-bold">24h</div>
-                <div className="text-red-200">Livraison express</div>
+                <div className="text-red-200">Planification minimum</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold">50k+</div>
+                <div className="text-3xl font-bold">10k+</div>
                 <div className="text-red-200">Clients satisfaits</div>
               </div>
               <div className="text-center">
@@ -590,7 +589,7 @@ export default function Introduction() {
                 <div className="space-y-6">
                   <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg justify-start">
                     <Phone className="mr-3 h-5 w-5" />
-                    +33 (0)800 54 438
+                    03 44 45 11 58
                   </Button>
                   
                   <Button variant="outline" className="w-full border-red-600 text-red-600 hover:bg-red-50 py-4 text-lg justify-start">
@@ -604,8 +603,6 @@ export default function Introduction() {
                     <h5 className="font-semibold text-black">Disponibilité</h5>
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>Lundi - Vendredi: 8h00 - 18h00</p>
-                      <p>Samedi: 9h00 - 12h00</p>
-                      <p>Urgences 24h/7j disponibles</p>
                     </div>
                   </div>
                 </div>
