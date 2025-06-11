@@ -436,6 +436,7 @@ export default function ServiceSelection() {
                           <SimpleContainerImage 
                             serviceName={service.name}
                             volume={service.volume}
+                            serviceId={service.id}
                             className="w-full h-64 lg:h-80"
                           />
                         </div>

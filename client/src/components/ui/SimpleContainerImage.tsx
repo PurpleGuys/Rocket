@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import face from '@assets/Face.png';
 import coteDroit from '@assets/cotédroit.png';
 import coteGauche from '@assets/cotégauche.png';
@@ -9,11 +10,12 @@ import unnamedBenne from '@assets/unnamed_1749545447846.webp';
 interface SimpleContainerImageProps {
   serviceName: string;
   volume: number;
+  serviceId: number;
   className?: string;
 }
 
-// Fonction pour déterminer les images selon le type de benne
-function getImagesForService(serviceName: string, volume: number) {
+// Fonction pour déterminer les images par défaut selon le type de benne
+function getDefaultImagesForService(serviceName: string, volume: number) {
   const name = serviceName.toLowerCase();
   
   if (name.includes('big') || name.includes('bag')) {
@@ -50,10 +52,23 @@ function getImagesForService(serviceName: string, volume: number) {
   }
 }
 
-export function SimpleContainerImage({ serviceName, volume, className = "" }: SimpleContainerImageProps) {
+export function SimpleContainerImage({ serviceName, volume, serviceId, className = "" }: SimpleContainerImageProps) {
   const [currentView, setCurrentView] = useState(0);
   
-  const views = getImagesForService(serviceName, volume);
+  // Récupérer les images uploadées pour ce service spécifique
+  const { data: uploadedImages, isLoading } = useQuery({
+    queryKey: [`/api/admin/services/${serviceId}/images`],
+    enabled: !!serviceId,
+  });
+
+  // Utiliser les images uploadées si disponibles, sinon utiliser les images par défaut
+  const views = Array.isArray(uploadedImages) && uploadedImages.length > 0
+    ? uploadedImages.map((img: any, index: number) => ({
+        image: img.imagePath,
+        label: img.label || `Vue ${index + 1}`
+      }))
+    : getDefaultImagesForService(serviceName, volume);
+
   const currentViewData = views[currentView];
 
   return (
