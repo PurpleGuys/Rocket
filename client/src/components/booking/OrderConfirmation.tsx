@@ -121,8 +121,8 @@ export default function OrderConfirmation({ onNewOrder }: OrderConfirmationProps
                 Besoin d'aide ?
               </h3>
               <p className="text-slate-600 mb-2">Notre équipe est disponible :</p>
-              <p className="font-medium">📞 01 23 45 67 89</p>
-              <p className="font-medium">✉️ contact@bennespro.fr</p>
+              <p className="font-medium">📞 03 44 45 11 58</p>
+              <p className="font-medium">✉️ contact@remondis.fr</p>
               <p className="text-sm text-slate-500 mt-2">Du lundi au vendredi, 8h-18h</p>
             </CardContent>
           </Card>

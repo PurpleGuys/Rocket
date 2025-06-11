@@ -117,7 +117,7 @@ export default function ValidateDelivery() {
             </p>
             <div className="space-y-2 text-sm text-gray-600">
               <p><strong>Email :</strong> contact@remondis.fr</p>
-              <p><strong>Téléphone :</strong> 01 23 45 67 89</p>
+              <p><strong>Téléphone :</strong> 03 44 45 11 58</p>
             </div>
           </CardContent>
         </Card>
@@ -190,7 +190,7 @@ export default function ValidateDelivery() {
           <div className="mt-6 text-center text-sm text-gray-500">
             <p>Ce lien expire dans 7 jours</p>
             <p className="mt-2">
-              Besoin d'aide ? Contactez-nous au 01 23 45 67 89
+              Besoin d'aide ? Contactez-nous au 03 44 45 11 58
             </p>
           </div>
         </CardContent>

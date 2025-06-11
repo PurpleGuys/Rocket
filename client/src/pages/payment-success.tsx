@@ -66,7 +66,7 @@ export default function PaymentSuccess() {
               </div>
 
               <div className="text-sm text-gray-500">
-                <p>Une question ? Contactez-nous au <strong>01 23 45 67 89</strong></p>
+                <p>Une question ? Contactez-nous au <strong>03 44 45 11 58</strong></p>
                 <p>ou par email à <strong>contact@remondis.fr</strong></p>
               </div>
             </CardContent>
