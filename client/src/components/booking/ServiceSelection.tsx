@@ -804,7 +804,7 @@ export default function ServiceSelection() {
                   {bsdOption && (
                     <div className="flex justify-between text-sm text-purple-600">
                       <span className="ml-2">• Bordereau de suivi (BSD)</span>
-                      <span>Inclus</span>
+                      <span>+15€</span>
                     </div>
                   )}
                 </div>
