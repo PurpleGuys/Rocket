@@ -122,14 +122,14 @@ export default function Introduction() {
               <div className="flex items-center space-x-8 pt-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold">24h</div>
-                  <div className="text-sm text-red-200">Livraison express</div>
+                  <div className="text-sm text-red-200">Planification minimum</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold">98%</div>
                   <div className="text-sm text-red-200">Satisfaction client</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold">50k+</div>
+                  <div className="text-3xl font-bold">10k+</div>
                   <div className="text-sm text-red-200">Bennes livrées</div>
                 </div>
               </div>
@@ -156,7 +156,7 @@ export default function Introduction() {
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
               Gamme Complète de
-              <span className="block text-red-600">Bennes Professionnelles</span>
+              <span className="block text-red-600">Bennes Particulier & Professionnel</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Des solutions adaptées à chaque projet, du particulier aux grands chantiers industriels
@@ -164,89 +164,93 @@ export default function Introduction() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                volume: "8m³",
-                icon: <Home className="h-8 w-8" />,
-                title: "Particuliers",
-                description: "Idéale pour rénovations, jardinage et déménagements",
-                price: "À partir de 180€",
-                color: "from-blue-500 to-blue-600",
-                bgColor: "bg-blue-50",
-                iconColor: "text-blue-600",
-                features: ["Livraison 24h", "Jusqu'à 7 jours", "2 tonnes max"]
-              },
-              {
-                volume: "15m³",
-                icon: <Building2 className="h-8 w-8" />,
-                title: "Artisans",
-                description: "Parfaite pour travaux moyens et rénovations professionnelles",
-                price: "À partir de 280€",
-                color: "from-green-500 to-green-600",
-                bgColor: "bg-green-50",
-                iconColor: "text-green-600",
-                features: ["Livraison express", "Flexibilité", "4 tonnes max"]
-              },
-              {
-                volume: "22m³",
-                icon: <Construction className="h-8 w-8" />,
-                title: "Entreprises",
-                description: "Pour chantiers de grande envergure et projets industriels",
-                price: "À partir de 380€",
-                color: "from-orange-500 to-orange-600",
-                bgColor: "bg-orange-50",
-                iconColor: "text-orange-600",
-                features: ["Service dédié", "Planning adapté", "6 tonnes max"]
-              },
-              {
-                volume: "30m³",
-                icon: <Factory className="h-8 w-8" />,
-                title: "Industries",
-                description: "Volume maximal pour les plus gros projets industriels",
-                price: "Sur devis",
-                color: "from-red-500 to-red-600",
-                bgColor: "bg-red-50",
-                iconColor: "text-red-600",
-                features: ["Solution sur-mesure", "Support 24/7", "10 tonnes max"]
-              }
-            ].map((service, index) => (
-              <Card key={index} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden">
-                <div className={`h-2 bg-gradient-to-r ${service.color}`}></div>
-                <CardContent className="p-8">
-                  <div className={`w-16 h-16 ${service.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <div className={service.iconColor}>
-                      {service.icon}
-                    </div>
-                  </div>
-                  
-                  <div className="text-center space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-black">{service.volume}</h3>
-                      <h4 className="text-lg font-semibold text-gray-800">{service.title}</h4>
-                      <p className="text-gray-600 text-sm leading-relaxed">{service.description}</p>
+            {Array.isArray(services) && services.length > 0 ? services.map((service: Service, index: number) => {
+              // Assigner des catégories basées sur le volume
+              const getServiceCategory = (volume: number) => {
+                if (volume <= 8) return {
+                  icon: <Home className="h-8 w-8" />,
+                  title: "Particuliers",
+                  description: "Idéale pour rénovations, jardinage et déménagements",
+                  color: "from-blue-500 to-blue-600",
+                  bgColor: "bg-blue-50",
+                  iconColor: "text-blue-600",
+                  features: ["Planification 24h", "Jusqu'à 7 jours", "2 tonnes max"]
+                };
+                if (volume <= 15) return {
+                  icon: <Building2 className="h-8 w-8" />,
+                  title: "Artisans",
+                  description: "Parfaite pour travaux moyens et rénovations professionnelles",
+                  color: "from-green-500 to-green-600",
+                  bgColor: "bg-green-50",
+                  iconColor: "text-green-600",
+                  features: ["Planning flexible", "Service adapté", "4 tonnes max"]
+                };
+                if (volume <= 22) return {
+                  icon: <Construction className="h-8 w-8" />,
+                  title: "Entreprises",
+                  description: "Pour chantiers de grande envergure et projets industriels",
+                  color: "from-orange-500 to-orange-600",
+                  bgColor: "bg-orange-50",
+                  iconColor: "text-orange-600",
+                  features: ["Service dédié", "Planning adapté", "6 tonnes max"]
+                };
+                return {
+                  icon: <Factory className="h-8 w-8" />,
+                  title: "Industries",
+                  description: "Volume maximal pour les plus gros projets industriels",
+                  color: "from-red-500 to-red-600",
+                  bgColor: "bg-red-50",
+                  iconColor: "text-red-600",
+                  features: ["Solution sur-mesure", "Support dédié", "10 tonnes max"]
+                };
+              };
+              
+              const category = getServiceCategory(service.volume);
+              
+              return (
+                <Card key={index} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden">
+                  <div className={`h-2 bg-gradient-to-r ${category.color}`}></div>
+                  <CardContent className="p-8">
+                    <div className={`w-16 h-16 ${category.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                      <div className={category.iconColor}>
+                        {category.icon}
+                      </div>
                     </div>
                     
-                    <div className="space-y-3">
-                      <div className="text-2xl font-bold text-red-600">{service.price}</div>
-                      <ul className="space-y-1">
-                        {service.features.map((feature, idx) => (
-                          <li key={idx} className="text-xs text-gray-500 flex items-center justify-center">
-                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="text-center space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-bold text-black">{service.volume}m³</h3>
+                        <h4 className="text-lg font-semibold text-gray-800">{category.title}</h4>
+                        <p className="text-gray-600 text-sm leading-relaxed">{category.description}</p>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="text-2xl font-bold text-red-600">À partir de {service.basePrice}€</div>
+                        <ul className="space-y-1">
+                          {category.features.map((feature, idx) => (
+                            <li key={idx} className="text-xs text-gray-500 flex items-center justify-center">
+                              <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <Link href="/booking">
+                        <Button className="w-full bg-black text-white hover:bg-gray-800 group-hover:bg-red-600 transition-colors duration-300">
+                          Choisir cette benne
+                        </Button>
+                      </Link>
                     </div>
-                    
-                    <Link href="/booking">
-                      <Button className="w-full bg-black text-white hover:bg-gray-800 group-hover:bg-red-600 transition-colors duration-300">
-                        Choisir cette benne
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            }) : (
+              // Fallback si pas de services
+              <div className="col-span-full text-center text-gray-500">
+                Aucun service disponible
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -256,7 +260,7 @@ export default function Introduction() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="bg-black text-white px-4 py-2 mb-4">
-              🏆 Excellence Reconnue
+              🏆 Votre expert en gestion des déchets
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
               Pourquoi Choisir
@@ -271,12 +275,12 @@ export default function Introduction() {
             {[
               {
                 icon: <Zap className="h-8 w-8" />,
-                title: "Livraison Express",
-                description: "Livraison et collecte dans les 24-48h selon votre planning",
+                title: "Planification Optimisée",
+                description: "Planification minimum 24h avant intervention selon votre planning",
                 color: "bg-yellow-500",
                 bgColor: "bg-yellow-50",
                 stat: "24h",
-                statLabel: "Délai moyen"
+                statLabel: "Planification minimum"
               },
               {
                 icon: <Leaf className="h-8 w-8" />,
