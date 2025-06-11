@@ -195,10 +195,6 @@ export default function Home() {
                         <LayoutDashboard className="h-4 w-4 mr-2" />
                         Mon tableau de bord
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/profile")}>
-                        <Settings className="h-4 w-4 mr-2" />
-                        Mon profil
-                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         onClick={() => logoutMutation.mutate()}

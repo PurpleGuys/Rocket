@@ -90,7 +90,7 @@ export function HeroHeader({
                 <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
                   alt="Remondis" 
-                  className="h-12 w-auto mx-auto filter brightness-0 invert"
+                  className="h-12 w-auto mx-auto"
                 />
               </div>
 
