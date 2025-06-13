@@ -2954,6 +2954,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Health check endpoint
+  app.get("/api/health", async (req, res) => {
+    try {
+      const healthData = {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        version: "1.0.0",
+        environment: process.env.NODE_ENV || "development",
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        database: "disconnected"
+      };
+
+      // Test database connection
+      try {
+        await storage.getServices();
+        healthData.database = "connected";
+      } catch (dbError) {
+        console.error("Database health check failed:", dbError);
+        healthData.database = "disconnected";
+      }
+
+      res.json(healthData);
+    } catch (error: any) {
+      res.status(500).json({
+        status: "unhealthy",
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Autocomplete for addresses (placeholder)
   app.get("/api/places/autocomplete", async (req, res) => {
     try {
