@@ -1,8 +1,8 @@
 import { db } from './db.js';
-import { users, orders, abandonedCheckouts, inactivityNotifications } from '../shared/schema.js';
+import { users, orders, abandonedCheckouts, inactivityNotifications } from '../shared/schema.ts';
 import { sendGridService } from './sendgridService.js';
 import { eq, lt, and, isNull, desc, or } from 'drizzle-orm';
-import type { InsertAbandonedCheckout, InsertInactivityNotification } from '../shared/schema.js';
+import type { InsertAbandonedCheckout, InsertInactivityNotification } from '../shared/schema.ts';
 
 export class NotificationService {
   private static readonly INACTIVITY_THRESHOLD_DAYS = 30;
