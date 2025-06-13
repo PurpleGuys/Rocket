@@ -276,23 +276,28 @@ export const bankDeposits = pgTable("bank_deposits", {
 // Table pour suivre les commandes abandonnées
 export const abandonedCheckouts = pgTable("abandoned_checkouts", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
   customerEmail: text("customer_email").notNull(),
-  customerFirstName: text("customer_first_name"),
-  customerLastName: text("customer_last_name"),
+  customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
-  serviceId: integer("service_id").references(() => services.id),
+  serviceId: integer("service_id").references(() => services.id, { onDelete: "set null" }),
   serviceName: text("service_name"),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
   deliveryAddress: text("delivery_address"),
   deliveryCity: text("delivery_city"),
-  deliveryPostalCode: text("delivery_postal_code"),
-  wasteTypes: text("waste_types").array(),
-  durationDays: integer("duration_days"),
-  paymentIntentId: text("payment_intent_id"),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
+  checkoutData: jsonb("checkout_data").$type<{
+    deliveryDate?: string;
+    pickupDate?: string;
+    specialInstructions?: string;
+    wasteTypes?: string[];
+    estimatedWeight?: number;
+  }>(),
+  abandonedAt: timestamp("abandoned_at").defaultNow().notNull(),
   notificationSent: boolean("notification_sent").default(false),
   notificationSentAt: timestamp("notification_sent_at"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Table pour suivre les notifications d'inactivité
@@ -305,7 +310,7 @@ export const inactivityNotifications = pgTable("inactivity_notifications", {
     lastOrderDate: Date | null;
     totalAmount: number;
     services: string[];
-  }>(),
+  }>().notNull(),
   notificationSent: boolean("notification_sent").default(false),
   notificationSentAt: timestamp("notification_sent_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -428,7 +433,6 @@ export const updateTreatmentPricingSchema = createInsertSchema(treatmentPricing)
 export const insertAbandonedCheckoutSchema = createInsertSchema(abandonedCheckouts).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
 });
 
 export const insertInactivityNotificationSchema = createInsertSchema(inactivityNotifications).omit({
@@ -440,6 +444,24 @@ export const insertInactivityNotificationSchema = createInsertSchema(inactivityN
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const abandonedCheckoutsRelations = relations(abandonedCheckouts, ({ one }) => ({
+  user: one(users, {
+    fields: [abandonedCheckouts.userId],
+    references: [users.id],
+  }),
+  service: one(services, {
+    fields: [abandonedCheckouts.serviceId],
+    references: [services.id],
+  }),
+}));
+
+export const inactivityNotificationsRelations = relations(inactivityNotifications, ({ one }) => ({
+  user: one(users, {
+    fields: [inactivityNotifications.userId],
     references: [users.id],
   }),
 }));
