@@ -147,6 +147,12 @@ export interface IStorage {
   getFidById(id: number): Promise<any | undefined>;
   createFid(fid: InsertFid): Promise<Fid>;
   updateFid(id: number, fid: Partial<UpdateFid>): Promise<Fid | undefined>;
+
+  // Service Images
+  getServiceImages(serviceId: number): Promise<any[]>;
+  createServiceImage(image: any): Promise<any>;
+  deleteServiceImage(id: number): Promise<void>;
+  setMainServiceImage(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -425,34 +431,32 @@ export class DatabaseStorage implements IStorage {
 
   async getUserOrders(userId: number): Promise<any[]> {
     try {
-      const userOrders = await db
-        .select({
-          id: orders.id,
-          orderNumber: orders.orderNumber,
-          status: orders.status,
-          paymentStatus: orders.paymentStatus,
-          totalTTC: orders.totalTTC,
-          createdAt: orders.createdAt,
-          estimatedDeliveryDate: orders.estimatedDeliveryDate,
-          confirmedDeliveryDate: orders.confirmedDeliveryDate,
-          deliveryStreet: orders.deliveryStreet,
-          deliveryCity: orders.deliveryCity,
-          deliveryPostalCode: orders.deliveryPostalCode,
-          service: {
-            id: services.id,
-            name: services.name,
-            volume: services.volume,
-            imageUrl: services.imageUrl
-          }
-        })
+      const results = await db
+        .select()
         .from(orders)
-        .leftJoin(services, eq(orders.serviceId, services.id))
         .where(eq(orders.userId, userId))
         .orderBy(desc(orders.createdAt));
 
-      return userOrders;
+      return results.map(row => ({
+        id: row.id,
+        orderNumber: row.orderNumber || "",
+        status: row.status || "pending",
+        totalAmount: row.totalTTC?.toString() || "0",
+        createdAt: row.createdAt?.toISOString() || new Date().toISOString(),
+        deliveryDate: row.estimatedDeliveryDate?.toISOString() || null,
+        confirmedDeliveryDate: row.confirmedDeliveryDate?.toISOString() || null,
+        address: row.deliveryStreet || "",
+        postalCode: row.deliveryPostalCode || "",
+        city: row.deliveryCity || "",
+        wasteTypes: Array.isArray(row.wasteTypes) ? row.wasteTypes : [],
+        serviceName: "Benne",
+        serviceVolume: 8,
+        distance: 0,
+        transportCost: row.deliveryFee?.toString() || "0",
+        serviceCost: row.basePrice?.toString() || "0",
+      }));
     } catch (error) {
-      console.error('Error fetching user orders:', error);
+      console.error("Error in getUserOrders:", error);
       return [];
     }
   }
@@ -460,7 +464,10 @@ export class DatabaseStorage implements IStorage {
   async updateOrderStatus(id: number, status: string): Promise<void> {
     await db
       .update(orders)
-      .set({ status, updatedAt: new Date() })
+      .set({ 
+        status,
+        updatedAt: new Date()
+      })
       .where(eq(orders.id, id));
   }
 
@@ -470,175 +477,245 @@ export class DatabaseStorage implements IStorage {
       .set({
         stripePaymentIntentId: paymentIntentId,
         paymentStatus: status,
+        status: status === 'paid' ? 'confirmed' : 'pending',
         updatedAt: new Date()
       })
       .where(eq(orders.id, id));
   }
 
-  // Dashboard stats
+  async deleteOrder(id: number): Promise<void> {
+    // Supprimer d'abord les entrées liées dans audit_logs
+    await db
+      .delete(auditLogs)
+      .where(eq(auditLogs.orderId, id));
+    
+    // Supprimer d'abord les entrées liées dans email_logs si elles existent
+    try {
+      await db
+        .delete(emailLogs)
+        .where(eq(emailLogs.orderId, id));
+    } catch (error) {
+      // Ignorer si la table n'existe pas ou n'a pas de contrainte
+      console.log("Note: email_logs cleanup skipped");
+    }
+    
+    // Maintenant supprimer la commande
+    await db
+      .delete(orders)
+      .where(eq(orders.id, id));
+  }
+
   async getDashboardStats(): Promise<{
     todayOrders: number;
+    yesterdayOrders: number;
     monthlyRevenue: string;
+    lastMonthRevenue: string;
     rentedDumpsters: number;
     activeCustomers: number;
+    ordersGrowth: number;
+    revenueGrowth: number;
   }> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
-    // Today's orders
-    const [todayResult] = await db
-      .select({ count: sql`count(*)` })
-      .from(orders)
-      .where(gte(orders.createdAt, today));
-    
-    // Monthly revenue
-    const [monthlyResult] = await db
-      .select({ total: sql`sum(${orders.totalTTC})` })
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const startOfLastMonth = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString();
+    const endOfLastMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString();
+
+    // Today's PAID orders only
+    const [todayOrdersResult] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(orders)
       .where(
         and(
-          gte(orders.createdAt, startOfMonth),
+          sql`date(${orders.createdAt}) = ${today}`,
           eq(orders.paymentStatus, 'paid')
         )
       );
-    
-    // Rented dumpsters (confirmed orders)
-    const [rentedResult] = await db
-      .select({ count: sql`count(*)` })
+
+    // Yesterday's PAID orders for comparison
+    const [yesterdayOrdersResult] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(orders)
-      .where(eq(orders.status, 'confirmed'));
-    
-    // Active customers (users with orders in last 6 months)
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    
+      .where(
+        and(
+          sql`date(${orders.createdAt}) = ${yesterday}`,
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Monthly revenue (PAID orders only)
+    const [monthlyRevenueResult] = await db
+      .select({ total: sql<string>`cast(coalesce(sum(${orders.totalTTC}), 0) as text)` })
+      .from(orders)
+      .where(
+        and(
+          gte(orders.createdAt, new Date(startOfMonth)),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Last month revenue for comparison
+    const [lastMonthRevenueResult] = await db
+      .select({ total: sql<string>`cast(coalesce(sum(${orders.totalTTC}), 0) as text)` })
+      .from(orders)
+      .where(
+        and(
+          gte(orders.createdAt, new Date(startOfLastMonth)),
+          lte(orders.createdAt, new Date(endOfLastMonth)),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Rented dumpsters (delivered orders with PAID status)
+    const [rentedDumpstersResult] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.status, 'delivered'),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Active customers (users with PAID orders this month)
     const [activeCustomersResult] = await db
-      .select({ count: sql`count(distinct ${orders.userId})` })
+      .select({ count: sql<number>`cast(count(distinct ${orders.userId}) as integer)` })
       .from(orders)
-      .where(gte(orders.createdAt, sixMonthsAgo));
+      .where(
+        and(
+          gte(orders.createdAt, new Date(startOfMonth)),
+          eq(orders.paymentStatus, 'paid')
+        )
+      );
+
+    // Calculate growth percentages
+    const todayCount = todayOrdersResult?.count || 0;
+    const yesterdayCount = yesterdayOrdersResult?.count || 0;
+    const ordersGrowth = yesterdayCount > 0 ? ((todayCount - yesterdayCount) / yesterdayCount) * 100 : 0;
+
+    const monthlyRev = parseFloat(monthlyRevenueResult?.total || "0");
+    const lastMonthRev = parseFloat(lastMonthRevenueResult?.total || "0");
+    const revenueGrowth = lastMonthRev > 0 ? ((monthlyRev - lastMonthRev) / lastMonthRev) * 100 : 0;
 
     return {
-      todayOrders: Number(todayResult?.count || 0),
-      monthlyRevenue: monthlyResult?.total || '0',
-      rentedDumpsters: Number(rentedResult?.count || 0),
-      activeCustomers: Number(activeCustomersResult?.count || 0),
+      todayOrders: todayCount,
+      yesterdayOrders: yesterdayCount,
+      monthlyRevenue: monthlyRevenueResult?.total || "0",
+      lastMonthRevenue: lastMonthRevenueResult?.total || "0",
+      rentedDumpsters: rentedDumpstersResult?.count || 0,
+      activeCustomers: activeCustomersResult?.count || 0,
+      ordersGrowth: Math.round(ordersGrowth * 10) / 10, // Round to 1 decimal
+      revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal
     };
   }
 
-  // Rental Pricing
+  // Rental Pricing methods
   async getRentalPricing(): Promise<(RentalPricing & { service: Service })[]> {
-    const pricing = await db
+    const result = await db
       .select({
         id: rentalPricing.id,
         serviceId: rentalPricing.serviceId,
         dailyRate: rentalPricing.dailyRate,
         billingStartDay: rentalPricing.billingStartDay,
         maxTonnage: rentalPricing.maxTonnage,
-        durationThreshold1: rentalPricing.durationThreshold1,
-        durationSupplement1: rentalPricing.durationSupplement1,
-        durationThreshold2: rentalPricing.durationThreshold2,
-        durationSupplement2: rentalPricing.durationSupplement2,
-        durationThreshold3: rentalPricing.durationThreshold3,
-        durationSupplement3: rentalPricing.durationSupplement3,
         isActive: rentalPricing.isActive,
         createdAt: rentalPricing.createdAt,
         updatedAt: rentalPricing.updatedAt,
-        service: {
-          id: services.id,
-          name: services.name,
-          volume: services.volume,
-          basePrice: services.basePrice,
-          description: services.description,
-          imageUrl: services.imageUrl,
-          length: services.length,
-          width: services.width,
-          height: services.height,
-          wasteTypes: services.wasteTypes,
-          maxWeight: services.maxWeight,
-          includedServices: services.includedServices,
-          isActive: services.isActive,
-          createdAt: services.createdAt,
-          updatedAt: services.updatedAt,
-        }
+        service: services,
       })
       .from(rentalPricing)
       .leftJoin(services, eq(rentalPricing.serviceId, services.id))
       .where(eq(rentalPricing.isActive, true));
 
-    return pricing as (RentalPricing & { service: Service })[];
+    return result.map(row => ({
+      ...row,
+      service: row.service!,
+    }));
   }
 
   async getRentalPricingByServiceId(serviceId: number): Promise<RentalPricing | undefined> {
-    const [pricing] = await db
+    const [result] = await db
       .select()
       .from(rentalPricing)
-      .where(and(eq(rentalPricing.serviceId, serviceId), eq(rentalPricing.isActive, true)));
-    return pricing || undefined;
+      .where(and(
+        eq(rentalPricing.serviceId, serviceId),
+        eq(rentalPricing.isActive, true)
+      ));
+    return result;
   }
 
   async createRentalPricing(pricing: InsertRentalPricing): Promise<RentalPricing> {
-    const [newPricing] = await db
+    const [result] = await db
       .insert(rentalPricing)
       .values(pricing)
       .returning();
-    return newPricing;
+    return result;
   }
 
   async updateRentalPricing(serviceId: number, pricing: UpdateRentalPricing): Promise<RentalPricing | undefined> {
-    const [updatedPricing] = await db
+    const [result] = await db
       .update(rentalPricing)
       .set({
         ...pricing,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(rentalPricing.serviceId, serviceId))
       .returning();
-    return updatedPricing || undefined;
+    return result;
   }
 
   async deleteRentalPricing(serviceId: number): Promise<void> {
-    await db.delete(rentalPricing).where(eq(rentalPricing.serviceId, serviceId));
+    await db
+      .update(rentalPricing)
+      .set({ isActive: false })
+      .where(eq(rentalPricing.serviceId, serviceId));
   }
 
-  // Transport Pricing
+  // Transport Pricing methods
   async getTransportPricing(): Promise<TransportPricing | undefined> {
-    const [pricing] = await db
+    const [result] = await db
       .select()
       .from(transportPricing)
       .where(eq(transportPricing.isActive, true))
-      .orderBy(desc(transportPricing.createdAt));
-    return pricing || undefined;
+      .limit(1);
+    return result;
   }
 
   async createTransportPricing(pricing: InsertTransportPricing): Promise<TransportPricing> {
-    const [newPricing] = await db
+    const [result] = await db
       .insert(transportPricing)
       .values(pricing)
       .returning();
-    return newPricing;
+    return result;
   }
 
   async updateTransportPricing(pricing: UpdateTransportPricing): Promise<TransportPricing | undefined> {
-    // Get the current active pricing
-    const current = await this.getTransportPricing();
-    if (!current) {
-      throw new Error('No active transport pricing found');
+    // Get the current active transport pricing
+    const existing = await this.getTransportPricing();
+    
+    if (existing) {
+      const [result] = await db
+        .update(transportPricing)
+        .set({
+          ...pricing,
+          updatedAt: new Date(),
+        })
+        .where(eq(transportPricing.id, existing.id))
+        .returning();
+      return result;
+    } else {
+      // Create new if none exists
+      return await this.createTransportPricing({
+        pricePerKm: pricing.pricePerKm || "0",
+        minimumFlatRate: pricing.minimumFlatRate || "0",
+        hourlyRate: pricing.hourlyRate || "0",
+        immediateLoadingEnabled: pricing.immediateLoadingEnabled ?? true,
+        isActive: true,
+      });
     }
-
-    const [updatedPricing] = await db
-      .update(transportPricing)
-      .set({
-        ...pricing,
-        updatedAt: new Date()
-      })
-      .where(eq(transportPricing.id, current.id))
-      .returning();
-    return updatedPricing || undefined;
   }
 
-  // Waste Types
+  // Waste Types methods
   async getWasteTypes(): Promise<WasteType[]> {
     return await db
       .select()
@@ -648,31 +725,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWasteType(id: number): Promise<WasteType | undefined> {
-    const [wasteType] = await db
+    const [result] = await db
       .select()
       .from(wasteTypes)
       .where(eq(wasteTypes.id, id));
-    return wasteType || undefined;
+    return result;
   }
 
   async createWasteType(wasteType: InsertWasteType): Promise<WasteType> {
-    const [newWasteType] = await db
+    const [result] = await db
       .insert(wasteTypes)
       .values(wasteType)
       .returning();
-    return newWasteType;
+    return result;
   }
 
   async updateWasteType(id: number, wasteType: Partial<InsertWasteType>): Promise<WasteType | undefined> {
-    const [updatedWasteType] = await db
+    const [result] = await db
       .update(wasteTypes)
       .set({
         ...wasteType,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(wasteTypes.id, id))
       .returning();
-    return updatedWasteType || undefined;
+    return result;
   }
 
   async deleteWasteType(id: number): Promise<void> {
@@ -682,9 +759,9 @@ export class DatabaseStorage implements IStorage {
       .where(eq(wasteTypes.id, id));
   }
 
-  // Treatment Pricing
+  // Treatment Pricing methods
   async getTreatmentPricing(): Promise<(TreatmentPricing & { wasteType: WasteType })[]> {
-    const pricing = await db
+    return await db
       .select({
         id: treatmentPricing.id,
         wasteTypeId: treatmentPricing.wasteTypeId,
@@ -696,48 +773,43 @@ export class DatabaseStorage implements IStorage {
         isActive: treatmentPricing.isActive,
         createdAt: treatmentPricing.createdAt,
         updatedAt: treatmentPricing.updatedAt,
-        wasteType: {
-          id: wasteTypes.id,
-          name: wasteTypes.name,
-          description: wasteTypes.description,
-          isActive: wasteTypes.isActive,
-          createdAt: wasteTypes.createdAt,
-          updatedAt: wasteTypes.updatedAt,
-        }
+        wasteType: wasteTypes,
       })
       .from(treatmentPricing)
-      .innerJoin(wasteTypes, eq(treatmentPricing.wasteTypeId, wasteTypes.id))
-      .where(eq(treatmentPricing.isActive, true));
-
-    return pricing as (TreatmentPricing & { wasteType: WasteType })[];
+      .leftJoin(wasteTypes, eq(treatmentPricing.wasteTypeId, wasteTypes.id))
+      .where(eq(treatmentPricing.isActive, true))
+      .orderBy(wasteTypes.name);
   }
 
   async getTreatmentPricingByWasteTypeId(wasteTypeId: number): Promise<TreatmentPricing | undefined> {
-    const [pricing] = await db
+    const [result] = await db
       .select()
       .from(treatmentPricing)
-      .where(and(eq(treatmentPricing.wasteTypeId, wasteTypeId), eq(treatmentPricing.isActive, true)));
-    return pricing || undefined;
+      .where(and(
+        eq(treatmentPricing.wasteTypeId, wasteTypeId),
+        eq(treatmentPricing.isActive, true)
+      ));
+    return result;
   }
 
   async createTreatmentPricing(pricing: InsertTreatmentPricing): Promise<TreatmentPricing> {
-    const [newPricing] = await db
+    const [result] = await db
       .insert(treatmentPricing)
       .values(pricing)
       .returning();
-    return newPricing;
+    return result;
   }
 
   async updateTreatmentPricing(id: number, pricing: UpdateTreatmentPricing): Promise<TreatmentPricing | undefined> {
-    const [updatedPricing] = await db
+    const [result] = await db
       .update(treatmentPricing)
       .set({
         ...pricing,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(treatmentPricing.id, id))
       .returning();
-    return updatedPricing || undefined;
+    return result;
   }
 
   async deleteTreatmentPricing(id: number): Promise<void> {
@@ -749,90 +821,65 @@ export class DatabaseStorage implements IStorage {
 
   // Company Activities
   async getCompanyActivities(): Promise<CompanyActivities | undefined> {
-    const [activities] = await db
-      .select()
-      .from(companyActivities)
-      .where(eq(companyActivities.isActive, true))
-      .orderBy(desc(companyActivities.createdAt));
-    return activities || undefined;
+    const [activities] = await db.select().from(companyActivities).where(eq(companyActivities.isActive, true));
+    return activities;
   }
 
   async createCompanyActivities(activities: InsertCompanyActivities): Promise<CompanyActivities> {
     const [newActivities] = await db
       .insert(companyActivities)
-      .values(activities)
+      .values({
+        ...activities,
+        wasteTypes: activities.wasteTypes || [],
+        equipmentMultibenne: activities.equipmentMultibenne || [],
+        equipmentAmpliroll: activities.equipmentAmpliroll || [],
+        equipmentCaissePalette: activities.equipmentCaissePalette || [],
+        equipmentRolls: activities.equipmentRolls || [],
+        equipmentContenantAlimentaire: activities.equipmentContenantAlimentaire || [],
+        equipmentBac: activities.equipmentBac || [],
+        equipmentBennesFermees: activities.equipmentBennesFermees || [],
+      })
       .returning();
     return newActivities;
   }
 
   async updateCompanyActivities(activities: UpdateCompanyActivities): Promise<CompanyActivities | undefined> {
-    // Get the current active configuration
-    const current = await this.getCompanyActivities();
-    if (!current) {
-      throw new Error('No active company activities configuration found');
+    // Obtenir l'ID de la configuration existante
+    const existing = await this.getCompanyActivities();
+    if (!existing) {
+      // Si aucune configuration n'existe, créer une nouvelle
+      return this.createCompanyActivities(activities as InsertCompanyActivities);
     }
 
-    const [updatedActivities] = await db
+    // Filtrer les champs non autorisés pour la mise à jour
+    const { id, createdAt, updatedAt, ...cleanActivities } = activities as any;
+
+    const [updated] = await db
       .update(companyActivities)
       .set({
-        ...activities,
-        updatedAt: new Date()
+        ...cleanActivities,
+        wasteTypes: cleanActivities.wasteTypes || [],
+        equipmentMultibenne: cleanActivities.equipmentMultibenne || [],
+        equipmentAmpliroll: cleanActivities.equipmentAmpliroll || [],
+        equipmentCaissePalette: cleanActivities.equipmentCaissePalette || [],
+        equipmentRolls: cleanActivities.equipmentRolls || [],
+        equipmentContenantAlimentaire: cleanActivities.equipmentContenantAlimentaire || [],
+        equipmentBac: cleanActivities.equipmentBac || [],
+        equipmentBennesFermees: cleanActivities.equipmentBennesFermees || [],
+        updatedAt: new Date(),
       })
-      .where(eq(companyActivities.id, current.id))
+      .where(eq(companyActivities.id, existing.id))
       .returning();
-    return updatedActivities || undefined;
-  }
-
-  // Bank Deposits
-  async getBankDeposits(): Promise<BankDeposit[]> {
-    return await db
-      .select()
-      .from(bankDeposits)
-      .where(eq(bankDeposits.isActive, true))
-      .orderBy(bankDeposits.id);
-  }
-
-  async getBankDepositByServiceAndWasteType(serviceId: number, wasteTypeId: number): Promise<BankDeposit | undefined> {
-    const [deposit] = await db
-      .select()
-      .from(bankDeposits)
-      .where(
-        and(
-          eq(bankDeposits.serviceId, serviceId),
-          eq(bankDeposits.wasteTypeId, wasteTypeId),
-          eq(bankDeposits.isActive, true)
-        )
-      );
-    return deposit || undefined;
-  }
-
-  async createBankDeposit(deposit: InsertBankDeposit): Promise<BankDeposit> {
-    const [newDeposit] = await db
-      .insert(bankDeposits)
-      .values(deposit)
-      .returning();
-    return newDeposit;
-  }
-
-  async updateBankDeposit(id: number, deposit: UpdateBankDeposit): Promise<BankDeposit> {
-    const [updatedDeposit] = await db
-      .update(bankDeposits)
-      .set({
-        ...deposit,
-        updatedAt: new Date()
-      })
-      .where(eq(bankDeposits.id, id))
-      .returning();
-    return updatedDeposit;
+    return updated;
   }
 
   // Email Logs
   async createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog> {
-    const [newEmailLog] = await db
+    const [log] = await db
       .insert(emailLogs)
       .values(emailLog)
       .returning();
-    return newEmailLog;
+    return log;
   }
 
   async getEmailLogsByOrder(orderId: number): Promise<EmailLog[]> {
@@ -845,11 +892,11 @@ export class DatabaseStorage implements IStorage {
 
   // Audit Logs
   async createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog> {
-    const [newAuditLog] = await db
+    const [log] = await db
       .insert(auditLogs)
       .values(auditLog)
       .returning();
-    return newAuditLog;
+    return log;
   }
 
   async getAuditLogsByOrder(orderId: number): Promise<AuditLog[]> {
@@ -866,12 +913,77 @@ export class DatabaseStorage implements IStorage {
       .update(orders)
       .set({
         ...status,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
   }
+  
+  // Order Delivery Date Management
+  async updateOrderDeliveryDate(orderId: number, confirmedDate: Date, adminUserId: number, adminNotes?: string): Promise<Order | undefined> {
+    const [updated] = await db
+      .update(orders)
+      .set({
+        confirmedDeliveryDate: confirmedDate,
+        adminValidatedBy: adminUserId,
+        adminValidatedAt: new Date(),
+        adminNotes: adminNotes,
+        status: 'confirmed',
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId))
+      .returning();
+    return updated;
+  }
 
-  // Satisfaction Surveys
+  async updateOrderDeliveryDateValidation(orderId: number, updates: {
+    confirmedDeliveryDate?: Date;
+    proposedDeliveryDate?: Date;
+    clientValidationStatus?: string;
+    clientValidationToken?: string | null;
+    clientValidationExpiresAt?: Date;
+    deliveryDateValidatedBy?: number;
+    deliveryDateValidatedAt?: Date;
+    adminNotes?: string;
+    status?: string;
+  }): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId))
+      .returning();
+    return order;
+  }
+
+  async getOrderByValidationToken(token: string): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.clientValidationToken, token));
+    return order;
+  }
+
+  // Bank deposits operations
+  async createBankDeposit(data: InsertBankDeposit): Promise<BankDeposit> {
+    const [deposit] = await db
+      .insert(bankDeposits)
+      .values(data)
+      .returning();
+    return deposit;
+  }
+
+  async updateBankDeposit(id: number, data: Partial<InsertBankDeposit>): Promise<BankDeposit> {
+    const [deposit] = await db
+      .update(bankDeposits)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(bankDeposits.id, id))
+      .returning();
+    return deposit;
+  }
+
+  // Satisfaction Surveys operations
   async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
     const [created] = await db
       .insert(satisfactionSurveys)
@@ -913,99 +1025,84 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateSatisfactionSurvey(id: number, survey: Partial<InsertSatisfactionSurvey>): Promise<SatisfactionSurvey | undefined> {
-    const [updatedSurvey] = await db
+    const [updated] = await db
       .update(satisfactionSurveys)
-      .set({
-        ...survey,
-        updatedAt: new Date()
-      })
+      .set({ ...survey, updatedAt: new Date() })
       .where(eq(satisfactionSurveys.id, id))
       .returning();
-    return updatedSurvey || undefined;
+    return updated;
   }
 
   async getOrdersReadyForSurvey(): Promise<Order[]> {
+    // Récupère les commandes terminées depuis plus de 7 jours sans questionnaire de satisfaction
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     return await db
       .select()
       .from(orders)
+      .leftJoin(satisfactionSurveys, eq(orders.id, satisfactionSurveys.orderId))
       .where(
         and(
           eq(orders.status, 'completed'),
-          lte(orders.updatedAt, oneWeekAgo)
+          lt(orders.updatedAt, oneWeekAgo),
+          sql`${satisfactionSurveys.id} IS NULL` // Pas de questionnaire existant
         )
-      )
-      .orderBy(desc(orders.updatedAt));
+      ) as any;
   }
 
-  // Survey Notifications
+  // Survey Notifications operations
   async createSurveyNotification(notification: InsertSurveyNotification): Promise<SurveyNotification> {
-    const [newNotification] = await db
+    const [created] = await db
       .insert(surveyNotifications)
       .values(notification)
       .returning();
-    return newNotification;
+    return created;
   }
 
   async updateSurveyNotification(surveyId: number, notification: Partial<InsertSurveyNotification>): Promise<SurveyNotification | undefined> {
-    const [updatedNotification] = await db
+    const [updated] = await db
       .update(surveyNotifications)
-      .set({
-        ...notification,
-        updatedAt: new Date()
-      })
+      .set({ ...notification, updatedAt: new Date() })
       .where(eq(surveyNotifications.surveyId, surveyId))
       .returning();
-    return updatedNotification || undefined;
+    return updated;
   }
 
-  // Order Delivery Date Management
-  async updateOrderDeliveryDate(orderId: number, confirmedDate: Date, adminUserId: number, adminNotes?: string): Promise<Order | undefined> {
-    const [updatedOrder] = await db
-      .update(orders)
-      .set({
-        confirmedDeliveryDate: confirmedDate,
-        adminValidatedBy: adminUserId,
-        adminValidatedAt: new Date(),
-        adminNotes: adminNotes,
-        status: 'confirmed',
-        updatedAt: new Date()
-      })
-      .where(eq(orders.id, orderId))
-      .returning();
-    return updatedOrder || undefined;
+  async deleteBankDeposit(id: number): Promise<void> {
+    await db.delete(bankDeposits).where(eq(bankDeposits.id, id));
   }
 
-  async updateOrderDeliveryDateValidation(orderId: number, updates: {
-    confirmedDeliveryDate?: Date;
-    proposedDeliveryDate?: Date;
-    clientValidationStatus?: string;
-    clientValidationToken?: string | null;
-    clientValidationExpiresAt?: Date;
-    deliveryDateValidatedBy?: number;
-    deliveryDateValidatedAt?: Date;
-    adminNotes?: string;
-    status?: string;
-  }): Promise<Order | undefined> {
-    const [updatedOrder] = await db
-      .update(orders)
-      .set({
-        ...updates,
-        updatedAt: new Date()
-      })
-      .where(eq(orders.id, orderId))
-      .returning();
-    return updatedOrder || undefined;
+  async getBankDeposits(): Promise<BankDeposit[]> {
+    return await db.select().from(bankDeposits).where(eq(bankDeposits.isActive, true));
   }
 
-  async getOrderByValidationToken(token: string): Promise<Order | undefined> {
-    const [order] = await db
+  async getBankDepositById(id: number): Promise<BankDeposit | null> {
+    const [deposit] = await db.select().from(bankDeposits).where(eq(bankDeposits.id, id));
+    return deposit || null;
+  }
+
+  async getBankDepositByServiceAndWaste(serviceId: number, wasteTypeId: number): Promise<BankDeposit | null> {
+    const [deposit] = await db
       .select()
-      .from(orders)
-      .where(eq(orders.clientValidationToken, token));
-    return order || undefined;
+      .from(bankDeposits)
+      .where(
+        and(
+          eq(bankDeposits.serviceId, serviceId),
+          eq(bankDeposits.wasteTypeId, wasteTypeId),
+          eq(bankDeposits.isActive, true)
+        )
+      );
+    return deposit || null;
+  }
+
+
+
+  async deleteSatisfactionSurvey(id: number): Promise<boolean> {
+    const result = await db
+      .delete(satisfactionSurveys)
+      .where(eq(satisfactionSurveys.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   // FIDs
@@ -1063,7 +1160,58 @@ export class DatabaseStorage implements IStorage {
 
   async getFidById(id: number): Promise<any | undefined> {
     const [fid] = await db
-      .select()
+      .select({
+        id: fids.id,
+        userId: fids.userId,
+        orderId: fids.orderId,
+        clientCompanyName: fids.clientCompanyName,
+        clientContactName: fids.clientContactName,
+        clientEmail: fids.clientEmail,
+        clientAddress: fids.clientAddress,
+        clientVatNumber: fids.clientVatNumber,
+        clientPhone: fids.clientPhone,
+        clientSiret: fids.clientSiret,
+        clientActivity: fids.clientActivity,
+        sameAsClient: fids.sameAsClient,
+        producerCompanyName: fids.producerCompanyName,
+        producerContactName: fids.producerContactName,
+        producerAddress: fids.producerAddress,
+        producerVatNumber: fids.producerVatNumber,
+        producerPhone: fids.producerPhone,
+        producerSiret: fids.producerSiret,
+        producerActivity: fids.producerActivity,
+        wasteName: fids.wasteName,
+        nomenclatureCode: fids.nomenclatureCode,
+        annualQuantity: fids.annualQuantity,
+        collectionFrequency: fids.collectionFrequency,
+        generationProcess: fids.generationProcess,
+        packaging: fids.packaging,
+        physicalAspect: fids.physicalAspect,
+        constituents: fids.constituents,
+        hazardousProperties: fids.hazardousProperties,
+        isPop: fids.isPop,
+        popSubstances: fids.popSubstances,
+        lackOfInformation: fids.lackOfInformation,
+        transportResponsible: fids.transportResponsible,
+        dangerClass: fids.dangerClass,
+        unCode: fids.unCode,
+        packagingGroup: fids.packagingGroup,
+        transportDesignation: fids.transportDesignation,
+        attachedFiles: fids.attachedFiles,
+        rgpdConsent: fids.rgpdConsent,
+        status: fids.status,
+        validatedBy: fids.validatedBy,
+        validatedAt: fids.validatedAt,
+        rejectionReason: fids.rejectionReason,
+        adminComments: fids.adminComments,
+        createdAt: fids.createdAt,
+        updatedAt: fids.updatedAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        }
+      })
       .from(fids)
       .leftJoin(users, eq(fids.userId, users.id))
       .where(eq(fids.id, id));
