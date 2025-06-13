@@ -1,4 +1,4 @@
-import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, satisfactionSurveys, surveyNotifications, fids, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit, type SatisfactionSurvey, type InsertSatisfactionSurvey, type SurveyNotification, type InsertSurveyNotification, type Fid, type InsertFid, type UpdateFid } from "@shared/schema";
+import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, satisfactionSurveys, surveyNotifications, fids, abandonedCheckouts, inactivityNotifications, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit, type SatisfactionSurvey, type InsertSatisfactionSurvey, type SurveyNotification, type InsertSurveyNotification, type Fid, type InsertFid, type UpdateFid, type AbandonedCheckout, type InsertAbandonedCheckout, type InactivityNotification, type InsertInactivityNotification } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
 
@@ -984,29 +984,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Satisfaction Surveys operations
-  async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
-    const [created] = await db
-      .insert(satisfactionSurveys)
-      .values(survey)
-      .returning();
-    return created;
-  }
-
-  async getSatisfactionSurvey(id: number): Promise<SatisfactionSurvey | undefined> {
-    const [survey] = await db
-      .select()
-      .from(satisfactionSurveys)
-      .where(eq(satisfactionSurveys.id, id));
-    return survey;
-  }
-
-  async getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | undefined> {
-    const [survey] = await db
-      .select()
-      .from(satisfactionSurveys)
-      .where(eq(satisfactionSurveys.token, token));
-    return survey;
-  }
+  // Satisfaction Surveys operations are already defined above in the interface implementation
 
   async getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]> {
     return await db
@@ -1096,55 +1074,7 @@ export class DatabaseStorage implements IStorage {
     return deposit || null;
   }
 
-  // Méthodes pour les questionnaires de satisfaction
-  async getSatisfactionSurveys(): Promise<SatisfactionSurvey[]> {
-    const surveys = await db
-      .select()
-      .from(satisfactionSurveys)
-      .orderBy(desc(satisfactionSurveys.createdAt));
-    return surveys;
-  }
 
-  async getSatisfactionSurveyById(id: number): Promise<SatisfactionSurvey | null> {
-    const [survey] = await db
-      .select()
-      .from(satisfactionSurveys)
-      .where(eq(satisfactionSurveys.id, id));
-    return survey || null;
-  }
-
-  async getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | null> {
-    const [survey] = await db
-      .select()
-      .from(satisfactionSurveys)
-      .where(eq(satisfactionSurveys.token, token));
-    return survey || null;
-  }
-
-  async getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]> {
-    const surveys = await db
-      .select()
-      .from(satisfactionSurveys)
-      .where(eq(satisfactionSurveys.orderId, orderId));
-    return surveys;
-  }
-
-  async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
-    const [newSurvey] = await db
-      .insert(satisfactionSurveys)
-      .values(survey)
-      .returning();
-    return newSurvey;
-  }
-
-  async updateSatisfactionSurvey(id: number, updates: Partial<SatisfactionSurvey>): Promise<SatisfactionSurvey | null> {
-    const [updatedSurvey] = await db
-      .update(satisfactionSurveys)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(satisfactionSurveys.id, id))
-      .returning();
-    return updatedSurvey || null;
-  }
 
   async deleteSatisfactionSurvey(id: number): Promise<boolean> {
     const result = await db
@@ -1229,19 +1159,23 @@ export class DatabaseStorage implements IStorage {
         producerSiret: fids.producerSiret,
         producerActivity: fids.producerActivity,
         wasteName: fids.wasteName,
-        wasteDescription: fids.wasteDescription,
-        wasteOrigin: fids.wasteOrigin,
-        wasteProductionProcess: fids.wasteProductionProcess,
         nomenclatureCode: fids.nomenclatureCode,
-        constituents: fids.constituents,
-        isDangerous: fids.isDangerous,
-        dangerCode: fids.dangerCode,
+        annualQuantity: fids.annualQuantity,
+        collectionFrequency: fids.collectionFrequency,
+        generationProcess: fids.generationProcess,
         packaging: fids.packaging,
-        estimatedQuantity: fids.estimatedQuantity,
-        quantityUnit: fids.quantityUnit,
-        frequency: fids.frequency,
-        conditionalAcceptance: fids.conditionalAcceptance,
-        conditionalAcceptanceConditions: fids.conditionalAcceptanceConditions,
+        physicalAspect: fids.physicalAspect,
+        constituents: fids.constituents,
+        hazardousProperties: fids.hazardousProperties,
+        isPop: fids.isPop,
+        popSubstances: fids.popSubstances,
+        lackOfInformation: fids.lackOfInformation,
+        transportResponsible: fids.transportResponsible,
+        dangerClass: fids.dangerClass,
+        unCode: fids.unCode,
+        packagingGroup: fids.packagingGroup,
+        transportDesignation: fids.transportDesignation,
+        attachedFiles: fids.attachedFiles,
         rgpdConsent: fids.rgpdConsent,
         status: fids.status,
         validatedBy: fids.validatedBy,
