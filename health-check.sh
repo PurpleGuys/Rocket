@@ -5,7 +5,7 @@
 
 ENV=${1:-development}
 PORT=${2:-5000}
-HOST=${3:-localhost}
+HOST=${3:-162.19.67.3}
 
 echo "🏥 Vérification de santé - Environnement: $ENV"
 echo "==============================================="

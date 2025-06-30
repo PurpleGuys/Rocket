@@ -169,7 +169,7 @@ health_check() {
     
     # Vérifier que l'application répond
     PORT=${PORT:-5000}
-    if curl -f http://localhost:$PORT/api/health >/dev/null 2>&1; then
+    if curl -f http://162.19.67.3:$PORT/api/health >/dev/null 2>&1; then
         log "Application accessible sur le port $PORT ✅"
     else
         warning "L'application ne semble pas répondre sur le port $PORT"
