@@ -16,6 +16,11 @@
 
 ## Scripts disponibles
 
+### `quick-nginx-fix.sh` ✅ PRÊT
+- **Usage** : `./quick-nginx-fix.sh`
+- **Action** : Corrige le problème "Welcome to nginx!" en arrêtant nginx système
+- **Résultat** : Site fonctionnel sur `http://purpleguy.world`
+
 ### `fix-http-errors.sh` ✅ PRÊT
 - **Usage** : `./fix-http-errors.sh`
 - **Action** : Corrige les erreurs SSL et CSP en mode HTTP

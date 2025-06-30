@@ -1,0 +1,95 @@
+Si tu vois encore "Welcome to nginx!", cela signifie que nginx utilise sa configuration par défaut, et non celle que tu as définie dans ton nginx.conf dans le conteneur Docker. Voici comment corriger cela point par point :
+
+✅ 1. Vérifie que le bon nginx.conf est bien monté dans le conteneur
+Dans ton docker-compose.yml, tu as :
+
+yaml
+Copier
+Modifier
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+⚠️ Le fichier nginx.conf doit contenir la directive http au niveau racine, pas include tout seul.
+
+To-do :
+
+Vérifie que le fichier nginx.conf local a bien ce format complet (voir modèle dans mon message précédent).
+
+Redémarre nginx via Docker :
+
+bash
+Copier
+Modifier
+sudo docker-compose down
+sudo docker-compose up -d --build
+✅ 2. Vérifie l’intérieur du conteneur nginx
+Tu peux vérifier directement dans le conteneur :
+
+bash
+Copier
+Modifier
+docker exec -it rem-bennes_nginx_1 cat /etc/nginx/nginx.conf
+→ Si tu vois la page "Welcome", c’est que ce fichier n’a pas été correctement remplacé.
+
+Dans ce cas :
+
+Supprime les conteneurs et volumes liés :
+
+bash
+Copier
+Modifier
+sudo docker-compose down -v
+Relance :
+
+bash
+Copier
+Modifier
+sudo docker-compose up -d --build
+✅ 3. Vérifie les logs Nginx
+Pour plus d’info :
+
+bash
+Copier
+Modifier
+docker logs rem-bennes_nginx_1
+ou :
+
+bash
+Copier
+Modifier
+docker exec -it rem-bennes_nginx_1 tail -n 100 /var/log/nginx/error.log
+✅ 4. Vérifie le port 80 sur le VPS
+Parfois, Nginx par défaut (hors Docker) est lancé en service système. Dans ce cas, il prend déjà le port 80 et bloque le conteneur.
+
+→ Pour vérifier :
+
+bash
+Copier
+Modifier
+sudo lsof -i :80
+Si tu vois nginx ou apache en dehors de Docker :
+
+bash
+Copier
+Modifier
+sudo systemctl stop nginx
+sudo systemctl disable nginx
+Puis :
+
+bash
+Copier
+Modifier
+sudo docker-compose down
+sudo docker-compose up -d
+✅ Résultat attendu
+Une fois tout OK :
+
+Accès à http://purpleguy.world → redirigé (si tu l'as configuré) ou affiche ton front.
+
+Plus de page "Welcome to nginx!", car c’est la version système, pas celle du conteneur.
