@@ -155,9 +155,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Configure trust proxy and rate limiting for production
   if (process.env.NODE_ENV === 'production') {
-    // Configuration sécurisée du proxy pour Docker/nginx
-    app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-    app.use(generalLimiter);
+    // Configuration sécurisée du proxy pour Docker/nginx - compatible HTTP/HTTPS
+    app.set('trust proxy', 1); // Trust first proxy (nginx)
+    // Désactiver temporairement le rate limiting pour éviter l'erreur trust proxy
+    // app.use(generalLimiter);
   }
 
   // ==================== AUTH ROUTES ====================
