@@ -1,11 +1,26 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import face from '@assets/Face.png';
-import coteDroit from '@assets/cotédroit.png';
-import coteGauche from '@assets/cotégauche.png';
-import benne22m3 from '@assets/22M3 petit man.png';
-import benneGeneral from '@assets/667966dbb7a2c-bpfull_1749545669321.jpg';
-import unnamedBenne from '@assets/unnamed_1749545447846.webp';
+
+// SVG placeholder pour les images de bennes
+const createBenneSVG = (label: string, color: string = '#6b7280') => {
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f3f4f6"/>
+      <rect x="50" y="80" width="300" height="140" rx="10" fill="${color}" stroke="#374151" stroke-width="2"/>
+      <text x="50%" y="50%" text-anchor="middle" dy="0.3em" font-family="Arial, sans-serif" font-size="16" fill="#1f2937">
+        ${label}
+      </text>
+    </svg>
+  `)}`;
+};
+
+// Images par défaut en SVG
+const face = createBenneSVG('Vue de face', '#dc2626');
+const coteDroit = createBenneSVG('Côté droit', '#ea580c');
+const coteGauche = createBenneSVG('Côté gauche', '#d97706');
+const benne22m3 = createBenneSVG('Avec échelle humaine', '#ca8a04');
+const benneGeneral = createBenneSVG('Vue générale', '#65a30d');
+const unnamedBenne = createBenneSVG('Big Bag', '#059669');
 
 interface SimpleContainerImageProps {
   serviceName: string;

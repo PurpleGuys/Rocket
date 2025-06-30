@@ -4,28 +4,11 @@
 A comprehensive waste management and sustainability platform that leverages intelligent technologies to enhance environmental engagement through digital solutions. The application provides rental booking, customer management, and administrative features for dumpster rental services.
 
 ## Recent Changes (December 30, 2024)
-✓ Fixed TypeScript compilation errors blocking VPS deployment
-✓ Created comprehensive VPS deployment infrastructure
-✓ Implemented Docker containerization with nginx reverse proxy
-✓ Added PM2 process management configuration
-✓ Generated secure environment configuration with automated secret generation
-✓ Created health monitoring system with database connectivity checks
-✓ Implemented pre-deployment verification tools and automated deployment scripts
-✓ Added abandoned checkout notifications and user inactivity tracking features
-✓ Successfully validated deployment readiness with all systems operational
-✓ Resolved import.meta.dirname undefined error with Node.js-compatible build patches
-✓ Fixed rate limiting trust proxy configuration for Docker environment
-✓ Configured HTTP/HTTPS compatibility for future SSL migration
-✓ Corrected WebSocket configuration for Neon database connections
-✓ Application successfully deployed and running on VPS IP 162.19.67.3:5000
-✓ Configured complete HTTPS production setup with domain purpleguy.world
-✓ Implemented Let's Encrypt SSL certificate automation with certbot
-✓ Created comprehensive nginx configuration with security headers and HSTS
-✓ Added automatic HTTP to HTTPS redirections and CSP policies
-✓ Generated complete HTTPS deployment script with DNS verification
-✓ Diagnosed and resolved nginx port conflicts with system nginx service
-✓ Created comprehensive SSL solution script handling all port conflicts
-✓ Implemented automatic system service management for clean SSL deployment
+✓ Cleaned repository of deployment files and scripts
+✓ Removed all temporary deployment configurations and troubleshooting scripts  
+✓ Reset project to clean development state
+✓ Application running in development mode on Replit
+✓ Fixed missing asset reference causing build errors
 
 ## Project Architecture
 
@@ -49,14 +32,6 @@ A comprehensive waste management and sustainability platform that leverages inte
 - **File Handling**: Multer for document uploads
 - **API**: RESTful endpoints with comprehensive error handling
 
-### Infrastructure & Deployment
-- **Containerization**: Docker with multi-stage builds
-- **Reverse Proxy**: Nginx with SSL termination
-- **Process Management**: PM2 for production deployment
-- **Database**: PostgreSQL with connection pooling
-- **Monitoring**: Health checks and performance metrics
-- **Security**: Environment-based configuration, rate limiting, helmet.js
-
 ### Key Services
 - **Distance Calculation**: Google Maps API integration for pricing
 - **Email Notifications**: Order confirmations, delivery scheduling
@@ -65,9 +40,9 @@ A comprehensive waste management and sustainability platform that leverages inte
 - **Audit Logging**: Comprehensive activity tracking
 
 ## User Preferences
-- Development approach: Full-stack development with focus on production readiness
-- Code style: TypeScript with flexible compilation for deployment
-- Infrastructure: Docker-based deployment with comprehensive monitoring
+- Development approach: Full-stack development with focus on clean, maintainable code
+- Code style: TypeScript with modern ES modules
+- Testing: Comprehensive validation and error handling
 - Security: Environment-based secrets management and secure defaults
 
 ## Environment Setup
@@ -89,42 +64,10 @@ SENDGRID_VERIFIED_SENDER_EMAIL=your-verified-email
 GOOGLE_MAPS_API_KEY=your-google-maps-api-key
 
 # Application
-NODE_ENV=production
-PORT=3000
+NODE_ENV=development
+PORT=5000
 REMONDIS_SALES_EMAIL=commercial@remondis.fr
 ```
-
-## Deployment Status
-**✅ READY FOR VPS DEPLOYMENT**
-
-### Deployment Verification Completed
-- All deployment configuration files present
-- Database schema and server files validated
-- Client build requirements satisfied
-- Docker and nginx configurations verified
-- PM2 ecosystem configuration ready
-- Health monitoring and security systems operational
-
-### Deployment Infrastructure
-- **Docker Compose**: Complete orchestration setup
-- **Nginx**: Reverse proxy with SSL-ready configuration
-- **PM2**: Production process management with clustering
-- **Health Checks**: Automated monitoring and restart capabilities
-- **Security**: Comprehensive environment-based configuration
-
-### Next Steps for Production
-1. Transfer project files to VPS server
-2. Configure environment variables (.env file)
-3. Execute deployment: `docker-compose up -d`
-4. Configure SSL certificates (Let's Encrypt recommended)
-5. Set up backup and monitoring systems
-
-## Technical Notes
-- TypeScript compilation configured for production deployment
-- Build process optimized for VPS hosting
-- Runtime functionality fully preserved despite type warnings
-- All critical features tested and operational
-- Database connectivity and API endpoints verified
 
 ## Database Schema
 Comprehensive schema covering:
@@ -136,4 +79,8 @@ Comprehensive schema covering:
 - Satisfaction surveys and customer feedback
 - Financial tracking and reporting
 
-The application is production-ready and fully prepared for VPS deployment with all security, monitoring, and operational requirements satisfied.
+## Development Notes
+- Application currently running in development mode on Replit
+- All deployment artifacts removed for clean development environment
+- TypeScript compilation optimized for development workflow
+- Asset paths configured for Vite development server
