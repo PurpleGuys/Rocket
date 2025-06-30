@@ -7,6 +7,9 @@ services:
       - "5000:5000"
     environment:
       - NODE_ENV=production
+      - UPLOAD_DIR=/app/uploads
+      - LOG_DIR=/app/logs
+      - __dirname=/app/server
     env_file:
       - .env
     depends_on:
