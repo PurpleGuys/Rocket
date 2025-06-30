@@ -1,3 +1,6 @@
+// Import du polyfill de chemin en premier pour résoudre import.meta.dirname
+import "./path-polyfill.js";
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
