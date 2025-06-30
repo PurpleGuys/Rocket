@@ -65,13 +65,16 @@ function GoogleMapComponent({ clients }: { clients: any[] }) {
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
 
   // Récupérer la clé API Google Maps depuis le backend
-  const { data: mapsConfig } = useQuery({
+  const { data: mapsConfig, error: mapsError } = useQuery<MapsConfig>({
     queryKey: ['/api/maps/config'],
     retry: false,
-    onError: (error: any) => {
+  });
+
+  useEffect(() => {
+    if (mapsError) {
       setGeocodingError('Impossible de récupérer la configuration Google Maps');
     }
-  });
+  }, [mapsError]);
 
   useEffect(() => {
     if (!mapsConfig?.apiKey) return;

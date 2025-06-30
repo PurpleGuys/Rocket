@@ -1,0 +1,1032 @@
+
+ubuntu@vps-41d62757:~/REM-Bennes$ npm run check
+
+> rest-express@1.0.0 check
+> tsc
+
+client/src/components/admin/Dashboard.tsx:36:24 - error TS2339: Property 'slice' does not exist on type '{}'.
+
+36               {orders?.slice(0, 10).map((order: any) => (
+                          ~~~~~
+
+client/src/components/admin/OrdersTable.tsx:16:34 - error TS2339: Property 'filter' does not exist on type '{}'.
+
+16   const filteredOrders = orders?.filter((order: any) =>
+                                    ~~~~~~
+
+client/src/components/auth/UserProfile.tsx:321:39 - error TS2339: Property 'length' does not exist on type '{}'.
+
+321                 {sessions && sessions.length > 0 ? (
+                                          ~~~~~~
+
+client/src/components/auth/UserProfile.tsx:323:31 - error TS2339: Property 'map' does not exist on type '{}'.
+
+323                     {sessions.map((session: any) => (
+                                  ~~~
+
+client/src/components/booking/FidForm.tsx:177:13 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ clientCompanyName: any; clientContactName: any; clientAddress: any; clientVatNumber: any; clientPhone: any; clientEmail: any; clientSiret: any; clientActivity: any; sameAsClient: any; producerCompanyName: any; ... 25 more ...; rgpdConsent: any; }'.
+  No index signature with a parameter of type 'string' was found on type '{ clientCompanyName: any; clientContactName: any; clientAddress: any; clientVatNumber: any; clientPhone: any; clientEmail: any; clientSiret: any; clientActivity: any; sameAsClient: any; producerCompanyName: any; ... 25 more ...; rgpdConsent: any; }'.
+
+177         ...(prev[section] as any),
+                ~~~~~~~~~~~~~
+
+client/src/components/booking/ServiceSelection.tsx:197:32 - error TS2554: Expected 2-3 arguments, but got 1.
+
+197         const response = await apiRequest(`/api/places/autocomplete?input=${encodeURIComponent(value)}`);
+                                   ~~~~~~~~~~
+
+  client/src/lib/queryClient.ts:12:3
+    12   url: string,
+         ~~~~~~~~~~~
+    An argument for 'url' was not provided.
+
+client/src/components/booking/ServiceSelection.tsx:198:22 - error TS2339: Property 'suggestions' does not exist on type 'Response'.
+
+198         if (response.suggestions) {
+                         ~~~~~~~~~~~
+
+client/src/components/booking/ServiceSelection.tsx:199:42 - error TS2339: Property 'suggestions' does not exist on type 'Response'.
+
+199           setAddressSuggestions(response.suggestions);
+                                             ~~~~~~~~~~~
+
+client/src/components/booking/ServiceSelection.tsx:588:17 - error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+
+588                 {deliveryLocationType === "company" && user && (
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+589                   <p className="text-sm text-blue-600 mb-2">
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...
+591                   </p>
+    ~~~~~~~~~~~~~~~~~~~~~~
+592                 )}
+    ~~~~~~~~~~~~~~~~~~
+
+client/src/components/booking/TimeSlotSelection.tsx:27:34 - error TS2339: Property 'find' does not exist on type '{}'.
+
+27       const timeSlot = timeSlots.find((slot: TimeSlot) => slot.id === selectedTimeSlotId);
+                                    ~~~~
+
+client/src/components/booking/TimeSlotSelection.tsx:122:38 - error TS2339: Property 'length' does not exist on type '{}'.
+
+122           ) : timeSlots && timeSlots.length > 0 ? (
+                                         ~~~~~~
+
+client/src/components/booking/TimeSlotSelection.tsx:128:28 - error TS2339: Property 'map' does not exist on type '{}'.
+
+128                 {timeSlots.map((slot: TimeSlot) => (
+                               ~~~
+
+client/src/pages/admin-users.tsx:124:31 - error TS2339: Property 'filter' does not exist on type 'Response | never[]'.
+  Property 'filter' does not exist on type 'Response'.
+
+124   const filteredUsers = users.filter((user: User) => {
+                                  ~~~~~~
+
+client/src/pages/admin-users.tsx:142:28 - error TS2339: Property 'length' does not exist on type 'Response | never[]'.
+  Property 'length' does not exist on type 'Response'.
+
+142   const totalUsers = users.length;
+                               ~~~~~~
+
+client/src/pages/admin-users.tsx:143:29 - error TS2339: Property 'filter' does not exist on type 'Response | never[]'.
+  Property 'filter' does not exist on type 'Response'.
+
+143   const activeUsers = users.filter((u: User) => u.isActive).length;
+                                ~~~~~~
+
+client/src/pages/admin-users.tsx:144:31 - error TS2339: Property 'filter' does not exist on type 'Response | never[]'.
+  Property 'filter' does not exist on type 'Response'.
+
+144   const verifiedUsers = users.filter((u: User) => u.isVerified).length;
+                                  ~~~~~~
+
+client/src/pages/admin-users.tsx:145:28 - error TS2339: Property 'filter' does not exist on type 'Response | never[]'.
+  Property 'filter' does not exist on type 'Response'.
+
+145   const adminUsers = users.filter((u: User) => u.role === 'admin').length;
+                               ~~~~~~
+
+client/src/pages/auth.tsx:61:15 - error TS2322: Type '{ onBackToLogin: () => void; }' is not assignable to type 'IntrinsicAttributes & ForgotPasswordFormProps'.
+  Property 'onBackToLogin' does not exist on type 'IntrinsicAttributes & ForgotPasswordFormProps'.
+
+61               onBackToLogin={() => setActiveTab("login")}
+                 ~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:62:33 - error TS2503: Cannot find namespace 'google'.
+
+62   const mapInstanceRef = useRef<google.maps.Map | null>(null);
+                                   ~~~~~~
+
+client/src/pages/dashboard.tsx:63:29 - error TS2503: Cannot find namespace 'google'.
+
+63   const markersRef = useRef<google.maps.Marker[]>([]);
+                               ~~~~~~
+
+client/src/pages/dashboard.tsx:71:5 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialDataOptions<unknown, Error, unknown, string[]>, queryClient?: QueryClient | undefined): DefinedUseQueryResult<unknown, Error>', gave the following error.
+    Object literal may only specify known properties, and 'onError' does not exist in type 'DefinedInitialDataOptions<unknown, Error, unknown, string[]>'.
+  Overload 2 of 3, '(options: UndefinedInitialDataOptions<unknown, Error, unknown, string[]>, queryClient?: QueryClient | undefined): UseQueryResult<unknown, Error>', gave the following error.
+    Object literal may only specify known properties, and 'onError' does not exist in type 'UndefinedInitialDataOptions<unknown, Error, unknown, string[]>'.
+  Overload 3 of 3, '(options: UseQueryOptions<unknown, Error, unknown, string[]>, queryClient?: QueryClient | undefined): UseQueryResult<unknown, Error>', gave the following error.
+    Object literal may only specify known properties, and 'onError' does not exist in type 'UseQueryOptions<unknown, Error, unknown, string[]>'.
+
+71     onError: (error: any) => {
+       ~~~~~~~
+
+
+client/src/pages/dashboard.tsx:77:22 - error TS2339: Property 'apiKey' does not exist on type '{}'.
+
+77     if (!mapsConfig?.apiKey) return;
+                        ~~~~~~
+
+client/src/pages/dashboard.tsx:80:76 - error TS2339: Property 'apiKey' does not exist on type '{}'.
+
+80     script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsConfig.apiKey}&libraries=geometry,places`;
+                                                                              ~~~~~~
+
+client/src/pages/dashboard.tsx:109:21 - error TS2304: Cannot find name 'google'.
+
+109     const map = new google.maps.Map(mapRef.current, {
+                        ~~~~~~
+
+client/src/pages/dashboard.tsx:112:18 - error TS2304: Cannot find name 'google'.
+
+112       mapTypeId: google.maps.MapTypeId.ROADMAP,
+                     ~~~~~~
+
+client/src/pages/dashboard.tsx:133:24 - error TS2304: Cannot find name 'google'.
+
+133     const bounds = new google.maps.LatLngBounds();
+                           ~~~~~~
+
+client/src/pages/dashboard.tsx:144:30 - error TS2304: Cannot find name 'google'.
+
+144           const marker = new google.maps.Marker({
+                                 ~~~~~~
+
+client/src/pages/dashboard.tsx:155:31 - error TS2304: Cannot find name 'google'.
+
+155               scaledSize: new google.maps.Size(24, 24),
+                                  ~~~~~~
+
+client/src/pages/dashboard.tsx:156:27 - error TS2304: Cannot find name 'google'.
+
+156               anchor: new google.maps.Point(12, 24)
+                              ~~~~~~
+
+client/src/pages/dashboard.tsx:161:34 - error TS2304: Cannot find name 'google'.
+
+161           const infoWindow = new google.maps.InfoWindow({
+                                     ~~~~~~
+
+client/src/pages/dashboard.tsx:199:53 - error TS2503: Cannot find namespace 'google'.
+
+199   const geocodeAddress = (address: string): Promise<google.maps.LatLng | null> => {
+                                                        ~~~~~~
+
+client/src/pages/dashboard.tsx:201:28 - error TS2304: Cannot find name 'google'.
+
+201       const geocoder = new google.maps.Geocoder();
+                               ~~~~~~
+
+client/src/pages/dashboard.tsx:202:38 - error TS7006: Parameter 'results' implicitly has an 'any' type.
+
+202       geocoder.geocode({ address }, (results, status) => {
+                                         ~~~~~~~
+
+client/src/pages/dashboard.tsx:202:47 - error TS7006: Parameter 'status' implicitly has an 'any' type.
+
+202       geocoder.geocode({ address }, (results, status) => {
+                                                  ~~~~~~
+
+client/src/pages/dashboard.tsx:243:36 - error TS2339: Property 'filter' does not exist on type '{}'.
+
+243     select: (data) => (data || []).filter((user: any) =>
+                                       ~~~~~~
+
+client/src/pages/dashboard.tsx:589:32 - error TS2339: Property 'filter' does not exist on type '{}'.
+
+589   const filteredUsers = users?.filter((user: any) => {
+                                   ~~~~~~
+
+client/src/pages/dashboard.tsx:680:68 - error TS2339: Property 'length' does not exist on type '{}'.
+
+680               Gérez tous les comptes utilisateurs - Total: {users?.length || 0} utilisateurs
+                                                                       ~~~~~~
+
+client/src/pages/dashboard.tsx:1450:27 - error TS2339: Property 'todayOrders' does not exist on type '{}'.
+
+1450                   {stats?.todayOrders || 0}
+                               ~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1453:27 - error TS2339: Property 'ordersGrowth' does not exist on type '{}'.
+
+1453                   {stats?.ordersGrowth ? (
+                               ~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1454:27 - error TS2339: Property 'ordersGrowth' does not exist on type '{}'.
+
+1454                     stats.ordersGrowth > 0 ? `+${stats.ordersGrowth}%` : `${stats.ordersGrowth}%`
+                               ~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1454:56 - error TS2339: Property 'ordersGrowth' does not exist on type '{}'.
+
+1454                     stats.ordersGrowth > 0 ? `+${stats.ordersGrowth}%` : `${stats.ordersGrowth}%`
+                                                            ~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1454:83 - error TS2339: Property 'ordersGrowth' does not exist on type '{}'.
+
+1454                     stats.ordersGrowth > 0 ? `+${stats.ordersGrowth}%` : `${stats.ordersGrowth}%`
+                                                                                       ~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1467:27 - error TS2339: Property 'monthlyRevenue' does not exist on type '{}'.
+
+1467                   {stats?.monthlyRevenue || '0'} €
+                               ~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1470:27 - error TS2339: Property 'revenueGrowth' does not exist on type '{}'.
+
+1470                   {stats?.revenueGrowth ? (
+                               ~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1471:27 - error TS2339: Property 'revenueGrowth' does not exist on type '{}'.
+
+1471                     stats.revenueGrowth > 0 ? `+${stats.revenueGrowth}%` : `${stats.revenueGrowth}%`
+                               ~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1471:57 - error TS2339: Property 'revenueGrowth' does not exist on type '{}'.
+
+1471                     stats.revenueGrowth > 0 ? `+${stats.revenueGrowth}%` : `${stats.revenueGrowth}%`
+                                                             ~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1471:85 - error TS2339: Property 'revenueGrowth' does not exist on type '{}'.
+
+1471                     stats.revenueGrowth > 0 ? `+${stats.revenueGrowth}%` : `${stats.revenueGrowth}%`
+                                                                                         ~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1484:27 - error TS2339: Property 'rentedDumpsters' does not exist on type '{}'.
+
+1484                   {stats?.rentedDumpsters || 0}
+                               ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1499:27 - error TS2339: Property 'activeCustomers' does not exist on type '{}'.
+
+1499                   {stats?.activeCustomers || 0}
+                               ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:1527:32 - error TS2339: Property 'length' does not exist on type '{}'.
+
+1527                   {userOrders?.length || 0}
+                                    ~~~~~~
+
+client/src/pages/dashboard.tsx:1544:32 - error TS2339: Property 'filter' does not exist on type '{}'.
+
+1544                   {userOrders?.filter((order: any) => order.status === 'active')?.length || 0}
+                                    ~~~~~~
+
+client/src/pages/dashboard.tsx:1578:41 - error TS2339: Property 'length' does not exist on type '{}'.
+
+1578               {userOrders && userOrders.length > 0 ? (
+                                             ~~~~~~
+
+client/src/pages/dashboard.tsx:1580:31 - error TS2339: Property 'slice' does not exist on type '{}'.
+
+1580                   {userOrders.slice(0, 5).map((order: any) => (
+                                   ~~~~~
+
+client/src/pages/dashboard.tsx:1669:37 - error TS2339: Property 'filter' does not exist on type '{}'.
+
+1669   const filteredOrders = allOrders?.filter((order: any) => {
+                                         ~~~~~~
+
+client/src/pages/dashboard.tsx:1838:38 - error TS7006: Parameter 'o' implicitly has an 'any' type.
+
+1838               {filteredOrders.filter(o => o.paymentStatus === 'paid').length}
+                                          ~
+
+client/src/pages/dashboard.tsx:1846:38 - error TS7006: Parameter 'o' implicitly has an 'any' type.
+
+1846               {filteredOrders.filter(o => o.status === 'delivered').length}
+                                          ~
+
+client/src/pages/dashboard.tsx:1854:39 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+1854               {filteredOrders.reduce((sum, o) => sum + parseFloat(o.totalTTC || 0), 0).toFixed(2)}€
+                                           ~~~
+
+client/src/pages/dashboard.tsx:1854:44 - error TS7006: Parameter 'o' implicitly has an 'any' type.
+
+1854               {filteredOrders.reduce((sum, o) => sum + parseFloat(o.totalTTC || 0), 0).toFixed(2)}€
+                                                ~
+
+client/src/pages/dashboard.tsx:1862:43 - error TS7006: Parameter 'o' implicitly has an 'any' type.
+
+1862               {new Set(filteredOrders.map(o => o.customerEmail)).size}
+                                               ~
+
+client/src/pages/dashboard.tsx:2227:44 - error TS2339: Property 'find' does not exist on type '{}'.
+
+2227     const existingPricing = rentalPricing?.find((p: any) => p.serviceId === serviceId);
+                                                ~~~~
+
+client/src/pages/dashboard.tsx:2267:27 - error TS2339: Property 'find' does not exist on type '{}'.
+
+2267     return rentalPricing?.find((p: any) => p.serviceId === serviceId);
+                               ~~~~
+
+client/src/pages/dashboard.tsx:2462:30 - error TS2339: Property 'map' does not exist on type '{}'.
+
+2462                   {services?.map((service: any) => {
+                                  ~~~
+
+client/src/pages/dashboard.tsx:2597:13 - error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+
+2597             {services && services.length === 0 && (
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2598               <div className="text-center py-8">
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ...
+2604               </div>
+     ~~~~~~~~~~~~~~~~~~~~
+2605             )}
+     ~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2597:35 - error TS2339: Property 'length' does not exist on type '{}'.
+
+2597             {services && services.length === 0 && (
+                                       ~~~~~~
+
+client/src/pages/dashboard.tsx:2773:37 - error TS2339: Property 'hourlyRate' does not exist on type '{}'.
+
+2773       hourlyRate: transportPricing?.hourlyRate || "0",
+                                         ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2774:50 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+2774       immediateLoadingEnabled: transportPricing?.immediateLoadingEnabled
+                                                      ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2784:37 - error TS2339: Property 'pricePerKm' does not exist on type '{}'.
+
+2784       pricePerKm: transportPricing?.pricePerKm || "0",
+                                         ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2785:42 - error TS2339: Property 'minimumFlatRate' does not exist on type '{}'.
+
+2785       minimumFlatRate: transportPricing?.minimumFlatRate || "0",
+                                              ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2873:57 - error TS2339: Property 'pricePerKm' does not exist on type '{}'.
+
+2873                         defaultValue={transportPricing?.pricePerKm || "0"}
+                                                             ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2893:57 - error TS2339: Property 'minimumFlatRate' does not exist on type '{}'.
+
+2893                         defaultValue={transportPricing?.minimumFlatRate || "0"}
+                                                             ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2938:55 - error TS2339: Property 'hourlyRate' does not exist on type '{}'.
+
+2938                       defaultValue={transportPricing?.hourlyRate || "0"}
+                                                           ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2950:39 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+2950                     transportPricing?.immediateLoadingEnabled ? 'bg-red-500' : 'bg-red-500'
+                                           ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2953:65 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+2953                     <strong>Statut:</strong> {transportPricing?.immediateLoadingEnabled ? 'Activé' : 'Désactivé'}
+                                                                     ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:2954:41 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+2954                     {!transportPricing?.immediateLoadingEnabled && ' (prix horaire = 0 €)'}
+                                             ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3156:39 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3156       const dbWasteType = wasteTypes?.find((wt: any) => wt.name === selectedWasteTypeName);
+                                           ~~~~
+
+client/src/pages/dashboard.tsx:3232:67 - error TS2339: Property 'wasteTypes' does not exist on type '{}'.
+
+3232                   const configuredWasteTypes = companyActivities?.wasteTypes || [];
+                                                                       ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3234:53 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3234                     const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
+                                                         ~~~~
+
+client/src/pages/dashboard.tsx:3235:61 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3235                     return dbWasteType && treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id);
+                                                                 ~~~~
+
+client/src/pages/dashboard.tsx:3264:61 - error TS2339: Property 'wasteTypes' does not exist on type '{}'.
+
+3264             const configuredWasteTypes = companyActivities?.wasteTypes || [];
+                                                                 ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3281:51 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3281                   const dbWasteType = wasteTypes?.find((wt: any) => wt.name === wasteTypeName);
+                                                       ~~~~
+
+client/src/pages/dashboard.tsx:3282:75 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3282                   const existingPricing = dbWasteType ? treatmentPricing?.find((p: any) => p.wasteTypeId === dbWasteType.id) : null;
+                                                                               ~~~~
+
+client/src/pages/dashboard.tsx:3497:41 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3497       const selectedService = services?.find((s: any) => s.id === serviceId);
+                                             ~~~~
+
+client/src/pages/dashboard.tsx:3498:45 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3498       const servicePricing = rentalPricing?.find((p: any) => p.service?.id === serviceId);
+                                                 ~~~~
+
+client/src/pages/dashboard.tsx:3511:57 - error TS2339: Property 'pricePerKm' does not exist on type '{}'.
+
+3511         const pricePerKm = parseFloat(transportPricing?.pricePerKm || '0');
+                                                             ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3512:62 - error TS2339: Property 'minimumFlatRate' does not exist on type '{}'.
+
+3512         const minimumFlatRate = parseFloat(transportPricing?.minimumFlatRate || '0');
+                                                                  ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3519:49 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+3519       if (immediateLoading && transportPricing?.immediateLoadingEnabled) {
+                                                     ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3520:57 - error TS2339: Property 'hourlyRate' does not exist on type '{}'.
+
+3520         const hourlyRate = parseFloat(transportPricing?.hourlyRate || '0');
+                                                             ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3532:44 - error TS2339: Property 'find' does not exist on type '{}'.
+
+3532           const pricing = treatmentPricing.find((p: any) => p.wasteType?.id === parseInt(wasteTypeId.toString()));
+                                                ~~~~
+
+client/src/pages/dashboard.tsx:3609:30 - error TS2339: Property 'map' does not exist on type '{}'.
+
+3609                   {services?.map((service: any) => (
+                                  ~~~
+
+client/src/pages/dashboard.tsx:3654:32 - error TS2339: Property 'map' does not exist on type '{}'.
+
+3654                   {wasteTypes?.map((wasteType: any) => (
+                                    ~~~
+
+client/src/pages/dashboard.tsx:3689:34 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+3689               {transportPricing?.immediateLoadingEnabled && (
+                                      ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3828:36 - error TS2339: Property 'pricePerKm' does not exist on type '{}'.
+
+3828                 {transportPricing?.pricePerKm || '0'} €/km
+                                        ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3829:36 - error TS2339: Property 'minimumFlatRate' does not exist on type '{}'.
+
+3829                 {transportPricing?.minimumFlatRate && transportPricing.minimumFlatRate !== '0' && (
+                                        ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3829:72 - error TS2339: Property 'minimumFlatRate' does not exist on type '{}'.
+
+3829                 {transportPricing?.minimumFlatRate && transportPricing.minimumFlatRate !== '0' && (
+                                                                            ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3830:47 - error TS2339: Property 'minimumFlatRate' does not exist on type '{}'.
+
+3830                   <div>Min: {transportPricing.minimumFlatRate} €</div>
+                                                   ~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3838:28 - error TS2339: Property 'length' does not exist on type '{}'.
+
+3838                 {services?.length || 0} équipement(s) configuré(s)
+                                ~~~~~~
+
+client/src/pages/dashboard.tsx:3845:36 - error TS2339: Property 'length' does not exist on type '{}'.
+
+3845                 {treatmentPricing?.length || 0} tarif(s) configuré(s)
+                                        ~~~~~~
+
+client/src/pages/dashboard.tsx:3852:36 - error TS2339: Property 'immediateLoadingEnabled' does not exist on type '{}'.
+
+3852                 {transportPricing?.immediateLoadingEnabled ?
+                                        ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:3853:39 - error TS2339: Property 'hourlyRate' does not exist on type '{}'.
+
+3853                   `${transportPricing.hourlyRate} €/h` :
+                                           ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4498:16 - error TS18046: 'bankDeposits' is of type 'unknown'.
+
+4498               {bankDeposits.map((deposit: any) => (
+                    ~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4501:22 - error TS18046: 'services' is of type 'unknown'.
+
+4501                     {services.find((s: any) => s.id === deposit.serviceId)?.name || "N/A"}
+                          ~~~~~~~~
+
+client/src/pages/dashboard.tsx:4504:22 - error TS18046: 'wasteTypes' is of type 'unknown'.
+
+4504                     {wasteTypes.find((w: any) => w.id === deposit.wasteTypeId)?.name || "N/A"}
+                          ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4561:20 - error TS18046: 'services' is of type 'unknown'.
+
+4561                   {services.map((service: any) => (
+                        ~~~~~~~~
+
+client/src/pages/dashboard.tsx:4577:20 - error TS18046: 'wasteTypes' is of type 'unknown'.
+
+4577                   {wasteTypes.map((wasteType: any) => (
+                        ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4654:35 - error TS2339: Property 'filter' does not exist on type '{}'.
+
+4654   const filteredSurveys = surveys.filter((survey: any) => {
+                                       ~~~~~~
+
+client/src/pages/dashboard.tsx:4716:74 - error TS2339: Property 'totalSurveys' does not exist on type '{}'.
+
+4716                   <p className="text-3xl font-bold text-gray-900">{stats.totalSurveys || 0}</p>
+                                                                              ~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4728:74 - error TS2339: Property 'completionRate' does not exist on type '{}'.
+
+4728                   <p className="text-3xl font-bold text-gray-900">{stats.completionRate || 0}%</p>
+                                                                              ~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4740:74 - error TS2339: Property 'averageOverallSatisfaction' does not exist on type '{}'.
+
+4740                   <p className="text-3xl font-bold text-gray-900">{stats.averageOverallSatisfaction || 0}/5</p>
+                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:4752:74 - error TS2339: Property 'averageNPS' does not exist on type '{}'.
+
+4752                   <p className="text-3xl font-bold text-gray-900">{stats.averageNPS || 0}/10</p>
+                                                                              ~~~~~~~~~~
+
+client/src/pages/dashboard.tsx:5523:17 - error TS2345: Argument of type '{}' is not assignable to parameter of type 'SetStateAction<any[]>'.
+
+5523       setPhotos(serviceImages);
+                     ~~~~~~~~~~~~~
+
+server/emailService.ts:33:15 - error TS2339: Property 'transporter' does not exist on type 'EmailService'.
+
+33     if (!this.transporter) {
+                 ~~~~~~~~~~~
+
+server/emailService.ts:49:33 - error TS2339: Property 'transporter' does not exist on type 'EmailService'.
+
+49       const result = await this.transporter.sendMail(mailOptions);
+                                   ~~~~~~~~~~~
+
+server/emailService.ts:87:15 - error TS2339: Property 'transporter' does not exist on type 'EmailService'.
+
+87     if (!this.transporter) {
+                 ~~~~~~~~~~~
+
+server/emailService.ts:103:33 - error TS2339: Property 'transporter' does not exist on type 'EmailService'.
+
+103       const result = await this.transporter.sendMail(mailOptions);
+                                    ~~~~~~~~~~~
+
+server/mockStorage.ts:19:5 - error TS2353: Object literal may only specify known properties, and 'company' does not exist in type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }'.
+
+19     company: null,
+       ~~~~~~~
+
+server/mockStorage.ts:46:5 - error TS2353: Object literal may only specify known properties, and 'customerAddress' does not exist in type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+46     customerAddress: '123 Rue de la Paix, 75001 Paris',
+       ~~~~~~~~~~~~~~~
+
+server/mockStorage.ts:73:5 - error TS2353: Object literal may only specify known properties, and 'customerAddress' does not exist in type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+73     customerAddress: '456 Avenue des Champs, 75008 Paris',
+       ~~~~~~~~~~~~~~~
+
+server/mockStorage.ts:92:3 - error TS2741: Property 'responseTimeSeconds' is missing in type '{ id: number; orderId: number; userId: number; token: string; emailSent: true; emailSentAt: Date; completed: true; completedAt: Date; expiresAt: Date; overallSatisfaction: number; ... 14 more ...; updatedAt: Date; }' but required in type '{ id: number; createdAt: Date; updatedAt: Date; userId: number; token: string; expiresAt: Date; userAgent: string | null; ipAddress: string | null; orderId: number; emailSent: boolean | null; ... 15 more ...; responseTimeSeconds: number | null; }'.
+
+ 92   {
+      ~
+ 93     id: 1,
+    ~~~~~~~~~~
+...
+117     updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+118   },
+    ~~~
+
+server/mockStorage.ts:119:3 - error TS2741: Property 'responseTimeSeconds' is missing in type '{ id: number; orderId: number; userId: number; token: string; emailSent: true; emailSentAt: Date; completed: false; completedAt: null; expiresAt: Date; overallSatisfaction: null; serviceQuality: null; ... 13 more ...; updatedAt: Date; }' but required in type '{ id: number; createdAt: Date; updatedAt: Date; userId: number; token: string; expiresAt: Date; userAgent: string | null; ipAddress: string | null; orderId: number; emailSent: boolean | null; ... 15 more ...; responseTimeSeconds: number | null; }'.
+
+119   {
+      ~
+120     id: 2,
+    ~~~~~~~~~~
+...
+144     updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+145   }
+    ~~~
+
+server/notificationService.ts:61:79 - error TS2339: Property 'deliveryPrice' does not exist on type '{ id: number; orderNumber: string; userId: number | null; serviceId: number; deliveryTimeSlotId: number | null; pickupTimeSlotId: number | null; customerFirstName: string; customerLastName: string; ... 43 more ...; updatedAt: Date; }'.
+
+61         totalAmount: userOrders.reduce((sum, order) => sum + parseFloat(order.deliveryPrice || '0'), 0),
+                                                                                 ~~~~~~~~~~~~~
+
+server/notificationService.ts:62:71 - error TS2339: Property 'serviceType' does not exist on type '{ id: number; orderNumber: string; userId: number | null; serviceId: number; deliveryTimeSlotId: number | null; pickupTimeSlotId: number | null; customerFirstName: string; customerLastName: string; ... 43 more ...; updatedAt: Date; }'.
+
+62         services: Array.from(new Set(userOrders.map(order => `${order.serviceType || 'Service'} - ${order.deliveryCity || 'Ville'}`).filter(Boolean)))
+                                                                         ~~~~~~~~~~~
+
+server/notificationService.ts:74:55 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { userId: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: SQL<unknown> | Date | Placeholder<...> | undefined; notificationSent?: boolean | ... 3 more ... | undefined; notificationSentAt?: SQL<...> | ... 3 more ... | undefined; lastLoginDate?: SQL<...> | ... 3 more ... | undefined; orderHistory?: SQL<...> | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ userId: number; notificationSent?: boolean | null | undefined; notificationSentAt?: Date | null | undefined; lastLoginDate?: Date | null | undefined; orderHistory?: { ...; } | null | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: SQL<unknown> | Date | Placeholder<...> | undefined; notificationSent?: boolean | ... 3 more ... | undefined; notificationSentAt?: SQL<...> | ... 3 more ... | undefined; lastLogin...'.
+      Types of property 'orderHistory' are incompatible.
+        Type '{ services: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }; totalAmount: number; totalOrders: number;...' is not assignable to type 'SQL<unknown> | { totalOrders: number; lastOrderDate: Date | null; totalAmount: number; services: string[]; } | Placeholder<string, any> | null | undefined'.
+          Type '{ services: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }; totalAmount: number; totalOrders: number;...' is not assignable to type 'SQL<unknown> | { totalOrders: number; lastOrderDate: Date | null; totalAmount: number; services: string[]; } | Placeholder<string, any> | null | undefined'.
+            Type '{ services: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }; totalAmount: number; totalOrders: number;...' is not assignable to type '{ totalOrders: number; lastOrderDate: Date | null; totalAmount: number; services: string[]; }'.
+              Property 'lastOrderDate' is optional in type '{ services: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }; totalAmount: number; totalOrders: number;...' but required in type '{ totalOrders: number; lastOrderDate: Date | null; totalAmount: number; services: string[]; }'.
+  Overload 2 of 2, '(values: { userId: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: SQL<unknown> | Date | Placeholder<...> | undefined; notificationSent?: boolean | ... 3 more ... | undefined; notificationSentAt?: SQL<...> | ... 3 more ... | undefined; lastLoginDate?: SQL<...> | ... 3 more ... | undefined; orderHistory?: SQL<...> | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ userId: number; notificationSent?: boolean | null | undefined; notificationSentAt?: Date | null | undefined; lastLoginDate?: Date | null | undefined; orderHistory?: { ...; } | null | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: SQL<unknown> | Date | Placeholder<...> | undefined; notificationSent?: boolean | ... 3 more ... | undefined; notificationSentAt?: SQL<...> | ... 3 more ... | undefined; lastLogin...'.
+      Type '{ userId: number; notificationSent?: boolean | null | undefined; notificationSentAt?: Date | null | undefined; lastLoginDate?: Date | null | undefined; orderHistory?: { ...; } | null | undefined; }' is missing the following properties from type '{ userId: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: SQL<unknown> | Date | Placeholder<...> | undefined; notificationSent?: boolean | ... 3 more ... | undefined; notificationSentAt?: SQL<...> | ... 3 more ... | undefined; lastLogin...': length, pop, push, concat, and 35 more.
+
+74       await db.insert(inactivityNotifications).values(notificationData);
+                                                         ~~~~~~~~~~~~~~~~
+
+
+server/routes.ts:444:9 - error TS2353: Object literal may only specify known properties, and 'isVerified' does not exist in type '{ email: string; password: string; firstName: string; lastName: string; phone: string; address?: string | null | undefined; role?: string | undefined; verificationToken?: string | undefined; ... 14 more ...; lastInactivityNotification?: Date | ... 1 more ... | undefined; }'.
+
+444         isVerified: true, // Pre-verified admin account
+            ~~~~~~~~~~
+
+server/routes.ts:886:11 - error TS18048: 'req.user' is possibly 'undefined'.
+
+886       if (req.user.id === userId) {
+              ~~~~~~~~
+
+server/routes.ts:914:9 - error TS2322: Type 'null' is not assignable to type 'string | undefined'.
+
+914         verificationToken: null
+            ~~~~~~~~~~~~~~~~~
+
+  server/storage.ts:199:5
+    199     verificationToken?: string;
+            ~~~~~~~~~~~~~~~~~
+    The expected type comes from property 'verificationToken' which is declared here on type '{ loginAttempts?: number | undefined; lockUntil?: Date | null | undefined; lastLogin?: Date | undefined; verificationToken?: string | undefined; resetPasswordToken?: string | undefined; resetPasswordExpires?: Date | undefined; isVerified?: boolean | undefined; }'
+
+server/routes.ts:948:9 - error TS2322: Type 'null' is not assignable to type 'string | undefined'.
+
+948         verificationToken: null
+            ~~~~~~~~~~~~~~~~~
+
+  server/storage.ts:199:5
+    199     verificationToken?: string;
+            ~~~~~~~~~~~~~~~~~
+    The expected type comes from property 'verificationToken' which is declared here on type '{ loginAttempts?: number | undefined; lockUntil?: Date | null | undefined; lastLogin?: Date | undefined; verificationToken?: string | undefined; resetPasswordToken?: string | undefined; resetPasswordExpires?: Date | undefined; isVerified?: boolean | undefined; }'
+
+server/routes.ts:1020:76 - error TS2345: Argument of type '{ firstName: string; lastName: string; email: string; }' is not assignable to parameter of type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }'.
+  Type '{ firstName: string; lastName: string; email: string; }' is missing the following properties from type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }': address, id, role, password, and 26 more.
+
+1020         await sendGridService.sendDeliveryDateConfirmedEmail(updatedOrder, user);
+                                                                                ~~~~
+
+server/routes.ts:1079:65 - error TS2345: Argument of type '{ firstName: string; lastName: string; email: string; }' is not assignable to parameter of type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }'.
+  Type '{ firstName: string; lastName: string; email: string; }' is missing the following properties from type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }': address, id, role, password, and 26 more.
+
+1079         await sendGridService.sendOrderConfirmationEmail(order, user);
+                                                                     ~~~~
+
+server/routes.ts:1187:65 - error TS2345: Argument of type '{ id: number; firstName: any; lastName: any; email: any; phone: any; password: string; role: string; isVerified: boolean; verificationToken: null; resetPasswordToken: null; resetPasswordExpires: null; ... 17 more ...; updatedAt: Date; }' is not assignable to parameter of type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }'.
+  Type '{ id: number; firstName: any; lastName: any; email: any; phone: any; password: string; role: string; isVerified: boolean; verificationToken: null; resetPasswordToken: null; resetPasswordExpires: null; ... 17 more ...; updatedAt: Date; }' is missing the following properties from type '{ address: string | null; id: number; role: string; email: string; password: string; firstName: string; lastName: string; phone: string; isVerified: boolean | null; verificationToken: string | null; ... 22 more ...; updatedAt: Date; }': accountType, tvaNumber, apeCode, notifyOnInactivity, lastInactivityNotification
+
+1187         await sendGridService.sendOrderConfirmationEmail(order, testUser);
+                                                                     ~~~~~~~~
+
+server/routes.ts:1222:9 - error TS2322: Type 'Date | null' is not assignable to type 'Date | undefined'.
+  Type 'null' is not assignable to type 'Date | undefined'.
+
+1222         confirmedDeliveryDate: order.estimatedDeliveryDate,
+             ~~~~~~~~~~~~~~~~~~~~~
+
+  server/storage.ts:939:5
+    939     confirmedDeliveryDate?: Date;
+            ~~~~~~~~~~~~~~~~~~~~~
+    The expected type comes from property 'confirmedDeliveryDate' which is declared here on type '{ confirmedDeliveryDate?: Date | undefined; proposedDeliveryDate?: Date | undefined; clientValidationStatus?: string | undefined; clientValidationToken?: string | null | undefined; ... 4 more ...; status?: string | undefined; }'
+
+server/routes.ts:1236:62 - error TS2345: Argument of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; } | undefined' is not assignable to parameter of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+  Type 'undefined' is not assignable to type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+1236         await sendGridService.sendDeliveryDateConfirmedEmail(updatedOrder, user);
+                                                                  ~~~~~~~~~~~~
+
+server/routes.ts:1287:61 - error TS2345: Argument of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; } | undefined' is not assignable to parameter of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+  Type 'undefined' is not assignable to type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+1287         await sendGridService.sendDeliveryDateProposalEmail(updatedOrder, user, validationToken);
+                                                                 ~~~~~~~~~~~~
+
+server/routes.ts:1309:24 - error TS18047: 'order.clientValidationExpiresAt' is possibly 'null'.
+
+1309       if (new Date() > order.clientValidationExpiresAt) {
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes.ts:1327:9 - error TS2322: Type 'Date | null' is not assignable to type 'Date | undefined'.
+  Type 'null' is not assignable to type 'Date | undefined'.
+
+1327         confirmedDeliveryDate: confirmedDate,
+             ~~~~~~~~~~~~~~~~~~~~~
+
+  server/storage.ts:939:5
+    939     confirmedDeliveryDate?: Date;
+            ~~~~~~~~~~~~~~~~~~~~~
+    The expected type comes from property 'confirmedDeliveryDate' which is declared here on type '{ confirmedDeliveryDate?: Date | undefined; proposedDeliveryDate?: Date | undefined; clientValidationStatus?: string | undefined; clientValidationToken?: string | null | undefined; ... 4 more ...; status?: string | undefined; }'
+
+server/routes.ts:1342:63 - error TS2345: Argument of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; } | undefined' is not assignable to parameter of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+  Type 'undefined' is not assignable to type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+1342           await sendGridService.sendDeliveryDateAcceptedEmail(updatedOrder, user);
+                                                                   ~~~~~~~~~~~~
+
+server/routes.ts:1344:63 - error TS2345: Argument of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; } | undefined' is not assignable to parameter of type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+  Type 'undefined' is not assignable to type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+1344           await sendGridService.sendDeliveryDateRejectedEmail(updatedOrder, user);
+                                                                   ~~~~~~~~~~~~
+
+server/routes.ts:1990:35 - error TS2304: Cannot find name 'wasteTypes'.
+
+1990         for (const wasteTypeId of wasteTypes) {
+                                       ~~~~~~~~~~
+
+server/sendgridService.ts:572:41 - error TS2339: Property 'deliveryDate' does not exist on type '{ id: number; status: string; createdAt: Date; updatedAt: Date; basePrice: string; wasteTypes: string[] | null; serviceId: number; orderNumber: string; userId: number | null; deliveryTimeSlotId: number | null; ... 41 more ...; fidData: unknown; }'.
+
+572     const deliveryDate = new Date(order.deliveryDate!).toLocaleDateString('fr-FR', {
+                                            ~~~~~~~~~~~~
+
+server/sendgridService.ts:1199:23 - error TS2339: Property 'sendEmailNotification' does not exist on type 'SendGridService'.
+
+1199     return await this.sendEmailNotification({
+                           ~~~~~~~~~~~~~~~~~~~~~
+
+server/sendgridService.ts:1288:23 - error TS2339: Property 'sendEmailNotification' does not exist on type 'SendGridService'.
+
+1288     return await this.sendEmailNotification({
+                           ~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:630:5 - error TS2322: Type '{ service: { id: number; name: string; volume: number; basePrice: string; description: string | null; imageUrl: string | null; length: string | null; width: string | null; height: string | null; ... 5 more ...; updatedAt: Date | null; }; ... 7 more ...; updatedAt: Date; }[]' is not assignable to type '({ id: number; isActive: boolean | null; createdAt: Date; updatedAt: Date; serviceId: number; dailyRate: string; billingStartDay: number; maxTonnage: string; durationThreshold1: number | null; ... 4 more ...; durationSupplement3: string | null; } & { ...; })[]'.
+  Type '{ service: { id: number; name: string; volume: number; basePrice: string; description: string | null; imageUrl: string | null; length: string | null; width: string | null; height: string | null; ... 5 more ...; updatedAt: Date | null; }; ... 7 more ...; updatedAt: Date; }' is not assignable to type '{ id: number; isActive: boolean | null; createdAt: Date; updatedAt: Date; serviceId: number; dailyRate: string; billingStartDay: number; maxTonnage: string; durationThreshold1: number | null; ... 4 more ...; durationSupplement3: string | null; } & { ...; }'.
+    Type '{ service: { id: number; name: string; volume: number; basePrice: string; description: string | null; imageUrl: string | null; length: string | null; width: string | null; height: string | null; ... 5 more ...; updatedAt: Date | null; }; ... 7 more ...; updatedAt: Date; }' is missing the following properties from type '{ id: number; isActive: boolean | null; createdAt: Date; updatedAt: Date; serviceId: number; dailyRate: string; billingStartDay: number; maxTonnage: string; durationThreshold1: number | null; ... 4 more ...; durationSupplement3: string | null; }': durationThreshold1, durationSupplement1, durationThreshold2, durationSupplement2, and 2 more.
+
+630     return result.map(row => ({
+        ~~~~~~
+
+server/storage.ts:764:5 - error TS2322: Type '{ id: number; wasteTypeId: number; pricePerTon: string; treatmentType: string; treatmentCode: string; outletAddress: string | null; isManualTreatment: boolean | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; wasteType: { ...; } | null; }[]' is not assignable to type '({ id: number; isActive: boolean | null; createdAt: Date; updatedAt: Date; wasteTypeId: number; pricePerTon: string; treatmentType: string; treatmentCode: string; outletAddress: string | null; isManualTreatment: boolean | null; } & { ...; })[]'.
+  Type '{ id: number; wasteTypeId: number; pricePerTon: string; treatmentType: string; treatmentCode: string; outletAddress: string | null; isManualTreatment: boolean | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; wasteType: { ...; } | null; }' is not assignable to type '{ id: number; isActive: boolean | null; createdAt: Date; updatedAt: Date; wasteTypeId: number; pricePerTon: string; treatmentType: string; treatmentCode: string; outletAddress: string | null; isManualTreatment: boolean | null; } & { ...; }'.
+    Type '{ id: number; wasteTypeId: number; pricePerTon: string; treatmentType: string; treatmentCode: string; outletAddress: string | null; isManualTreatment: boolean | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; wasteType: { ...; } | null; }' is not assignable to type '{ wasteType: { id: number; name: string; description: string | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; }; }'.
+      Types of property 'wasteType' are incompatible.
+        Type '{ id: number; name: string; description: string | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; } | null' is not assignable to type '{ id: number; name: string; description: string | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; }'.
+          Type 'null' is not assignable to type '{ id: number; name: string; description: string | null; isActive: boolean | null; createdAt: Date; updatedAt: Date; }'.
+
+764     return await db
+        ~~~~~~
+
+server/storage.ts:833:9 - error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { id?: number | SQL<unknown> | Placeholder<string, any> | undefined; isActive?: boolean | SQL<unknown> | Placeholder<string, any> | null | undefined; ... 20 more ...; industrialSitePostalCode?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'wasteTypes' does not exist in type '{ id?: number | SQL<unknown> | Placeholder<string, any> | undefined; isActive?: boolean | SQL<unknown> | Placeholder<string, any> | null | undefined; createdAt?: SQL<...> | ... 3 more ... | undefined; ... 19 more ...; industrialSitePostalCode?: string | ... 3 more ... | undefined; }[]'.
+
+833         wasteTypes: activities.wasteTypes || [],
+            ~~~~~~~~~~
+
+
+server/storage.ts:987:9 - error TS2393: Duplicate function implementation.
+
+987   async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:990:15 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }'.
+      Type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is missing the following properties from type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }': token, expiresAt
+  Overload 2 of 2, '(values: { userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }[]'.
+      Type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is missing the following properties from type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+
+990       .values(survey)
+                  ~~~~~~
+
+
+server/storage.ts:1003:9 - error TS2393: Duplicate function implementation.
+
+1003   async getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | undefined> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1011:9 - error TS2393: Duplicate function implementation.
+
+1011   async getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1018:9 - error TS2393: Duplicate function implementation.
+
+1018   async getSatisfactionSurveys(): Promise<(SatisfactionSurvey & { order: Order; user: User })[]> {
+             ~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1027:9 - error TS2393: Duplicate function implementation.
+
+1027   async updateSatisfactionSurvey(id: number, survey: Partial<InsertSatisfactionSurvey>): Promise<SatisfactionSurvey | undefined> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1100:9 - error TS2393: Duplicate function implementation.
+
+1100   async getSatisfactionSurveys(): Promise<SatisfactionSurvey[]> {
+             ~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1116:9 - error TS2393: Duplicate function implementation.
+
+1116   async getSatisfactionSurveyByToken(token: string): Promise<SatisfactionSurvey | null> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1124:9 - error TS2393: Duplicate function implementation.
+
+1124   async getSatisfactionSurveysByOrder(orderId: number): Promise<SatisfactionSurvey[]> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1132:9 - error TS2393: Duplicate function implementation.
+
+1132   async createSatisfactionSurvey(survey: InsertSatisfactionSurvey): Promise<SatisfactionSurvey> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1135:15 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }'.
+      Type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is missing the following properties from type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }': token, expiresAt
+  Overload 2 of 2, '(values: { userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }[]'.
+      Type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }' is missing the following properties from type '{ userId: number | SQL<unknown> | Placeholder<string, any>; token: string | SQL<unknown> | Placeholder<string, any>; expiresAt: SQL<unknown> | Date | Placeholder<...>; ... 22 more ...; responseTimeSeconds?: number | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+
+1135       .values(survey)
+                   ~~~~~~
+
+
+server/storage.ts:1140:9 - error TS2393: Duplicate function implementation.
+
+1140   async updateSatisfactionSurvey(id: number, updates: Partial<SatisfactionSurvey>): Promise<SatisfactionSurvey | null> {
+             ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1191:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"fids", { id: import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: ...' but required in type 'Omit<import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"fids", { id: import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: ...'.
+
+1191       query = query.where(eq(fids.status, filters.status));
+           ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/storage.ts:1196:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"fids", { id: import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: ...' but required in type 'Omit<import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"fids", { id: import("/home/ubuntu/REM-Bennes/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: ...'.
+
+1196       query = query.where(
+           ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/storage.ts:1232:32 - error TS2339: Property 'wasteDescription' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1232         wasteDescription: fids.wasteDescription,
+                                    ~~~~~~~~~~~~~~~~
+
+server/storage.ts:1233:27 - error TS2339: Property 'wasteOrigin' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1233         wasteOrigin: fids.wasteOrigin,
+                               ~~~~~~~~~~~
+
+server/storage.ts:1234:38 - error TS2339: Property 'wasteProductionProcess' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1234         wasteProductionProcess: fids.wasteProductionProcess,
+                                          ~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1237:27 - error TS2339: Property 'isDangerous' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1237         isDangerous: fids.isDangerous,
+                               ~~~~~~~~~~~
+
+server/storage.ts:1238:26 - error TS2339: Property 'dangerCode' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1238         dangerCode: fids.dangerCode,
+                              ~~~~~~~~~~
+
+server/storage.ts:1240:33 - error TS2339: Property 'estimatedQuantity' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1240         estimatedQuantity: fids.estimatedQuantity,
+                                     ~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1241:28 - error TS2339: Property 'quantityUnit' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1241         quantityUnit: fids.quantityUnit,
+                                ~~~~~~~~~~~~
+
+server/storage.ts:1242:25 - error TS2339: Property 'frequency' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1242         frequency: fids.frequency,
+                             ~~~~~~~~~
+
+server/storage.ts:1243:37 - error TS2339: Property 'conditionalAcceptance' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1243         conditionalAcceptance: fids.conditionalAcceptance,
+                                         ~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1244:47 - error TS2339: Property 'conditionalAcceptanceConditions' does not exist on type 'PgTableWithColumns<{ name: "fids"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "fids"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 44 more ...; updatedAt: PgColu...'.
+
+1244         conditionalAcceptanceConditions: fids.conditionalAcceptanceConditions,
+                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/storage.ts:1269:15 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { userId: number | SQL<unknown> | Placeholder<string, any>; clientCompanyName: string | SQL<unknown> | Placeholder<string, any>; clientContactName: string | ... 1 more ... | Placeholder<...>; ... 42 more ...; rgpdConsent?: boolean | ... 2 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ userId: number; clientCompanyName: string; clientContactName: string; clientAddress: string; clientPhone: string; clientEmail: string; clientSiret: string; clientActivity: string; wasteName: string; ... 31 more ...; rgpdConsent?: boolean | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; clientCompanyName: string | SQL<unknown> | Placeholder<string, any>; clientContactName: string | ... 1 more ... | Placeholder<...>; ... 42 more ...; rgpdConsent?: boolean | ... 2 more ... | undefined; }'.
+      Types of property 'constituents' are incompatible.
+        Type '{ [x: number]: { name: string; percentage: string; }; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SQL<unknown> | { name: string; percentage: string; }[] | Placeholder<string, any>'.
+          Type '{ [x: number]: { name: string; percentage: string; }; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type '{ name: string; percentage: string; }[]'.
+            The types returned by 'pop()' are incompatible between these types.
+              Type 'unknown' is not assignable to type '{ name: string; percentage: string; } | undefined'.
+  Overload 2 of 2, '(values: { userId: number | SQL<unknown> | Placeholder<string, any>; clientCompanyName: string | SQL<unknown> | Placeholder<string, any>; clientContactName: string | ... 1 more ... | Placeholder<...>; ... 42 more ...; rgpdConsent?: boolean | ... 2 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ userId: number; clientCompanyName: string; clientContactName: string; clientAddress: string; clientPhone: string; clientEmail: string; clientSiret: string; clientActivity: string; wasteName: string; ... 31 more ...; rgpdConsent?: boolean | undefined; }' is not assignable to parameter of type '{ userId: number | SQL<unknown> | Placeholder<string, any>; clientCompanyName: string | SQL<unknown> | Placeholder<string, any>; clientContactName: string | ... 1 more ... | Placeholder<...>; ... 42 more ...; rgpdConsent?: boolean | ... 2 more ... | undefined; }[]'.
+      Type '{ userId: number; clientCompanyName: string; clientContactName: string; clientAddress: string; clientPhone: string; clientEmail: string; clientSiret: string; clientActivity: string; wasteName: string; ... 31 more ...; rgpdConsent?: boolean | undefined; }' is missing the following properties from type '{ userId: number | SQL<unknown> | Placeholder<string, any>; clientCompanyName: string | SQL<unknown> | Placeholder<string, any>; clientContactName: string | ... 1 more ... | Placeholder<...>; ... 42 more ...; rgpdConsent?: boolean | ... 2 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+
+1269       .values(fid)
+                   ~~~
+
+
+server/storage.ts:1277:12 - error TS2345: Argument of type '{ updatedAt: Date; clientCompanyName?: string | undefined; clientContactName?: string | undefined; clientAddress?: string | undefined; clientPhone?: string | undefined; clientEmail?: string | undefined; ... 36 more ...; rgpdConsent?: boolean | undefined; }' is not assignable to parameter of type '{ userId?: number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; clientCompanyName?: string | SQL<...> | PgColumn<...> | undefined; ... 43 more ...; rgpdConsent?: boolean | ... 2 more ... | undefined; }'.
+  Types of property 'constituents' are incompatible.
+    Type '{ [x: number]: { name: string; percentage: string; }; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; } | undefined' is not assignable to type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | { name: string; percentage: string; }[] | undefined'.
+      Type '{ [x: number]: { name: string; percentage: string; }; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | { name: string; percentage: string; }[] | undefined'.
+        Type '{ [x: number]: { name: string; percentage: string; }; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type '{ name: string; percentage: string; }[]'.
+          The types returned by 'pop()' are incompatible between these types.
+            Type 'unknown' is not assignable to type '{ name: string; percentage: string; } | undefined'.
+
+1277       .set({
+                ~
+1278         ...fid,
+     ~~~~~~~~~~~~~~~
+1279         updatedAt: new Date()
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1280       })
+     ~~~~~~~
+
+server/surveyService.ts:37:9 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(survey: { orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; ... 8 more ...; suggestions?: string | undefined; }): Promise<...>', gave the following error.
+    Object literal may only specify known properties, and 'token' does not exist in type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }'.
+  Overload 2 of 2, '(survey: { orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; ... 8 more ...; suggestions?: string | undefined; }): Promise<...>', gave the following error.
+    Object literal may only specify known properties, and 'token' does not exist in type '{ orderId: number; overallSatisfaction: number; serviceQuality: number; deliveryTiming: number; pickupTiming: number; customerService: number; valueForMoney: number; npsScore: number; wouldUseAgain: boolean; ... 7 more ...; suggestions?: string | undefined; }'.
+
+37         token,
+           ~~~~~
+
+
+server/surveyService.ts:88:47 - error TS2551: Property 'sendSatisfactionSurvey' does not exist on type 'SendGridService'. Did you mean 'sendSatisfactionSurveyEmail'?
+
+88       const emailSent = await sendGridService.sendSatisfactionSurvey(
+                                                 ~~~~~~~~~~~~~~~~~~~~~~
+
+  server/sendgridService.ts:1110:9
+    1110   async sendSatisfactionSurveyEmail(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'sendSatisfactionSurveyEmail' is declared here.
+
+server/surveyService.ts:133:36 - error TS2339: Property 'getOrdersByDateRange' does not exist on type 'DatabaseStorage'.
+
+133       const orders = await storage.getOrdersByDateRange(weekAgo, weekAgoEnd);
+                                       ~~~~~~~~~~~~~~~~~~~~
+
+server/surveyService.ts:134:45 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+134       const deliveredOrders = orders.filter(order => order.status === 'delivered' || order.status === 'livre');
+                                                ~~~~~
+
+server/vite.ts:39:5 - error TS2322: Type '{ middlewareMode: boolean; hmr: { server: Server<typeof IncomingMessage, typeof ServerResponse>; }; allowedHosts: boolean; }' is not assignable to type 'ServerOptions'.
+  Types of property 'allowedHosts' are incompatible.
+    Type 'boolean' is not assignable to type 'true | string[] | undefined'.
+
+39     server: serverOptions,
+       ~~~~~~
+

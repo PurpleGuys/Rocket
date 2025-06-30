@@ -33,7 +33,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {orders?.slice(0, 10).map((order: any) => (
+              {Array.isArray(orders) && orders.slice(0, 10).map((order: any) => (
                 <tr key={order.id}>
                   <td className="p-3">
                     <span className="font-mono text-primary-600">{order.orderNumber}</span>
