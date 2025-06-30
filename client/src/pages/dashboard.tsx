@@ -59,13 +59,13 @@ import {
 // Composant Google Maps pour affichage interactif
 function GoogleMapComponent({ clients }: { clients: any[] }) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
 
   // Récupérer la clé API Google Maps depuis le backend
-  const { data: mapsConfig, error: mapsError } = useQuery<MapsConfig>({
+  const { data: mapsConfig, error: mapsError } = useQuery<any>({
     queryKey: ['/api/maps/config'],
     retry: false,
   });
