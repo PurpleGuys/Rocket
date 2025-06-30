@@ -1,0 +1,118 @@
+
+ubuntu@vps-41d62757:~/REM-Bennes$ ./https-deployment-fixed.sh
+🔐 Déploiement HTTPS PRODUCTION - purpleguy.world (CORRIGÉ)
+==========================================================
+🔍 Vérifications préalables...
+📡 Vérification DNS pour purpleguy.world...
+   Domaine purpleguy.world pointe vers: 162.19.67.3
+   Serveur IP: 162.19.67.3
+✅ DNS correctement configuré
+📁 Création des dossiers SSL...
+🔧 Création configuration nginx temporaire...
+🔄 Application de la configuration temporaire...
+🔄 Redémarrage nginx avec configuration Let's Encrypt...
+Stops containers and removes containers, networks, volumes, and images
+created by `up`.
+
+By default, the only things removed are:
+
+- Containers for services defined in the Compose file
+- Networks defined in the `networks` section of the Compose file
+- The default network, if one is used
+
+Networks and volumes defined as `external` are never removed.
+
+Usage: down [options]
+
+Options:
+    --rmi type              Remove images. Type must be one of:
+                              'all': Remove all images used by any service.
+                              'local': Remove only images that don't have a
+                              custom tag set by the `image` field.
+    -v, --volumes           Remove named volumes declared in the `volumes`
+                            section of the Compose file and anonymous volumes
+                            attached to containers.
+    --remove-orphans        Remove containers for services not defined in the
+                            Compose file
+    -t, --timeout TIMEOUT   Specify a shutdown timeout in seconds.
+                            (default: 10)
+Creating network "rem-bennes_default" with the default driver
+Creating rem-bennes_redis_1    ... done
+Creating rem-bennes_postgres_1 ... done
+Creating rem-bennes_app_1      ... done
+Creating rem-bennes_nginx_1    ...
+Creating rem-bennes_nginx_1    ... error
+
+ERROR: for rem-bennes_nginx_1  Cannot start service nginx: driver failed programming external connectivity on endpoint rem-bennes_nginx_1 (4ac10f41d6229808adf6bbd155167158b7b6429f635a7aabcaf49964ef19c53c): failed to bind port 0.0.0.0:80/tcp: Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use
+
+ERROR: for nginx  Cannot start service nginx: driver failed programming external connectivity on endpoint rem-bennes_nginx_1 (4ac10f41d6229808adf6bbd155167158b7b6429f635a7aabcaf49964ef19c53c): failed to bind port 0.0.0.0:80/tcp: Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use
+ERROR: Encountered errors while bringing up the project.
+⏳ Attente démarrage nginx...
+🧪 Test accès au serveur...
+⚠️  Serveur accessible mais réponse différente
+🔐 Obtention du certificat SSL Let's Encrypt...
+   Mode PRODUCTION
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Requesting a certificate for purpleguy.world and www.purpleguy.world
+
+Certbot failed to authenticate some domains (authenticator: webroot). The Certificate Authority reported these problems:
+  Domain: www.purpleguy.world
+  Type:   unauthorized
+  Detail: 162.19.67.3: Invalid response from https://www.purpleguy.world/.well-known/acme-challenge/hbAJKyLqwj9d_BG8FjC4cHTJZEa1t-8i_k--cQKHrW0: 404
+
+Hint: The Certificate Authority failed to download the temporary challenge files created by Certbot. Ensure that the listed domains serve their content from the provided --webroot-path/-w and that files created there can be downloaded from the internet.
+
+Some challenges have failed.
+Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencrypt.log or re-run Certbot with -v for more details.
+❌ Échec de l'obtention du certificat SSL
+
+Debug:
+Contenu dossier certbot:
+total 20
+drwxrwxr-x 5 ubuntu ubuntu 4096 Jun 30 14:59 .
+drwxrwxr-x 4 ubuntu ubuntu 4096 Jun 30 14:43 ..
+drwx------ 3 root   root   4096 Jun 30 14:43 accounts
+drwxr-xr-x 2 root   root   4096 Jun 30 14:43 renewal
+drwxr-xr-x 5 root   root   4096 Jun 30 14:43 renewal-hooks
+
+Logs certbot:
+usage:
+  certbot [SUBCOMMAND] [options] [-d DOMAIN] [-d DOMAIN] ...
+
+Certbot can obtain and install HTTPS/TLS/SSL certificates.  By default,
+it will attempt to use a webserver both for obtaining and installing the
+certificate.
+certbot: error: unrecognized arguments: logs
+
+Test manuel:
+* Host purpleguy.world:80 was resolved.
+* IPv6: (none)
+* IPv4: 162.19.67.3
+*   Trying 162.19.67.3:80...
+* Connected to purpleguy.world (162.19.67.3) port 80
+> GET /.well-known/acme-challenge/ HTTP/1.1
+> Host: purpleguy.world
+> User-Agent: curl/8.9.1
+> Accept: */*
+>
+* Request completely sent off
+< HTTP/1.1 301 Moved Permanently
+< Server: nginx/1.26.0 (Ubuntu)
+< Date: Mon, 30 Jun 2025 14:59:10 GMT
+< Content-Type: text/html
+< Content-Length: 178
+< Connection: keep-alive
+< Location: https://purpleguy.world/.well-known/acme-challenge/
+<
+<html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved Permanently</h1></center>
+<hr><center>nginx/1.26.0 (Ubuntu)</center>
+</body>
+</html>
+* Connection #0 to host purpleguy.world left intact
+Restarting rem-bennes_nginx_1 ... error
+
+ERROR: for rem-bennes_nginx_1  Cannot restart container aa0cbf2876caef7974b27c076f6c05de8b1a2c2dd5cddb02aedad94986ac801d: driver failed programming external connectivity on endpoint rem-bennes_nginx_1 (e23336e1cd805adcae24a69cd7fab872042c81398e91e900a21d130bc8e9e6dd): failed to bind port 0.0.0.0:80/tcp: Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use
+ubuntu@vps-41d62757:~/REM-Bennes$
