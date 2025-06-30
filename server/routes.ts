@@ -98,6 +98,8 @@ const generalLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: { message: "Trop de requêtes. Réessayez plus tard." },
+  standardHeaders: true,
+  legacyHeaders: false,
 }) : (req: any, res: any, next: any) => next();
 
 // Configuration de multer pour l'upload des fichiers
@@ -151,9 +153,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }));
   }
   
-  // Only enable rate limiting in production
+  // Configure trust proxy and rate limiting for production
   if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', true);
+    // Configuration sécurisée du proxy pour Docker/nginx
+    app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
     app.use(generalLimiter);
   }
 
