@@ -79,7 +79,7 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
   // Fonction pour convertir le chemin d'image uploadée en URL accessible
   const getImageUrl = (imagePath: string) => {
     if (imagePath.startsWith('@assets/')) {
-      // Images dans les assets
+      // Images dans les assets - utiliser les SVG générés
       const assetPath = imagePath.replace('@assets/', '');
       switch (assetPath) {
         case 'Face.png': return face;
@@ -87,11 +87,12 @@ export function SimpleContainerImage({ serviceName, volume, serviceId, className
         case 'cotégauche.png': return coteGauche;
         case '22M3 petit man.png': return benne22m3;
         case '667966dbb7a2c-bpfull_1749545669321.jpg': return benneGeneral;
+        case 'unnamed_1749545447846.webp': return unnamedBenne;
         default: return face;
       }
     } else if (imagePath.startsWith('/uploads/')) {
       // Images uploadées - servir depuis le serveur
-      return `http://localhost:5000${imagePath}`;
+      return `/api${imagePath}`;
     }
     return face; // fallback
   };
