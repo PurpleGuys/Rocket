@@ -10,11 +10,12 @@ DOMAIN="purpleguy.world"
 echo "🚀 SIMPLE DEPLOYMENT"
 echo "===================="
 
-# Transfer files
-scp -r dist/ server/ client/ shared/ package.json $VPS_USER@$VPS_IP:/tmp/bennespro/
+# Create temp directory and transfer files
+ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p /tmp/bennespro"
+scp -o StrictHostKeyChecking=no -r dist/ server/ client/ shared/ package.json $VPS_USER@$VPS_IP:/tmp/bennespro/
 
 # Install and run on VPS
-ssh $VPS_USER@$VPS_IP << 'REMOTE'
+ssh -o StrictHostKeyChecking=no -T $VPS_USER@$VPS_IP << 'REMOTE'
 set -e
 
 # Install Node.js if needed
