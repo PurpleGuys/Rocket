@@ -2225,6 +2225,25 @@ if groups $USER | grep -q docker; then
 
     docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
 
+    # Attendre que tous les conteneurs soient complètement démarrés
+    echo "⏳ Attente que tous les conteneurs soient prêts..."
+    sleep 15
+    
+    # Vérifier l'état des conteneurs
+    docker ps --filter "name=bennespro" --format "table {{.Names}}\t{{.Status}}"
+    
+    # Attendre spécifiquement que l'application soit prête
+    echo "🔧 Vérification de l'état du conteneur d'application..."
+    for i in {1..10}; do
+        if docker exec bennespro_app echo "Container ready" 2>/dev/null; then
+            echo "✅ Conteneur d'application prêt"
+            break
+        else
+            echo "⏳ Attente du conteneur d'application... ($i/10)"
+            sleep 10
+        fi
+    done
+    
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
     docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
@@ -2262,6 +2281,25 @@ else
 
     sudo docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
 
+    # Attendre que tous les conteneurs soient complètement démarrés
+    echo "⏳ Attente que tous les conteneurs soient prêts..."
+    sleep 15
+    
+    # Vérifier l'état des conteneurs
+    sudo docker ps --filter "name=bennespro" --format "table {{.Names}}\t{{.Status}}"
+    
+    # Attendre spécifiquement que l'application soit prête
+    echo "🔧 Vérification de l'état du conteneur d'application..."
+    for i in {1..10}; do
+        if sudo docker exec bennespro_app echo "Container ready" 2>/dev/null; then
+            echo "✅ Conteneur d'application prêt"
+            break
+        else
+            echo "⏳ Attente du conteneur d'application... ($i/10)"
+            sleep 10
+        fi
+    done
+    
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
     sudo docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
