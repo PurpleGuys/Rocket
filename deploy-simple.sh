@@ -35,11 +35,11 @@ cp -r /tmp/bennespro/* /var/www/bennespro/
 
 cd /var/www/bennespro
 
-# Create .env
+# Create production .env with Neon database
 cat > .env << 'ENV'
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://remondis_db:Remondis60110$@localhost:5432/remondis_db
+DATABASE_URL=$DATABASE_URL
 SESSION_SECRET=f6b3e76ee636d248b8c85091425ae4fe9de4a8011b1fa17d30f0fcf13f5c2df2b5a5c1c4109dd6b8c5e22eaae33feb872434e71cc2f17f64a3b4e72d40e2d4f5
 JWT_SECRET=85eb00206d3991c2ade3186cfad4e9265fc9d72cadbe698ba305884086bc3e29e5d11f92df517a684f4e4bd136507bb81b6ef79902e5eb96d98273f6c9bb1723
 ENV
