@@ -2048,9 +2048,9 @@ Environment=NODE_ENV=production
 Environment=DATABASE_URL=postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
 Environment=JWT_SECRET=$JWT_SECRET
 Environment=SESSION_SECRET=$SESSION_SECRET
-ExecStartPre=/usr/bin/docker_compose_cmd -f $INSTALL_DIR/docker-compose.yml up -d
+ExecStartPre=/bin/bash -c 'cd $INSTALL_DIR && if command -v docker-compose &> /dev/null; then docker-compose up -d; else docker compose up -d; fi'
 ExecStart=/usr/bin/npm run start
-ExecStop=/usr/bin/docker_compose_cmd -f $INSTALL_DIR/docker-compose.yml down
+ExecStop=/bin/bash -c 'cd $INSTALL_DIR && if command -v docker-compose &> /dev/null; then docker-compose down; else docker compose down; fi'
 Restart=always
 RestartSec=10
 

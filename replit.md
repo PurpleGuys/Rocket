@@ -21,6 +21,7 @@ A comprehensive waste management and sustainability platform that leverages inte
 ✓ RESOLVED Vite build issue - moved critical build dependencies to main dependencies for production builds
 ✓ Simplified Docker build process to use development mode for reliable startup
 ✓ Application now running successfully on port 5000 with full functionality
+✓ FIXED Docker Compose command compatibility - added support for both legacy "docker-compose" and modern "docker compose" syntax
 
 ## Project Architecture
 
