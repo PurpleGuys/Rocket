@@ -1,58 +1,43 @@
-# BennesPro Production - Votre application TypeScript complète
+# BennesPro Production - Express Simple
 FROM node:18-alpine
 
-# Installer bash et outils nécessaires
-RUN apk add --no-cache bash curl postgresql-client tini
+# Installer les outils nécessaires
+RUN apk add --no-cache bash curl
 
 # Créer utilisateur non-root
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S bennespro -u 1001
 
-# Définir le répertoire de travail
-WORKDIR /opt/bennespro
+# Répertoire de travail
+WORKDIR /app
 
-# Copier package.json en premier pour cache Docker
+# Copier et installer les dépendances
 COPY package*.json ./
+RUN npm ci --only=production
 
-# Installer toutes les dépendances
-RUN npm ci
+# Copier votre application complète
+COPY . .
 
-# Installer tsx globalement pour production TypeScript
-RUN npm install -g tsx
+# Copier le serveur Express
+COPY server-express-prod.js ./
 
-# Copier tous les fichiers de configuration
-COPY tsconfig.json vite.config.ts tailwind.config.ts postcss.config.js components.json ./
+# Créer les dossiers et permissions
+RUN mkdir -p uploads logs client/dist
+RUN chown -R bennespro:nodejs /app
 
-# Copier tout le code source complet
-COPY client/ ./client/
-COPY server/ ./server/
-COPY shared/ ./shared/
-COPY uploads/ ./uploads/
-
-# Copier les fichiers de configuration supplémentaires
-COPY drizzle.config.js ./
-COPY .env* ./
-
-# Créer les dossiers nécessaires et définir les permissions
-RUN mkdir -p uploads client/dist logs migrations
-RUN chown -R bennespro:nodejs . && chmod -R 755 uploads logs
-
-# Variables d'environnement pour production
+# Variables d'environnement
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Utiliser l'utilisateur non-root
+# Utilisateur non-root
 USER bennespro
 
-# Exposer le port
+# Port
 EXPOSE 5000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Point d'entrée avec Tini
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Commande de démarrage avec votre vrai serveur TypeScript
-CMD ["npx", "tsx", "server/index.ts"]
+# Démarrage Express simple
+CMD ["node", "server-express-prod.js"]
