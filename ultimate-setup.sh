@@ -2263,9 +2263,17 @@ if groups $USER | grep -q docker; then
     echo "🔧 Redémarrage forcé du conteneur application..."
     docker restart bennespro_app
     
-    # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
-    echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
+    # CORRECTION CRITIQUE: Forcer l'utilisation de drizzle.config.js ET corriger les credentials PostgreSQL
+    echo "🔧 CORRECTION CRITIQUE: Contournement TypeScript + Fix credentials PostgreSQL..."
+    
+    # Renommer le fichier TypeScript défaillant
     docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
+    
+    # Corriger les credentials PostgreSQL dans le container
+    echo "🔑 Correction des credentials PostgreSQL..."
+    docker exec bennespro_postgres psql -U postgres -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" || true
+    docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
+    docker exec bennespro_postgres psql -U postgres -c "GRANT ALL ON SCHEMA public TO $DB_USER;" || true
     
     # Maintenant utiliser Drizzle avec la configuration JavaScript
     docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js || {
@@ -2331,9 +2339,17 @@ else
     echo "🔧 Redémarrage forcé du conteneur application..."
     sudo docker restart bennespro_app
     
-    # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
-    echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
+    # CORRECTION CRITIQUE: Forcer l'utilisation de drizzle.config.js ET corriger les credentials PostgreSQL
+    echo "🔧 CORRECTION CRITIQUE: Contournement TypeScript + Fix credentials PostgreSQL..."
+    
+    # Renommer le fichier TypeScript défaillant
     sudo docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
+    
+    # Corriger les credentials PostgreSQL dans le container
+    echo "🔑 Correction des credentials PostgreSQL..."
+    sudo docker exec bennespro_postgres psql -U postgres -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" || true
+    sudo docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
+    sudo docker exec bennespro_postgres psql -U postgres -c "GRANT ALL ON SCHEMA public TO $DB_USER;" || true
     
     sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."

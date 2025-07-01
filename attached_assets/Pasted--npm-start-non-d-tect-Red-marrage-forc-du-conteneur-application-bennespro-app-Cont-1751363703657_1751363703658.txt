@@ -1,0 +1,55 @@
+
+⚠️ npm start non détecté
+🔧 Redémarrage forcé du conteneur application...
+bennespro_app
+🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript...
+Reading config file '/app/drizzle.config.js'
+[dotenv@17.0.0] injecting env (114) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+✅ Configuration Drizzle avec DATABASE_URL: postgresql://remondis_db:***@postgres:5432/remondis_db
+Using 'pg' driver for database querying
+[⣷] Pulling schema from database...
+error: password authentication failed for user "remondis_db"
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:78355:26)
+    at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19095:25) {
+  length: 107,
+  severity: 'FATAL',
+  code: '28P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'auth.c',
+  line: '326',
+  routine: 'auth_failed'
+}
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.4.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+npm notice To update run: npm install -g npm@11.4.2
+npm notice
+✅ Base de données initialisée (ou déjà prête)
+⚙️ Création du service systemd BennesPro...
+🐳 Démarrage des services Docker...
+WARN[0000] /opt/bennespro/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Running 2/2
+ ✔ Container bennespro_postgres  Running                                                                                                                                                                 0.0s
+ ✔ Container bennespro_app       Running                                                                                                                                                                 0.0s
+⏳ Attente que PostgreSQL soit prêt...
+🗄️ Population de la base de données...
+
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/opt/bennespro/drizzle.config.ts'
+Transform failed with 1 error:
+/opt/bennespro/drizzle.config.ts:3:29: ERROR: Expected ")" but found ":"
