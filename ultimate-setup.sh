@@ -2026,9 +2026,30 @@ sed -i "s/POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$DB_PASSWORD/" $INSTALL_DIR/doc
 sed -i "s/REDIS_PASSWORD_PLACEHOLDER/$REDIS_PASSWORD/g" $INSTALL_DIR/redis.conf
 sed -i "s/DATABASE_URL=.*/DATABASE_URL=postgresql:\/\/$DB_USER:$DB_PASSWORD@postgres:5432\/$DB_NAME/" $INSTALL_DIR/docker-compose.yml
 
-# Remplacer dans drizzle.config.ts
-echo "🗄️ Mise à jour drizzle.config.ts..."
-sed -i "s|DATABASE_URL.*|DATABASE_URL: 'postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME',|" $INSTALL_DIR/drizzle.config.ts
+# CORRECTION FINALE: Créer drizzle.config.js au lieu du fichier TypeScript défaillant
+echo "🗄️ Création drizzle.config.js fonctionnel..."
+cat > $INSTALL_DIR/drizzle.config.js << 'DRIZZLEEOF'
+require('dotenv').config();
+
+if (!process.env.DATABASE_URL) {
+  console.log('⚠️ DATABASE_URL non défini, utilisation de la valeur par défaut');
+}
+
+module.exports = {
+  schema: './shared/schema.ts',
+  out: './migrations',
+  dialect: 'postgresql',
+  dbCredentials: {
+    url: process.env.DATABASE_URL || 'postgresql://remondis_db:Remondis60110$@postgres:5432/remondis_db',
+  },
+  verbose: true,
+  strict: true,
+};
+DRIZZLEEOF
+
+# Supprimer le fichier TypeScript problématique
+echo "🗑️ Suppression drizzle.config.ts défaillant..."
+mv "$INSTALL_DIR/drizzle.config.ts" "$INSTALL_DIR/drizzle.config.ts.broken" 2>/dev/null || true
 
 # Remplacer dans server/db.ts
 echo "🔧 Mise à jour server/db.ts..."
