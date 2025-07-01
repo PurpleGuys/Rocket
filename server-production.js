@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * Serveur de production simple - Node.js pur
- * Sans dépendances TypeScript ou Vite
+ * Serveur de production BennesPro - Version complète
+ * Charge votre vraie application avec toutes les fonctionnalités développées
  */
 
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import { config } from "dotenv";
+
+// Charger les variables d'environnement
+config();
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -47,24 +51,48 @@ app.use((req, res, next) => {
   next();
 });
 
-// Route API de test simple
+// Importer les vraies routes BennesPro
+import { storage } from "./server/storage.js";
+
+// Route API de santé
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    message: 'BennesPro Production Server Running'
+    message: 'BennesPro Production Server Running',
+    version: '1.0.0'
   });
 });
 
-// Route API pour services (simulation)
-app.get('/api/services', (req, res) => {
-  res.json({
-    services: [
-      { id: 1, name: "Benne 10m³", volume: 10, basePrice: "150.00" },
-      { id: 2, name: "Benne 20m³", volume: 20, basePrice: "250.00" },
-      { id: 3, name: "Benne 30m³", volume: 30, basePrice: "350.00" }
-    ]
-  });
+// Routes API réelles de BennesPro
+app.get('/api/services', async (req, res) => {
+  try {
+    const services = await storage.getServices();
+    res.json(services);
+  } catch (error) {
+    log(`Error fetching services: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching services' });
+  }
+});
+
+app.get('/api/waste-types', async (req, res) => {
+  try {
+    const wasteTypes = await storage.getWasteTypes();
+    res.json(wasteTypes);
+  } catch (error) {
+    log(`Error fetching waste types: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching waste types' });
+  }
+});
+
+app.get('/api/treatment-pricing', async (req, res) => {
+  try {
+    const pricing = await storage.getTreatmentPricing();
+    res.json(pricing);
+  } catch (error) {
+    log(`Error fetching treatment pricing: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching treatment pricing' });
+  }
 });
 
 // Servir les fichiers statiques du frontend
