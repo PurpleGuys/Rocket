@@ -1,0 +1,128 @@
+import { defineConfig } from "drizzle-kit";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL, ensure the database is provisioned");
+}
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./shared/schema.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+}); 
+
+
+ChatGPT a dit :
+Ton fichier drizzle.config.ts est presque correct, mais tu as une erreur typique : les variables d'environnement ne sont pas automatiquement injectées dans les fichiers .ts à moins que tu charges le fichier .env.
+
+✅ Solution
+Ajoute le chargement du fichier .env avec dotenv en haut du fichier, comme ceci :
+
+ts
+Copier
+Modifier
+import { defineConfig } from "drizzle-kit";
+import * as dotenv from "dotenv";
+
+dotenv.config(); // ✅ Charge les variables du fichier .env
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL, ensure the database is provisioned");
+}
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./shared/schema.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+});
+📦 Assure-toi d’avoir installé dotenv
+Si ce n’est pas encore fait :
+
+bash
+Copier
+Modifier
+npm install dotenv
+✅ Vérifie aussi que ton fichier .env (à la racine du projet) contient bien ta variable :
+bash
+Copier
+Modifier
+DATABASE_URL=postgresql://postgres:motdepasse@postgres:5432/remondis_db
+Attention : dans un environnement Docker, la variable DATABASE_URL doit être accessible dans le conteneur. Tu dois donc t'assurer qu’elle est bien chargée dans le conteneur via env_file: dans le docker-compose.yml, ou passée manuellement.
+
+Si tu veux que je vérifie l'intégralité de ta config ou ton .env, envoie-les-moi.
+
+
+
+
+
+
+
+
+Vous avez dit :
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/opt/bennespro/drizzle.config.ts'
+Transform failed with 1 error:
+/opt/bennespro/drizzle.config.ts:3:29: ERROR: Expected ")" but found ":"
+
+
+ChatGPT a dit :
+L’erreur :
+
+vbnet
+Copier
+Modifier
+Transform failed with 1 error:
+/opt/bennespro/drizzle.config.ts:3:29: ERROR: Expected ")" but found ":"
+signale un problème de syntaxe TypeScript non reconnue par Drizzle Kit, car drizzle-kit utilise esbuild en arrière-plan, qui n’interprète pas nativement le typage TypeScript dans les fichiers de config.
+
+🎯 Solution
+Tu dois renommer ton fichier drizzle.config.ts en drizzle.config.mjs et le réécrire en JavaScript pur compatible ES Modules (sans typings TypeScript).
+
+✅ Exemple fonctionnel (drizzle.config.mjs)
+js
+Copier
+Modifier
+import { config } from "dotenv";
+import { defineConfig } from "drizzle-kit";
+
+config(); // charge .env
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL, ensure the database is provisioned");
+}
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./shared/schema.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+});
+📁 Et dans ton package.json, mets à jour ce champ si nécessaire :
+json
+Copier
+Modifier
+"type": "module"
+⏭ Étapes suivantes :
+Supprime l'ancien drizzle.config.ts
+
+Crée drizzle.config.mjs avec le code ci-dessus
+
+Exécute :
+
+bash
+Copier
+Modifier
+npx drizzle-kit push
+Et ça devrait fonctionner 🎉
+
+Dis-moi si tu veux une version avec chemins absolus, ou intégration dans Docker !

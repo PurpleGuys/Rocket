@@ -2225,8 +2225,11 @@ if groups $USER | grep -q docker; then
 
     docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
 
+    # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
+    echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
+    docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
+    
     # Maintenant utiliser Drizzle avec la configuration JavaScript
-    echo "🔧 Utilisation du fichier drizzle.config.js pour contourner l'erreur TypeScript..."
     docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
         docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || {
@@ -2234,6 +2237,9 @@ if groups $USER | grep -q docker; then
             docker exec bennespro_postgres psql -U $DB_USER -d $DB_NAME -f /opt/bennespro/init-database.sql 2>/dev/null || true
         }
     }
+    
+    # Restaurer le fichier TypeScript pour ne pas casser l'environnement de développement
+    docker exec bennespro_app bash -c "mv drizzle.config.ts.bak drizzle.config.ts 2>/dev/null || true"
 else
     # Même logique avec sudo
     sudo docker exec bennespro_postgres psql -U postgres -c "
@@ -2256,6 +2262,10 @@ else
 
     sudo docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
 
+    # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
+    echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
+    sudo docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
+    
     sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
         sudo docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || {
@@ -2263,6 +2273,9 @@ else
             sudo docker exec bennespro_postgres psql -U $DB_USER -d $DB_NAME -f /opt/bennespro/init-database.sql 2>/dev/null || true
         }
     }
+    
+    # Restaurer le fichier TypeScript pour ne pas casser l'environnement de développement
+    sudo docker exec bennespro_app bash -c "mv drizzle.config.ts.bak drizzle.config.ts 2>/dev/null || true"
 fi
 
 echo "✅ Base de données initialisée (ou déjà prête)"
