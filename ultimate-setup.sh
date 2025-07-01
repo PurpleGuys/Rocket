@@ -36,6 +36,10 @@ ENVIRONMENT="production"
 SERVER_LOCATION="europe"
 TIMEZONE="Europe/Paris"
 
+# Répertoires
+PROJECT_DIR=$(pwd)  # REM-Bennes (répertoire actuel)
+INSTALL_DIR="/opt/$APP_NAME"
+
 # API Keys par défaut (à remplacer en production)
 DEFAULT_SENDGRID_KEY="SG.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 DEFAULT_GOOGLE_MAPS_KEY="AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -48,6 +52,35 @@ echo "   📧 Email: $EMAIL"
 echo "   🏢 App: $APP_NAME"
 echo "   🗄️ Base de données: $DB_NAME"
 echo "   🌍 Environnement: $ENVIRONMENT"
+echo "   📁 Répertoire projet: $PROJECT_DIR"
+echo "   📂 Répertoire installation: $INSTALL_DIR"
+
+# ==========================================
+# 0. COPIE DU PROJET DEPUIS REM-Bennes
+# ==========================================
+echo ""
+echo "📁 0. Copie du projet REM-Bennes vers /opt/bennespro..."
+
+# Créer le répertoire d'installation
+mkdir -p $INSTALL_DIR
+
+# Copier TOUS les fichiers du projet (sauf .git)
+echo "📋 Copie de tous les fichiers du projet..."
+rsync -av --exclude='.git' --exclude='node_modules' --exclude='.env' $PROJECT_DIR/ $INSTALL_DIR/
+
+# Vérifier que les fichiers importants sont bien copiés
+if [ -f "$INSTALL_DIR/package.json" ] && [ -f "$INSTALL_DIR/drizzle.config.ts" ]; then
+    echo "✅ Projet copié avec succès vers $INSTALL_DIR"
+else
+    echo "❌ Erreur lors de la copie du projet"
+    exit 1
+fi
+
+# Donner les bonnes permissions
+chown -R root:root $INSTALL_DIR
+chmod +x $INSTALL_DIR/*.sh 2>/dev/null || true
+
+echo "✅ Copie du projet terminée"
 echo "   🕐 Timezone: $TIMEZONE"
 echo ""
 
@@ -1860,10 +1893,10 @@ echo "🎯 L'INSTALLATION EST À 100000000% COMPLÈTE!"
 echo "🚀 PRÊT POUR PRODUCTION ENTERPRISE NIVEAU!"
 
 # Créer le répertoire des credentials
-mkdir -p /opt/$APP_NAME/credentials
+mkdir -p $INSTALL_DIR/credentials
 
 # Sauvegarder TOUS les credentials importants
-cat > /opt/$APP_NAME/credentials/PRODUCTION_CREDENTIALS.txt << EOF
+cat > $INSTALL_DIR/credentials/PRODUCTION_CREDENTIALS.txt << EOF
 # ==========================================
 # BENNESPRO - CREDENTIALS PRODUCTION
 # ==========================================
@@ -1906,7 +1939,7 @@ INSTALLATION_DATE=$(date)
 INSTALLATION_USER=$USER
 EOF
 
-chmod 600 /opt/$APP_NAME/credentials/PRODUCTION_CREDENTIALS.txt
+chmod 600 $INSTALL_DIR/credentials/PRODUCTION_CREDENTIALS.txt
 
 # ==========================================
 # 21. ÉCRITURE DES CLÉS DANS LES FICHIERS IMPORTANTS
@@ -1915,28 +1948,28 @@ echo "🔑 21. Écriture automatique des clés dans tous les fichiers..."
 
 # Remplacer les clés dans .env
 echo "📝 Mise à jour .env avec vraies clés..."
-sed -i "s/DATABASE_URL=.*/DATABASE_URL=postgresql:\/\/$DB_USER:$DB_PASSWORD@localhost:5432\/$DB_NAME/" /opt/$APP_NAME/.env
-sed -i "s/JWT_SECRET=.*/JWT_SECRET=$JWT_SECRET/" /opt/$APP_NAME/.env
-sed -i "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" /opt/$APP_NAME/.env
-sed -i "s/ENCRYPTION_KEY=.*/ENCRYPTION_KEY=$ENCRYPTION_KEY/" /opt/$APP_NAME/.env
-sed -i "s/SENDGRID_API_KEY=.*/SENDGRID_API_KEY=$DEFAULT_SENDGRID_KEY/" /opt/$APP_NAME/.env
-sed -i "s/GOOGLE_MAPS_API_KEY=.*/GOOGLE_MAPS_API_KEY=$DEFAULT_GOOGLE_MAPS_KEY/" /opt/$APP_NAME/.env
-sed -i "s/STRIPE_SECRET_KEY=.*/STRIPE_SECRET_KEY=$DEFAULT_STRIPE_SECRET/" /opt/$APP_NAME/.env
-sed -i "s/STRIPE_PUBLISHABLE_KEY=.*/STRIPE_PUBLISHABLE_KEY=$DEFAULT_STRIPE_PUBLIC/" /opt/$APP_NAME/.env
+sed -i "s/DATABASE_URL=.*/DATABASE_URL=postgresql:\/\/$DB_USER:$DB_PASSWORD@localhost:5432\/$DB_NAME/" $INSTALL_DIR/.env
+sed -i "s/JWT_SECRET=.*/JWT_SECRET=$JWT_SECRET/" $INSTALL_DIR/.env
+sed -i "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" $INSTALL_DIR/.env
+sed -i "s/ENCRYPTION_KEY=.*/ENCRYPTION_KEY=$ENCRYPTION_KEY/" $INSTALL_DIR/.env
+sed -i "s/SENDGRID_API_KEY=.*/SENDGRID_API_KEY=$DEFAULT_SENDGRID_KEY/" $INSTALL_DIR/.env
+sed -i "s/GOOGLE_MAPS_API_KEY=.*/GOOGLE_MAPS_API_KEY=$DEFAULT_GOOGLE_MAPS_KEY/" $INSTALL_DIR/.env
+sed -i "s/STRIPE_SECRET_KEY=.*/STRIPE_SECRET_KEY=$DEFAULT_STRIPE_SECRET/" $INSTALL_DIR/.env
+sed -i "s/STRIPE_PUBLISHABLE_KEY=.*/STRIPE_PUBLISHABLE_KEY=$DEFAULT_STRIPE_PUBLIC/" $INSTALL_DIR/.env
 
 # Remplacer les clés dans docker-compose.yml
 echo "🐳 Mise à jour docker-compose.yml avec vraies clés..."
-sed -i "s/POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$DB_PASSWORD/" /opt/$APP_NAME/docker-compose.yml
-sed -i "s/REDIS_PASSWORD_PLACEHOLDER/$REDIS_PASSWORD/g" /opt/$APP_NAME/redis.conf
-sed -i "s/DATABASE_URL=.*/DATABASE_URL=postgresql:\/\/$DB_USER:$DB_PASSWORD@postgres:5432\/$DB_NAME/" /opt/$APP_NAME/docker-compose.yml
+sed -i "s/POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$DB_PASSWORD/" $INSTALL_DIR/docker-compose.yml
+sed -i "s/REDIS_PASSWORD_PLACEHOLDER/$REDIS_PASSWORD/g" $INSTALL_DIR/redis.conf
+sed -i "s/DATABASE_URL=.*/DATABASE_URL=postgresql:\/\/$DB_USER:$DB_PASSWORD@postgres:5432\/$DB_NAME/" $INSTALL_DIR/docker-compose.yml
 
 # Remplacer dans drizzle.config.ts
 echo "🗄️ Mise à jour drizzle.config.ts..."
-sed -i "s|DATABASE_URL.*|DATABASE_URL: 'postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME',|" /opt/$APP_NAME/drizzle.config.ts
+sed -i "s|DATABASE_URL.*|DATABASE_URL: 'postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME',|" $INSTALL_DIR/drizzle.config.ts
 
 # Remplacer dans server/db.ts
 echo "🔧 Mise à jour server/db.ts..."
-cat > /opt/$APP_NAME/server/db.ts << 'DBEOF'
+cat > $INSTALL_DIR/server/db.ts << 'DBEOF'
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
@@ -1951,9 +1984,9 @@ export const db = drizzle({ client: pool, schema });
 DBEOF
 
 # Remplacer les placeholders dans server/db.ts
-sed -i "s/PLACEHOLDER_DB_USER/$DB_USER/g" /opt/$APP_NAME/server/db.ts
-sed -i "s/PLACEHOLDER_DB_PASSWORD/$DB_PASSWORD/g" /opt/$APP_NAME/server/db.ts
-sed -i "s/PLACEHOLDER_DB_NAME/$DB_NAME/g" /opt/$APP_NAME/server/db.ts
+sed -i "s/PLACEHOLDER_DB_USER/$DB_USER/g" $INSTALL_DIR/server/db.ts
+sed -i "s/PLACEHOLDER_DB_PASSWORD/$DB_PASSWORD/g" $INSTALL_DIR/server/db.ts
+sed -i "s/PLACEHOLDER_DB_NAME/$DB_NAME/g" $INSTALL_DIR/server/db.ts
 
 echo "✅ Toutes les clés écrites dans les fichiers importants"
 
@@ -1963,7 +1996,7 @@ echo "✅ Toutes les clés écrites dans les fichiers importants"
 echo "🚀 22. Installation et lancement automatique de l'application..."
 
 # Aller dans le répertoire de l'application
-cd /opt/$APP_NAME
+cd $INSTALL_DIR
 
 # Installer les dépendances
 echo "📦 Installation des dépendances npm..."
@@ -1996,14 +2029,14 @@ Requires=docker.service
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/$APP_NAME
+WorkingDirectory=$INSTALL_DIR
 Environment=NODE_ENV=production
 Environment=DATABASE_URL=postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
 Environment=JWT_SECRET=$JWT_SECRET
 Environment=SESSION_SECRET=$SESSION_SECRET
-ExecStartPre=/usr/bin/docker-compose -f /opt/$APP_NAME/docker-compose.yml up -d
+ExecStartPre=/usr/bin/docker-compose -f $INSTALL_DIR/docker-compose.yml up -d
 ExecStart=/usr/bin/npm run start
-ExecStop=/usr/bin/docker-compose -f /opt/$APP_NAME/docker-compose.yml down
+ExecStop=/usr/bin/docker-compose -f $INSTALL_DIR/docker-compose.yml down
 Restart=always
 RestartSec=10
 
@@ -2017,7 +2050,7 @@ systemctl enable bennespro.service
 
 # Démarrer Docker Compose d'abord
 echo "🐳 Démarrage des services Docker..."
-cd /opt/$APP_NAME
+cd $INSTALL_DIR
 docker-compose up -d
 
 # Attendre que PostgreSQL soit prêt
@@ -2158,8 +2191,8 @@ echo "================================================================="
 
 # Afficher les informations finales importantes
 # Copier le script de lancement automatique
-cp auto-launch-app.sh /opt/$APP_NAME/
-chmod +x /opt/$APP_NAME/auto-launch-app.sh
+cp auto-launch-app.sh $INSTALL_DIR/
+chmod +x $INSTALL_DIR/auto-launch-app.sh
 
 # LANCER AUTOMATIQUEMENT L'APPLICATION MAINTENANT !
 echo ""
@@ -2167,17 +2200,17 @@ echo "🔥 LANCEMENT AUTOMATIQUE DE L'APPLICATION..."
 echo "============================================"
 
 # Exécuter le script de lancement
-/opt/$APP_NAME/auto-launch-app.sh
+$INSTALL_DIR/auto-launch-app.sh
 
 # Message final avec toutes les infos
 echo ""
-echo "💾 TOUS les credentials sauvegardés dans: /opt/$APP_NAME/credentials/PRODUCTION_CREDENTIALS.txt"
+echo "💾 TOUS les credentials sauvegardés dans: $INSTALL_DIR/credentials/PRODUCTION_CREDENTIALS.txt"
 echo ""
 echo "🌟 COMMANDS UTILES :"
 echo "   🔄 Redémarrer app: systemctl restart bennespro"
 echo "   📊 Voir logs: docker-compose logs -f -t"
-echo "   🧪 Tests complets: /opt/$APP_NAME/scripts/full-test.sh"
-echo "   🚀 Relancer app: /opt/$APP_NAME/auto-launch-app.sh"
+echo "   🧪 Tests complets: $INSTALL_DIR/scripts/full-test.sh"
+echo "   🚀 Relancer app: $INSTALL_DIR/auto-launch-app.sh"
 echo ""
 echo "🎯 MISSION ACCOMPLIE - SETUP ULTIME COMPLET À 1000000000% ! 🎯"
 echo "🔥🔥🔥 APPLICATION BENNESPRO 100% OPÉRATIONNELLE ! 🔥🔥🔥"
