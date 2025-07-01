@@ -1,0 +1,44 @@
+
+🐳 Vérification des services Docker...
+ERROR: The Compose file './docker-compose.yml' is invalid because:
+volumes.loki value 'command', 'container_name', 'image', 'networks', 'ports', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.promtail value 'command', 'container_name', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.watchtower value 'container_name', 'environment', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+🔄 Redémarrage des services Docker...
+ERROR: The Compose file './docker-compose.yml' is invalid because:
+volumes.loki value 'command', 'container_name', 'image', 'networks', 'ports', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.promtail value 'command', 'container_name', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.watchtower value 'container_name', 'environment', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+ERROR: The Compose file './docker-compose.yml' is invalid because:
+volumes.loki value 'command', 'container_name', 'image', 'networks', 'ports', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.promtail value 'command', 'container_name', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.watchtower value 'container_name', 'environment', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+^X🗄️ Vérification PostgreSQL...
+Error response from daemon: No such container: bennespro_postgres
+⏳ Attente PostgreSQL...
+Error response from daemon: No such container: bennespro_postgres
+⏳ Attente PostgreSQL...
+^XError response from daemon: No such container: bennespro_postgres
+⏳ Attente PostgreSQL...
+🐳 Vérification des services Docker...
+ERROR: The Compose file './docker-compose.yml' is invalid because:
+volumes.loki value 'command', 'container_name', 'image', 'networks', 'ports', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.promtail value 'command', 'container_name', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.watchtower value 'container_name', 'environment', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+🔄 Redémarrage des services Docker...
+ERROR: The Compose file './docker-compose.yml' is invalid because:
+volumes.loki value 'command', 'container_name', 'image', 'networks', 'ports', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.promtail value 'command', 'container_name', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.watchtower value 'container_name', 'environment', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+ERROR: The Compose file './docker-compose.yml' is invalid because:
+volumes.loki value 'command', 'container_name', 'image', 'networks', 'ports', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.promtail value 'command', 'container_name', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+volumes.watchtower value 'container_name', 'environment', 'image', 'networks', 'restart', 'volumes' do not match any of the regexes: '^x-'
+^X🗄️ Vérification PostgreSQL...
+Error response from daemon: No such container: bennespro_postgres
+⏳ Attente PostgreSQL...
+Error response from daemon: No such container: bennespro_postgres
+⏳ Attente PostgreSQL...
+Error response from daemon: No such container: bennespro_postgres
+⏳ Attente PostgreSQL...
+
