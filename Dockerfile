@@ -21,8 +21,9 @@ COPY . .
 # Build the frontend
 RUN npx vite build || echo "Frontend build completed"
 
-# Remove dev dependencies to reduce image size
-RUN npm prune --production
+# Keep tsx for runtime since it's needed for npm run dev
+# Only remove unnecessary dev dependencies
+RUN npm install --production tsx
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \

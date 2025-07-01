@@ -2244,6 +2244,10 @@ if groups $USER | grep -q docker; then
         fi
     done
     
+    # S'assurer que tsx est installé dans le conteneur
+    echo "🔧 Installation de tsx dans le conteneur..."
+    docker exec bennespro_app npm install tsx || echo "tsx already installed"
+    
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
     docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
@@ -2299,6 +2303,10 @@ else
             sleep 10
         fi
     done
+    
+    # S'assurer que tsx est installé dans le conteneur
+    echo "🔧 Installation de tsx dans le conteneur..."
+    sudo docker exec bennespro_app npm install tsx || echo "tsx already installed"
     
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
