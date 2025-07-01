@@ -18,8 +18,8 @@ RUN npm ci && npm cache clean --force
 # Copy application code
 COPY . .
 
-# Build frontend and backend
-RUN npm run build
+# Build frontend and backend avec script personnalisé
+RUN chmod +x build-production.js && node build-production.js
 
 # Clean up dev dependencies for production
 RUN npm prune --production

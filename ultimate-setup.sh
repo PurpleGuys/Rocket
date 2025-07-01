@@ -2248,6 +2248,10 @@ if groups $USER | grep -q docker; then
     echo "🔧 Vérification de la compilation du code..."
     docker exec bennespro_app ls -la dist/ || echo "Dossier dist en cours de création..."
     
+    # Installer tsx si nécessaire pour le développement dans le conteneur
+    echo "🔧 Installation des dépendances de développement dans le conteneur..."
+    docker exec bennespro_app npm install tsx --save-dev || echo "tsx déjà installé"
+    
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
     docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
@@ -2307,6 +2311,10 @@ else
     # Vérifier que la compilation s'est bien passée
     echo "🔧 Vérification de la compilation du code..."
     sudo docker exec bennespro_app ls -la dist/ || echo "Dossier dist en cours de création..."
+    
+    # Installer tsx si nécessaire pour le développement dans le conteneur
+    echo "🔧 Installation des dépendances de développement dans le conteneur..."
+    sudo docker exec bennespro_app npm install tsx --save-dev || echo "tsx déjà installé"
     
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
