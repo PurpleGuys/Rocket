@@ -2000,11 +2000,12 @@ cd $INSTALL_DIR
 
 # Installer les dépendances
 echo "📦 Installation des dépendances npm..."
-npm install --production
+npm install
 
-# Construire l'application
-echo "🔨 Construction de l'application..."
-npm run build
+# Vérifier que Node.js et npm fonctionnent
+echo "🔍 Vérification de l'environnement Node.js..."
+node --version
+npm --version
 
 # Lancer les services Docker
 echo "🐳 Lancement des services Docker..."
