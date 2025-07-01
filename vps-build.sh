@@ -27,11 +27,18 @@ sudo chown $USER:$USER /var/www/bennespro
 cp -r /tmp/bennespro-src/* /var/www/bennespro/
 cd /var/www/bennespro
 
-# Installation des dépendances
+# Nettoyage du package-lock.json problématique
+rm -f package-lock.json
+
+# Installation complète pour le build
 npm install
 
 # Build de l'application
 npm run build
+
+# Nettoyage et installation production seulement
+rm -rf node_modules
+npm install --only=production
 
 # Création du script de démarrage
 cat > start-app.sh << 'SCRIPT'
