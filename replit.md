@@ -34,6 +34,8 @@ A comprehensive waste management and sustainability platform that leverages inte
 ✓ Fixed watchtower service configuration that was causing volume/service conflicts
 ✓ Added Docker Compose validation step before launch to prevent runtime errors
 ✓ Created minimal but fully functional Docker configuration for 100% deployment success
+✓ FIXED Docker user permission error - corrected command ordering in Dockerfile to create users before setting permissions
+✓ Enhanced directory creation in script to ensure all required folders exist before Docker build process
 
 ## Project Architecture
 

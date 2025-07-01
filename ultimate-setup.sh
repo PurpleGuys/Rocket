@@ -2110,12 +2110,11 @@ if ! command -v docker &> /dev/null; then
     sleep 5
 fi
 
-# Créer les dossiers nécessaires
+# Créer les dossiers nécessaires avant Docker Build
 echo "📁 Création des dossiers nécessaires..."
-mkdir -p uploads
-mkdir -p dist
-mkdir -p logs
-chmod 755 uploads dist logs
+mkdir -p uploads dist logs backups monitoring ssl
+chmod 755 uploads dist logs backups monitoring ssl
+echo "✅ Dossiers créés avec succès"
 
 # Valider le fichier Docker Compose
 echo "🔍 Validation du fichier Docker Compose..."

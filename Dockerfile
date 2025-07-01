@@ -18,9 +18,6 @@ RUN npm ci && npm cache clean --force
 # Copy application code
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p uploads && chown -R nextjs:nodejs uploads
-
 # Build the frontend
 RUN npx vite build || echo "Frontend build completed"
 
@@ -31,8 +28,9 @@ RUN npm prune --production
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Change ownership of the app directory
-RUN chown -R nextjs:nodejs /app
+# Create necessary directories and change ownership
+RUN mkdir -p uploads dist logs && \
+    chown -R nextjs:nodejs /app
 USER nextjs
 
 # Expose port
