@@ -2268,9 +2268,9 @@ if groups $USER | grep -q docker; then
     docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
     
     # Maintenant utiliser Drizzle avec la configuration JavaScript
-    docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
+    docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
-        docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || {
+        docker exec bennespro_app npx drizzle-kit push || {
             echo "⚠️ Drizzle échoué, création du schéma SQL directement..."
             docker exec bennespro_postgres psql -U $DB_USER -d $DB_NAME -f /opt/bennespro/init-database.sql 2>/dev/null || true
         }
@@ -2335,9 +2335,9 @@ else
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
     sudo docker exec bennespro_app bash -c "mv drizzle.config.ts drizzle.config.ts.bak 2>/dev/null || true"
     
-    sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
+    sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
-        sudo docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || {
+        sudo docker exec bennespro_app npx drizzle-kit push || {
             echo "⚠️ Drizzle échoué, création du schéma SQL directement..."
             sudo docker exec bennespro_postgres psql -U $DB_USER -d $DB_NAME -f /opt/bennespro/init-database.sql 2>/dev/null || true
         }
