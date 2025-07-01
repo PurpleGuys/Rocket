@@ -3,7 +3,19 @@ import "./path-polyfill.js";
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Production logging function (replaces vite log)
+function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit", 
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
 
 const app = express();
 
@@ -60,13 +72,38 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
+  // Setup static file serving for production or Vite for development
+  if (process.env.NODE_ENV === "production") {
+    // Production: serve static files from dist folder
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const distPath = path.join(__dirname, "..", "dist");
+    
+    // Serve static assets
+    app.use(express.static(distPath));
+    
+    // Catch-all handler for SPA routing - serve index.html for non-API routes
+    app.get("*", (req, res) => {
+      if (!req.path.startsWith("/api")) {
+        res.sendFile(path.join(distPath, "index.html"));
+      } else {
+        res.status(404).json({ message: "API endpoint not found" });
+      }
+    });
   } else {
-    serveStatic(app);
+    // Development: use Vite (only when Vite is available)
+    try {
+      const { setupVite } = await import("./vite.js");
+      await setupVite(app, server);
+    } catch (error) {
+      log("Vite not available, falling back to static serving");
+      // Fallback to basic static serving even in development
+      app.use(express.static("dist"));
+      app.get("*", (req, res) => {
+        if (!req.path.startsWith("/api")) {
+          res.sendFile(path.resolve("dist/index.html"));
+        }
+      });
+    }
   }
 
   // ALWAYS serve the app on port 5000

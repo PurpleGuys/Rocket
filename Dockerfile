@@ -21,8 +21,8 @@ COPY . .
 # Build frontend and backend avec script personnalisé
 RUN chmod +x build-production.js && node build-production.js
 
-# Clean up dev dependencies for production
-RUN npm prune --production
+# Ne pas supprimer les dépendances nécessaires pour la production
+# Garder Vite et les outils de build disponibles
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
