@@ -68,15 +68,37 @@ app.get('/api/services', (req, res) => {
 });
 
 // Servir les fichiers statiques du frontend
-const clientDistPath = path.join(__dirname, "client", "dist");
-if (process.env.NODE_ENV === 'production') {
+// Essayer plusieurs chemins possibles pour le frontend
+const possiblePaths = [
+  path.join(__dirname, "client", "dist"),  // Production build
+  path.join(__dirname, "dist"),           // Alternative build
+  path.join(__dirname, "client")          // Development fallback
+];
+
+let clientDistPath = null;
+let indexHtmlPath = null;
+
+// Trouver le chemin valide pour le frontend
+for (const testPath of possiblePaths) {
+  const testIndex = path.join(testPath, "index.html");
+  try {
+    if (require('fs').existsSync(testIndex)) {
+      clientDistPath = testPath;
+      indexHtmlPath = testIndex;
+      break;
+    }
+  } catch (err) {
+    // Continuer à chercher
+  }
+}
+
+if (process.env.NODE_ENV === 'production' && clientDistPath) {
   app.use(express.static(clientDistPath));
   
   // Catch-all pour SPA routing
   app.get("*", (req, res) => {
     if (!req.path.startsWith("/api")) {
-      const indexPath = path.join(clientDistPath, "index.html");
-      res.sendFile(indexPath, (err) => {
+      res.sendFile(indexHtmlPath, (err) => {
         if (err) {
           log(`Error serving index.html: ${err.message}`);
           res.status(404).send("Application not found");
@@ -110,7 +132,12 @@ const port = parseInt(process.env.PORT || "5000");
 app.listen(port, "0.0.0.0", () => {
   log(`🚀 BennesPro Production Server running on port ${port}`);
   log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  log(`Frontend path: ${clientDistPath}`);
+  log(`Frontend path: ${clientDistPath || 'No frontend found - API only mode'}`);
+  if (clientDistPath) {
+    log(`✅ Serving frontend from: ${clientDistPath}`);
+  } else {
+    log(`⚠️ No frontend build found - serving API endpoints only`);
+  }
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.error(`Port ${port} is already in use. Trying port ${port + 1}...`);
