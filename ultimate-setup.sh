@@ -46,6 +46,11 @@ ENVIRONMENT="production"
 SERVER_LOCATION="europe"
 TIMEZONE="Europe/Paris"
 
+# Export des variables pour Docker Compose
+export DB_NAME
+export DB_USER
+export DB_PASSWORD
+
 # Répertoires
 PROJECT_DIR=$(pwd)  # REM-Bennes (répertoire actuel)
 INSTALL_DIR="/opt/$APP_NAME"
@@ -2211,9 +2216,12 @@ if groups $USER | grep -q docker; then
     " || true
 
     docker exec bennespro_postgres psql -U postgres -c "
-    SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER'
-    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\\gexec
+    SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER' AS createdb
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME');
     " || true
+    
+    # Créer la base de données si elle n'existe pas
+    docker exec bennespro_postgres psql -U postgres -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || true
 
     docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
 
@@ -2221,7 +2229,10 @@ if groups $USER | grep -q docker; then
     echo "🔧 Utilisation du fichier drizzle.config.js pour contourner l'erreur TypeScript..."
     docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
-        docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || true
+        docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || {
+            echo "⚠️ Drizzle échoué, création du schéma SQL directement..."
+            docker exec bennespro_postgres psql -U $DB_USER -d $DB_NAME -f /opt/bennespro/init-database.sql 2>/dev/null || true
+        }
     }
 else
     # Même logique avec sudo
@@ -2236,15 +2247,21 @@ else
     " || true
 
     sudo docker exec bennespro_postgres psql -U postgres -c "
-    SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER'
-    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\\gexec
+    SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER' AS createdb
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME');
     " || true
+    
+    # Créer la base de données si elle n'existe pas
+    sudo docker exec bennespro_postgres psql -U postgres -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || true
 
     sudo docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
 
     sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
         echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
-        sudo docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || true
+        sudo docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || {
+            echo "⚠️ Drizzle échoué, création du schéma SQL directement..."
+            sudo docker exec bennespro_postgres psql -U $DB_USER -d $DB_NAME -f /opt/bennespro/init-database.sql 2>/dev/null || true
+        }
     }
 fi
 

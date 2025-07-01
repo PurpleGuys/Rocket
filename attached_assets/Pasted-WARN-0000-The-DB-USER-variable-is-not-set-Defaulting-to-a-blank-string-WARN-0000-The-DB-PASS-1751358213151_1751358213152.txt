@@ -1,0 +1,45 @@
+WARN[0000] The "DB_USER" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_NAME" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_USER" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_NAME" variable is not set. Defaulting to a blank string.
+WARN[0000] /opt/bennespro/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Running 2/2
+ ✔ Container bennespro_postgres  Started                                                                                                                                                                 0.6s
+ ✔ Container bennespro_app       Started                                                                                                                                                                 0.5s
+⏳ Attente que PostgreSQL soit prêt...
+🗄️ Initialisation de la base de données...
+🔧 Initialisation directe de la base de données PostgreSQL...
+DO
+ERROR:  syntax error at or near "\"
+LINE 3: ...SELECT FROM pg_database WHERE datname = 'remondis_db')\gexec
+                                                                 ^
+GRANT
+🔧 Utilisation du fichier drizzle.config.js pour contourner l'erreur TypeScript...
+Error response from daemon: Container 2be32c42c9e18898b43a1b189aececcc32041429e0591fddebf4ea62d995fd71 is restarting, wait until the container is running
+⚠️ Première tentative échouée, essai avec méthode alternative...
+Error response from daemon: Container 2be32c42c9e18898b43a1b189aececcc32041429e0591fddebf4ea62d995fd71 is restarting, wait until the container is running
+✅ Base de données initialisée (ou déjà prête)
+⚙️ Création du service systemd BennesPro...
+🐳 Démarrage des services Docker...
+WARN[0000] The "DB_USER" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_NAME" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_NAME" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_USER" variable is not set. Defaulting to a blank string.
+WARN[0000] The "DB_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] /opt/bennespro/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Running 2/2
+ ✔ Container bennespro_postgres  Running                                                                                                                                                                 0.0s
+ ✔ Container bennespro_app       Started                                                                                                                                                                 0.0s
+⏳ Attente que PostgreSQL soit prêt...
+🗄️ Population de la base de données...
+
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/opt/bennespro/drizzle.config.ts'
+Transform failed with 1 error:
+/opt/bennespro/drizzle.config.ts:3:29: ERROR: Expected ")" but found ":"
