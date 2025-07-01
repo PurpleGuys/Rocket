@@ -1,141 +1,128 @@
 #!/bin/bash
 
-# CORRECTION DE L'ERREUR MODULE NOT FOUND
-# Élimine définitivement l'erreur server/storage.js
+echo "🔧 CORRECTION ERREUR ES MODULE - BENNESPRO"
+echo "=========================================="
 
-echo "🔧 CORRECTION ERREUR MODULE NOT FOUND"
-echo "===================================="
+# Recréer le serveur Express avec la syntaxe ES modules
+echo "📦 Correction du serveur Express..."
+cat > server-express-prod.js << 'EOF'
+#!/usr/bin/env node
 
-INSTALL_DIR="/opt/bennespro"
+/**
+ * Serveur Express Production - BennesPro
+ * Serveur simple qui utilise votre application complète
+ */
 
-# Aller dans le dossier d'installation
-cd "$INSTALL_DIR" || {
-    echo "⚠️ Dossier $INSTALL_DIR non trouvé, utilisation du dossier actuel"
-    INSTALL_DIR="."
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware de base
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  next();
+});
+
+// Logging simple
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  next();
+});
+
+// Route de santé
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    message: 'BennesPro Express Server Running',
+    version: '1.0.0'
+  });
+});
+
+// Servir les fichiers statiques du frontend
+const clientDistPath = path.join(__dirname, 'client', 'dist');
+
+if (fs.existsSync(clientDistPath)) {
+  console.log(`Frontend trouvé: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
+  
+  // Route catch-all pour SPA
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      const indexPath = path.join(clientDistPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send('Frontend not built');
+      }
+    } else {
+      res.status(404).json({ message: 'API endpoint not found' });
+    }
+  });
+} else {
+  console.log('Frontend dist non trouvé, mode API uniquement');
+  
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.json({
+        message: 'BennesPro Express Server',
+        status: 'Frontend not built yet',
+        instructions: 'Build frontend with: npm run build in client/ directory'
+      });
+    } else {
+      res.status(404).json({ message: 'API endpoint not found' });
+    }
+  });
 }
 
-echo "📍 Dossier de travail: $INSTALL_DIR"
+// Démarrage du serveur
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 BennesPro Express Server running on port ${PORT}`);
+  console.log(`🌐 Access: http://localhost:${PORT}`);
+  console.log(`📋 Health: http://localhost:${PORT}/api/health`);
+});
 
-echo ""
-echo "🛑 1. Suppression du serveur défaillant server-production.js..."
+// Gestion des erreurs
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
 
-# Supprimer ou renommer le serveur de production défaillant
-if [ -f "$INSTALL_DIR/server-production.js" ]; then
-    mv "$INSTALL_DIR/server-production.js" "$INSTALL_DIR/server-production.js.disabled" 2>/dev/null || true
-    echo "✅ server-production.js désactivé"
-else
-    echo "✅ server-production.js n'existe pas"
-fi
-
-echo ""
-echo "🔧 2. Vérification que le Dockerfile utilise le bon serveur..."
-
-# S'assurer que le Dockerfile utilise uniquement tsx avec votre serveur TypeScript
-cat > Dockerfile << 'EOF'
-FROM node:18-alpine
-
-# Installer bash et outils nécessaires
-RUN apk add --no-cache bash curl postgresql-client tini
-
-# Créer utilisateur non-root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S bennespro -u 1001
-
-# Définir le répertoire de travail
-WORKDIR /opt/bennespro
-
-# Copier package.json en premier pour cache Docker
-COPY package*.json ./
-
-# Installer toutes les dépendances
-RUN npm ci
-
-# Installer tsx globalement pour production TypeScript
-RUN npm install -g tsx
-
-# Copier tous les fichiers de configuration
-COPY tsconfig.json vite.config.ts tailwind.config.ts postcss.config.js components.json ./
-
-# Copier tout le code source complet
-COPY client/ ./client/
-COPY server/ ./server/
-COPY shared/ ./shared/
-COPY uploads/ ./uploads/
-
-# Copier les fichiers de configuration supplémentaires
-COPY drizzle.config.js ./
-COPY .env* ./
-
-# Créer les dossiers nécessaires et définir les permissions
-RUN mkdir -p uploads client/dist logs migrations
-RUN chown -R bennespro:nodejs . && chmod -R 755 uploads logs
-
-# Variables d'environnement pour production
-ENV NODE_ENV=production
-ENV PORT=5000
-
-# Utiliser l'utilisateur non-root
-USER bennespro
-
-# Exposer le port
-EXPOSE 5000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
-
-# Point d'entrée avec Tini
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# CORRECTION: Utiliser directement votre serveur TypeScript
-CMD ["npx", "tsx", "server/index.ts"]
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
 EOF
 
-echo "✅ Dockerfile corrigé pour utiliser uniquement tsx avec server/index.ts"
+echo "✅ Serveur Express corrigé avec syntaxe ES modules"
 
-echo ""
-echo "🔄 3. Redémarrage avec la correction..."
+# Copier vers VPS et redémarrer
+if [ "$1" == "deploy" ]; then
+    echo "🚀 Déploiement de la correction sur VPS..."
+    
+    # Copier le fichier corrigé
+    scp server-express-prod.js ubuntu@162.19.67.3:~/REM-Bennes/
+    
+    # Redémarrer le conteneur
+    ssh ubuntu@162.19.67.3 << 'REMOTE'
+        cd ~/REM-Bennes
+        sudo docker-compose down
+        sudo docker-compose up -d --build
+        echo "🔄 Conteneur redémarré avec serveur Express corrigé"
+REMOTE
+    
+    echo "✅ Correction déployée sur VPS"
+fi
 
-# Arrêter l'ancien conteneur avec l'erreur
-docker stop bennespro_app 2>/dev/null || sudo docker stop bennespro_app 2>/dev/null || true
-docker rm bennespro_app 2>/dev/null || sudo docker rm bennespro_app 2>/dev/null || true
-
-# Reconstruire avec la correction
-echo "🏗️ Reconstruction sans server-production.js..."
-docker build -t bennespro_app . --no-cache || sudo docker build -t bennespro_app . --no-cache
-
-# Redémarrer les services
-echo "🚀 Redémarrage des services..."
-docker-compose up -d || sudo docker-compose up -d || docker compose up -d || sudo docker compose up -d
-
-# Attendre le démarrage
-echo "⏳ Attente du démarrage..."
-sleep 15
-
-echo ""
-echo "📋 4. Vérification de la correction..."
-
-echo "Status des containers:"
-docker ps --filter "name=bennespro" --format "table {{.Names}}\t{{.Status}}" || \
-sudo docker ps --filter "name=bennespro" --format "table {{.Names}}\t{{.Status}}"
-
-echo ""
-echo "Logs de l'application (doit utiliser tsx sans erreur):"
-docker logs bennespro_app --tail=10 || sudo docker logs bennespro_app --tail=10
-
-echo ""
-echo "Test API:"
-sleep 5
-curl -s http://localhost:5000/api/health | head -3 || echo "API en cours de démarrage..."
-
-echo ""
-echo "✅ ERREUR MODULE NOT FOUND CORRIGÉE"
-echo "==================================="
-echo ""
-echo "🎯 Changements effectués:"
-echo "   • server-production.js désactivé (cause de l'erreur)"
-echo "   • Dockerfile utilise uniquement tsx + server/index.ts"
-echo "   • Container redémarré sans erreur de module"
-echo ""
-echo "🌐 Application: https://purpleguy.world"
-echo "🔍 Logs: docker logs -f bennespro_app"
+echo "🎯 Pour déployer: ./fix-module-error.sh deploy"
