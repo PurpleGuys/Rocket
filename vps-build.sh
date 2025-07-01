@@ -11,7 +11,11 @@ echo "=================================="
 
 # Transfert du code source vers VPS
 echo "📤 Transfert code source..."
-scp -o StrictHostKeyChecking=no -r server/ client/ shared/ package.json vite.config.ts tsconfig.json tailwind.config.ts postcss.config.js components.json index.html $VPS_USER@$VPS_IP:/tmp/bennespro-src/
+ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p /tmp/bennespro-src"
+scp -o StrictHostKeyChecking=no -r server/ client/ shared/ package.json vite.config.ts tsconfig.json tailwind.config.ts postcss.config.js components.json $VPS_USER@$VPS_IP:/tmp/bennespro-src/
+if [ -f index.html ]; then
+    scp -o StrictHostKeyChecking=no index.html $VPS_USER@$VPS_IP:/tmp/bennespro-src/
+fi
 
 # Build et installation sur VPS
 echo "⚙️ Build sur VPS..."
