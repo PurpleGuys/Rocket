@@ -18,6 +18,9 @@ RUN npm ci && npm cache clean --force
 # Copy application code
 COPY . .
 
+# Create necessary directories
+RUN mkdir -p uploads && chown -R nextjs:nodejs uploads
+
 # Build the frontend
 RUN npx vite build || echo "Frontend build completed"
 

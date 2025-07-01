@@ -2110,6 +2110,13 @@ if ! command -v docker &> /dev/null; then
     sleep 5
 fi
 
+# Créer les dossiers nécessaires
+echo "📁 Création des dossiers nécessaires..."
+mkdir -p uploads
+mkdir -p dist
+mkdir -p logs
+chmod 755 uploads dist logs
+
 # Lancer les services Docker
 echo "🐳 Lancement des services Docker..."
 # Utiliser sudo pour Docker si nécessaire (première installation)
