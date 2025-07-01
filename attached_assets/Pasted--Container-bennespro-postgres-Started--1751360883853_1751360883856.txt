@@ -1,0 +1,35 @@
+ ✔ Container bennespro_postgres  Started                                                                                                                                                                 0.6s
+ ✔ Container bennespro_app       Started                                                                                                                                                                 0.6s
+⏳ Attente que PostgreSQL soit prêt...
+🗄️ Initialisation de la base de données...
+🔧 Initialisation directe de la base de données PostgreSQL...
+DO
+ createdb
+----------
+(0 rows)
+
+GRANT
+⏳ Attente que tous les conteneurs soient prêts...
+NAMES                STATUS
+bennespro_app        Restarting (127) 23 seconds ago
+bennespro_postgres   Up 56 seconds
+🔧 Vérification de l'état du conteneur d'application...
+⏳ Attente du conteneur d'application... (1/10)
+⏳ Attente du conteneur d'application... (2/10)
+⏳ Attente du conteneur d'application... (3/10)
+⏳ Attente du conteneur d'application... (4/10)
+⏳ Attente du conteneur d'application... (5/10)
+⏳ Attente du conteneur d'application... (6/10)
+⏳ Attente du conteneur d'application... (7/10)
+⏳ Attente du conteneur d'application... (8/10)
+⏳ Attente du conteneur d'application... (9/10)
+⏳ Attente du conteneur d'application... (10/10)
+🔧 Vérification de la compilation du code...
+Error response from daemon: Container 0e3db8484a0a51bb5f83c4648bd955301ff907abc4a768667064ee8b96a0b36a is restarting, wait until the container is running
+Dossier dist en cours de création...
+🔧 Installation des dépendances de développement dans le conteneur...
+Error response from daemon: Container 0e3db8484a0a51bb5f83c4648bd955301ff907abc4a768667064ee8b96a0b36a is restarting, wait until the container is running
+tsx déjà installé
+🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript...
+Error response from daemon: Container 0e3db8484a0a51bb5f83c4648bd955301ff907abc4a768667064ee8b96a0b36a is restarting, wait until the container is running
+ubuntu@vps-41d62757:~/REM-Bennes$

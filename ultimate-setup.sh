@@ -2182,11 +2182,18 @@ fi
 
 # Lancer les services Docker
 echo "🐳 Lancement des services Docker..."
+# Forcer la reconstruction complète pour assurer la production
+echo "🔧 Arrêt des conteneurs existants..."
+docker_compose_cmd down --remove-orphans 2>/dev/null || sudo docker_compose_cmd down --remove-orphans 2>/dev/null || true
+
+echo "🔧 Reconstruction complète des conteneurs..."
 # Utiliser sudo pour Docker si nécessaire (première installation)
 if groups $USER | grep -q docker; then
+    docker_compose_cmd build --no-cache
     docker_compose_cmd up -d
 else
     echo "🔧 Utilisation de sudo pour Docker (première utilisation)..."
+    sudo docker_compose_cmd build --no-cache
     sudo docker_compose_cmd up -d
 fi
 
@@ -2248,9 +2255,13 @@ if groups $USER | grep -q docker; then
     echo "🔧 Vérification de la compilation du code..."
     docker exec bennespro_app ls -la dist/ || echo "Dossier dist en cours de création..."
     
-    # Installer tsx si nécessaire pour le développement dans le conteneur
-    echo "🔧 Installation des dépendances de développement dans le conteneur..."
-    docker exec bennespro_app npm install tsx --save-dev || echo "tsx déjà installé"
+    # Vérifier que le conteneur utilise bien npm start (production)
+    echo "🔍 Vérification de la commande de démarrage..."
+    docker exec bennespro_app ps aux | grep "npm start" || echo "⚠️ npm start non détecté"
+    
+    # Forcer le redémarrage avec la bonne commande si nécessaire
+    echo "🔧 Redémarrage forcé du conteneur application..."
+    docker restart bennespro_app
     
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
@@ -2312,9 +2323,13 @@ else
     echo "🔧 Vérification de la compilation du code..."
     sudo docker exec bennespro_app ls -la dist/ || echo "Dossier dist en cours de création..."
     
-    # Installer tsx si nécessaire pour le développement dans le conteneur
-    echo "🔧 Installation des dépendances de développement dans le conteneur..."
-    sudo docker exec bennespro_app npm install tsx --save-dev || echo "tsx déjà installé"
+    # Vérifier que le conteneur utilise bien npm start (production)
+    echo "🔍 Vérification de la commande de démarrage..."
+    sudo docker exec bennespro_app ps aux | grep "npm start" || echo "⚠️ npm start non détecté"
+    
+    # Forcer le redémarrage avec la bonne commande si nécessaire
+    echo "🔧 Redémarrage forcé du conteneur application..."
+    sudo docker restart bennespro_app
     
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
