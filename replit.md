@@ -68,6 +68,9 @@ A comprehensive waste management and sustainability platform that leverages inte
 ✓ Updated Dockerfile CMD to use "node server-production.js" instead of npm scripts
 ✓ Verified server runs successfully without tsx, vite, or TypeScript compilation errors
 ✓ Production server includes API endpoints, static file serving, and SPA routing support
+✓ FIXED OCI runtime exec error - added bash installation to Alpine Linux Docker image
+✓ Enhanced Dockerfile with bash, curl, postgresql-client for full compatibility
+✓ Created test-docker-bash.sh script for Docker container validation
 
 ## Project Architecture
 
