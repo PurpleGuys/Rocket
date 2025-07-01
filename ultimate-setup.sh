@@ -39,7 +39,8 @@ DOMAIN=${1:-"purpleguy.world"}
 EMAIL=${2:-"admin@${DOMAIN}"}
 APP_NAME="bennespro"
 DB_NAME="remondis_db"
-DB_USER="postgres"
+DB_USER="remondis_db"
+DB_PASSWORD="Remondis60110$"
 BACKUP_RETENTION_DAYS=30
 ENVIRONMENT="production"
 SERVER_LOCATION="europe"
@@ -2138,7 +2139,7 @@ services:
       - "5000:5000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-defaultpass}@postgres:5432/remondis_db
+      - DATABASE_URL=postgresql://$DB_USER:$DB_PASSWORD@postgres:5432/$DB_NAME
       - JWT_SECRET=${JWT_SECRET:-defaultjwtsecret}
       - SESSION_SECRET=${SESSION_SECRET:-defaultsessionsecret}
     depends_on:
@@ -2152,9 +2153,9 @@ services:
     container_name: bennespro_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: remondis_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-defaultpass}
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
     ports:
       - "5432:5432"
     volumes:
@@ -2193,20 +2194,58 @@ echo "🗄️ Initialisation de la base de données..."
 # Attendre un peu plus pour que PostgreSQL soit complètement prêt
 sleep 10
 
-# Méthode alternative: utiliser directement drizzle-kit sans TypeScript
+# Méthode alternative: utiliser le fichier JavaScript pour contourner l'erreur TypeScript
+# D'abord, initialiser la base de données avec les bonnes permissions
+echo "🔧 Initialisation directe de la base de données PostgreSQL..."
+
 if groups $USER | grep -q docker; then
-    # Essayer d'abord la méthode normale
-    if ! docker exec bennespro_app npm run db:push 2>/dev/null; then
-        echo "⚠️ Méthode TypeScript échoue, utilisation d'une méthode alternative..."
-        # Utiliser drizzle-kit directement avec JavaScript
-        docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.ts --verbose || true
-    fi
+    # Créer la base de données et l'utilisateur directement
+    docker exec bennespro_postgres psql -U postgres -c "
+    DO \$\$ 
+    BEGIN
+        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
+            CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+        END IF;
+    END
+    \$\$;
+    " || true
+
+    docker exec bennespro_postgres psql -U postgres -c "
+    SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\\gexec
+    " || true
+
+    docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
+
+    # Maintenant utiliser Drizzle avec la configuration JavaScript
+    echo "🔧 Utilisation du fichier drizzle.config.js pour contourner l'erreur TypeScript..."
+    docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
+        echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
+        docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || true
+    }
 else
     # Même logique avec sudo
-    if ! sudo docker exec bennespro_app npm run db:push 2>/dev/null; then
-        echo "⚠️ Méthode TypeScript échoue, utilisation d'une méthode alternative..."
-        sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.ts --verbose || true
-    fi
+    sudo docker exec bennespro_postgres psql -U postgres -c "
+    DO \$\$ 
+    BEGIN
+        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
+            CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+        END IF;
+    END
+    \$\$;
+    " || true
+
+    sudo docker exec bennespro_postgres psql -U postgres -c "
+    SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\\gexec
+    " || true
+
+    sudo docker exec bennespro_postgres psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" || true
+
+    sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.js --verbose || {
+        echo "⚠️ Première tentative échouée, essai avec méthode alternative..."
+        sudo docker exec bennespro_app npx drizzle-kit push --dialect=postgresql --schema=./shared/schema.ts --out=./migrations || true
+    }
 fi
 
 echo "✅ Base de données initialisée (ou déjà prête)"
