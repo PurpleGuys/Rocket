@@ -2035,6 +2035,39 @@ done
 
 echo "✅ Code source BennesPro copié dans $INSTALL_DIR"
 
+# CORRECTION ERREUR MODULE: Supprimer server-production.js défaillant
+echo "🔧 Suppression des serveurs de production défaillants..."
+rm -f "$INSTALL_DIR/server-production.js" 2>/dev/null || true
+rm -f "$INSTALL_DIR/server-production-*.js" 2>/dev/null || true
+echo "✅ Serveurs de production JavaScript supprimés (utilisation de tsx uniquement)"
+
+# Créer .dockerignore pour éviter les conflits
+echo "📋 Création .dockerignore pour éviter les erreurs de module..."
+cat > "$INSTALL_DIR/.dockerignore" << 'DOCKERIGNOREEOF'
+# Fichiers de production défaillants
+server-production.js
+server-production-*.js
+compile-production-server.js
+
+# Fichiers de développement
+.git
+.gitignore
+README.md
+node_modules/.cache
+.next
+.vscode
+.env.local
+.env.development
+*.log
+logs/
+
+# Fichiers temporaires
+*.tmp
+*.bak
+*.disabled
+DOCKERIGNOREEOF
+echo "✅ .dockerignore créé pour éviter les erreurs de module"
+
 # S'assurer que package.json a les bonnes dépendances pour votre application
 echo "📦 Configuration package.json pour BennesPro..."
 if [ ! -f "$INSTALL_DIR/package.json" ]; then
