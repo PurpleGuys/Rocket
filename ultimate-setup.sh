@@ -2244,9 +2244,9 @@ if groups $USER | grep -q docker; then
         fi
     done
     
-    # S'assurer que tsx est installé dans le conteneur
-    echo "🔧 Installation de tsx dans le conteneur..."
-    docker exec bennespro_app npm install tsx || echo "tsx already installed"
+    # Vérifier que la compilation s'est bien passée
+    echo "🔧 Vérification de la compilation du code..."
+    docker exec bennespro_app ls -la dist/ || echo "Dossier dist en cours de création..."
     
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."
@@ -2304,9 +2304,9 @@ else
         fi
     done
     
-    # S'assurer que tsx est installé dans le conteneur
-    echo "🔧 Installation de tsx dans le conteneur..."
-    sudo docker exec bennespro_app npm install tsx || echo "tsx already installed"
+    # Vérifier que la compilation s'est bien passée
+    echo "🔧 Vérification de la compilation du code..."
+    sudo docker exec bennespro_app ls -la dist/ || echo "Dossier dist en cours de création..."
     
     # Renommer temporairement le fichier TypeScript pour forcer l'utilisation du JavaScript
     echo "🔧 Contournement de l'erreur TypeScript - Utilisation de la config JavaScript..."

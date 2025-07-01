@@ -18,12 +18,11 @@ RUN npm ci && npm cache clean --force
 # Copy application code
 COPY . .
 
-# Build the frontend
-RUN npx vite build || echo "Frontend build completed"
+# Build frontend and backend
+RUN npm run build
 
-# Keep tsx for runtime since it's needed for npm run dev
-# Only remove unnecessary dev dependencies
-RUN npm install --production tsx
+# Clean up dev dependencies for production
+RUN npm prune --production
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -41,5 +40,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Start the application
-CMD ["npm", "run", "dev"]
+# Start the application in production mode
+CMD ["npm", "start"]
