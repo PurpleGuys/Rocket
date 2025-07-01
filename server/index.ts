@@ -1,6 +1,10 @@
 // Import du polyfill de chemin en premier pour résoudre import.meta.dirname
 import "./path-polyfill.js";
 
+// Configuration dotenv pour charger le fichier .env
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import path from "path";
