@@ -21,8 +21,8 @@ set -e  # Arrêter en cas d'erreur
 
 # Function to handle Docker Compose command variations
 docker_compose_cmd() {
-    if command -v docker_compose_cmd &> /dev/null; then
-        docker_compose_cmd "$@"
+    if command -v docker-compose &> /dev/null; then
+        docker-compose "$@"
     else
         docker compose "$@"
     fi
@@ -86,8 +86,8 @@ else
 fi
 
 # Donner les bonnes permissions
-chown -R root:root $INSTALL_DIR
-chmod +x $INSTALL_DIR/*.sh 2>/dev/null || true
+sudo chown -R root:root $INSTALL_DIR
+sudo chmod +x $INSTALL_DIR/*.sh 2>/dev/null || true
 
 echo "✅ Copie du projet terminée"
 echo "   🕐 Timezone: $TIMEZONE"
@@ -98,44 +98,92 @@ echo ""
 # ==========================================
 echo "🔧 1. Installation des dépendances système..."
 
-# Mise à jour système
-sudo apt update && sudo apt upgrade -y
+# Détecter le système d'exploitation
+if [ -f /etc/debian_version ]; then
+    echo "🔍 Système Debian/Ubuntu détecté"
+    # Mise à jour système
+    sudo apt update && sudo apt upgrade -y
+    
+    # Outils essentiels
+    sudo apt install -y \
+        curl \
+        wget \
+        git \
+        unzip \
+        software-properties-common \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
+        lsb-release \
+        htop \
+        nano \
+        vim \
+        fail2ban \
+        ufw \
+        logrotate \
+        cron \
+        rsync
 
-# Outils essentiels
-sudo apt install -y \
-    curl \
-    wget \
-    git \
-    unzip \
-    software-properties-common \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    htop \
-    nano \
-    vim \
-    fail2ban \
-    ufw \
-    logrotate \
-    cron \
-    rsync
+    # Docker et Docker Compose pour Debian/Ubuntu
+    if ! command -v docker &> /dev/null; then
+        echo "📦 Installation Docker..."
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt update
+        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo usermod -aG docker $USER
+    fi
 
-# Docker et Docker Compose
-if ! command -v docker &> /dev/null; then
-    echo "📦 Installation Docker..."
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt update
-    sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    sudo usermod -aG docker $USER
-fi
+    # Node.js pour Debian/Ubuntu
+    if ! command -v node &> /dev/null; then
+        echo "📦 Installation Node.js..."
+        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+        sudo apt install -y nodejs
+    fi
 
-# Node.js (pour builds locaux si nécessaire)
-if ! command -v node &> /dev/null; then
-    echo "📦 Installation Node.js..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    sudo apt install -y nodejs
+elif [ -f /etc/redhat-release ]; then
+    echo "🔍 Système CentOS/RHEL détecté"
+    # Mise à jour système
+    sudo yum update -y
+    
+    # Outils essentiels
+    sudo yum install -y \
+        curl \
+        wget \
+        git \
+        unzip \
+        epel-release \
+        htop \
+        nano \
+        vim \
+        fail2ban \
+        firewalld \
+        logrotate \
+        crontabs \
+        rsync
+
+    # Docker pour CentOS/RHEL
+    if ! command -v docker &> /dev/null; then
+        echo "📦 Installation Docker..."
+        sudo yum install -y yum-utils
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo systemctl enable docker
+        sudo systemctl start docker
+        sudo usermod -aG docker $USER
+    fi
+
+    # Node.js pour CentOS/RHEL
+    if ! command -v node &> /dev/null; then
+        echo "📦 Installation Node.js..."
+        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+        sudo yum install -y nodejs
+    fi
+
+else
+    echo "❌ Système d'exploitation non supporté"
+    echo "📋 Systèmes supportés: Ubuntu, Debian, CentOS, RHEL"
+    exit 1
 fi
 
 echo "✅ Dépendances système installées"
@@ -2082,7 +2130,7 @@ npm run db:push
 
 # Créer un service systemd pour l'application
 echo "⚙️ Création du service systemd BennesPro..."
-cat > /etc/systemd/system/bennespro.service << SERVICEEOF
+sudo tee /etc/systemd/system/bennespro.service > /dev/null << SERVICEEOF
 [Unit]
 Description=BennesPro Waste Management Application
 After=network.target docker.service
@@ -2107,8 +2155,8 @@ WantedBy=multi-user.target
 SERVICEEOF
 
 # Activer et démarrer le service
-systemctl daemon-reload
-systemctl enable bennespro.service
+sudo systemctl daemon-reload
+sudo systemctl enable bennespro.service
 
 # Démarrer Docker Compose d'abord
 echo "🐳 Démarrage des services Docker..."
