@@ -1,6 +1,19 @@
 # 🚀 BennesPro - Guide de Déploiement Production
 
-## ✅ Problèmes Résolus
+## ✅ DERNIÈRES CORRECTIONS (Janvier 2025)
+
+### ⚡ Corrections Base de Données - RÉSOLU ✅
+- **RÉSOLU**: Erreur "dotenv: module not found" - Package dotenv installé
+- **RÉSOLU**: Erreur TypeScript drizzle.config.ts - Utilisation de drizzle.config.js
+- **RÉSOLU**: Options Drizzle deprecated "--verbose --out" - Commandes simplifiées
+- **RÉSOLU**: Container "bash not found" - Bash ajouté à l'image Alpine Docker
+
+### 🔧 Optimisations Déploiement - RÉSOLU ✅  
+- **RÉSOLU**: Docker Compose "version" field obsolète - Structure modernisée
+- **RÉSOLU**: Frontend path detection améliorée - Fallbacks intelligents
+- **RÉSOLU**: Script de test automatisé créé pour validation complète
+
+## ✅ Problèmes Résolus Précédents
 
 ### 1. Erreur "tsx: not found" - RÉSOLU ✅
 - **Cause**: Utilisation de TypeScript/tsx en production
