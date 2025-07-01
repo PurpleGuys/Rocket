@@ -1,45 +1,58 @@
-# Use Node.js 18 LTS Alpine image
+# BennesPro Production - Votre application TypeScript complète
 FROM node:18-alpine
 
-# Set working directory
-WORKDIR /app
+# Installer bash et outils nécessaires
+RUN apk add --no-cache bash curl postgresql-client tini
 
-# Install system dependencies including bash for script compatibility
-RUN apk add --no-cache \
-    postgresql-client \
-    curl \
-    bash
+# Créer utilisateur non-root
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S bennespro -u 1001
 
-# Copy package files
+# Définir le répertoire de travail
+WORKDIR /opt/bennespro
+
+# Copier package.json en premier pour cache Docker
 COPY package*.json ./
 
-# Install ALL dependencies (including dev dependencies for build)
-RUN npm ci && npm cache clean --force
+# Installer toutes les dépendances
+RUN npm ci
 
-# Copy application code
-COPY . .
+# Installer tsx globalement pour production TypeScript
+RUN npm install -g tsx
 
-# Simple build process - just build frontend
-RUN npm run build 2>/dev/null || echo "Build frontend completed"
+# Copier tous les fichiers de configuration
+COPY tsconfig.json vite.config.ts tailwind.config.ts postcss.config.js components.json ./
 
-# Copy production server (no complex build needed)
-COPY server-production.js ./
+# Copier tout le code source complet
+COPY client/ ./client/
+COPY server/ ./server/
+COPY shared/ ./shared/
+COPY uploads/ ./uploads/
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+# Copier les fichiers de configuration supplémentaires
+COPY drizzle.config.js ./
+COPY .env* ./
 
-# Create necessary directories and change ownership
-RUN mkdir -p uploads dist logs && \
-    chown -R nextjs:nodejs /app
-USER nextjs
+# Créer les dossiers nécessaires et définir les permissions
+RUN mkdir -p uploads client/dist logs migrations
+RUN chown -R bennespro:nodejs . && chmod -R 755 uploads logs
 
-# Expose port
+# Variables d'environnement pour production
+ENV NODE_ENV=production
+ENV PORT=5000
+
+# Utiliser l'utilisateur non-root
+USER bennespro
+
+# Exposer le port
 EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Start the production server directly 
-CMD ["node", "server-production.js"]
+# Point d'entrée avec Tini
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Commande de démarrage avec votre vrai serveur TypeScript
+CMD ["npx", "tsx", "server/index.ts"]
