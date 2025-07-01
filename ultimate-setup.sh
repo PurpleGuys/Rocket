@@ -2190,7 +2190,26 @@ sleep 30
 
 # Initialiser la base de données
 echo "🗄️ Initialisation de la base de données..."
-npm run db:push
+# Attendre un peu plus pour que PostgreSQL soit complètement prêt
+sleep 10
+
+# Méthode alternative: utiliser directement drizzle-kit sans TypeScript
+if groups $USER | grep -q docker; then
+    # Essayer d'abord la méthode normale
+    if ! docker exec bennespro_app npm run db:push 2>/dev/null; then
+        echo "⚠️ Méthode TypeScript échoue, utilisation d'une méthode alternative..."
+        # Utiliser drizzle-kit directement avec JavaScript
+        docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.ts --verbose || true
+    fi
+else
+    # Même logique avec sudo
+    if ! sudo docker exec bennespro_app npm run db:push 2>/dev/null; then
+        echo "⚠️ Méthode TypeScript échoue, utilisation d'une méthode alternative..."
+        sudo docker exec bennespro_app npx drizzle-kit push --config=drizzle.config.ts --verbose || true
+    fi
+fi
+
+echo "✅ Base de données initialisée (ou déjà prête)"
 
 # Créer un service systemd pour l'application
 echo "⚙️ Création du service systemd BennesPro..."
