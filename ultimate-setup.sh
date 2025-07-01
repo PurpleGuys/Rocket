@@ -2016,12 +2016,76 @@ echo "🔍 Vérification de l'environnement Node.js..."
 node --version
 npm --version
 
-# Lancer les services Docker
-echo "🐳 Lancement des services Docker..."
-if command -v docker_compose_cmd &> /dev/null; then
-    docker_compose_cmd up -d
+# Vérifier si Docker est installé
+if ! command -v docker &> /dev/null; then
+    echo "⚠️  Docker non détecté."
+    echo "🔍 Choix disponibles:"
+    echo "   1. Installer Docker automatiquement (VPS/Production)"
+    echo "   2. Mode développement sans Docker (Replit/Local)"
+    
+    read -p "Choisir une option (1 ou 2): " docker_choice
+    
+    if [ "$docker_choice" = "1" ]; then
+        echo "📦 Installation Docker en cours..."
+        # Détecter l'OS et installer Docker
+        if [ -f /etc/debian_version ]; then
+            # Ubuntu/Debian
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
+            sudo usermod -aG docker $USER
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            rm get-docker.sh
+        elif [ -f /etc/redhat-release ]; then
+            # CentOS/RHEL
+            sudo yum install -y docker
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            sudo usermod -aG docker $USER
+        else
+            echo "❌ Système non supporté pour l'installation Docker automatique"
+            echo "📋 Veuillez installer Docker manuellement puis relancer le script"
+            exit 1
+        fi
+        echo "✅ Docker installé avec succès"
+        echo "🔄 Veuillez vous reconnecter ou redémarrer pour que les permissions prennent effet"
+        
+        # Lancer les services Docker
+        echo "🐳 Lancement des services Docker..."
+        docker_compose_cmd up -d
+    else
+        echo "🚀 Mode développement activé - Lancement direct de l'application..."
+        
+        # Configuration environnement pour développement
+        export NODE_ENV=development
+        export DATABASE_URL=${DATABASE_URL:-"postgresql://postgres:password@localhost:5432/remondis_db"}
+        
+        # Informer sur les services manquants
+        echo "📋 Services Docker non démarrés:"
+        echo "   - PostgreSQL: Utiliser DATABASE_URL existant ou local"
+        echo "   - Redis: Optionnel pour développement"
+        echo "   - Nginx: Non nécessaire pour développement"
+        echo "   - Monitoring: Désactivé en mode développement"
+        
+        # Lancer l'application directement
+        echo "🎯 Démarrage de l'application Node.js..."
+        npm run dev &
+        APP_PID=$!
+        echo "✅ Application démarrée (PID: $APP_PID) sur port 5000"
+        
+        # Créer un fichier pour tracker le processus
+        echo $APP_PID > $INSTALL_DIR/app.pid
+        
+        echo "🔗 Application accessible sur:"
+        echo "   http://localhost:5000"
+        echo "   http://$(hostname -I | awk '{print $1}'):5000"
+        
+        return 0
+    fi
 else
-    docker compose up -d
+    # Lancer les services Docker
+    echo "🐳 Lancement des services Docker..."
+    docker_compose_cmd up -d
 fi
 
 # Attendre que PostgreSQL soit prêt
