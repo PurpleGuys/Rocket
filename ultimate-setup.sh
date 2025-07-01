@@ -618,74 +618,46 @@ echo "✅ Docker Compose configuré"
 echo "🏗️ 6. Création Dockerfile production..."
 
 cat > /opt/$APP_NAME/Dockerfile.prod << 'EOF'
-# Production Dockerfile - Multi-stage optimisé
-FROM node:18-alpine AS base
+# BennesPro Production Dockerfile - Utilise votre vrai code TypeScript
+FROM node:18-alpine
 
-# Installer les dépendances système nécessaires
-RUN apk add --no-cache \
-    postgresql-client \
-    curl \
-    tini \
-    && rm -rf /var/cache/apk/*
+# Installer bash et outils nécessaires
+RUN apk add --no-cache bash curl postgresql-client tini
 
 # Créer utilisateur non-root
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 
-# ===========================================
-# Stage 1: Dependencies
-# ===========================================
-FROM base AS deps
-WORKDIR /app
+# Définir le répertoire de travail
+WORKDIR /opt/bennespro
 
-# Copier les fichiers de dépendances
+# Copier les fichiers de configuration
 COPY package*.json ./
+COPY tsconfig.json ./
+COPY vite.config.ts ./
+COPY tailwind.config.ts ./
+COPY postcss.config.js ./
+COPY components.json ./
 
-# Installer toutes les dépendances (dev + prod)
-RUN npm ci --frozen-lockfile
+# Installer les dépendances
+RUN npm ci
 
-# ===========================================
-# Stage 2: Builder
-# ===========================================
-FROM base AS builder
-WORKDIR /app
+# Installer tsx globalement pour exécuter TypeScript en production
+RUN npm install -g tsx
 
-# Copier les dépendances depuis l'étape précédente
-COPY --from=deps /app/node_modules ./node_modules
-
-# Copier le code source
+# Copier tout le code source (votre vraie application)
 COPY . .
 
-# Variables d'environnement pour le build
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# Build de l'application
-RUN npm run build
-
-# Nettoyer les devDependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# ===========================================
-# Stage 3: Runner
-# ===========================================
-FROM base AS runner
-WORKDIR /app
+# Créer les dossiers nécessaires
+RUN mkdir -p uploads client/dist logs
+RUN chown -R nextjs:nodejs uploads client logs
 
 # Variables d'environnement
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=5000
 
-# Créer les dossiers nécessaires
-RUN mkdir -p logs uploads dist && \
-    chown -R nodejs:nodejs /app
-
-# Copier les fichiers nécessaires
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/uploads ./uploads
+# Changer vers l'utilisateur non-root
+USER nextjs
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
@@ -700,8 +672,8 @@ EXPOSE 5000
 # Point d'entrée avec Tini pour la gestion des signaux
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Commande par défaut
-CMD ["node", "dist/index.js"]
+# Commande de démarrage avec votre vrai serveur TypeScript
+CMD ["npx", "tsx", "server/index.ts"]
 EOF
 
 # Copier vers le projet actuel
