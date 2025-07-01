@@ -19,6 +19,15 @@
 
 set -e  # Arrêter en cas d'erreur
 
+# Function to handle Docker Compose command variations
+docker_compose_cmd() {
+    if command -v docker_compose_cmd &> /dev/null; then
+        docker_compose_cmd "$@"
+    else
+        docker compose "$@"
+    fi
+}
+
 echo "🚀 ULTIMATE SETUP - BennesPro Production TOTAL COMPLETE"
 echo "======================================================="
 echo "🎯 Configuration ABSOLUE de A à Z en cours..."
@@ -1037,9 +1046,9 @@ echo "🚀 Déploiement BennesPro..."
 git pull origin main
 
 # Build et déploiement
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker_compose_cmd down
+docker_compose_cmd build --no-cache
+docker_compose_cmd up -d
 
 # Vérification santé
 echo "⏳ Vérification santé des services..."
@@ -1202,10 +1211,10 @@ openssl req -x509 -nodes -days 1 -newkey rsa:2048 \
     -subj "/CN=$DOMAIN"
 
 # Démarrer nginx temporairement
-docker-compose up -d nginx
+docker_compose_cmd up -d nginx
 
 # Obtenir certificat réel
-docker-compose run --rm certbot certonly \
+docker_compose_cmd run --rm certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email $EMAIL \
@@ -1215,7 +1224,7 @@ docker-compose run --rm certbot certonly \
     -d www.$DOMAIN
 
 # Redémarrer nginx avec le vrai certificat
-docker-compose restart nginx
+docker_compose_cmd restart nginx
 
 echo "✅ SSL configuré pour $DOMAIN"
 EOF
@@ -1244,10 +1253,10 @@ fi
 
 # Build et démarrage
 echo "📦 Build des conteneurs..."
-docker-compose build
+docker_compose_cmd build
 
 echo "🚀 Démarrage des services..."
-docker-compose up -d
+docker_compose_cmd up -d
 
 # Attendre que les services soient prêts
 echo "⏳ Attente démarrage des services..."
@@ -1368,10 +1377,10 @@ STRIPE_SECRET_KEY=your-stripe-secret-key
 ./scripts/health-check.sh
 
 # Voir les logs
-docker-compose logs -f
+docker_compose_cmd logs -f
 
 # Redémarrer un service
-docker-compose restart [service]
+docker_compose_cmd restart [service]
 \`\`\`
 EOF
 
@@ -2009,7 +2018,11 @@ npm --version
 
 # Lancer les services Docker
 echo "🐳 Lancement des services Docker..."
-docker-compose up -d
+if command -v docker_compose_cmd &> /dev/null; then
+    docker_compose_cmd up -d
+else
+    docker compose up -d
+fi
 
 # Attendre que PostgreSQL soit prêt
 echo "⏳ Attente que PostgreSQL soit prêt..."
@@ -2035,9 +2048,9 @@ Environment=NODE_ENV=production
 Environment=DATABASE_URL=postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
 Environment=JWT_SECRET=$JWT_SECRET
 Environment=SESSION_SECRET=$SESSION_SECRET
-ExecStartPre=/usr/bin/docker-compose -f $INSTALL_DIR/docker-compose.yml up -d
+ExecStartPre=/usr/bin/docker_compose_cmd -f $INSTALL_DIR/docker-compose.yml up -d
 ExecStart=/usr/bin/npm run start
-ExecStop=/usr/bin/docker-compose -f $INSTALL_DIR/docker-compose.yml down
+ExecStop=/usr/bin/docker_compose_cmd -f $INSTALL_DIR/docker-compose.yml down
 Restart=always
 RestartSec=10
 
@@ -2052,7 +2065,7 @@ systemctl enable bennespro.service
 # Démarrer Docker Compose d'abord
 echo "🐳 Démarrage des services Docker..."
 cd $INSTALL_DIR
-docker-compose up -d
+docker_compose_cmd up -d
 
 # Attendre que PostgreSQL soit prêt
 echo "⏳ Attente que PostgreSQL soit prêt..."
@@ -2183,8 +2196,8 @@ echo "   2️⃣  Personnaliser les données de l'entreprise"
 echo "   3️⃣  Configurer les domaines email"
 echo ""
 echo "📞 SUPPORT:"
-echo "   📧 Logs: docker-compose logs -f"
-echo "   🔧 Restart: docker-compose restart"
+echo "   📧 Logs: docker_compose_cmd logs -f"
+echo "   🔧 Restart: docker_compose_cmd restart"
 echo "   🧪 Tests: ./scripts/full-test.sh"
 echo ""
 echo "🔥🔥🔥 VOTRE APPLICATION BENNESPRO EST 100% OPÉRATIONNELLE ! 🔥🔥🔥"
@@ -2209,7 +2222,7 @@ echo "💾 TOUS les credentials sauvegardés dans: $INSTALL_DIR/credentials/PROD
 echo ""
 echo "🌟 COMMANDS UTILES :"
 echo "   🔄 Redémarrer app: systemctl restart bennespro"
-echo "   📊 Voir logs: docker-compose logs -f -t"
+echo "   📊 Voir logs: docker_compose_cmd logs -f -t"
 echo "   🧪 Tests complets: $INSTALL_DIR/scripts/full-test.sh"
 echo "   🚀 Relancer app: $INSTALL_DIR/auto-launch-app.sh"
 echo ""
