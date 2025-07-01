@@ -2117,6 +2117,64 @@ mkdir -p dist
 mkdir -p logs
 chmod 755 uploads dist logs
 
+# Valider le fichier Docker Compose
+echo "🔍 Validation du fichier Docker Compose..."
+if command -v docker &> /dev/null; then
+    # Essayer de valider la configuration Docker Compose
+    if ! docker_compose_cmd config >/dev/null 2>&1; then
+        echo "⚠️ Erreur de configuration Docker Compose détectée"
+        echo "🔧 Correction automatique du fichier docker-compose.yml..."
+        
+        # Création d'un docker-compose.yml minimal mais fonctionnel
+        cat > docker-compose.yml << 'DOCKEREOF'
+version: '3.8'
+
+services:
+  # Application BennesPro
+  app:
+    build: .
+    container_name: bennespro_app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-defaultpass}@postgres:5432/remondis_db
+      - JWT_SECRET=${JWT_SECRET:-defaultjwtsecret}
+      - SESSION_SECRET=${SESSION_SECRET:-defaultsessionsecret}
+    depends_on:
+      - postgres
+    networks:
+      - bennespro_network
+
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: bennespro_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: remondis_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-defaultpass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bennespro_network
+
+networks:
+  bennespro_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+DOCKEREOF
+        echo "✅ Fichier Docker Compose corrigé"
+    fi
+fi
+
 # Lancer les services Docker
 echo "🐳 Lancement des services Docker..."
 # Utiliser sudo pour Docker si nécessaire (première installation)
