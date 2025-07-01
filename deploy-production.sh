@@ -30,11 +30,17 @@ echo "✅ Application construite"
 
 # 2. PRÉPARATION ARCHIVE
 echo "📋 2. Préparation des fichiers..."
+
+# Créer le dossier uploads s'il n'existe pas
+mkdir -p uploads
+
+# Créer l'archive sans .env (sera créé sur le serveur)
 tar -czf bennespro-production.tar.gz \
     --exclude=node_modules \
     --exclude=.git \
     --exclude=attached_assets \
     --exclude=scripts \
+    --exclude=database-export \
     package.json \
     package-lock.json \
     server/ \
@@ -42,7 +48,6 @@ tar -czf bennespro-production.tar.gz \
     shared/ \
     dist/ \
     uploads/ \
-    .env \
     drizzle.config.ts \
     tsconfig.json \
     postcss.config.js \
@@ -85,6 +90,64 @@ cd $APP_DIR
 tar -xzf /tmp/bennespro-production.tar.gz
 rm /tmp/bennespro-production.tar.gz
 
+echo "📋 Création fichier .env..."
+cat > $APP_DIR/.env << 'ENVFILE'
+# Configuration Production BennesPro
+NODE_ENV=production
+PORT=3000
+HOST=0.0.0.0
+
+# Base de données
+DATABASE_URL=postgresql://remondis_db:Remondis60110$@localhost:5432/remondis_db
+
+# Secrets générés automatiquement
+SESSION_SECRET=f6b3e76ee636d248b8c85091425ae4fe9de4a8011b1fa17d30f0fcf13f5c2df2b5a5c1c4109dd6b8c5e22eaae33feb872434e71cc2f17f64a3b4e72d40e2d4f5
+JWT_SECRET=85eb00206d3991c2ade3186cfad4e9265fc9d72cadbe698ba305884086bc3e29e5d11f92df517a684f4e4bd136507bb81b6ef79902e5eb96d98273f6c9bb1723
+ENCRYPTION_KEY=a45c0dc4fdbf36d10192758659f298222e1748244f9637760aa13703a84022b5
+APP_SECRET=1cd085ee27a636afd4df41048cb628559decb1d2cc28eaf0357f1dd2ddbf946b
+WEBHOOK_SECRET=481f192ebfe4be9310c716a543ab50cefdf3d417130cb4941888922b9a8765e6
+API_SECRET=1a1b61be600cf62aedddeaf46a3ab027347d67b9a038c14ccd1700a94a85de56
+
+# Configuration métier
+REMONDIS_SALES_EMAIL=commercial@remondis.fr
+APP_BASE_URL=https://purpleguy.world
+ALLOWED_ORIGINS=https://purpleguy.world,https://www.purpleguy.world
+
+# Tarifs par défaut
+DEFAULT_TRANSPORT_PRICE_PER_KM=1.50
+DEFAULT_MINIMUM_FLAT_RATE=50.00
+DEFAULT_HOURLY_RATE=45.00
+
+# Adresse du site industriel
+INDUSTRIAL_SITE_ADDRESS=123 Rue de l'Industrie
+INDUSTRIAL_SITE_CITY=Votre Ville
+INDUSTRIAL_SITE_POSTAL_CODE=12345
+INDUSTRIAL_SITE_COUNTRY=France
+
+# Sécurité
+SESSION_MAX_AGE=604800000
+MAX_LOGIN_ATTEMPTS=5
+ACCOUNT_LOCK_TIME=1800000
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+FORCE_HTTPS=true
+ENABLE_SECURITY_HEADERS=true
+
+# Logs et monitoring
+LOG_LEVEL=info
+ENABLE_PERFORMANCE_MONITORING=true
+MAX_FILE_SIZE_MB=10
+UPLOAD_DIR=./uploads
+
+# Services externes (à configurer si nécessaire)
+SENDGRID_API_KEY=
+SENDGRID_VERIFIED_SENDER_EMAIL=
+GOOGLE_MAPS_API_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=481f192ebfe4be9310c716a543ab50cefdf3d417130cb4941888922b9a8765e6
+ENVFILE
+
 echo "📦 Installation dépendances..."
 npm ci --only=production
 
@@ -105,38 +168,7 @@ BEGIN
 END $$;
 SQL
 
-echo "📋 Configuration environnement production..."
-cat > $APP_DIR/.env.production << 'ENV'
-NODE_ENV=production
-PORT=3000
-HOST=0.0.0.0
-
-# Base de données
-DATABASE_URL=postgresql://remondis_db:Remondis60110$@localhost:5432/remondis_db
-
-# Secrets (générés automatiquement)
-SESSION_SECRET=f6b3e76ee636d248b8c85091425ae4fe9de4a8011b1fa17d30f0fcf13f5c2df2b5a5c1c4109dd6b8c5e22eaae33feb872434e71cc2f17f64a3b4e72d40e2d4f5
-JWT_SECRET=85eb00206d3991c2ade3186cfad4e9265fc9d72cadbe698ba305884086bc3e29e5d11f92df517a684f4e4bd136507bb81b6ef79902e5eb96d98273f6c9bb1723
-
-# Configuration métier
-REMONDIS_SALES_EMAIL=commercial@remondis.fr
-APP_BASE_URL=https://purpleguy.world
-ALLOWED_ORIGINS=https://purpleguy.world,https://www.purpleguy.world
-
-# Tarifs par défaut
-DEFAULT_TRANSPORT_PRICE_PER_KM=1.50
-DEFAULT_MINIMUM_FLAT_RATE=50.00
-DEFAULT_HOURLY_RATE=45.00
-
-# Sécurité
-SESSION_MAX_AGE=604800000
-FORCE_HTTPS=true
-ENABLE_SECURITY_HEADERS=true
-
-# Upload
-MAX_FILE_SIZE_MB=10
-UPLOAD_DIR=./uploads
-ENV
+echo "✅ Fichier .env créé"
 
 echo "🌐 Configuration Nginx..."
 sudo tee /etc/nginx/sites-available/$DOMAIN << 'NGINX'
@@ -222,7 +254,7 @@ module.exports = {
     name: 'bennespro',
     script: 'dist/index.js',
     cwd: '/var/www/bennespro',
-    env_file: '.env.production',
+    env_file: '.env',
     instances: 'max',
     exec_mode: 'cluster',
     max_memory_restart: '1G',
