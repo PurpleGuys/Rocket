@@ -32,8 +32,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build avec fallback intelligent
-RUN npm run build 2>/dev/null || \
+# Fix vite.config.ts pour Node.js v18 compatibility et build
+RUN if [ -f "vite.config.ts.fixed" ]; then cp vite.config.ts.fixed vite.config.ts; fi && \
+    npm run build 2>/dev/null || \
     (echo "Build standard failed, trying alternative..." && \
      NODE_ENV=development npm run build 2>/dev/null) || \
     (echo "Build failed, running in dev mode..." && \
@@ -87,6 +88,45 @@ services:
 
 volumes:
   postgres_data:
+EOF
+
+# Corriger vite.config.ts pour VPS (Node.js v18 compatibility)
+cp vite.config.ts vite.config.ts.backup
+cat > vite.config.ts.fixed << 'EOF'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { fileURLToPath } from "url";
+import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    ...(process.env.NODE_ENV !== "production" &&
+    process.env.REPL_ID !== undefined
+      ? [
+          await import("@replit/vite-plugin-cartographer").then((m) =>
+            m.cartographer(),
+          ),
+        ]
+      : []),
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "client", "src"),
+      "@shared": path.resolve(__dirname, "shared"),
+      "@assets": path.resolve(__dirname, "attached_assets"),
+    },
+  },
+  root: path.resolve(__dirname, "client"),
+  build: {
+    outDir: path.resolve(__dirname, "dist/public"),
+    emptyOutDir: true,
+  },
+});
 EOF
 
 # Ajouter script build safe au package.json
