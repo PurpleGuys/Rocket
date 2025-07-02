@@ -98,13 +98,53 @@ app.use((req, res, next) => {
     log('Registering API routes and middleware...', 'startup');
   }
   
+  // CRITICAL: Register ALL API routes FIRST before any catch-all handlers
   const server = await registerRoutes(app);
   
   if (process.env.NODE_ENV !== 'production') {
     log('Routes registered successfully', 'startup');
   }
 
-  // Simple global error handler
+  // Setup static file serving for production or Vite for development
+  if (process.env.NODE_ENV === "production") {
+    // Production: serve static files from dist/public folder (where Vite builds)
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const distPath = path.join(__dirname, "..", "dist", "public");
+
+    // Serve static assets
+    app.use(express.static(distPath));
+
+    // Catch-all handler for SPA routing - serve index.html for non-API routes
+    // IMPORTANT: This must come AFTER all API routes are registered
+    app.get("*", (req, res) => {
+      if (!req.path.startsWith("/api")) {
+        res.sendFile(path.join(distPath, "index.html"));
+      } else {
+        res.status(404).json({ message: "API endpoint not found" });
+      }
+    });
+  } else {
+    // Development: use Vite (only when Vite is available)
+    try {
+      const { setupVite } = await import("./vite.ts");
+      await setupVite(app, server);
+    } catch (error) {
+      log("Vite not available, falling back to static serving");
+      log(`Error: ${error?.message || 'Unknown error'}`);
+      // Fallback to basic static serving even in development
+      const fallbackDistPath = path.resolve("dist/public");
+      app.use(express.static(fallbackDistPath));
+      app.get("*", (req, res) => {
+        if (!req.path.startsWith("/api")) {
+          res.sendFile(path.join(fallbackDistPath, "index.html"));
+        } else {
+          res.status(404).json({ message: "API endpoint not found" });
+        }
+      });
+    }
+  }
+
+  // Simple global error handler (must come AFTER routes but BEFORE server start)
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -120,42 +160,6 @@ app.use((req, res, next) => {
       throw err;
     }
   });
-
-  // Setup static file serving for production or Vite for development
-  if (process.env.NODE_ENV === "production") {
-    // Production: serve static files from dist/public folder (where Vite builds)
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.join(__dirname, "..", "dist", "public");
-
-    // Serve static assets
-    app.use(express.static(distPath));
-
-    // Catch-all handler for SPA routing - serve index.html for non-API routes
-    app.get("*", (req, res) => {
-      if (!req.path.startsWith("/api")) {
-        res.sendFile(path.join(distPath, "index.html"));
-      } else {
-        res.status(404).json({ message: "API endpoint not found" });
-      }
-    });
-  } else {
-    // Development: use Vite (only when Vite is available)
-    try {
-      const { setupVite } = await import("./vite.ts");
-      await setupVite(app, server);
-    } catch (error) {
-      log("Vite not available, falling back to static serving");
-      log("Error:", error.message);
-      // Fallback to basic static serving even in development
-      const fallbackDistPath = path.resolve("dist/public");
-      app.use(express.static(fallbackDistPath));
-      app.get("*", (req, res) => {
-        if (!req.path.startsWith("/api")) {
-          res.sendFile(path.join(fallbackDistPath, "index.html"));
-        }
-      });
-    }
-  }
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
