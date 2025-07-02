@@ -219,6 +219,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== AUTH ROUTES ====================
   
+  // Get auth status (check if routes are available)
+  app.get("/api/auth", async (req, res) => {
+    try {
+      res.json({
+        status: "available",
+        endpoints: [
+          "GET /api/auth",
+          "POST /api/auth/register", 
+          "POST /api/auth/login",
+          "POST /api/auth/logout",
+          "GET /api/auth/me",
+          "PATCH /api/auth/profile"
+        ],
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur auth service: " + error.message });
+    }
+  });
+  
   // Register new user
   app.post("/api/auth/register", authLimiter, async (req, res) => {
     try {

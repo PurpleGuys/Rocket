@@ -141,13 +141,6 @@ async function testDatabaseConnection() {
   // Test database connection before starting the server
   const dbConnected = await testDatabaseConnection();
   
-  // CRITICAL: Register ALL API routes FIRST before any catch-all handlers
-  const server = await registerRoutes(app);
-  
-  if (process.env.NODE_ENV !== 'production') {
-    log('Routes registered successfully', 'startup');
-  }
-
   // Setup static file serving for production or Vite for development
   if (process.env.NODE_ENV === "production") {
     // Production: serve static files from dist/public folder (where Vite builds)
@@ -185,6 +178,13 @@ async function testDatabaseConnection() {
         }
       });
     }
+  }
+
+  // CRITICAL: Register ALL API routes AFTER Vite but BEFORE server start
+  await registerRoutes(app);
+  
+  if (process.env.NODE_ENV !== 'production') {
+    log('Routes registered successfully', 'startup');
   }
 
   // Simple global error handler (must come AFTER routes but BEFORE server start)
