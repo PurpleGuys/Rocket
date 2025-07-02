@@ -77,10 +77,10 @@ app.use((req, res, next) => {
     // Production: serve static files from dist folder
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const distPath = path.join(__dirname, "..", "dist");
-    
+
     // Serve static assets
     app.use(express.static(distPath));
-    
+
     // Catch-all handler for SPA routing - serve index.html for non-API routes
     app.get("*", (req, res) => {
       if (!req.path.startsWith("/api")) {
@@ -110,7 +110,7 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000");
-  
+
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   }).on('error', (err: any) => {
