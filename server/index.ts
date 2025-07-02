@@ -1,10 +1,6 @@
 // Import du polyfill de chemin en premier pour résoudre import.meta.dirname
 import "./path-polyfill.js";
 
-// Configuration dotenv pour charger le fichier .env
-import dotenv from "dotenv";
-dotenv.config();
-
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import path from "path";
@@ -81,15 +77,14 @@ app.use((req, res, next) => {
     // Production: serve static files from dist folder
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const distPath = path.join(__dirname, "..", "dist");
-    const publicPath = path.join(distPath, "public");
     
-    // Serve static assets from public directory
-    app.use(express.static(publicPath));
+    // Serve static assets
+    app.use(express.static(distPath));
     
     // Catch-all handler for SPA routing - serve index.html for non-API routes
     app.get("*", (req, res) => {
       if (!req.path.startsWith("/api")) {
-        res.sendFile(path.join(publicPath, "index.html"));
+        res.sendFile(path.join(distPath, "index.html"));
       } else {
         res.status(404).json({ message: "API endpoint not found" });
       }
@@ -102,10 +97,10 @@ app.use((req, res, next) => {
     } catch (error) {
       log("Vite not available, falling back to static serving");
       // Fallback to basic static serving even in development
-      app.use(express.static("dist/public"));
+      app.use(express.static("dist"));
       app.get("*", (req, res) => {
         if (!req.path.startsWith("/api")) {
-          res.sendFile(path.resolve("dist/public/index.html"));
+          res.sendFile(path.resolve("dist/index.html"));
         }
       });
     }
