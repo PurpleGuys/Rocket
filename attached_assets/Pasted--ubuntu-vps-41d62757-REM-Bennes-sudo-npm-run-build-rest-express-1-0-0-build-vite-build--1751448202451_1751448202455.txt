@@ -1,0 +1,49 @@
+
+ubuntu@vps-41d62757:~/REM-Bennes$ sudo npm run build
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.19 building for production...
+✓ 3093 modules transformed.
+../dist/public/index.html                              1.07 kB │ gzip:   0.61 kB
+../dist/public/assets/index-UROmFd9v.css              92.32 kB │ gzip:  15.59 kB
+../dist/public/assets/purify.es-CQJ0hv7W.js           21.82 kB │ gzip:   8.58 kB
+../dist/public/assets/index.es-t35TNduj.js           150.46 kB │ gzip:  51.42 kB
+../dist/public/assets/html2canvas.esm-CBrSDip1.js    201.42 kB │ gzip:  48.03 kB
+../dist/public/assets/jspdf.es.min-XWjBdKL5.js       357.67 kB │ gzip: 117.99 kB
+../dist/public/assets/index-CUaOr6u0.js            1,111.54 kB │ gzip: 294.15 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 15.16s
+
+  dist/index.js  233.5kb
+
+⚡ Done in 34ms
+ubuntu@vps-41d62757:~/REM-Bennes$ npm run start
+
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+
+[dotenv@17.0.1] injecting env (113) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+SendGrid email service initialized successfully.
+SendGrid email service initialized successfully.
+9:21:38 AM [express] serving on port 5000 in production mode
+Error: ENOENT: no such file or directory, stat '/home/ubuntu/REM-Bennes/dist/index.html'
+^C
+ubuntu@vps-41d62757:~/REM-Bennes$ npm run dev
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[dotenv@17.0.1] injecting env (113) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+SendGrid email service initialized successfully.
+SendGrid email service initialized successfully.
+9:22:36 AM [express] Vite not available, falling back to static serving
+9:22:36 AM [The "paths[0]" argument must be of type string. Received undefined] Error:
+9:22:36 AM [express] serving on port 5000 in development mode
+^C
+ubuntu@vps-41d62757:~/REM-Bennes$

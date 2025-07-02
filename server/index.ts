@@ -74,9 +74,9 @@ app.use((req, res, next) => {
 
   // Setup static file serving for production or Vite for development
   if (process.env.NODE_ENV === "production") {
-    // Production: serve static files from dist folder
+    // Production: serve static files from dist/public folder (where Vite builds)
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.join(__dirname, "..", "dist");
+    const distPath = path.join(__dirname, "..", "dist", "public");
 
     // Serve static assets
     app.use(express.static(distPath));
@@ -98,10 +98,11 @@ app.use((req, res, next) => {
       log("Vite not available, falling back to static serving");
       log("Error:", error.message);
       // Fallback to basic static serving even in development
-      app.use(express.static("dist"));
+      const fallbackDistPath = path.resolve("dist/public");
+      app.use(express.static(fallbackDistPath));
       app.get("*", (req, res) => {
         if (!req.path.startsWith("/api")) {
-          res.sendFile(path.resolve("dist/index.html"));
+          res.sendFile(path.join(fallbackDistPath, "index.html"));
         }
       });
     }
