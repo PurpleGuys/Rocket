@@ -440,32 +440,49 @@ echo "📋 Mot de passe admin par défaut: $ADMIN_PASSWORD"
 # ==========================================
 echo "🐳 5. Configuration Docker Compose production..."
 
+# Docker Compose simplifié pour éviter l'erreur ContainerConfig
 cat > /opt/$APP_NAME/docker-compose.yml << 'EOF'
-version: '3.8'
-
 services:
-  # Application principale
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: bennespro_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Application BennesPro
   app:
-    build: 
-      context: .
-      dockerfile: Dockerfile.prod
+    build: .
     container_name: bennespro_app
     restart: unless-stopped
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
     environment:
       - NODE_ENV=production
-    env_file:
-      - .env
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      - PORT=5000
+    ports:
+      - "5000:5000"
     volumes:
-      - ./uploads:/opt/bennespro/uploads
-      - ./logs/app:/opt/bennespro/logs
-      - ./client:/opt/bennespro/client
-      - ./server:/opt/bennespro/server
-      - ./shared:/opt/bennespro/shared
-    networks:
-      - bennespro_network
+      - ./uploads:/app/uploads
+      - ./client:/app/client
+      - ./server:/app/server
+      - ./shared:/app/shared
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -473,141 +490,12 @@ services:
       retries: 3
       start_period: 60s
 
-  # Base de données PostgreSQL
-  postgres:
-    image: postgres:15-alpine
-    container_name: bennespro_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-      - ./logs/postgres:/var/log/postgresql
-    networks:
-      - bennespro_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    command: >
-      postgres
-      -c log_destination=stderr
-      -c log_statement=all
-      -c log_duration=on
-      -c log_line_prefix='%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
-      -c shared_preload_libraries=pg_stat_statements
-      -c pg_stat_statements.track=all
-
-  # Redis pour cache et sessions
-  redis:
-    image: redis:7-alpine
-    container_name: bennespro_redis
-    restart: unless-stopped
-    command: >
-      redis-server
-      --requirepass ${REDIS_PASSWORD}
-      --appendonly yes
-      --appendfsync everysec
-      --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
-    volumes:
-      - ./data/redis:/data
-      - ./logs/redis:/var/log/redis
-    networks:
-      - bennespro_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Nginx reverse proxy
-  nginx:
-    image: nginx:alpine
-    container_name: bennespro_nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl/certs:/etc/letsencrypt:ro
-      - ./ssl/renewal:/var/www/certbot:rw
-      - ./logs/nginx:/var/log/nginx
-    depends_on:
-      - app
-    networks:
-      - bennespro_network
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Certbot pour SSL
-  certbot:
-    image: certbot/certbot:latest
-    container_name: bennespro_certbot
-    volumes:
-      - ./ssl/certs:/etc/letsencrypt
-      - ./ssl/renewal:/var/www/certbot
-      - ./logs/certbot:/var/log/letsencrypt
-    command: >
-      sh -c "while :; do
-        certbot renew --quiet --webroot --webroot-path=/var/www/certbot;
-        sleep 12h;
-      done"
-    networks:
-      - bennespro_network
-
-  # Monitoring - Prometheus
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: bennespro_prometheus
-    restart: unless-stopped
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./monitoring/prometheus/data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=30d'
-      - '--web.enable-lifecycle'
-    networks:
-      - bennespro_network
-
-  # Monitoring - Grafana
-  grafana:
-    image: grafana/grafana:latest
-    container_name: bennespro_grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD}
-    volumes:
-      - ./monitoring/grafana/data:/var/lib/grafana
-    networks:
-      - bennespro_network
-
-networks:
-  bennespro_network:
-    driver: bridge
-
 volumes:
   postgres_data:
-  redis_data:
-  grafana_data:
-  prometheus_data:
+
+networks:
+  default:
+    name: bennespro_network
 EOF
 
 # Copier vers le projet actuel
@@ -616,76 +504,50 @@ cp /opt/$APP_NAME/docker-compose.yml docker-compose.yml
 echo "✅ Docker Compose configuré"
 
 # ==========================================
-# 6. DOCKERFILE PRODUCTION OPTIMISÉ
+# 6. DOCKERFILE PRODUCTION SIMPLIFIÉ  
 # ==========================================
 echo "🏗️ 6. Création Dockerfile production..."
 
-cat > /opt/$APP_NAME/Dockerfile.prod << 'EOF'
-# BennesPro Production Dockerfile - Application complète avec toutes fonctionnalités
+cat > /opt/$APP_NAME/Dockerfile << 'EOF'
 FROM node:18-alpine
 
-# Installer bash et outils nécessaires  
-RUN apk add --no-cache bash curl postgresql-client tini git
+# Install system dependencies
+RUN apk add --no-cache \
+    bash \
+    curl \
+    postgresql-client
 
-# Créer utilisateur non-root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S bennespro -u 1001
+# Create app directory
+WORKDIR /app
 
-# Définir le répertoire de travail
-WORKDIR /opt/bennespro
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/logs
 
-# Copier package.json en premier pour cache Docker
+# Copy package files
 COPY package*.json ./
 
-# Installer toutes les dépendances (dev + prod pour TypeScript)
-RUN npm ci
+# Install dependencies
+RUN npm ci --only=production
 
-# Installer tsx globalement pour production TypeScript
-RUN npm install -g tsx
+# Copy application code
+COPY . .
 
-# Copier tous les fichiers de configuration
-COPY tsconfig.json vite.config.ts tailwind.config.ts postcss.config.js components.json ./
-
-# Copier tout le code source complet (votre vraie application BennesPro)
-COPY client/ ./client/
-COPY server/ ./server/
-COPY shared/ ./shared/
-COPY uploads/ ./uploads/
-
-# Copier les fichiers de configuration supplémentaires
-COPY drizzle.config.js ./
-COPY .env* ./
-
-# Créer les dossiers nécessaires et définir les permissions
-RUN mkdir -p uploads client/dist logs migrations
-RUN chown -R bennespro:nodejs . && chmod -R 755 uploads logs
-
-# Variables d'environnement pour production
-ENV NODE_ENV=production
-ENV PORT=5000
-
-# Utiliser l'utilisateur non-root
-USER bennespro
+# Set permissions
+RUN chmod +x /app/*.sh 2>/dev/null || true
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
+  CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Utiliser l'utilisateur non-root
-USER nodejs
-
-# Exposer le port
+# Expose port
 EXPOSE 5000
 
-# Point d'entrée avec Tini pour la gestion des signaux
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Commande de démarrage avec votre vrai serveur TypeScript
+# Start application
 CMD ["npx", "tsx", "server/index.ts"]
 EOF
 
 # Copier vers le projet actuel
-cp /opt/$APP_NAME/Dockerfile.prod Dockerfile.prod
+cp /opt/$APP_NAME/Dockerfile ./Dockerfile
 
 echo "✅ Dockerfile production créé"
 
