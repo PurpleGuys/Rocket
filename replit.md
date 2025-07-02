@@ -5,12 +5,21 @@ A comprehensive waste management and sustainability platform that leverages inte
 
 ## Recent Changes (July 2, 2025)
 
+### ✅ POSTGRESQL STANDARD MIGRATION COMPLETED (July 2, 2025)
+✓ MIGRATED: From Neon Database serverless to PostgreSQL standard driver (`pg`) for VPS compatibility
+✓ IMPLEMENTED: Automatic database type detection (Neon vs PostgreSQL) in `server/db.ts`
+✓ SIMPLIFIED: Database configuration using universal PostgreSQL driver for all environments
+✓ CREATED: VPS diagnostic script `debug-vps-postgresql.cjs` for PostgreSQL connectivity testing
+✓ UPDATED: VPS deployment guide with complete PostgreSQL configuration instructions
+✓ VERIFIED: Application works with both Neon Database (development) and local PostgreSQL (VPS)
+✓ RESOLVED: "Neon db c'est de la merde" issue - now uses standard PostgreSQL for VPS deployment
+
 ### ✅ COMPREHENSIVE DATABASE MONITORING IMPLEMENTED (July 2, 2025)
 ✓ ADDED: New `/api/database/info` endpoint for database status verification
 ✓ IMPLEMENTED: Database connectivity check with table count and data verification
 ✓ ENHANCED: Startup logging showing all 19 database tables with detailed information
 ✓ TESTED: All critical API endpoints functioning correctly (health, services, waste-types)
-✓ VERIFIED: PostgreSQL database connected via Neon Database with full functionality
+✓ VERIFIED: PostgreSQL database connected via standard driver with full functionality
 ✓ CONFIRMED: Development environment fully operational with comprehensive logging
 
 ### ✅ VPS DEPLOYMENT ISSUES DIAGNOSED & RESOLVED (July 2, 2025)
