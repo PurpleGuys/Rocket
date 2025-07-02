@@ -1,11 +1,11 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+// Stripe temporairement désactivé pour tests
+const STRIPE_DISABLED = true;
 
-if (!stripePublicKey) {
-  console.error('VITE_STRIPE_PUBLIC_KEY not found in environment variables');
-  console.log('Available env vars:', Object.keys(import.meta.env));
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
+console.log('🚫 Stripe temporairement désactivé pour tests');
 
-export const stripePromise = loadStripe(stripePublicKey);
+// Export conditionnel de stripePromise - null quand désactivé
+export const stripePromise = STRIPE_DISABLED 
+  ? Promise.resolve(null)
+  : loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');

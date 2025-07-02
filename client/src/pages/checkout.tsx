@@ -49,10 +49,6 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
-
     // Vérifier que toutes les conditions sont acceptées
     const allEvacuationConditions = Object.values(evacuationConditions).every(Boolean);
     if (!allEvacuationConditions || !acceptTerms) {
@@ -76,24 +72,48 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: window.location.origin + '/payment-success',
-        },
+      // Mode test sans Stripe - créer directement la commande
+      const orderData = {
+        serviceId: bookingDetails.serviceId,
+        address: bookingDetails.address,
+        postalCode: bookingDetails.postalCode,
+        city: bookingDetails.city,
+        wasteTypes: bookingDetails.wasteTypes,
+        deliveryDate: selectedDate,
+        totalAmount: bookingDetails.pricing.total,
+        paymentStatus: 'pending', // En attente de paiement en mode test
+        conditions: {
+          evacuationConditions,
+          acceptTerms
+        }
+      };
+
+      const response = await apiRequest('/api/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData),
       });
 
-      if (error) {
+      if (response.ok) {
+        const order = await response.json();
+        
+        // Nettoyer le sessionStorage
+        sessionStorage.removeItem('bookingDetails');
+        
         toast({
-          title: "Erreur de paiement",
-          description: error.message,
-          variant: "destructive",
+          title: "Commande créée",
+          description: `Votre commande #${order.id} a été créée avec succès. Statut: En attente de paiement.`,
         });
+        
+        // Rediriger vers la page de succès ou dashboard
+        setLocation('/dashboard');
+      } else {
+        throw new Error('Erreur lors de la création de la commande');
       }
     } catch (err) {
+      console.error('Erreur création commande:', err);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors du traitement du paiement",
+        description: "Une erreur est survenue lors de la création de la commande",
         variant: "destructive",
       });
     } finally {
@@ -252,7 +272,22 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
               </div>
             </div>
 
-            <PaymentElement />
+            {/* Section paiement - mode test sans Stripe */}
+            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+              <div className="flex items-center space-x-2 mb-2">
+                <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                <h4 className="font-semibold text-yellow-800">Mode Test - Stripe Désactivé</h4>
+              </div>
+              <p className="text-sm text-yellow-700 mb-3">
+                Le paiement en ligne est temporairement désactivé. Votre commande sera créée avec le statut "En attente de paiement".
+              </p>
+              <div className="bg-white p-3 rounded border">
+                <h5 className="font-medium text-gray-900 mb-2">Total à payer :</h5>
+                <div className="text-2xl font-bold text-red-600">
+                  {bookingDetails.pricing.total.toFixed(2)}€ TTC
+                </div>
+              </div>
+            </div>
             
             {/* Mentions légales obligatoires */}
             <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 space-y-2">
@@ -269,10 +304,10 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
             
             <Button 
               type="submit" 
-              disabled={!stripe || isProcessing}
+              disabled={isProcessing}
               className="w-full bg-red-600 hover:bg-red-700 text-white"
             >
-              {isProcessing ? "Traitement..." : `Payer ${bookingDetails.pricing.total.toFixed(2)}€`}
+              {isProcessing ? "Traitement..." : `Créer la commande - ${bookingDetails.pricing.total.toFixed(2)}€`}
             </Button>
             
             <p className="text-xs text-gray-500 text-center">
@@ -307,16 +342,19 @@ export default function Checkout() {
     const parsedDetails = JSON.parse(details);
     setBookingDetails(parsedDetails);
 
-    // Créer l'intention de paiement
-    createPaymentIntent(parsedDetails);
+    // En mode test sans Stripe, pas besoin de créer une intention de paiement
+    // createPaymentIntent(parsedDetails);
   }, []);
 
   const createPaymentIntent = async (details: BookingDetails) => {
     try {
-      const response = await apiRequest('POST', '/api/create-payment-intent', {
-        amount: details.pricing.total,
-        orderId: `booking-${Date.now()}`, // ID temporaire pour la réservation
-        bookingDetails: details
+      const response = await apiRequest('/api/create-payment-intent', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: details.pricing.total,
+          orderId: `booking-${Date.now()}`, // ID temporaire pour la réservation
+          bookingDetails: details
+        })
       });
 
       const data = await response.json();
@@ -331,7 +369,7 @@ export default function Checkout() {
     }
   };
 
-  if (!bookingDetails || !clientSecret) {
+  if (!bookingDetails) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full" />
