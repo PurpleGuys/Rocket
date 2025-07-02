@@ -1,0 +1,86 @@
+🚀 DÉPLOIEMENT BENNESPRO DOCKER - 100% AUTOMATIQUE
+==================================================
+Cette commande va TOUT faire automatiquement !
+
+🎯 Lancement du déploiement automatisé...
+
+🚀 DÉPLOIEMENT DOCKER AUTOMATISÉ BENNESPRO
+==========================================
+🎯 Ce script va TOUT configurer automatiquement!
+
+15:13:35 [INFO] 🔍 Vérifications préalables...
+15:13:35 [SUCCESS] ✅ Toutes les vérifications passées
+15:13:35 [INFO] 🧹 Nettoyage des containers existants...
+Deleted Containers:
+7e22a55b3f7fb337a7054e26d120abaf1574675a994f35db868cebb3ade770bd
+
+Total reclaimed space: 0B
+Total reclaimed space: 0B
+Total reclaimed space: 0B
+15:13:36 [SUCCESS] ✅ Nettoyage terminé
+15:13:36 [INFO] 📝 Création Dockerfile optimisé...
+15:13:36 [SUCCESS] ✅ Dockerfile créé
+15:13:36 [INFO] 🐳 Création docker-compose.yml...
+15:13:36 [SUCCESS] ✅ docker-compose.yml créé
+15:13:36 [INFO] ⚙️ Configuration Nginx...
+15:13:36 [SUCCESS] ✅ nginx.conf créé
+15:13:36 [INFO] 💾 Création script d'initialisation base de données...
+15:13:36 [SUCCESS] ✅ init.sql créé
+15:13:36 [INFO] 🔧 Création fichier environnement...
+15:13:36 [INFO] Fichier .env existe déjà - vérifiez vos valeurs
+15:13:36 [SUCCESS] ✅ Configuration environnement créée
+15:13:36 [INFO] 📁 Création des dossiers nécessaires...
+15:13:36 [SUCCESS] ✅ Dossiers créés
+15:13:36 [INFO] 🏗️ Build et démarrage des containers...
+Cela peut prendre plusieurs minutes...
+postgres uses an image, skipping
+redis uses an image, skipping
+nginx uses an image, skipping
+Building app
+[+] Building 144.1s (31/31) FINISHED                                                                                                                                                           docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                                     0.0s
+ => => transferring dockerfile: 1.81kB                                                                                                                                                                   0.0s
+ => [internal] load metadata for docker.io/library/node:20-alpine                                                                                                                                        0.7s
+ => [internal] load .dockerignore                                                                                                                                                                        0.0s
+ => => transferring context: 2B                                                                                                                                                                          0.0s
+ => CACHED [base  1/10] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11                                                                    0.0s
+ => [internal] load build context                                                                                                                                                                        3.9s
+ => => transferring context: 2.40MB                                                                                                                                                                      3.5s
+ => [production  2/14] RUN apk add --no-cache     postgresql-client     curl     dumb-init                                                                                                               2.0s
+ => [base  2/10] RUN apk add --no-cache     python3     make     g++     postgresql-client     curl                                                                                                      5.4s
+ => [production  3/14] WORKDIR /app                                                                                                                                                                      0.0s
+ => [base  3/10] WORKDIR /app                                                                                                                                                                            0.0s
+ => [base  4/10] COPY package*.json ./                                                                                                                                                                   0.3s
+ => [base  5/10] COPY tsconfig*.json ./                                                                                                                                                                  0.3s
+ => [base  6/10] COPY vite.config.ts ./                                                                                                                                                                  0.0s
+ => [base  7/10] COPY tailwind.config.ts ./                                                                                                                                                              0.0s
+ => [base  8/10] COPY postcss.config.js ./                                                                                                                                                               0.0s
+ => [base  9/10] COPY components.json ./                                                                                                                                                                 0.0s
+ => [base 10/10] RUN npm ci --only=production && npm cache clean --force                                                                                                                                17.8s
+ => [builder 1/3] RUN npm ci                                                                                                                                                                            24.9s
+ => [production  4/14] COPY --from=base /app/node_modules ./node_modules                                                                                                                                 6.1s
+ => [production  5/14] COPY --from=base /app/package*.json ./                                                                                                                                            0.6s
+ => [builder 2/3] COPY . .                                                                                                                                                                              21.5s
+ => [builder 3/3] RUN npm run build || echo "Build failed, continuing..."                                                                                                                               18.1s
+ => [production  6/14] COPY --from=builder /app/dist ./dist                                                                                                                                              0.0s
+ => [production  7/14] COPY --from=builder /app/server ./server                                                                                                                                          0.0s
+ => [production  8/14] COPY --from=builder /app/shared ./shared                                                                                                                                          0.0s
+ => [production  9/14] COPY --from=builder /app/client ./client                                                                                                                                          0.1s
+ => [production 10/14] COPY --from=builder /app/uploads ./uploads                                                                                                                                        0.0s
+ => [production 11/14] COPY --from=builder /app/tsconfig*.json ./                                                                                                                                        0.6s
+ => [production 12/14] COPY --from=builder /app/vite.config.ts ./                                                                                                                                        0.0s
+ => [production 13/14] RUN addgroup -g 1001 -S nodejs &&     adduser -S nodejs -u 1001                                                                                                                   0.2s
+ => [production 14/14] RUN chown -R nodejs:nodejs /app                                                                                                                                                  45.1s
+ => exporting to image                                                                                                                                                                                   6.7s
+ => => exporting layers                                                                                                                                                                                  6.7s
+ => => writing image sha256:f3f8b5902db7059503dce74b341e84d4c29e9cd78a247b5b95a12237fb04e2f4                                                                                                             0.0s
+ => => naming to docker.io/library/rem-bennes_app                                                                                                                                                        0.0s
+Creating network "rem-bennes_bennespro-network" with driver "bridge"
+Creating bennespro-postgres ...
+Creating bennespro-postgres ... error
+WARNING: Host is already in use by another container
+
+ERROR: for bennespro-postgres  Cannot start service postgres: failed to set up container networking: driver failed programming external connectivity on endpoint bennespro-postgres (2371f8f0f42dac913d5058afd3941511913a8877ff6c0f7644a6702b7f37ed89): failed to bind host port for 0.0.0.0:5432:172.20.0.3:5432/tcp: address already in use
+
+ERROR: for postgres  Cannot start service postgres: failed to set up container networking: driver failed programming external connectivity on endpoint bennespro-postgres (2371f8f0f42dac913d5058afd3941511913a8877ff6c0f7644a6702b7f37ed89): failed to bind host port for 0.0.0.0:5432:172.20.0.3:5432/tcp: address already in use
+ERROR: Encountered errors while bringing up the project.
