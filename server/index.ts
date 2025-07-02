@@ -66,12 +66,15 @@ function log(message: string, source = "express", level = "INFO") {
   // Configure static file serving for production or development
   if (process.env.NODE_ENV === "production") {
     // VPS Production: serve built static files manually
+    // Get current directory using ES module compatible method
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    
     const distPaths = [
       path.resolve(process.cwd(), "dist"),
       path.resolve(process.cwd(), "client/dist"), 
       path.resolve(process.cwd(), "build"),
-      path.resolve(__dirname, "..", "dist"),
-      path.resolve(__dirname, "public")
+      path.resolve(currentDir, "..", "dist"),
+      path.resolve(currentDir, "public")
     ];
     
     let staticPath = null;
