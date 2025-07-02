@@ -1,6 +1,6 @@
 import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, satisfactionSurveys, surveyNotifications, fids, abandonedCheckouts, inactivityNotifications, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit, type SatisfactionSurvey, type InsertSatisfactionSurvey, type SurveyNotification, type InsertSurveyNotification, type Fid, type InsertFid, type UpdateFid, type AbandonedCheckout, type InsertAbandonedCheckout, type InactivityNotification, type InsertInactivityNotification } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, lte, sql, lt } from "drizzle-orm";
+import { eq, desc, asc, and, gte, lte, sql, lt } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -317,7 +317,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(serviceImages)
       .where(eq(serviceImages.serviceId, serviceId))
-      .orderBy(serviceImages.sortOrder, serviceImages.id);
+      .orderBy(asc(serviceImages.sortOrder), asc(serviceImages.id));
   }
 
   async createServiceImage(image: InsertServiceImage): Promise<ServiceImage> {
