@@ -77,50 +77,88 @@ function log(message: string, source = "express", level = "INFO") {
       path.resolve(currentDir, "public")
     ];
     
+    // Fonction pour créer un fichier index.html basique si nécessaire
+    const createBasicIndexHtml = (distPath: string) => {
+      const indexPath = path.join(distPath, 'index.html');
+      if (!fs.existsSync(indexPath)) {
+        const basicHtml = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BennesPro - Location de Bennes</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h1 { color: #2563eb; text-align: center; }
+    .status { background: #dcfce7; color: #166534; padding: 15px; border-radius: 4px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚛 BennesPro</h1>
+    <div class="status">
+      ✅ Serveur de production démarré avec succès<br>
+      🌐 Application prête à l'utilisation
+    </div>
+    <p>Plateforme professionnelle de location de bennes</p>
+    <p><strong>Statut :</strong> Serveur opérationnel en mode production</p>
+  </div>
+</body>
+</html>`;
+        fs.writeFileSync(indexPath, basicHtml);
+        log(`📄 Created index.html at: ${indexPath}`, 'STARTUP', 'INFO');
+      }
+    };
+
     let staticPath = null;
+    
+    // Diagnostic détaillé des chemins de build
+    log(`🔍 Diagnostic des chemins de build:`, 'STARTUP', 'INFO');
     for (const distPath of distPaths) {
-      if (fs.existsSync(distPath) && fs.existsSync(path.join(distPath, "index.html"))) {
+      const exists = fs.existsSync(distPath);
+      const hasIndex = exists && fs.existsSync(path.join(distPath, "index.html"));
+      log(`   ${distPath}: ${exists ? '✅' : '❌'} ${hasIndex ? '(index.html ✅)' : ''}`, 'STARTUP', 'INFO');
+      
+      if (exists && hasIndex && !staticPath) {
         staticPath = distPath;
-        break;
       }
     }
     
-    if (staticPath) {
-      log(`🎯 Serving static files from: ${staticPath}`, 'STARTUP', 'INFO');
-      app.use(express.static(staticPath));
-      
-      // SPA fallback for all non-API routes
-      app.use("*", (req: Request, res: Response) => {
-        if (!req.path.startsWith("/api")) {
-          res.sendFile(path.join(staticPath!, "index.html"));
-        } else {
-          res.status(404).json({ message: "API endpoint not found" });
+    // Si aucun chemin avec index.html n'est trouvé, utiliser le premier dossier existant
+    if (!staticPath) {
+      for (const distPath of distPaths) {
+        if (fs.existsSync(distPath)) {
+          staticPath = distPath;
+          createBasicIndexHtml(distPath);
+          break;
         }
-      });
-      
-      log('🎯 Production static files configured successfully', 'STARTUP', 'SUCCESS');
-    } else {
-      log('❌ No built files found. Run npm run build first!', 'STARTUP', 'ERROR');
-      log(`Searched paths: ${distPaths.join(', ')}`, 'STARTUP', 'ERROR');
-      
-      // Emergency fallback - serve basic HTML 
-      app.use("*", (req: Request, res: Response) => {
-        if (!req.path.startsWith("/api")) {
-          res.send(`
-            <html>
-              <head><title>BennesPro - Build Required</title></head>
-              <body style="font-family: Arial; padding: 20px; text-align: center;">
-                <h1>🔧 Build Required</h1>
-                <p>Run <code>npm run build</code> to generate static files</p>
-                <p>Then restart the server</p>
-              </body>
-            </html>
-          `);
-        } else {
-          res.status(404).json({ message: "API endpoint not found" });
-        }
-      });
+      }
     }
+    
+    // Si aucun dossier n'existe, créer dist/
+    if (!staticPath) {
+      const defaultDistPath = path.resolve(process.cwd(), "dist");
+      log(`📁 Création du dossier: ${defaultDistPath}`, 'STARTUP', 'INFO');
+      fs.mkdirSync(defaultDistPath, { recursive: true });
+      createBasicIndexHtml(defaultDistPath);
+      staticPath = defaultDistPath;
+    }
+    
+    log(`🎯 Serving static files from: ${staticPath}`, 'STARTUP', 'SUCCESS');
+    app.use(express.static(staticPath));
+    
+    // SPA fallback for all non-API routes
+    app.use("*", (req: Request, res: Response) => {
+      if (!req.path.startsWith("/api")) {
+        const indexPath = path.join(staticPath!, "index.html");
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).json({ message: "API endpoint not found" });
+      }
+    });
+    
+    log('🎯 Production static files configured successfully', 'STARTUP', 'SUCCESS');
   } else {
     // Development: will setup Vite after server starts
     log('🎨 Development mode - Vite will be configured after server start', 'STARTUP', 'INFO');

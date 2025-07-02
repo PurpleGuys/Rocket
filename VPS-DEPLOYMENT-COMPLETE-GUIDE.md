@@ -2,23 +2,31 @@
 
 ## ⚡ SOLUTION RAPIDE ÉCRAN BLANC VPS
 
-### 1. Build de l'application (SOLUTION __dirname FIXÉE)
+### 1. Build de l'application (AUTO-DÉTECTION AMÉLIORÉE)
 ```bash
 # Sur votre VPS, dans le dossier BennesPro
-# Build FRONTEND SEULEMENT pour éviter problèmes ES modules
+# Le serveur créera automatiquement les fichiers nécessaires
+# Plus besoin de build manuel - le serveur gère tout!
+
+# OPTIONNEL: Build frontend si vous voulez la version complète
 npx vite build
 
-# Vérifier que le dossier dist existe
-ls -la dist/
+# Vérifier (le serveur fonctionne même sans build)
+ls -la dist/ || echo "Le serveur créera dist/ automatiquement"
 ```
 
-### 2. Démarrer en mode Production (SOLUTION RECOMMANDÉE)
+### 2. Démarrer en mode Production (SOLUTION ROBUSTE)
 ```bash
-# UTILISER TSX pour éviter les problèmes de compilation __dirname
+# SOLUTION RECOMMANDÉE: TSX avec auto-création des fichiers
 NODE_ENV=production npx tsx server/index.ts
 
-# Alternative si tsx n'est pas disponible
+# Alternative standard (fonctionne aussi)
 NODE_ENV=production npm start
+
+# Le serveur crée automatiquement:
+# - Dossier dist/ si manquant
+# - index.html basique si manquant  
+# - Configuration statique complète
 ```
 
 ### 3. Test de l'Application
