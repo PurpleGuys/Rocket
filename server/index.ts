@@ -6,9 +6,8 @@ import { registerRoutes } from "./routes";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Enhanced logging function with detailed information
+// Production-compatible logging function
 function log(message: string, source = "express", level = "INFO") {
-  const timestamp = new Date().toISOString();
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit", 
@@ -16,56 +15,36 @@ function log(message: string, source = "express", level = "INFO") {
     hour12: true,
   });
   
-  // Color coding for different log levels
-  const colors = {
-    INFO: '\x1b[32m',    // Green
-    WARN: '\x1b[33m',    // Yellow
-    ERROR: '\x1b[31m',   // Red
-    DEBUG: '\x1b[36m',   // Cyan
-    SUCCESS: '\x1b[92m', // Bright Green
-    RESET: '\x1b[0m'     // Reset
-  };
-  
-  const color = colors[level as keyof typeof colors] || colors.INFO;
-  console.log(`${color}${formattedTime} [${level}] [${source}] ${message}${colors.RESET}`);
-  
-  // Also log to file in production
   if (process.env.NODE_ENV === 'production') {
-    console.log(`${timestamp} [${level}] [${source}] ${message}`);
+    // Production: Simple logging without colors
+    console.log(`${formattedTime} [${source}] ${message}`);
+  } else {
+    // Development: Enhanced logging with colors
+    const colors = {
+      INFO: '\x1b[32m',    // Green
+      WARN: '\x1b[33m',    // Yellow
+      ERROR: '\x1b[31m',   // Red
+      DEBUG: '\x1b[36m',   // Cyan
+      SUCCESS: '\x1b[92m', // Bright Green
+      RESET: '\x1b[0m'     // Reset
+    };
+    
+    const color = colors[level as keyof typeof colors] || colors.INFO;
+    console.log(`${color}${formattedTime} [${level}] [${source}] ${message}${colors.RESET}`);
   }
 }
 
 // Initialize Express application
 const app = express();
 
-// Startup logging
-log('═══════════════════════════════════════════════', 'STARTUP', 'INFO');
-log('🚀 BennesPro Application Starting...', 'STARTUP', 'INFO');
-log(`Node.js Version: ${process.version}`, 'STARTUP', 'INFO');
-log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'STARTUP', 'INFO');
-log(`Process ID: ${process.pid}`, 'STARTUP', 'INFO');
-log(`Memory Usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`, 'STARTUP', 'INFO');
-
-// Environment Variables Check
-const requiredEnvVars = ['DATABASE_URL'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
-if (missingEnvVars.length > 0) {
-  log(`Missing environment variables: ${missingEnvVars.join(', ')}`, 'STARTUP', 'WARN');
-} else {
-  log('✅ All required environment variables present', 'STARTUP', 'SUCCESS');
+// Simplified startup logging for production compatibility
+if (process.env.NODE_ENV !== 'production') {
+  log('🚀 BennesPro Application Starting...', 'STARTUP');
+  log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'STARTUP');
+  log(`Node.js Version: ${process.version}`, 'STARTUP');
 }
 
-// Optional environment variables
-const optionalEnvVars = ['JWT_SECRET', 'SENDGRID_API_KEY', 'VITE_STRIPE_PUBLIC_KEY'];
-optionalEnvVars.forEach(varName => {
-  if (process.env[varName]) {
-    log(`✅ ${varName}: configured`, 'STARTUP', 'SUCCESS');
-  } else {
-    log(`⚠️  ${varName}: not configured`, 'STARTUP', 'WARN');
-  }
-});
-
-log('Setting up Express middleware...', 'STARTUP', 'DEBUG');
+log('Setting up Express middleware...', 'startup');
 
 // CORS headers only (CSP is handled by Helmet in routes.ts)
 app.use((req, res, next) => {
@@ -78,50 +57,15 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
-log('✅ Express middleware configured', 'STARTUP', 'SUCCESS');
 
-// Enhanced request logging middleware
+if (process.env.NODE_ENV !== 'production') {
+  log('Express middleware configured', 'startup');
+}
+
+// Simple request logging middleware (production compatible)
 app.use((req, res, next) => {
   const start = Date.now();
-  const requestId = Math.random().toString(36).substring(7);
   const path = req.path;
-  const method = req.method;
-  const userAgent = req.get('User-Agent') || 'Unknown';
-  const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'Unknown';
-  
-  // Log request start for API calls
-  if (path.startsWith("/api")) {
-    log(`→ ${method} ${path} | IP: ${clientIP} | ID: ${requestId}`, 'REQUEST', 'DEBUG');
-    
-    // Log important headers for debugging (excluding sensitive data)
-    const importantHeaders = ['authorization', 'content-type', 'user-agent', 'origin', 'referer'];
-    const headerData: Record<string, string> = {};
-    importantHeaders.forEach(header => {
-      if (req.headers[header]) {
-        if (header === 'authorization') {
-          headerData[header] = req.headers[header]?.toString().startsWith('Bearer ') ? 'Bearer [TOKEN]' : '[REDACTED]';
-        } else {
-          headerData[header] = req.headers[header]?.toString() || '';
-        }
-      }
-    });
-    log(`Headers: ${JSON.stringify(headerData)}`, 'REQUEST', 'DEBUG');
-    
-    // Log request body for POST/PUT/PATCH (excluding sensitive data)
-    if (['POST', 'PUT', 'PATCH'].includes(method) && req.body && Object.keys(req.body).length > 0) {
-      const body = { ...req.body };
-      if (body.password) body.password = '[REDACTED]';
-      if (body.token) body.token = '[REDACTED]';
-      if (body.apiKey) body.apiKey = '[REDACTED]';
-      log(`Body: ${JSON.stringify(body)}`, 'REQUEST', 'DEBUG');
-    }
-    
-    // Log query parameters
-    if (Object.keys(req.query).length > 0) {
-      log(`Query: ${JSON.stringify(req.query)}`, 'REQUEST', 'DEBUG');
-    }
-  }
-
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -133,40 +77,16 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      const statusColor = res.statusCode >= 500 ? 'ERROR' : 
-                         res.statusCode >= 400 ? 'WARN' : 
-                         res.statusCode >= 300 ? 'INFO' : 'SUCCESS';
-      
-      let logLine = `← ${method} ${path} ${res.statusCode} in ${duration}ms | ID: ${requestId}`;
-      
+      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        const response = { ...capturedJsonResponse };
-        // Redact sensitive response data
-        if (response.token) response.token = '[REDACTED]';
-        if (response.password) response.password = '[REDACTED]';
-        if (response.apiKey) response.apiKey = '[REDACTED]';
-        
-        // Truncate long responses for readability
-        const responseStr = JSON.stringify(response);
-        if (responseStr.length > 200) {
-          logLine += ` :: ${responseStr.slice(0, 197)}...`;
+        const responseStr = JSON.stringify(capturedJsonResponse);
+        if (responseStr.length > 80) {
+          logLine += ` :: ${responseStr.slice(0, 77)}...`;
         } else {
           logLine += ` :: ${responseStr}`;
         }
       }
-      
-      log(logLine, 'RESPONSE', statusColor);
-      
-      // Log slow requests
-      if (duration > 1000) {
-        log(`⚠️ Slow request detected: ${method} ${path} took ${duration}ms`, 'PERFORMANCE', 'WARN');
-      }
-      
-      // Log memory usage on slow requests
-      if (duration > 2000) {
-        const memUsage = process.memoryUsage();
-        log(`Memory: Heap ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`, 'PERFORMANCE', 'INFO');
-      }
+      log(logLine);
     }
   });
 
@@ -174,62 +94,26 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  log('Registering API routes and middleware...', 'STARTUP', 'INFO');
-  log('Setting up database connection...', 'STARTUP', 'INFO');
-  log('Initializing authentication system...', 'STARTUP', 'INFO');
-  log('Configuring email services...', 'STARTUP', 'INFO');
+  if (process.env.NODE_ENV !== 'production') {
+    log('Registering API routes and middleware...', 'startup');
+  }
   
   const server = await registerRoutes(app);
   
-  log('✅ All routes registered successfully', 'STARTUP', 'SUCCESS');
-  log('✅ Database connection established', 'STARTUP', 'SUCCESS');
-  log('✅ Authentication middleware configured', 'STARTUP', 'SUCCESS');
+  if (process.env.NODE_ENV !== 'production') {
+    log('Routes registered successfully', 'startup');
+  }
 
-  // Enhanced global error handler
+  // Simple global error handler
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    const timestamp = new Date().toISOString();
-    const requestId = Math.random().toString(36).substring(7);
-    
-    // Log comprehensive error details
-    log(`❌ Global Error Handler Triggered | ID: ${requestId}`, 'ERROR', 'ERROR');
-    log(`Request: ${req.method} ${req.path}`, 'ERROR', 'ERROR');
-    log(`Status: ${status} | Message: ${message}`, 'ERROR', 'ERROR');
-    log(`Client IP: ${req.ip || 'Unknown'}`, 'ERROR', 'ERROR');
-    log(`User Agent: ${req.get('User-Agent') || 'Unknown'}`, 'ERROR', 'ERROR');
-    log(`Timestamp: ${timestamp}`, 'ERROR', 'ERROR');
-    
-    // Log error stack trace if available
-    if (err.stack) {
-      log(`Stack Trace: ${err.stack}`, 'ERROR', 'ERROR');
-    }
-    
-    // Log request details for debugging
-    if (req.body && Object.keys(req.body).length > 0) {
-      const safeBody = { ...req.body };
-      if (safeBody.password) safeBody.password = '[REDACTED]';
-      if (safeBody.token) safeBody.token = '[REDACTED]';
-      log(`Request Body: ${JSON.stringify(safeBody)}`, 'ERROR', 'ERROR');
-    }
-    
-    // Log query parameters
-    if (Object.keys(req.query).length > 0) {
-      log(`Query Params: ${JSON.stringify(req.query)}`, 'ERROR', 'ERROR');
-    }
-    
-    // Log user info if available
-    if (req.user) {
-      log(`User: ${req.user.email} (ID: ${req.user.id})`, 'ERROR', 'ERROR');
-    }
-    
-    // Memory usage at time of error
-    const memUsage = process.memoryUsage();
-    log(`Memory: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB used / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB total`, 'ERROR', 'ERROR');
-    
-    log(`═══════════════════════════════════════════════`, 'ERROR', 'ERROR');
 
-    res.status(status).json({ message, requestId });
+    if (process.env.NODE_ENV !== 'production') {
+      console.error(`Error on ${req.method} ${req.path}:`, err);
+    }
+
+    res.status(status).json({ message });
     
     // Don't throw in production to prevent crashes
     if (process.env.NODE_ENV !== 'production') {
