@@ -1,157 +1,48 @@
-// Import du polyfill de chemin en premier pour résoudre import.meta.dirname
-import "./path-polyfill.js";
-
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { db } from "./db.js";
+import express, { Request, Response, NextFunction } from "express";
+import { Server } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { registerRoutes } from "./routes.ts";
+import { testDatabaseConnection } from "./db.ts";
 
-// Production-compatible logging function
 function log(message: string, source = "express", level = "INFO") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit", 
-    second: "2-digit",
-    hour12: true,
-  });
-  
-  if (process.env.NODE_ENV === 'production') {
-    // Production: Simple logging without colors
-    console.log(`${formattedTime} [${source}] ${message}`);
-  } else {
-    // Development: Enhanced logging with colors
-    const colors = {
-      INFO: '\x1b[32m',    // Green
-      WARN: '\x1b[33m',    // Yellow
-      ERROR: '\x1b[31m',   // Red
-      DEBUG: '\x1b[36m',   // Cyan
-      SUCCESS: '\x1b[92m', // Bright Green
-      RESET: '\x1b[0m'     // Reset
-    };
-    
-    const color = colors[level as keyof typeof colors] || colors.INFO;
-    console.log(`${color}${formattedTime} [${level}] [${source}] ${message}${colors.RESET}`);
-  }
-}
-
-// Initialize Express application
-const app = express();
-
-// Simplified startup logging for production compatibility
-if (process.env.NODE_ENV !== 'production') {
-  log('🚀 BennesPro Application Starting...', 'STARTUP');
-  log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'STARTUP');
-  log(`Node.js Version: ${process.version}`, 'STARTUP');
-}
-
-log('Setting up Express middleware...', 'startup');
-
-// CORS headers only (CSP is handled by Helmet in routes.ts)
-app.use((req, res, next) => {
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  next();
-});
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
-
-if (process.env.NODE_ENV !== 'production') {
-  log('Express middleware configured', 'startup');
-}
-
-// Simple request logging middleware (production compatible)
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        const responseStr = JSON.stringify(capturedJsonResponse);
-        if (responseStr.length > 80) {
-          logLine += ` :: ${responseStr.slice(0, 77)}...`;
-        } else {
-          logLine += ` :: ${responseStr}`;
-        }
-      }
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
-// Function to test database connectivity and log table information
-async function testDatabaseConnection() {
-  try {
-    log('🔍 Testing database connectivity...', 'DATABASE', 'INFO');
-    
-    // Detect database type
-    const isNeon = process.env.DATABASE_URL?.includes('neon.tech') || process.env.DATABASE_URL?.includes('neondb.io');
-    const dbType = isNeon ? 'Neon Database (Cloud)' : 'PostgreSQL (Standard)';
-    log(`🔗 Database Type: ${dbType}`, 'DATABASE', 'INFO');
-    
-    // Test basic database connection
-    const testQuery = await db.execute('SELECT NOW() as current_time, version() as pg_version');
-    const result = testQuery.rows[0];
-    
-    log(`✅ Database connected successfully`, 'DATABASE', 'SUCCESS');
-    log(`📅 PostgreSQL Time: ${result.current_time}`, 'DATABASE', 'INFO');
-    log(`🗄️ PostgreSQL Version: ${result.pg_version}`, 'DATABASE', 'INFO');
-    
-    // Get all tables in the database
-    const tablesQuery = await db.execute(`
-      SELECT table_name, table_type 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      ORDER BY table_name
-    `);
-    
-    log(`📊 Found ${tablesQuery.rows.length} tables in database:`, 'DATABASE', 'INFO');
-    tablesQuery.rows.forEach((table: any) => {
-      log(`   - ${table.table_name} (${table.table_type})`, 'DATABASE', 'INFO');
-    });
-    
-    return true;
-  } catch (error) {
-    log(`❌ Database connection failed: ${error.message}`, 'DATABASE', 'ERROR');
-    log(`🔧 Check DATABASE_URL environment variable`, 'DATABASE', 'WARN');
-    return false;
-  }
+  const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+  const levelPrefix = level === 'SUCCESS' ? '✅' : level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : 'ℹ️';
+  console.log(`${timestamp} [${level}] [${source.toUpperCase()}] ${levelPrefix} ${message}`);
 }
 
 (async () => {
-  if (process.env.NODE_ENV !== 'production') {
-    log('Registering API routes and middleware...', 'startup');
-  }
-  
-  // Test database connection before starting the server
-  const dbConnected = await testDatabaseConnection();
-  
-  // Setup static file serving for production or Vite for development
+  const app = express();
+
+  log('🚀 BennesPro Application Starting...', 'STARTUP', 'INFO');
+  log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'STARTUP', 'INFO');
+  log(`Node.js Version: ${process.version}`, 'STARTUP', 'INFO');
+
+  // Test database connectivity
+  await testDatabaseConnection();
+
+  log('Setting up Express middleware...', 'startup');
+
+  // Basic middleware
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  // Security headers
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+  });
+
+  log('Express middleware configured', 'startup');
+  log('Registering API routes and middleware...', 'startup');
+
   if (process.env.NODE_ENV === "production") {
-    // Production: serve static files from dist/public folder (where Vite builds)
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.join(__dirname, "..", "dist", "public");
-
-    // Serve static assets
+    // Production: serve static files first
+    const distPath = path.resolve("dist/public");
     app.use(express.static(distPath));
-
-    // Catch-all handler for SPA routing - serve index.html for non-API routes
-    // IMPORTANT: This must come AFTER all API routes are registered
     app.get("*", (req, res) => {
       if (!req.path.startsWith("/api")) {
         res.sendFile(path.join(distPath, "index.html"));
@@ -159,11 +50,20 @@ async function testDatabaseConnection() {
         res.status(404).json({ message: "API endpoint not found" });
       }
     });
-  } else {
-    // Development: use Vite (only when Vite is available)
+  }
+
+  // CRITICAL: Register ALL API routes FIRST (for both production and development)
+  await registerRoutes(app);
+  
+  if (process.env.NODE_ENV !== 'production') {
+    log('Routes registered successfully', 'startup');
+  }
+  
+  if (process.env.NODE_ENV !== "production") {
+    // Development: use Vite AFTER routes registration
     try {
       const { setupVite } = await import("./vite.ts");
-      await setupVite(app, server);
+      // Vite will be setup later with the created server
     } catch (error) {
       log("Vite not available, falling back to static serving");
       log(`Error: ${error?.message || 'Unknown error'}`);
@@ -178,13 +78,6 @@ async function testDatabaseConnection() {
         }
       });
     }
-  }
-
-  // CRITICAL: Register ALL API routes AFTER Vite but BEFORE server start
-  await registerRoutes(app);
-  
-  if (process.env.NODE_ENV !== 'production') {
-    log('Routes registered successfully', 'startup');
   }
 
   // Simple global error handler (must come AFTER routes but BEFORE server start)
@@ -214,7 +107,7 @@ async function testDatabaseConnection() {
   log(`Target host: ${host}`, 'STARTUP', 'INFO');
   log(`Target port: ${port}`, 'STARTUP', 'INFO');
 
-  server.listen(port, host, () => {
+  const server = app.listen(port, host, () => {
     log('═══════════════════════════════════════════════', 'STARTUP', 'SUCCESS');
     log('🚀 BennesPro Server Successfully Started!', 'STARTUP', 'SUCCESS');
     log(`📡 Server running on: http://${host}:${port}`, 'STARTUP', 'SUCCESS');
