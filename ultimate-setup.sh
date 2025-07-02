@@ -32,6 +32,7 @@ echo "🚀 ULTIMATE SETUP - BennesPro Production TOTAL COMPLETE"
 echo "======================================================="
 echo "🎯 Configuration ABSOLUE de A à Z en cours..."
 echo "💎 Niveau ENTERPRISE avec TOUTES les fonctionnalités"
+echo "🔧 CORRECTION AUTOMATIQUE des erreurs ContainerConfig"
 echo ""
 
 # Variables de configuration COMPLÈTES
@@ -100,9 +101,35 @@ echo "   🕐 Timezone: $TIMEZONE"
 echo ""
 
 # ==========================================
-# 1. SYSTÈME ET DÉPENDANCES
+# 1. NETTOYAGE DOCKER PRÉVENTIF (FIX CONTAINERCONFIG)
 # ==========================================
-echo "🔧 1. Installation des dépendances système..."
+echo "🧹 1. Nettoyage Docker préventif pour éviter ContainerConfig..."
+
+# Arrêter tous les services Docker existants
+echo "🛑 Arrêt des services Docker existants..."
+docker_compose_cmd down --remove-orphans 2>/dev/null || true
+docker stop $(docker ps -aq) 2>/dev/null || sudo docker stop $(docker ps -aq) 2>/dev/null || true
+docker rm $(docker ps -aq) 2>/dev/null || sudo docker rm $(docker ps -aq) 2>/dev/null || true
+
+# Nettoyage complet du système Docker
+echo "🧹 Nettoyage système Docker..."
+docker system prune -af --volumes 2>/dev/null || sudo docker system prune -af --volumes 2>/dev/null || true
+docker network prune -f 2>/dev/null || sudo docker network prune -f 2>/dev/null || true
+docker volume prune -f 2>/dev/null || sudo docker volume prune -f 2>/dev/null || true
+
+# Redémarrer Docker si installé
+if command -v docker &> /dev/null; then
+    echo "🔄 Redémarrage Docker..."
+    sudo systemctl restart docker 2>/dev/null || true
+    sleep 5
+fi
+
+echo "✅ Nettoyage Docker terminé"
+
+# ==========================================
+# 2. SYSTÈME ET DÉPENDANCES
+# ==========================================
+echo "🔧 2. Installation des dépendances système..."
 
 # Détecter le système d'exploitation
 if [ -f /etc/debian_version ]; then
@@ -2551,17 +2578,50 @@ echo ""
 echo "🔥🔥🔥 VOTRE APPLICATION BENNESPRO EST 100% OPÉRATIONNELLE ! 🔥🔥🔥"
 echo "================================================================="
 
-# Afficher les informations finales importantes
-# Copier le script de lancement automatique
-cp auto-launch-app.sh $INSTALL_DIR/
-chmod +x $INSTALL_DIR/auto-launch-app.sh
-
-# LANCER AUTOMATIQUEMENT L'APPLICATION MAINTENANT !
+# Créer et exécuter le script de lancement automatique directement
 echo ""
 echo "🔥 LANCEMENT AUTOMATIQUE DE L'APPLICATION..."
 echo "============================================"
 
-# Exécuter le script de lancement
+# Créer le script de lancement automatique
+cat > $INSTALL_DIR/auto-launch-app.sh << 'LAUNCHEOF'
+#!/bin/bash
+
+echo "🚀 LANCEMENT AUTOMATIQUE BENNESPRO..."
+
+cd /opt/bennespro
+
+# Vérifier Docker
+if ! docker ps >/dev/null 2>&1; then
+    echo "🔧 Redémarrage Docker..."
+    sudo systemctl restart docker
+    sleep 10
+fi
+
+# Lancer les services
+echo "🐳 Démarrage des services Docker..."
+docker-compose down --remove-orphans
+docker-compose up -d
+
+# Attendre le démarrage
+echo "⏳ Attente du démarrage (60 secondes)..."
+sleep 60
+
+# Test de l'application
+echo "🧪 Test de l'application..."
+if curl -f http://localhost:5000/api/health 2>/dev/null; then
+    echo "✅ Application opérationnelle !"
+else
+    echo "⚠️ Application en cours de démarrage..."
+fi
+
+echo "🎯 Lancement terminé !"
+LAUNCHEOF
+
+chmod +x $INSTALL_DIR/auto-launch-app.sh
+
+# Exécuter le lancement automatique
+echo "🚀 Exécution du lancement automatique..."
 $INSTALL_DIR/auto-launch-app.sh
 
 # Message final avec toutes les infos
