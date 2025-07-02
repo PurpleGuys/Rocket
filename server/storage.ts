@@ -274,16 +274,27 @@ export class DatabaseStorage implements IStorage {
 
   // Services
   async getServices(): Promise<(Service & { images: ServiceImage[] })[]> {
-    const servicesData = await db.select().from(services).where(eq(services.isActive, true));
-    
-    const servicesWithImages = await Promise.all(
-      servicesData.map(async (service) => {
-        const images = await this.getServiceImages(service.id);
-        return { ...service, images };
-      })
-    );
-    
-    return servicesWithImages;
+    try {
+      const servicesData = await db.select().from(services).where(eq(services.isActive, true));
+      
+      const servicesWithImages = await Promise.all(
+        servicesData.map(async (service) => {
+          try {
+            const images = await this.getServiceImages(service.id);
+            return { ...service, images };
+          } catch (imageError) {
+            console.error(`Error loading images for service ${service.id}:`, imageError);
+            // Return service without images if image loading fails
+            return { ...service, images: [] };
+          }
+        })
+      );
+      
+      return servicesWithImages;
+    } catch (error) {
+      console.error('Error in getServices():', error);
+      throw new Error(`Failed to fetch services: ${error.message}`);
+    }
   }
 
   async getService(id: number): Promise<(Service & { images: ServiceImage[] }) | undefined> {
@@ -640,11 +651,16 @@ export class DatabaseStorage implements IStorage {
 
   // Waste Types
   async getWasteTypes(): Promise<WasteType[]> {
-    return await db
-      .select()
-      .from(wasteTypes)
-      .where(eq(wasteTypes.isActive, true))
-      .orderBy(wasteTypes.name);
+    try {
+      return await db
+        .select()
+        .from(wasteTypes)
+        .where(eq(wasteTypes.isActive, true))
+        .orderBy(wasteTypes.name);
+    } catch (error) {
+      console.error('Error in getWasteTypes():', error);
+      throw new Error(`Failed to fetch waste types: ${error.message}`);
+    }
   }
 
   async getWasteType(id: number): Promise<WasteType | undefined> {
@@ -684,32 +700,37 @@ export class DatabaseStorage implements IStorage {
 
   // Treatment Pricing
   async getTreatmentPricing(): Promise<(TreatmentPricing & { wasteType: WasteType })[]> {
-    const pricing = await db
-      .select({
-        id: treatmentPricing.id,
-        wasteTypeId: treatmentPricing.wasteTypeId,
-        pricePerTon: treatmentPricing.pricePerTon,
-        treatmentType: treatmentPricing.treatmentType,
-        treatmentCode: treatmentPricing.treatmentCode,
-        outletAddress: treatmentPricing.outletAddress,
-        isManualTreatment: treatmentPricing.isManualTreatment,
-        isActive: treatmentPricing.isActive,
-        createdAt: treatmentPricing.createdAt,
-        updatedAt: treatmentPricing.updatedAt,
-        wasteType: {
-          id: wasteTypes.id,
-          name: wasteTypes.name,
-          description: wasteTypes.description,
-          isActive: wasteTypes.isActive,
-          createdAt: wasteTypes.createdAt,
-          updatedAt: wasteTypes.updatedAt,
-        }
-      })
-      .from(treatmentPricing)
-      .innerJoin(wasteTypes, eq(treatmentPricing.wasteTypeId, wasteTypes.id))
-      .where(eq(treatmentPricing.isActive, true));
+    try {
+      const pricing = await db
+        .select({
+          id: treatmentPricing.id,
+          wasteTypeId: treatmentPricing.wasteTypeId,
+          pricePerTon: treatmentPricing.pricePerTon,
+          treatmentType: treatmentPricing.treatmentType,
+          treatmentCode: treatmentPricing.treatmentCode,
+          outletAddress: treatmentPricing.outletAddress,
+          isManualTreatment: treatmentPricing.isManualTreatment,
+          isActive: treatmentPricing.isActive,
+          createdAt: treatmentPricing.createdAt,
+          updatedAt: treatmentPricing.updatedAt,
+          wasteType: {
+            id: wasteTypes.id,
+            name: wasteTypes.name,
+            description: wasteTypes.description,
+            isActive: wasteTypes.isActive,
+            createdAt: wasteTypes.createdAt,
+            updatedAt: wasteTypes.updatedAt,
+          }
+        })
+        .from(treatmentPricing)
+        .innerJoin(wasteTypes, eq(treatmentPricing.wasteTypeId, wasteTypes.id))
+        .where(eq(treatmentPricing.isActive, true));
 
-    return pricing as (TreatmentPricing & { wasteType: WasteType })[];
+      return pricing as (TreatmentPricing & { wasteType: WasteType })[];
+    } catch (error) {
+      console.error('Error in getTreatmentPricing():', error);
+      throw new Error(`Failed to fetch treatment pricing: ${error.message}`);
+    }
   }
 
   async getTreatmentPricingByWasteTypeId(wasteTypeId: number): Promise<TreatmentPricing | undefined> {
