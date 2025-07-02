@@ -62,26 +62,7 @@ function log(message: string, source = "express", level = "INFO") {
     log('Routes registered successfully', 'startup');
   }
   
-  if (process.env.NODE_ENV !== "production") {
-    // Development: use Vite AFTER routes registration
-    try {
-      const { setupVite } = await import("./vite.ts");
-      // Vite will be setup later with the created server
-    } catch (error) {
-      log("Vite not available, falling back to static serving");
-      log(`Error: ${error?.message || 'Unknown error'}`);
-      // Fallback to basic static serving even in development
-      const fallbackDistPath = path.resolve("dist/public");
-      app.use(express.static(fallbackDistPath));
-      app.get("*", (req, res) => {
-        if (!req.path.startsWith("/api")) {
-          res.sendFile(path.join(fallbackDistPath, "index.html"));
-        } else {
-          res.status(404).json({ message: "API endpoint not found" });
-        }
-      });
-    }
-  }
+  // Development mode will setup Vite after server starts
 
   // Simple global error handler (must come AFTER routes but BEFORE server start)
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
@@ -110,7 +91,7 @@ function log(message: string, source = "express", level = "INFO") {
   log(`Target host: ${host}`, 'STARTUP', 'INFO');
   log(`Target port: ${port}`, 'STARTUP', 'INFO');
 
-  const server = app.listen(port, host, () => {
+  const server = app.listen(port, host, async () => {
     log('═══════════════════════════════════════════════', 'STARTUP', 'SUCCESS');
     log('🚀 BennesPro Server Successfully Started!', 'STARTUP', 'SUCCESS');
     log(`📡 Server running on: http://${host}:${port}`, 'STARTUP', 'SUCCESS');
@@ -118,6 +99,18 @@ function log(message: string, source = "express", level = "INFO") {
     log(`💾 Memory Usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`, 'STARTUP', 'SUCCESS');
     log(`⏰ Server started at: ${new Date().toISOString()}`, 'STARTUP', 'SUCCESS');
     log('═══════════════════════════════════════════════', 'STARTUP', 'SUCCESS');
+    
+    // Setup Vite AFTER server starts in development
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        const { setupVite } = await import("./vite.ts");
+        await setupVite(app, server);
+        log('🎨 Vite middleware configured successfully', 'STARTUP', 'SUCCESS');
+      } catch (error) {
+        log('❌ Vite setup failed, using fallback static serving', 'STARTUP', 'WARN');
+        log(`Error: ${error?.message || 'Unknown error'}`, 'STARTUP', 'WARN');
+      }
+    }
   }).on('error', (err: any) => {
     log(`❌ Server startup error: ${err.code || 'UNKNOWN'}`, 'STARTUP', 'ERROR');
     log(`Error message: ${err.message}`, 'STARTUP', 'ERROR');
