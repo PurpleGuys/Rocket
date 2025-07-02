@@ -203,7 +203,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const isLocked = await AuthService.isAccountLocked(user);
     if (isLocked) {
       console.log(`\x1b[31m[AUTH] ❌ Account locked - User: ${user.email} (ID: ${user.id})\x1b[0m`);
-      console.log(`\x1b[31m[AUTH] Failed attempts: ${user.failedLoginAttempts}, Last failed: ${user.lastFailedLogin}\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] Failed attempts: ${user.loginAttempts}, Account locked until: ${user.lockUntil}\x1b[0m`);
       return res.status(423).json({ message: 'Compte temporairement verrouillé' });
     }
 

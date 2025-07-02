@@ -174,14 +174,67 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  log('Registering API routes and middleware...', 'STARTUP', 'INFO');
+  log('Setting up database connection...', 'STARTUP', 'INFO');
+  log('Initializing authentication system...', 'STARTUP', 'INFO');
+  log('Configuring email services...', 'STARTUP', 'INFO');
+  
   const server = await registerRoutes(app);
+  
+  log('✅ All routes registered successfully', 'STARTUP', 'SUCCESS');
+  log('✅ Database connection established', 'STARTUP', 'SUCCESS');
+  log('✅ Authentication middleware configured', 'STARTUP', 'SUCCESS');
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  // Enhanced global error handler
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
+    const timestamp = new Date().toISOString();
+    const requestId = Math.random().toString(36).substring(7);
+    
+    // Log comprehensive error details
+    log(`❌ Global Error Handler Triggered | ID: ${requestId}`, 'ERROR', 'ERROR');
+    log(`Request: ${req.method} ${req.path}`, 'ERROR', 'ERROR');
+    log(`Status: ${status} | Message: ${message}`, 'ERROR', 'ERROR');
+    log(`Client IP: ${req.ip || 'Unknown'}`, 'ERROR', 'ERROR');
+    log(`User Agent: ${req.get('User-Agent') || 'Unknown'}`, 'ERROR', 'ERROR');
+    log(`Timestamp: ${timestamp}`, 'ERROR', 'ERROR');
+    
+    // Log error stack trace if available
+    if (err.stack) {
+      log(`Stack Trace: ${err.stack}`, 'ERROR', 'ERROR');
+    }
+    
+    // Log request details for debugging
+    if (req.body && Object.keys(req.body).length > 0) {
+      const safeBody = { ...req.body };
+      if (safeBody.password) safeBody.password = '[REDACTED]';
+      if (safeBody.token) safeBody.token = '[REDACTED]';
+      log(`Request Body: ${JSON.stringify(safeBody)}`, 'ERROR', 'ERROR');
+    }
+    
+    // Log query parameters
+    if (Object.keys(req.query).length > 0) {
+      log(`Query Params: ${JSON.stringify(req.query)}`, 'ERROR', 'ERROR');
+    }
+    
+    // Log user info if available
+    if (req.user) {
+      log(`User: ${req.user.email} (ID: ${req.user.id})`, 'ERROR', 'ERROR');
+    }
+    
+    // Memory usage at time of error
+    const memUsage = process.memoryUsage();
+    log(`Memory: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB used / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB total`, 'ERROR', 'ERROR');
+    
+    log(`═══════════════════════════════════════════════`, 'ERROR', 'ERROR');
 
-    res.status(status).json({ message });
-    throw err;
+    res.status(status).json({ message, requestId });
+    
+    // Don't throw in production to prevent crashes
+    if (process.env.NODE_ENV !== 'production') {
+      throw err;
+    }
   });
 
   // Setup static file serving for production or Vite for development
