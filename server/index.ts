@@ -4,6 +4,7 @@ dotenv.config();
 import express, { Request, Response, NextFunction } from "express";
 import { Server } from "http";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes.ts";
 import { testDatabaseConnection } from "./db.ts";
@@ -62,7 +63,65 @@ function log(message: string, source = "express", level = "INFO") {
     log('Routes registered successfully', 'startup');
   }
   
-  // Development mode will setup Vite after server starts
+  // Configure static file serving for production or development
+  if (process.env.NODE_ENV === "production") {
+    // VPS Production: serve built static files manually
+    const distPaths = [
+      path.resolve(process.cwd(), "dist"),
+      path.resolve(process.cwd(), "client/dist"), 
+      path.resolve(process.cwd(), "build"),
+      path.resolve(__dirname, "..", "dist"),
+      path.resolve(__dirname, "public")
+    ];
+    
+    let staticPath = null;
+    for (const distPath of distPaths) {
+      if (fs.existsSync(distPath) && fs.existsSync(path.join(distPath, "index.html"))) {
+        staticPath = distPath;
+        break;
+      }
+    }
+    
+    if (staticPath) {
+      log(`🎯 Serving static files from: ${staticPath}`, 'STARTUP', 'INFO');
+      app.use(express.static(staticPath));
+      
+      // SPA fallback for all non-API routes
+      app.use("*", (req: Request, res: Response) => {
+        if (!req.path.startsWith("/api")) {
+          res.sendFile(path.join(staticPath!, "index.html"));
+        } else {
+          res.status(404).json({ message: "API endpoint not found" });
+        }
+      });
+      
+      log('🎯 Production static files configured successfully', 'STARTUP', 'SUCCESS');
+    } else {
+      log('❌ No built files found. Run npm run build first!', 'STARTUP', 'ERROR');
+      log(`Searched paths: ${distPaths.join(', ')}`, 'STARTUP', 'ERROR');
+      
+      // Emergency fallback - serve basic HTML 
+      app.use("*", (req: Request, res: Response) => {
+        if (!req.path.startsWith("/api")) {
+          res.send(`
+            <html>
+              <head><title>BennesPro - Build Required</title></head>
+              <body style="font-family: Arial; padding: 20px; text-align: center;">
+                <h1>🔧 Build Required</h1>
+                <p>Run <code>npm run build</code> to generate static files</p>
+                <p>Then restart the server</p>
+              </body>
+            </html>
+          `);
+        } else {
+          res.status(404).json({ message: "API endpoint not found" });
+        }
+      });
+    }
+  } else {
+    // Development: will setup Vite after server starts
+    log('🎨 Development mode - Vite will be configured after server start', 'STARTUP', 'INFO');
+  }
 
   // Simple global error handler (must come AFTER routes but BEFORE server start)
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
