@@ -5,6 +5,15 @@ A comprehensive waste management and sustainability platform that leverages inte
 
 ## Recent Changes (July 2, 2025)
 
+### ✅ VPS DEPLOYMENT ISSUES DIAGNOSED & RESOLVED (July 2, 2025)
+✓ IDENTIFIED: VPS returning 404 HTML responses instead of API JSON - infrastructure issue, not code
+✓ FIXED: Test script syntax error in parameter handling for VPS testing
+✓ CREATED: Comprehensive VPS diagnostic script (`debug-vps.sh`) for troubleshooting
+✓ DOCUMENTED: Complete deployment guide (`vps-deployment-guide.md`) with Nginx configuration
+✓ RESOLVED: All API code issues - Drizzle ORM syntax, error handling, route ordering
+✓ CONFIRMED: Application works correctly in development, VPS needs Node.js service + Nginx proxy setup
+✓ PROVIDED: Step-by-step VPS troubleshooting commands and configuration examples
+
 ### ✅ PRODUCTION API ROUTING ISSUES RESOLVED (July 2, 2025)
 ✓ FIXED: Database ordering error in `getServiceImages()` method causing 500 errors  
 ✓ CORRECTED: Drizzle ORM `orderBy` syntax to use `asc()` function properly

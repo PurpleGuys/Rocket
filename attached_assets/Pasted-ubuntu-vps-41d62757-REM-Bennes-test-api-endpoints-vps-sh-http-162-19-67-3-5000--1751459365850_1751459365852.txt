@@ -1,0 +1,142 @@
+ubuntu@vps-41d62757:~/REM-Bennes$ ./test-api-endpoints-vps.sh http://162.19.67.3 5000
+===========================================
+🚀 Test des endpoints API BennesPro
+🌐 Base URL: http://162.19.67.3
+📅 Date: Wed Jul  2 12:28:46 UTC 2025
+💡 Version avec correctifs VPS
+===========================================
+
+🔓 ENDPOINTS PUBLICS CRITIQUES
+------------------------------
+
+🔍 Testing: Health Check
+   GET http://162.19.67.3/api/health
+   ❌ Status: 404 (Expected: 200)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Liste des services/bennes (CORRIGÉ: Drizzle ORM)
+   GET http://162.19.67.3/api/services
+   ❌ Status: 404 (Expected: 200)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Types de déchets (CORRIGÉ: Gestion d'erreurs)
+   GET http://162.19.67.3/api/waste-types
+   ❌ Status: 404 (Expected: 200)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Tarifs de traitement (CORRIGÉ: Gestion d'erreurs)
+   GET http://162.19.67.3/api/treatment-pricing
+   ❌ Status: 404 (Expected: 200)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔐 ENDPOINTS D'AUTHENTIFICATION
+-------------------------------
+
+🔍 Testing: Profil utilisateur (sans token)
+   GET http://162.19.67.3/api/auth/me
+   ❌ Status: 404 (Expected: 401)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Login (sans données)
+   POST http://162.19.67.3/api/auth/login
+   ❌ Status: 404 (Expected: 400)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🛡️ ENDPOINTS ADMIN (Protection)
+------------------------------
+
+🔍 Testing: Liste utilisateurs (protection)
+   GET http://162.19.67.3/api/admin/users
+   ❌ Status: 404 (Expected: 401)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Gestion services (protection) - AJOUTÉ
+   GET http://162.19.67.3/api/admin/services
+   ❌ Status: 404 (Expected: 401)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Gestion commandes (protection)
+   GET http://162.19.67.3/api/admin/orders
+   ❌ Status: 404 (Expected: 401)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🚫 ENDPOINTS INEXISTANTS
+------------------------
+
+🔍 Testing: Endpoint inexistant (CORRIGÉ: Catch-all handler)
+   GET http://162.19.67.3/api/nonexistent
+   ✅ Status: 404 (Expected: 404)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🔍 Testing: Route fake (CORRIGÉ: Catch-all handler)
+   GET http://162.19.67.3/api/fake/route
+   ✅ Status: 404 (Expected: 404)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+🆕 ENDPOINTS SPÉCIAUX
+--------------------
+
+🔍 Testing: Créneaux horaires
+   GET http://162.19.67.3/api/timeslots/2025-07-10
+   ❌ Status: 404 (Expected: 200)
+   📝 Response: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+...
+
+===========================================
+✅ Test terminé pour: http://162.19.67.3
+📊 Vérifiez les résultats ci-dessus
+
+🔧 CORRECTIFS APPLIQUÉS:
+   ✅ Syntaxe Drizzle ORM corrigée (.orderBy avec asc())
+   ✅ Ordre des routes API repositionné
+   ✅ Route /api/admin/services ajoutée
+   ✅ Gestion d'erreurs robuste dans storage.ts
+   ✅ Catch-all handler pour routes 404
+===========================================

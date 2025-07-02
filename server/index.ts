@@ -3,6 +3,7 @@ import "./path-polyfill.js";
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { db } from "./db.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -93,10 +94,47 @@ app.use((req, res, next) => {
   next();
 });
 
+// Function to test database connectivity and log table information
+async function testDatabaseConnection() {
+  try {
+    log('🔍 Testing database connectivity...', 'DATABASE', 'INFO');
+    
+    // Test basic database connection
+    const testQuery = await db.execute('SELECT NOW() as current_time, version() as pg_version');
+    const result = testQuery[0];
+    
+    log(`✅ Database connected successfully`, 'DATABASE', 'SUCCESS');
+    log(`📅 PostgreSQL Time: ${result.current_time}`, 'DATABASE', 'INFO');
+    log(`🗄️ PostgreSQL Version: ${result.pg_version}`, 'DATABASE', 'INFO');
+    
+    // Get all tables in the database
+    const tablesQuery = await db.execute(`
+      SELECT table_name, table_type 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      ORDER BY table_name
+    `);
+    
+    log(`📊 Found ${tablesQuery.length} tables in database:`, 'DATABASE', 'INFO');
+    tablesQuery.forEach((table: any) => {
+      log(`   - ${table.table_name} (${table.table_type})`, 'DATABASE', 'INFO');
+    });
+    
+    return true;
+  } catch (error) {
+    log(`❌ Database connection failed: ${error.message}`, 'DATABASE', 'ERROR');
+    log(`🔧 Check DATABASE_URL environment variable`, 'DATABASE', 'WARN');
+    return false;
+  }
+}
+
 (async () => {
   if (process.env.NODE_ENV !== 'production') {
     log('Registering API routes and middleware...', 'startup');
   }
+  
+  // Test database connection before starting the server
+  const dbConnected = await testDatabaseConnection();
   
   // CRITICAL: Register ALL API routes FIRST before any catch-all handlers
   const server = await registerRoutes(app);

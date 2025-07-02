@@ -1,7 +1,13 @@
 #!/bin/bash
 
 # Configuration
-BASE_URL="${1:-http://localhost:5000}"
+if [ $# -eq 2 ]; then
+    BASE_URL="http://$1:$2"
+elif [ $# -eq 1 ]; then
+    BASE_URL="$1"
+else
+    BASE_URL="http://localhost:5000"
+fi
 TEST_DATE=$(date)
 
 echo "==========================================="
