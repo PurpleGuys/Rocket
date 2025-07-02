@@ -2088,6 +2088,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all services (admin only)
+  app.get("/api/admin/services", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const services = await storage.getServices();
+      res.json(services);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching services: " + error.message });
+    }
+  });
+
   // Add new service/equipment
   app.post("/api/admin/services", authenticateToken, requireAdmin, async (req, res) => {
     try {
