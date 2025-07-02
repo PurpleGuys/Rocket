@@ -80,7 +80,7 @@ services:
       SESSION_SECRET: "docker-secret-key-for-production"
       JWT_SECRET: "docker-jwt-secret-for-production"
     ports:
-      - "80:5000"
+      - "8080:5000"
     depends_on:
       - postgres
       - redis
@@ -99,14 +99,14 @@ echo "🏗️ Building et démarrage..."
 sudo docker-compose up --build -d
 
 # Attendre et tester
-sleep 10
+sleep 15
 echo "🔍 Test de l'application..."
-curl -s http://localhost/api/health || echo "App démarrage en cours..."
+curl -s http://localhost:8080/api/health || echo "App démarrage en cours..."
 
 echo ""
 echo "✅ DÉPLOIEMENT TERMINÉ !"
-echo "📱 Application: http://localhost"
-echo "🔍 Santé: http://localhost/api/health"
+echo "📱 Application: http://localhost:8080"
+echo "🔍 Santé: http://localhost:8080/api/health"
 echo ""
 echo "🛠️ Commandes utiles:"
 echo "  sudo docker-compose logs app    # Voir les logs"

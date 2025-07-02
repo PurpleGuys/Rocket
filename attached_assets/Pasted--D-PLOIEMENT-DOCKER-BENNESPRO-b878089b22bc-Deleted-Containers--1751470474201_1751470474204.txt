@@ -1,0 +1,193 @@
+🚀 DÉPLOIEMENT DOCKER BENNESPRO
+================================
+b878089b22bc
+Deleted Containers:
+b878089b22bca4642c9c87dd1d46bc60d61c759c65fec7f287972bc29f6096f4
+
+Deleted Networks:
+bennespro_bennespro_network
+
+Deleted Images:
+untagged: redis:7-alpine
+untagged: redis@sha256:ee9e8748ace004102a267f7b8265dab2c618317df22507b89d16a8add7154273
+deleted: sha256:7ff232a1fe042a3825e8acbf8b3cddf5f2d8b45fed1fc3f4628e0dee0fac3667
+deleted: sha256:d23e3b9f008b7812ce9f7ef5db0dc6840c29c4809f25b5ffe02cbc7a727a925a
+deleted: sha256:a43d4f18c584ab154d6e9b608c2dc1e9dcb2e66bd3d16822beb637a002841b69
+deleted: sha256:7c8fc6fe8cb7a241c6bbe6e5273f7a5ae92c6953a00b4db5b4b470ad26301936
+deleted: sha256:50d8bbafd50ac0449bfeb04da671a0b958005d86dcf0f83adf1997ce7a7389f2
+deleted: sha256:4adfbae2427b5f69f1157fe61edd2226664dc41cdc4cbe2dff71507b1061144c
+deleted: sha256:4a4a2b0d5b5907aae74d736bc024bdba6731532f41f8a70bae7a3a3be6df2478
+deleted: sha256:6ffbbd53d03bb7bb179a3353b90550cdef758c9f85e1958a7af24735748d01d6
+untagged: nginx:alpine
+untagged: nginx@sha256:b2e814d28359e77bd0aa5fed1939620075e4ffa0eb20423cc557b375bd5c14ad
+deleted: sha256:77656422f7009bf47cd4992cb1a118af09c25bb157336478bdbf399af09e8e41
+deleted: sha256:1862fc5dc918c6dd36b3a706c6e129bc0748c0a1e4f9d23a79f81c85b7bf662c
+deleted: sha256:a71fdcdbd01024fb372d8db15d2f9afe4cc3c1f52be36b11c868864619eea447
+deleted: sha256:dc203940cc193dc4fbb05dde803c85483789f5e332013ecc534d6f6d1e226c53
+deleted: sha256:a09923c6fea05635761b4a86e0f1f8cd5ff4a223ab939cc260fbf8ad6efba4d6
+deleted: sha256:d644b2cc14cde4cb0050d44426e3077d81856e8ab074cf593232a883ab2e4362
+deleted: sha256:c90c08493b6803ba65817f35e72cb198fe60ea0c047c9b8b3196d8bf48c02488
+deleted: sha256:f06bb6465d0bd65249bb2b58d6831e094c1a8969915730fa807e59642fbc6c73
+untagged: postgres:15-alpine
+untagged: postgres@sha256:2985f77749c75e90d340b8538dbf55d4e5b2c5396b2f05b7add61a7d8cd50a99
+deleted: sha256:8c5b83868f93bc817ab9d0f21b895e938711d0bae9b651e796cb2612f0475116
+deleted: sha256:6eaccc003fe6b9a3e762967aa59ef31af1b745cf31996db48eda592412de1942
+deleted: sha256:db39462a9403ad3fa213fd14f3c60d7b3df72cfaef5b5d6cc3e92c6a13a9cf7e
+deleted: sha256:6241cb6cc015d40c40cae5ed4a789ce24d551c7011adf242254e32148b411b2d
+deleted: sha256:a0e98fe69099fc53251ecd0d6e7465a469bc16606657f6f40da509c19911fa95
+deleted: sha256:a0c95dc01c38a5f51bcfafebbb6e3b3b139b9e4631fd2f75c1fca0fc21eee3db
+deleted: sha256:81a99802969faff375a4b4e120eb0a498dbc0e42b5e544670b6608111e97d38e
+deleted: sha256:4157b98cbdfc1f3b7dd878d8e14803b80afdfc58dc11859f44457a90c7a1e153
+deleted: sha256:480c5cb4e4047d42f1e81d568ac6305fa6cbbc87d4734df4aef80dfef30e176c
+deleted: sha256:491b08357a56a71ab9c75ad0e83e0e04ba502efb0dbb0abcee6e45f65e4e13ba
+deleted: sha256:1ca491a5e7343a024c3eb33f2e5b37ee95672b1fd69f5e30cdaa22a885f70752
+untagged: bennespro_app:latest
+deleted: sha256:4397a38939770bd68f001e285ed4fb7e3be4ed6608396e26ed11fecba902a1e5
+untagged: rem-bennes_app:latest
+deleted: sha256:8fdbc8a573a73708318e899ded3bf02468d637acc29543fba56629fb55645fe8
+untagged: postgres:16-alpine
+untagged: postgres@sha256:ef2235fd13b6cb29728a98ee17862ff5c9b7d20515a9b34804da4a45062695f6
+deleted: sha256:d60bd50d7e2d688f6dcfff8b02df3cc38f17bceaa3a7848ee13a1232f0eaf4a7
+deleted: sha256:1618e755fef0d0ffb75cda79d8b9742557c79c5fd5127c8aa31ed56e058a82cd
+deleted: sha256:4c1ac0715cf462000e05c1eede22b291987e1d788507d0fae159f64d122e6242
+deleted: sha256:897cf6a5ebab9a718b73152b15eea84f39aaefc0ba1a2fc2dcbde2663284b709
+deleted: sha256:cddb91fe94f490cfe3471a3229a110acf3d2e4be22b0b8daa925b9dba044d5cd
+deleted: sha256:d838ff6532c9244c14ffd28ec985194b41d1fe4e256e991f10bab159df8cb090
+deleted: sha256:664e305f28cfc9391608190fbfcc74f23d8284465f841bda848d412ce3ebf3e7
+deleted: sha256:6e34207e8815d57298160009b261847ac1d366ebde1b0c396da63248240704f0
+deleted: sha256:b8d7571f98dddc7a1c821a5ac36184eb8bc00e878db9c84c4dc2985975c68a60
+deleted: sha256:2818571e41faef44bbf0f406308e93b3a6b7e03038971d26e2b661c399a545d4
+deleted: sha256:fd4116c9abf35b8740d69b9854b7f33c082304734c665bff46b0b4ccc2a61e9d
+
+Deleted build cache objects:
+v9mpk0e5dg5aufx50ue02hgba
+uofnntjl73z3m7h9nbe7xgenw
+k5gj9kyyuuvrqgnm02ifmml4f
+e3ndagxjr4876km3v2usgxsjw
+e7c52tmx7y8v4xtni10nu7zj6
+ohtoomhveeirqvuzhws7brdvf
+rul6rqnme2cwfr5qgkapw09as
+iflnp482pcwqmscc6vsggu3p8
+r0jptgyssorx6fist7pqty33i
+6732ivgrzuwh5j27s07565dcj
+g07opv8y0x2g1m4qepd44suor
+ru7729q4dj10bpq2rb3nltptr
+7iaviy4jyju8lu0ykystncs68
+ihg1a8iujnp4nqisqf63hf247
+cqlpgdxx6vg2ejy878cy7en5g
+7l0jgfvu0nkh0y0w8nsj7vl51
+cz1obevw0i5rc60x5n5hi5my9
+46sxyfsqwi4gjqy32mxtz7ss2
+qmnfv6ahnkglpbj4r9zr07gu3
+rvh8g29uh3tlu4vjldnpd1v5k
+raukwd8i44gvr9kcblfg9ll18
+oqdenrol8msp5qp1a599bpomh
+1qpijfh173qz4g7k5esz7ynmh
+dxso6zx2x35vfctv76ds37hgu
+n7qnewj8ibz7uicjyqkovukzl
+edj9zml6seyn9md2c2g5qgkb7
+58znqewkotayzjlvdivbrlchl
+reowr0xvlufyod9wu71pz63pn
+bkdzonulmqbigwtmft5styy54
+v12i4h9iiehul30oba3hys5s5
+vskycip36xh6r86f3ij2k2ftp
+vw4uyusnl3hb9o7ma0mjwwaud
+o82d5wp307j8ru0xpx4zfm939
+bla7zf7d58om73k7we0nrht4j
+olat74sz2rtl70xz6y0aeknmf
+lupzevbfn40d1ugfqdevdflkh
+lzmc76sg3oiga8cd4302xvlt9
+922r3qugef60tz5cwordovc1d
+9yz4if5xrgjurd9o9zy81l2t9
+ry2fgb3xr5gfznsm7sgv92dtk
+sa59ovbjnycr6uutul1f7p854
+f8ht7k8f0xis1ifajad6g85p2
+rxf60p9dx8nkcin5e15yi35vv
+j8tieque08lnikqfyboaposjs
+5lxiq1auq5p5scbrfghsiw9d2
+6nns6nai6zv3jb7vek9wj820k
+
+Total reclaimed space: 4.411GB
+🏗️ Building et démarrage...
+Creating network "rem-bennes_default" with the default driver
+Pulling postgres (postgres:16-alpine)...
+16-alpine: Pulling from library/postgres
+fe07684b16b8: Already exists
+dc0894634161: Pull complete
+b2c2e77c01f8: Pull complete
+566700a5ef5b: Pull complete
+6a8b2516865a: Pull complete
+9808eed8d51a: Pull complete
+c6f99ba99948: Pull complete
+0e3293a8957f: Pull complete
+d259b0545f3a: Pull complete
+bef088cae706: Pull complete
+4dff379ecd5a: Pull complete
+Digest: sha256:ef2235fd13b6cb29728a98ee17862ff5c9b7d20515a9b34804da4a45062695f6
+Status: Downloaded newer image for postgres:16-alpine
+Pulling redis (redis:7-alpine)...
+7-alpine: Pulling from library/redis
+f18232174bc9: Already exists
+43d45750a845: Pull complete
+e5c719682459: Pull complete
+890691a58c5f: Pull complete
+12a814a1432a: Pull complete
+249de296e9ec: Pull complete
+4f4fb700ef54: Pull complete
+235a05f8b97c: Pull complete
+Digest: sha256:ee9e8748ace004102a267f7b8265dab2c618317df22507b89d16a8add7154273
+Status: Downloaded newer image for redis:7-alpine
+Building app
+[+] Building 147.6s (19/19) FINISHED                                                                                                                                                           docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                                     0.0s
+ => => transferring dockerfile: 1.03kB                                                                                                                                                                   0.0s
+ => [internal] load metadata for docker.io/library/node:20-alpine                                                                                                                                        0.6s
+ => [internal] load .dockerignore                                                                                                                                                                        0.0s
+ => => transferring context: 2B                                                                                                                                                                          0.0s
+ => [internal] load build context                                                                                                                                                                       11.3s
+ => => transferring context: 413.51MB                                                                                                                                                                   11.2s
+ => [ 1/14] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11                                                                                6.6s
+ => => resolve docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11                                                                                  0.0s
+ => => sha256:2506673f55362e86b6c8a2ab9c01541ae636887386c92d06e01286d3ddd83871 1.26MB / 1.26MB                                                                                                           0.2s
+ => => sha256:98c4889b578e94078411d6c14fe8f5daa0303d43e82bbf84d5787ab657c42428 445B / 445B                                                                                                               0.1s
+ => => sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11 7.67kB / 7.67kB                                                                                                           0.0s
+ => => sha256:6d6b06f970b08f9ebbe65a5561c20e8623d6afa612ea035bbbe38fb78dd94b14 1.72kB / 1.72kB                                                                                                           0.0s
+ => => sha256:bfd94ebedbdada46a3d3447f6bc2de4d271021b3a45a76821cca6afa361ea94d 6.21kB / 6.21kB                                                                                                           0.0s
+ => => sha256:5432aa916e0868c8c9385ef60226d5ef530f13fe7c28fc13c054de1df6d006cd 42.99MB / 42.99MB                                                                                                         0.9s
+ => => extracting sha256:5432aa916e0868c8c9385ef60226d5ef530f13fe7c28fc13c054de1df6d006cd                                                                                                                5.2s
+ => => extracting sha256:2506673f55362e86b6c8a2ab9c01541ae636887386c92d06e01286d3ddd83871                                                                                                                0.1s
+ => => extracting sha256:98c4889b578e94078411d6c14fe8f5daa0303d43e82bbf84d5787ab657c42428                                                                                                                0.0s
+ => [ 2/14] RUN apk add --no-cache python3 make g++ postgresql-client curl dumb-init                                                                                                                     6.0s
+ => [ 3/14] WORKDIR /app                                                                                                                                                                                 0.0s
+ => [ 4/14] COPY package*.json ./                                                                                                                                                                        0.3s
+ => [ 5/14] COPY tsconfig*.json ./                                                                                                                                                                       0.3s
+ => [ 6/14] COPY vite.config.ts ./                                                                                                                                                                       0.0s
+ => [ 7/14] COPY tailwind.config.ts ./                                                                                                                                                                   0.0s
+ => [ 8/14] COPY postcss.config.js ./                                                                                                                                                                    0.0s
+ => [ 9/14] COPY components.json ./                                                                                                                                                                      0.0s
+ => [10/14] RUN npm ci                                                                                                                                                                                  23.7s
+ => [11/14] COPY . .                                                                                                                                                                                    20.4s
+ => [12/14] RUN npm run build 2>/dev/null ||     (echo "Build standard failed, trying alternative..." &&      NODE_ENV=development npm run build 2>/dev/null) ||     (echo "Build failed, running in d  21.4s
+ => [13/14] RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001                                                                                                                                  0.3s
+ => [14/14] RUN chown -R nodejs:nodejs /app                                                                                                                                                             57.8s
+ => exporting to image                                                                                                                                                                                  10.1s
+ => => exporting layers                                                                                                                                                                                 10.1s
+ => => writing image sha256:d75258539ff65f12c389bdd0d1ca4ffa477c4e75b3432aebc978f5d04c44c7d9                                                                                                             0.0s
+ => => naming to docker.io/library/rem-bennes_app                                                                                                                                                        0.0s
+WARNING: current commit information was not captured by the build: failed to read current commit information with git rev-parse --is-inside-work-tree
+Creating rem-bennes_postgres_1 ... done
+Creating rem-bennes_redis_1    ... done
+Creating rem-bennes_app_1      ...
+Creating rem-bennes_app_1      ... error
+
+ERROR: for rem-bennes_app_1  Cannot start service app: failed to set up container networking: driver failed programming external connectivity on endpoint rem-bennes_app_1 (53f8fec9cb0d2b6acd0340d052abeed7692e317daba3c40d7edc4ad7f0e80d46): failed to bind host port for 0.0.0.0:80:172.19.0.4:5000/tcp: address already in use
+
+ERROR: for app  Cannot start service app: failed to set up container networking: driver failed programming external connectivity on endpoint rem-bennes_app_1 (53f8fec9cb0d2b6acd0340d052abeed7692e317daba3c40d7edc4ad7f0e80d46): failed to bind host port for 0.0.0.0:80:172.19.0.4:5000/tcp: address already in use
+ERROR: Encountered errors while bringing up the project.
+🔍 Test de l'application...
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.26.0 (Ubuntu)</center>
+</body>
