@@ -40,6 +40,19 @@ mode = "sequential"
 task = "shell.exec"
 args = "NODE_ENV=production npm start"
 
+[[workflows.workflow]]
+name = "Production Build"
+author = 39542301
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production npm start"
+
 [[ports]]
 localPort = 5000
 externalPort = 80

@@ -1,25 +1,27 @@
 
 #!/bin/bash
 
-echo "🚀 Démarrage BennesPro en mode production sur Replit"
+echo "🚀 Démarrage BennesPro en mode production"
 
-# Définir les variables d'environnement
+# Variables d'environnement
 export NODE_ENV=production
 export PORT=5000
 export HOST=0.0.0.0
 
-# Installer les dépendances si nécessaire
-if [ ! -d "node_modules" ]; then
-    echo "📦 Installation des dépendances..."
-    npm install
-fi
+# Vérifier et installer les dépendances
+echo "📦 Vérification des dépendances..."
+npm ci --production
 
-# Construire le frontend si nécessaire
+# Build du frontend
+echo "🏗️ Construction du frontend..."
+npm run build
+
+# Vérification de la construction
 if [ ! -d "client/dist" ]; then
-    echo "🏗️ Construction du frontend..."
-    npm run build
+    echo "❌ Erreur: Build du frontend échoué"
+    exit 1
 fi
 
-# Démarrer l'application
-echo "🎯 Lancement de l'application..."
-npm start
+# Démarrage de l'application
+echo "🎯 Démarrage de l'application en production..."
+exec npm start
