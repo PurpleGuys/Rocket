@@ -1,4 +1,4 @@
-import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
+// Stripe imports supprimés en mode test
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, AlertTriangle } from "lucide-react";
 
-// Import stripePromise from the centralized stripe configuration
-import { stripePromise } from "@/lib/stripe";
+// Stripe imports supprimés pour mode test
 
 interface BookingDetails {
   serviceId: number;
@@ -30,8 +29,7 @@ interface BookingDetails {
 }
 
 const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+  // Mode test sans Stripe - pas besoin des hooks useStripe et useElements
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -88,8 +86,12 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
         }
       };
 
-      const response = await apiRequest('/api/orders', {
+      const response = await fetch('/api/orders', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
         body: JSON.stringify(orderData),
       });
 
@@ -348,8 +350,11 @@ export default function Checkout() {
 
   const createPaymentIntent = async (details: BookingDetails) => {
     try {
-      const response = await apiRequest('/api/create-payment-intent', {
+      const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           amount: details.pricing.total,
           orderId: `booking-${Date.now()}`, // ID temporaire pour la réservation
@@ -385,9 +390,8 @@ export default function Checkout() {
           <p className="text-gray-600 mt-2">Complétez votre paiement pour confirmer votre commande</p>
         </div>
 
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm bookingDetails={bookingDetails} />
-        </Elements>
+        {/* Mode test sans Stripe Elements */}
+        <CheckoutForm bookingDetails={bookingDetails} />
       </div>
     </div>
   );
