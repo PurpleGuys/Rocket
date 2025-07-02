@@ -92,10 +92,11 @@ app.use((req, res, next) => {
   } else {
     // Development: use Vite (only when Vite is available)
     try {
-      const { setupVite } = await import("./vite.js");
+      const { setupVite } = await import("./vite.ts");
       await setupVite(app, server);
     } catch (error) {
       log("Vite not available, falling back to static serving");
+      log("Error:", error.message);
       // Fallback to basic static serving even in development
       app.use(express.static("dist"));
       app.get("*", (req, res) => {
