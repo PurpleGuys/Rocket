@@ -142,9 +142,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const favicon = Buffer.from('AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD5SAg5SAg5SAg////AP///wD///8A////AP///wD///8A5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg////AP///wD///8A////AP///wD///8A5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg////AP///wD///8A5SAg////AP///wD///8A5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg////AP///wD///8A5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg////AP///wD///8A5SAg////AP///wD///8A////AP///wD///8A////AP///wD///8A5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg5SAg', 'base64');
     res.send(favicon);
   });
-  // Security middleware - relaxed for development
+  // Security middleware - configured for both development and production
   if (process.env.NODE_ENV === 'production') {
-    app.use(helmet());
+    app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: [
+            "'self'", 
+            "'unsafe-inline'", 
+            "'unsafe-eval'", 
+            "https://js.stripe.com",
+            "https://replit.com",
+            "https://*.replit.com"
+          ],
+          styleSrc: [
+            "'self'", 
+            "'unsafe-inline'", 
+            "https://fonts.googleapis.com"
+          ],
+          fontSrc: [
+            "'self'", 
+            "https://fonts.gstatic.com"
+          ],
+          imgSrc: [
+            "'self'", 
+            "data:", 
+            "https:", 
+            "blob:"
+          ],
+          connectSrc: [
+            "'self'", 
+            "https://api.stripe.com",
+            "https://*.stripe.com",
+            "https://maps.googleapis.com",
+            "https://api.sendgrid.com",
+            "wss:",
+            "ws:"
+          ],
+          frameSrc: [
+            "'self'", 
+            "https://js.stripe.com",
+            "https://hooks.stripe.com"
+          ],
+          workerSrc: ["'self'", "blob:"],
+          childSrc: ["'self'", "blob:"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"]
+        }
+      },
+      crossOriginEmbedderPolicy: false,
+    }));
   } else {
     // Development: disable CSP to allow Vite and Replit scripts
     app.use(helmet({

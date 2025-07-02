@@ -19,29 +19,12 @@ function log(message: string, source = "express") {
 
 const app = express();
 
-// CORS and security headers
+// CORS headers only (CSP is handled by Helmet in routes.ts)
 app.use((req, res, next) => {
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  // Content Security Policy - Allow external scripts for Stripe and Replit
-  const cspPolicy = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com https://*.replit.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://api.stripe.com https://*.stripe.com https://maps.googleapis.com https://api.sendgrid.com wss: ws:",
-    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
-    "worker-src 'self' blob:",
-    "child-src 'self' blob:",
-    "object-src 'none'",
-    "base-uri 'self'"
-  ].join('; ');
-  
-  res.header('Content-Security-Policy', cspPolicy);
   next();
 });
 
