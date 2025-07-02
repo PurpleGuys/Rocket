@@ -79,37 +79,36 @@ function log(message: string, source = "express", level = "INFO") {
       path.resolve(currentDir, "public")
     ];
     
-    // Fonction pour créer un fichier index.html basique si nécessaire
-    const createBasicIndexHtml = (distPath: string) => {
+    // Fonction pour créer un index.html React fonctionnel si nécessaire
+    const createReactIndexHtml = (distPath: string) => {
       const indexPath = path.join(distPath, 'index.html');
       if (!fs.existsSync(indexPath)) {
-        const basicHtml = `<!DOCTYPE html>
+        // Essayer de copier l'index.html de l'application React
+        const clientIndexPath = path.resolve(process.cwd(), 'client/index.html');
+        if (fs.existsSync(clientIndexPath)) {
+          fs.copyFileSync(clientIndexPath, indexPath);
+          log(`📄 Copied React index.html to: ${indexPath}`, 'STARTUP', 'SUCCESS');
+        } else {
+          // Créer un index.html pour l'application React buildée
+          const reactHtml = `<!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BennesPro - Location de Bennes</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h1 { color: #2563eb; text-align: center; }
-    .status { background: #dcfce7; color: #166534; padding: 15px; border-radius: 4px; margin: 20px 0; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🚛 BennesPro</h1>
-    <div class="status">
-      ✅ Serveur de production démarré avec succès<br>
-      🌐 Application prête à l'utilisation
-    </div>
-    <p>Plateforme professionnelle de location de bennes</p>
-    <p><strong>Statut :</strong> Serveur opérationnel en mode production</p>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BennesPro - Location de Bennes Particulier & Professionnel</title>
+    <meta name="description" content="Réservez votre benne en ligne. Service de location pour particuliers et professionnels. Planification minimum 24h avant intervention et paiement sécurisé." />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Gudea:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index.js"></script>
+    <link rel="stylesheet" href="/assets/index.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>`;
-        fs.writeFileSync(indexPath, basicHtml);
-        log(`📄 Created index.html at: ${indexPath}`, 'STARTUP', 'INFO');
+          fs.writeFileSync(indexPath, reactHtml);
+          log(`📄 Created production React index.html at: ${indexPath}`, 'STARTUP', 'SUCCESS');
+        }
       }
     };
 
@@ -132,7 +131,7 @@ function log(message: string, source = "express", level = "INFO") {
       for (const distPath of distPaths) {
         if (fs.existsSync(distPath)) {
           staticPath = distPath;
-          createBasicIndexHtml(distPath);
+          createReactIndexHtml(distPath);
           break;
         }
       }
@@ -143,7 +142,7 @@ function log(message: string, source = "express", level = "INFO") {
       const defaultDistPath = path.resolve(process.cwd(), "dist");
       log(`📁 Création du dossier: ${defaultDistPath}`, 'STARTUP', 'INFO');
       fs.mkdirSync(defaultDistPath, { recursive: true });
-      createBasicIndexHtml(defaultDistPath);
+      createReactIndexHtml(defaultDistPath);
       staticPath = defaultDistPath;
     }
     
