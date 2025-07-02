@@ -1,0 +1,79 @@
+
+===========================================
+🚀 Test des endpoints API BennesPro
+🌐 Base URL: http://162.19.67.3:5000
+📅 Date: Wed Jul  2 12:10:19 UTC 2025
+===========================================
+
+🔓 ENDPOINTS PUBLICS
+-------------------
+
+🔍 Testing: Health Check
+   GET http://162.19.67.3:5000/api/health
+   ✅ Status: 200 (Expected: 200)
+   📝 Response: {"status":"healthy","timestamp":"2025-07-02T12:10:19.673Z","version":"1.0.0","environment":"producti...
+
+🔍 Testing: Liste des services/bennes
+   GET http://162.19.67.3:5000/api/services
+   ❌ Status: 500 (Expected: 200)
+   📝 Response: {"message":"Error fetching services: Unexpected server response: 404"}
+
+🔍 Testing: Types de déchets
+   GET http://162.19.67.3:5000/api/waste-types
+   ❌ Status: 500 (Expected: 200)
+   📝 Response: {"message":"Error fetching waste types: Unexpected server response: 404"}
+
+🔍 Testing: Tarifs de traitement
+   GET http://162.19.67.3:5000/api/treatment-pricing
+   ❌ Status: 500 (Expected: 200)
+   📝 Response: {"message":"Error fetching treatment pricing: Unexpected server response: 404"}
+
+🔐 ENDPOINTS D'AUTHENTIFICATION
+-------------------------------
+
+🔍 Testing: Profil utilisateur (sans token)
+   GET http://162.19.67.3:5000/api/auth/me
+   ✅ Status: 401 (Expected: 401)
+   📝 Response: {"message":"Accès non autorisé"}
+
+🔍 Testing: Login (sans données)
+   POST http://162.19.67.3:5000/api/auth/login
+   ✅ Status: 400 (Expected: 400)
+   📝 Response: {"message":"Données invalides","errors":[{"code":"invalid_type","expected":"string","received":"unde...
+
+🛡️ ENDPOINTS ADMIN (Protection)
+------------------------------
+
+🔍 Testing: Liste utilisateurs (protection)
+   GET http://162.19.67.3:5000/api/admin/users
+   ✅ Status: 401 (Expected: 401)
+   📝 Response: {"message":"Accès non autorisé"}
+
+🔍 Testing: Gestion services (protection)
+   GET http://162.19.67.3:5000/api/admin/services
+   ✅ Status: 401 (Expected: 401)
+   📝 Response: {"message":"Accès non autorisé"}
+
+🔍 Testing: Gestion commandes (protection)
+   GET http://162.19.67.3:5000/api/admin/orders
+   ✅ Status: 401 (Expected: 401)
+   📝 Response: {"message":"Accès non autorisé"}
+
+🚫 ENDPOINTS INEXISTANTS
+------------------------
+
+🔍 Testing: Endpoint inexistant
+   GET http://162.19.67.3:5000/api/nonexistent
+   ✅ Status: 404 (Expected: 404)
+   📝 Response: {"message":"API endpoint not found"}
+
+🔍 Testing: Route fake
+   GET http://162.19.67.3:5000/api/fake/route
+   ✅ Status: 404 (Expected: 404)
+   📝 Response: {"message":"API endpoint not found"}
+
+===========================================
+✅ Test terminé pour: http://162.19.67.3:5000
+📊 Vérifiez les résultats ci-dessus
+===========================================
+
