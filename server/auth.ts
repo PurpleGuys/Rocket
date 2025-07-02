@@ -145,36 +145,81 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
   let user: User | null = null;
 
   try {
+    const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'Unknown';
+    const userAgent = req.get('User-Agent') || 'Unknown';
+    const requestPath = req.path;
+    const method = req.method;
+    
+    console.log(`\x1b[36m[AUTH] [${new Date().toISOString()}] Authentication attempt\x1b[0m`);
+    console.log(`\x1b[36m[AUTH] IP: ${clientIP} | Path: ${method} ${requestPath}\x1b[0m`);
+    console.log(`\x1b[36m[AUTH] User-Agent: ${userAgent}\x1b[0m`);
+    console.log(`\x1b[36m[AUTH] Headers - Authorization: ${authHeader ? 'present' : 'missing'} | Session: ${sessionToken ? 'present' : 'missing'}\x1b[0m`);
+    
     // Try JWT first, then session token
     if (token) {
+      console.log(`\x1b[36m[AUTH] Attempting JWT verification...\x1b[0m`);
+      console.log(`\x1b[36m[AUTH] JWT Token preview: ${token.substring(0, 30)}...\x1b[0m`);
+      
       const decoded = AuthService.verifyToken(token);
       if (decoded) {
+        console.log(`\x1b[32m[AUTH] JWT decoded successfully - UserID: ${decoded.userId}\x1b[0m`);
         const foundUser = await storage.getUser(decoded.userId);
-        user = foundUser || null;
+        if (foundUser) {
+          console.log(`\x1b[32m[AUTH] User found in database - ID: ${foundUser.id}, Email: ${foundUser.email}, Role: ${foundUser.role}\x1b[0m`);
+          user = foundUser;
+        } else {
+          console.log(`\x1b[31m[AUTH] JWT valid but user not found in database - UserID: ${decoded.userId}\x1b[0m`);
+        }
+      } else {
+        console.log(`\x1b[31m[AUTH] JWT verification failed - invalid or expired token\x1b[0m`);
       }
     } else if (sessionToken) {
+      console.log(`\x1b[36m[AUTH] Attempting session token validation...\x1b[0m`);
+      console.log(`\x1b[36m[AUTH] Session Token preview: ${sessionToken.substring(0, 20)}...\x1b[0m`);
+      
       user = await AuthService.validateSession(sessionToken);
+      if (user) {
+        console.log(`\x1b[32m[AUTH] Session valid - UserID: ${user.id}, Email: ${user.email}\x1b[0m`);
+      } else {
+        console.log(`\x1b[31m[AUTH] Session validation failed - invalid or expired session\x1b[0m`);
+      }
+    } else {
+      console.log(`\x1b[33m[AUTH] No authentication tokens provided\x1b[0m`);
     }
 
     if (!user) {
-      console.log(`Auth failed - Token: ${token ? token.substring(0, 20) + '...' : 'missing'}, SessionToken: ${sessionToken ? 'present' : 'missing'}`);
-      console.log('AuthHeader:', authHeader);
+      console.log(`\x1b[31m[AUTH] ❌ Authentication failed - returning 401\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] Failed request details:\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] - IP: ${clientIP}\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] - Path: ${method} ${requestPath}\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] - Token: ${token ? 'provided but invalid' : 'not provided'}\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] - Session: ${sessionToken ? 'provided but invalid' : 'not provided'}\x1b[0m`);
       return res.status(401).json({ message: 'Accès non autorisé' });
     }
 
+    console.log(`\x1b[32m[AUTH] ✅ Authentication successful - User: ${user.email} (ID: ${user.id})\x1b[0m`);
+    
     // Check if account is locked
-    if (await AuthService.isAccountLocked(user)) {
+    const isLocked = await AuthService.isAccountLocked(user);
+    if (isLocked) {
+      console.log(`\x1b[31m[AUTH] ❌ Account locked - User: ${user.email} (ID: ${user.id})\x1b[0m`);
+      console.log(`\x1b[31m[AUTH] Failed attempts: ${user.failedLoginAttempts}, Last failed: ${user.lastFailedLogin}\x1b[0m`);
       return res.status(423).json({ message: 'Compte temporairement verrouillé' });
     }
 
     // Check if account is verified (except for verification endpoints)
     if (!user.isVerified && !req.path.includes('/verify')) {
+      console.log(`\x1b[33m[AUTH] ⚠️ Account not verified - User: ${user.email} (ID: ${user.id})\x1b[0m`);
+      console.log(`\x1b[33m[AUTH] Verification token: ${user.verificationToken ? 'present' : 'missing'}\x1b[0m`);
       return res.status(403).json({ 
         message: 'Compte non vérifié. Vérifiez votre email.',
         requiresVerification: true 
       });
     }
 
+    console.log(`\x1b[32m[AUTH] ✅ All checks passed - User authenticated successfully\x1b[0m`);
+    console.log(`\x1b[32m[AUTH] User details: ${user.email} | Role: ${user.role} | Verified: ${user.isVerified}\x1b[0m`);
+    
     req.user = user;
     next();
   } catch (error) {
