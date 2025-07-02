@@ -1,11 +1,16 @@
 # Guide de Déploiement VPS BennesPro
 
+## ✅ MISE À JOUR IMPORTANTE - PostgreSQL Standard (Juillet 2025)
+
+L'application utilise maintenant PostgreSQL standard (`pg`) au lieu de Neon Database pour une compatibilité VPS optimale. La détection du type de base de données se fait automatiquement.
+
 ## 🚨 Diagnostic du Problème Actuel
 
 Votre VPS retourne des erreurs 404 HTML au lieu des réponses API JSON. Cela signifie:
 - ✅ Nginx fonctionne (port 80/443)
 - ❌ Node.js ne fonctionne pas ou n'est pas accessible
 - ❌ Configuration Nginx manquante pour proxy vers Node.js
+- ❌ Base de données PostgreSQL non configurée correctement
 
 ## 📋 Étapes de Résolution
 
@@ -137,11 +142,58 @@ Les correctifs API suivants ont été appliqués dans le code:
 
 Le problème actuel est **infrastructure** (VPS), pas **code**.
 
+## 📊 Configuration PostgreSQL pour VPS
+
+### 1. Installation PostgreSQL
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+```
+
+### 2. Configuration Base de Données
+```bash
+sudo -u postgres psql
+CREATE DATABASE bennespro;
+CREATE USER bennespro_user WITH PASSWORD 'secure_password_here';
+GRANT ALL PRIVILEGES ON DATABASE bennespro TO bennespro_user;
+ALTER USER bennespro_user CREATEDB;
+\q
+```
+
+### 3. Variables d'Environnement VPS
+Créez le fichier `.env` avec PostgreSQL local :
+```bash
+DATABASE_URL=postgresql://bennespro_user:secure_password_here@localhost:5432/bennespro
+NODE_ENV=production
+PORT=5000
+```
+
+### 4. Migration Schema
+```bash
+cd /path/to/bennespro
+npm run db:push
+```
+
+### 5. Diagnostic PostgreSQL
+Utilisez le script de diagnostic VPS :
+```bash
+node debug-vps-postgresql.cjs
+```
+
+Ce script teste:
+- ✅ Connectivité PostgreSQL
+- ✅ Version et temps serveur
+- ✅ Liste des 19 tables
+- ✅ Données essentielles (utilisateurs, services, types de déchets)
+- ✅ API endpoints locaux
+
 ## 🚀 Test Final
 
 Une fois la configuration fixée, cette commande doit fonctionner:
 
 ```bash
 curl http://162.19.67.3/api/health
-# Réponse attendue: {"status":"ok","timestamp":"..."}
+# Réponse attendue: {"status":"healthy","timestamp":"...","database":"connected"}
 ```
