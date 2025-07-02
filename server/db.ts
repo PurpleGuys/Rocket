@@ -1,16 +1,6 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool as PgPool } from 'pg';
+import { drizzle as pgDrizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-
-// Configuration WebSocket pour Neon avec gestion des erreurs
-neonConfig.webSocketConstructor = ws;
-
-// Désactiver WebSocket en production si problème de connexion
-if (process.env.NODE_ENV === 'production') {
-  neonConfig.useSecureWebSocket = false;
-  neonConfig.pipelineConnect = false;
-}
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -18,5 +8,11 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+// Utiliser PostgreSQL standard pour tous les environnements
+// Compatible avec Neon Database (qui supporte aussi le driver PostgreSQL standard)
+export const pool = new PgPool({ 
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+export const db = pgDrizzle(pool, { schema });

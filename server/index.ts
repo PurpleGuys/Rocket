@@ -99,6 +99,11 @@ async function testDatabaseConnection() {
   try {
     log('🔍 Testing database connectivity...', 'DATABASE', 'INFO');
     
+    // Detect database type
+    const isNeon = process.env.DATABASE_URL?.includes('neon.tech') || process.env.DATABASE_URL?.includes('neondb.io');
+    const dbType = isNeon ? 'Neon Database (Cloud)' : 'PostgreSQL (Standard)';
+    log(`🔗 Database Type: ${dbType}`, 'DATABASE', 'INFO');
+    
     // Test basic database connection
     const testQuery = await db.execute('SELECT NOW() as current_time, version() as pg_version');
     const result = testQuery.rows[0];
