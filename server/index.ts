@@ -63,8 +63,10 @@ function log(message: string, source = "express", level = "INFO") {
     log('Routes registered successfully', 'startup');
   }
   
-  // Configure static file serving for production or development
-  if (process.env.NODE_ENV === "production") {
+  // Configure static file serving - force even in development to handle "Cannot GET /"
+  const shouldServeStatic = process.env.NODE_ENV === "production" || process.env.FORCE_STATIC_SERVING === 'true';
+  
+  if (shouldServeStatic) {
     // VPS Production: serve built static files manually
     // Get current directory using ES module compatible method
     const currentDir = path.dirname(fileURLToPath(import.meta.url));
