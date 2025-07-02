@@ -57,3 +57,7 @@ args = "NODE_ENV=production npm start"
 localPort = 5000
 externalPort = 80
 exposeLocalhost = true
+
+[[ports]]
+localPort = 5001
+externalPort = 3000
