@@ -101,7 +101,7 @@ async function testDatabaseConnection() {
     
     // Test basic database connection
     const testQuery = await db.execute('SELECT NOW() as current_time, version() as pg_version');
-    const result = testQuery[0];
+    const result = testQuery.rows[0];
     
     log(`✅ Database connected successfully`, 'DATABASE', 'SUCCESS');
     log(`📅 PostgreSQL Time: ${result.current_time}`, 'DATABASE', 'INFO');
@@ -115,8 +115,8 @@ async function testDatabaseConnection() {
       ORDER BY table_name
     `);
     
-    log(`📊 Found ${tablesQuery.length} tables in database:`, 'DATABASE', 'INFO');
-    tablesQuery.forEach((table: any) => {
+    log(`📊 Found ${tablesQuery.rows.length} tables in database:`, 'DATABASE', 'INFO');
+    tablesQuery.rows.forEach((table: any) => {
       log(`   - ${table.table_name} (${table.table_type})`, 'DATABASE', 'INFO');
     });
     

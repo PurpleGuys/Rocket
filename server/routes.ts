@@ -3056,6 +3056,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database information endpoint
+  app.get("/api/database/info", async (req, res) => {
+    try {
+      // Test database connection and get info
+      const connectionTest = await db.execute('SELECT NOW() as current_time, version() as pg_version');
+      const dbInfo = connectionTest.rows[0];
+      
+      // Get all tables in the database
+      const tablesQuery = await db.execute(`
+        SELECT 
+          table_name, 
+          table_type,
+          (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = t.table_name AND table_schema = 'public') as column_count
+        FROM information_schema.tables t
+        WHERE table_schema = 'public' 
+        ORDER BY table_name
+      `);
+      
+      // Get detailed column info for each table
+      const tables = [];
+      for (const table of tablesQuery.rows) {
+        const columnsQuery = await db.execute(`
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns 
+          WHERE table_name = '${table.table_name}' AND table_schema = 'public'
+          ORDER BY ordinal_position
+        `);
+        
+        tables.push({
+          name: table.table_name,
+          type: table.table_type,
+          columnCount: table.column_count,
+          columns: columnsQuery.rows
+        });
+      }
+      
+      res.json({
+        status: "connected",
+        postgresql: {
+          version: dbInfo.pg_version,
+          currentTime: dbInfo.current_time
+        },
+        schema: {
+          tableCount: tables.length,
+          tables: tables
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        status: "error",
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Autocomplete for addresses (placeholder)
   app.get("/api/places/autocomplete", async (req, res) => {
     try {
