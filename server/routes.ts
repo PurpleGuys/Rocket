@@ -3095,6 +3095,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Servir les fichiers uploadés statiquement
   app.use('/uploads', express.static('uploads'));
 
+  // Catch-all handler for undefined API routes (must be at the end)
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ message: "API endpoint not found" });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
