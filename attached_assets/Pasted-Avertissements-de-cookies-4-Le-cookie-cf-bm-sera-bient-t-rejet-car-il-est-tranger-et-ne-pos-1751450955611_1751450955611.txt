@@ -1,0 +1,40 @@
+Avertissements de cookies 4
+Le cookie « __cf_bm » sera bientôt rejeté car il est étranger et ne possède pas l’attribut « Partitioned ». replit-dev-banner.js
+Le cookie « _cfuvid » sera bientôt rejeté car il est étranger et ne possède pas l’attribut « Partitioned ». replit-dev-banner.js
+Le cookie « __cf_bm » sera bientôt rejeté car il est étranger et ne possède pas l’attribut « Partitioned ». replit-dev-banner.js
+Le cookie « _cfuvid » sera bientôt rejeté car il est étranger et ne possède pas l’attribut « Partitioned ». replit-dev-banner.js
+Uncaught Error: Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY
+    <anonymous> https://purpleguy.world/assets/index-CUaOr6u0.js:498
+index-CUaOr6u0.js:498:9899
+    <anonyme> https://purpleguy.world/assets/index-CUaOr6u0.js:498
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2Fpurpleguy.world%2Fauth&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=NA&sid=NA&version=6&preview=false&__shared_params__[version]=basil » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé.
+out-4.5.44.js:1:39660
+Request for font "Arial Unicode MS" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Book Antiqua" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Bookman Old Style" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Century Gothic" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Century Schoolbook" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Century" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Garamond" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Fax" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Handwriting" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Sans Typewriter" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Sans" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "MS Outlook" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "MS Reference Sans Serif" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Monotype Corsiva" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 2 

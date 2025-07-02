@@ -175,8 +175,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "'self'", 
             "https://api.stripe.com",
             "https://*.stripe.com",
+            "https://m.stripe.network",
             "https://maps.googleapis.com",
             "https://api.sendgrid.com",
+            "https://*.cloudflare.com",
             "wss:",
             "ws:"
           ],
@@ -192,6 +194,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       },
       crossOriginEmbedderPolicy: false,
+      // Allow cookies for third-party integration
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      }
     }));
   } else {
     // Development: disable CSP to allow Vite and Replit scripts
