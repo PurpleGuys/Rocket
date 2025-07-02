@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { db } from './db.js';
 import { users, orders, abandonedCheckouts, inactivityNotifications } from '../shared/schema.ts';
 import { sendGridService } from './sendgridService.js';

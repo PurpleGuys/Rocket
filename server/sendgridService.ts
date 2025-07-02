@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import sgMail from '@sendgrid/mail';
 import type { User, Order } from '@shared/schema';
 

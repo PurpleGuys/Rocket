@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import sgMail from '@sendgrid/mail';
 import { storage } from './storage';
 import type { Order, InsertEmailLog, InsertAuditLog, User } from '@shared/schema';
