@@ -50,10 +50,13 @@ RUN apk add --no-cache \
     make \
     g++ \
     postgresql-client \
+    redis \
     curl \
+    netcat-openbsd \
     dumb-init \
     bash \
     tini \
+    coreutils \
     && rm -rf /var/cache/apk/*
 
 WORKDIR /app
@@ -157,25 +160,47 @@ for i in {1..30}; do
     fi
 done
 
-# Attendre Redis avec timeout plus long
+# Attendre Redis avec méthodes multiples
 echo "⏳ Waiting for Redis..."
-for i in {1..30}; do
-    if timeout 5 redis-cli -h redis -p 6379 ping >/dev/null 2>&1; then
-        echo "✅ Redis is ready!"
+REDIS_HOST="redis"
+REDIS_PORT="6379"
+MAX_ATTEMPTS=60
+ATTEMPT=1
+
+while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+    echo "⏳ Redis connection attempt $ATTEMPT/$MAX_ATTEMPTS..."
+    
+    # Méthode 1: Ping simple
+    if redis-cli -h $REDIS_HOST -p $REDIS_PORT ping >/dev/null 2>&1; then
+        echo "✅ Redis is ready (ping successful)!"
         break
-    else
-        echo "⏳ Redis not ready yet (attempt $i/30)..."
-        sleep 2
     fi
     
-    # Si on dépasse 15 tentatives, essayer sans timeout
-    if [ $i -gt 15 ]; then
-        if redis-cli -h redis -p 6379 ping >/dev/null 2>&1; then
-            echo "✅ Redis is ready (fallback connection)!"
+    # Méthode 2: Netcat pour tester la connectivité
+    if nc -z $REDIS_HOST $REDIS_PORT >/dev/null 2>&1; then
+        echo "🔌 Redis port is open, testing ping..."
+        sleep 1
+        if redis-cli -h $REDIS_HOST -p $REDIS_PORT ping >/dev/null 2>&1; then
+            echo "✅ Redis is ready (after port check)!"
             break
         fi
     fi
+    
+    # Méthode 3: Vérification avec timeout pour les dernières tentatives
+    if [ $ATTEMPT -gt 30 ]; then
+        if timeout 10 redis-cli -h $REDIS_HOST -p $REDIS_PORT ping >/dev/null 2>&1; then
+            echo "✅ Redis is ready (timeout method)!"
+            break
+        fi
+    fi
+    
+    sleep 2
+    ATTEMPT=$((ATTEMPT + 1))
 done
+
+if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+    echo "⚠️ Redis not ready after $MAX_ATTEMPTS attempts, continuing anyway..."
+fi
 
 echo "🚀 All services ready! Starting application..."
 exec "$@"
@@ -252,18 +277,27 @@ services:
       - redis_data:/data
     networks:
       - bennespro_network
+    environment:
+      REDIS_REPLICATION_MODE: master
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 5s
       timeout: 3s
-      retries: 20
-      start_period: 20s
+      retries: 30
+      start_period: 30s
     command: >
       redis-server
+      --bind 0.0.0.0
+      --protected-mode no
       --appendonly yes
       --appendfsync everysec
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --tcp-keepalive 300
+      --timeout 0
 
   app:
     build: 
