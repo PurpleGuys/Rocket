@@ -3,7 +3,6 @@ dotenv.config();
 
 import express, { type Request, type Response, type NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite } from "./vite";
 import { authenticateToken } from "./auth";
 import { testDatabaseConnection } from "./db";
 
@@ -58,6 +57,23 @@ function log(message: string, source = "express", level = "INFO") {
   log("Setting up API routes...", "STARTUP");
   const server = await registerRoutes(app);
 
+  // Serve static files in production
+  if (process.env.NODE_ENV === "production") {
+    const path = await import("path");
+    const { fileURLToPath } = await import("url");
+    
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    
+    // Serve static files
+    app.use(express.static(path.join(__dirname, "../dist/public")));
+    
+    // Catch all handler for client-side routing
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "../dist/public/index.html"));
+    });
+  }
+
   // Error handling middleware
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     log(`❌ Error: ${err.message}`, "ERROR");
@@ -78,11 +94,14 @@ function log(message: string, source = "express", level = "INFO") {
     // Setup Vite in development mode
     if (process.env.NODE_ENV !== "production") {
       try {
+        const { setupVite } = await import("./vite");
         await setupVite(app, server);
         log("🎨 Vite middleware configured successfully", "STARTUP", "SUCCESS");
       } catch (error) {
         log(`❌ Vite setup failed: ${error?.message}`, "STARTUP", "ERROR");
       }
+    } else {
+      log("🚀 Production mode: Serving static files", "STARTUP", "SUCCESS");
     }
   });
 

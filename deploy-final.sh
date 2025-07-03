@@ -67,13 +67,13 @@ COPY tailwind.config.ts ./
 COPY postcss.config.js ./
 COPY components.json ./
 
-# Installation avec cache npm optimisé
-RUN npm ci --only=production --ignore-scripts && \
+# Installation avec cache npm optimisé - INCLURE VITE
+RUN npm ci --ignore-scripts && \
     npm cache clean --force
 
 FROM dependencies AS build
-# Réinstaller toutes les dépendances pour le build
-RUN npm ci
+# Les dépendances sont déjà installées, pas besoin de réinstaller
+# RUN npm ci
 
 # Copier tout le code source
 COPY . .
@@ -124,8 +124,8 @@ FROM base AS production
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 -G nodejs
 
-# Copier les node_modules depuis l'étape dependencies
-COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
+# Copier les node_modules complets depuis l'étape build (avec toutes les dépendances)
+COPY --from=build --chown=nodejs:nodejs /app/node_modules ./node_modules
 
 # Copier le code source et le build
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
