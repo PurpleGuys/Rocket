@@ -99,36 +99,32 @@ FROM dependencies AS build
 # Copier le code source
 COPY . .
 
-# Correction vite.config.ts pour Node.js v18
-cat > vite.config.ts.production << 'VITE_EOF'
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "client/src"),
-      "@shared": path.resolve(__dirname, "shared"),
-      "@assets": path.resolve(__dirname, "attached_assets"),
-    },
-  },
-  root: path.resolve(__dirname, "client"),
-  build: {
-    outDir: path.resolve(__dirname, "dist/public"),
-    emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
-    },
-  },
-});
-VITE_EOF
-
-# Build avec gestion d'erreur robuste
-RUN cp vite.config.ts.production vite.config.ts && \
+# Correction vite.config.ts pour Node.js v18 et build avec gestion d'erreur robuste
+RUN echo 'import { defineConfig } from "vite";' > vite.config.ts.production && \
+    echo 'import react from "@vitejs/plugin-react";' >> vite.config.ts.production && \
+    echo 'import path from "path";' >> vite.config.ts.production && \
+    echo '' >> vite.config.ts.production && \
+    echo 'export default defineConfig({' >> vite.config.ts.production && \
+    echo '  plugins: [react()],' >> vite.config.ts.production && \
+    echo '  resolve: {' >> vite.config.ts.production && \
+    echo '    alias: {' >> vite.config.ts.production && \
+    echo '      "@": path.resolve(__dirname, "client/src"),' >> vite.config.ts.production && \
+    echo '      "@shared": path.resolve(__dirname, "shared"),' >> vite.config.ts.production && \
+    echo '      "@assets": path.resolve(__dirname, "attached_assets"),' >> vite.config.ts.production && \
+    echo '    },' >> vite.config.ts.production && \
+    echo '  },' >> vite.config.ts.production && \
+    echo '  root: path.resolve(__dirname, "client"),' >> vite.config.ts.production && \
+    echo '  build: {' >> vite.config.ts.production && \
+    echo '    outDir: path.resolve(__dirname, "dist/public"),' >> vite.config.ts.production && \
+    echo '    emptyOutDir: true,' >> vite.config.ts.production && \
+    echo '    rollupOptions: {' >> vite.config.ts.production && \
+    echo '      output: {' >> vite.config.ts.production && \
+    echo '        manualChunks: undefined,' >> vite.config.ts.production && \
+    echo '      },' >> vite.config.ts.production && \
+    echo '    },' >> vite.config.ts.production && \
+    echo '  },' >> vite.config.ts.production && \
+    echo '});' >> vite.config.ts.production && \
+    cp vite.config.ts.production vite.config.ts && \
     npm run build 2>/dev/null || \
     (echo "Build Vite failed, trying fallback..." && \
      mkdir -p dist/public && \
