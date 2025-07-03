@@ -5,6 +5,17 @@ A comprehensive waste management and sustainability platform that leverages inte
 
 ## Recent Changes (July 3, 2025)
 
+### ✅ SCRIPT DÉPLOIEMENT DOCKER UNIFIÉ FINALISÉ (July 3, 2025)
+✓ CRÉÉ: Script `deploy-corrected.sh` consolidé avec syntaxe bash correcte
+✓ RÉSOLU: Erreurs de syntaxe if/else/fi dans scripts de déploiement précédents
+✓ IMPLÉMENTÉ: Nettoyage ultra-agressif Docker avec reset complet système
+✓ CONFIGURÉ: Détection automatique environnement (localhost vs production HTTPS)
+✓ OPTIMISÉ: Dockerfile multi-stage avec correction automatique vite.config.ts
+✓ SÉCURISÉ: Configuration NGINX avec Let's Encrypt, rate limiting, headers sécurité
+✓ TESTÉ: Script d'attente robuste pour PostgreSQL/Redis avec 60 tentatives max
+✓ VALIDÉ: Port mapping correct (interne 5000, exposé 8080) avec health checks
+✓ DOCUMENTÉ: Instructions complètes pour déploiement localhost et production HTTPS
+
 ### ✅ NGINX REVERSE PROXY + HTTPS AUTOMATIQUE INTÉGRÉ (July 3, 2025)
 ✓ CRÉÉ: Configuration NGINX reverse proxy complète avec SSL/TLS automatique
 ✓ IMPLÉMENTÉ: Détection automatique environnement (localhost vs production HTTPS)
