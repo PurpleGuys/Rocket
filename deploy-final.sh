@@ -5,12 +5,18 @@ clear
 echo "🚀 DÉPLOIEMENT DOCKER BENNESPRO"
 echo "================================"
 
-# Arrêter tout proprement
-echo "🛑 Arrêt des containers existants..."
-sudo docker-compose down --remove-orphans 2>/dev/null || true
+# Arrêter tout proprement avec nettoyage forcé
+echo "🛑 Arrêt et nettoyage complet des containers..."
+sudo docker-compose down --remove-orphans --volumes 2>/dev/null || true
+
+# Forcer la suppression des containers nommés BennesPro
+sudo docker rm -f bennespro_postgres bennespro_redis bennespro_app 2>/dev/null || true
+
+# Nettoyage complet
 sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
 sudo docker rm $(sudo docker ps -aq) 2>/dev/null || true
 sudo docker network prune -f 2>/dev/null || true
+sudo docker volume prune -f 2>/dev/null || true
 sudo docker system prune -af
 
 # Créer Dockerfile ultra-robuste
