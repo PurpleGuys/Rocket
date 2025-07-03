@@ -157,15 +157,23 @@ for i in {1..30}; do
     fi
 done
 
-# Attendre Redis
+# Attendre Redis avec timeout plus long
 echo "⏳ Waiting for Redis..."
-for i in {1..15}; do
-    if redis-cli -h redis -p 6379 ping >/dev/null 2>&1; then
+for i in {1..30}; do
+    if timeout 5 redis-cli -h redis -p 6379 ping >/dev/null 2>&1; then
         echo "✅ Redis is ready!"
         break
     else
-        echo "⏳ Redis not ready yet (attempt $i/15)..."
-        sleep 1
+        echo "⏳ Redis not ready yet (attempt $i/30)..."
+        sleep 2
+    fi
+    
+    # Si on dépasse 15 tentatives, essayer sans timeout
+    if [ $i -gt 15 ]; then
+        if redis-cli -h redis -p 6379 ping >/dev/null 2>&1; then
+            echo "✅ Redis is ready (fallback connection)!"
+            break
+        fi
     fi
 done
 
@@ -245,11 +253,11 @@ services:
     networks:
       - bennespro_network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
       timeout: 3s
-      retries: 10
-      start_period: 10s
+      retries: 20
+      start_period: 20s
     command: >
       redis-server
       --appendonly yes
@@ -269,6 +277,9 @@ services:
       REDIS_URL: "redis://redis:6379"
       PORT: 5000
       VITE_STRIPE_PUBLIC_KEY: ""
+      STRIPE_SECRET_KEY: ""
+      SENDGRID_API_KEY: ""
+      SENDGRID_VERIFIED_SENDER_EMAIL: "noreply@bennespro.demo"
       SESSION_SECRET: "docker-secret-bennespro-2025"
       JWT_SECRET: "jwt-docker-secret-bennespro-2025"
       TZ: Europe/Paris

@@ -1,0 +1,154 @@
+j'ai un soucis bennespro_app exited with code 1
+bennespro_app | ⏳ Redis not ready yet (attempt 2/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 3/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 4/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 5/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 6/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 7/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 8/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 9/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 10/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 11/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 12/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 13/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 14/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 15/15)...
+bennespro_app | 🚀 All services ready! Starting application...
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | SendGrid API key not configured. Email sending will be disabled.
+bennespro_app | SendGrid API key not configured. Email sending will be disabled.
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | /app/server/routes.ts:84
+bennespro_app |   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+bennespro_app |         ^
+bennespro_app |
+bennespro_app |
+bennespro_app | Error: Missing required Stripe secret: STRIPE_SECRET_KEY
+bennespro_app |     at <anonymous> (/app/server/routes.ts:84:9)
+bennespro_app |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+bennespro_app |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+bennespro_app |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+bennespro_app |
+bennespro_app | Node.js v20.19.3
+bennespro_app exited with code 1
+bennespro_app | ⏳ Redis not ready yet (attempt 1/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 2/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 3/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 4/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 5/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 6/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 7/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 8/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 9/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 10/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 11/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 12/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 13/15)...
+bennespro_app | ⏳ Redis not ready yet (attempt 14/15)...
+
+
+ChatGPT a dit :
+Merci pour les logs très détaillés ! Voici une analyse claire et une feuille de route pour corriger le problème.
+
+⚠️ Problèmes détectés
+🟥 1. Erreur critique : Variable d’environnement manquante
+javascript
+Copier
+Modifier
+Error: Missing required Stripe secret: STRIPE_SECRET_KEY
+→ Ton application crash à cause de l’absence de STRIPE_SECRET_KEY dans le .env.
+
+🟨 2. Redis indisponible au démarrage initial
+arduino
+Copier
+Modifier
+⏳ Redis not ready yet (attempt X/15)...
+→ L’app attend que Redis soit prêt, mais Redis met trop longtemps à démarrer ou est mal configuré.
+
+🟨 3. Variable SendGrid manquante (non bloquante)
+scss
+Copier
+Modifier
+SendGrid API key not configured. Email sending will be disabled.
+→ Ce n’est pas bloquant mais ça signifie que tes emails ne partent pas.
+
+✅ Solution pas à pas
+🛠 Étape 1 — Corriger les variables d’environnement
+Ajoute dans ton fichier .env (ou dans docker-compose.yml si tu injectes les variables via environment:) :
+
+dotenv
+Copier
+Modifier
+STRIPE_SECRET_KEY=sk_test_...
+SENDGRID_API_KEY=SG....
+REDIS_URL=redis://redis:6379
+💡 À vérifier :
+
+Ne laisse aucune variable obligatoire non définie
+
+Utilise des clés fictives si tu veux juste démarrer en dev
+
+🛠 Étape 2 — Gérer Redis correctement
+➤ Si Redis est lent à démarrer :
+Vérifie que Redis est bien exposé dans ton docker-compose.yml
+
+yaml
+Copier
+Modifier
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+➤ Côté app (Node.js) :
+Ton script d’attente est bien vu (il essaie 15 fois)
+
+Mais tu peux aussi améliorer la robustesse avec un wait-for ou healthcheck dans le depends_on: :
+
+yaml
+Copier
+Modifier
+  app:
+    build: .
+    depends_on:
+      redis:
+        condition: service_healthy
+🛠 Étape 3 — Empêcher le crash de l’app si des clés manquent
+Dans ton code (routes.ts, ligne 84), tu lances une exception si STRIPE_SECRET_KEY est manquant :
+
+ts
+Copier
+Modifier
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+✔️ Solution temporaire pour dev/local sans crash :
+
+ts
+Copier
+Modifier
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn('[WARN] STRIPE_SECRET_KEY not set. Stripe routes will be disabled.');
+}
+🧪 Check final
+✅ Check 1 – .env bien chargé dans le container (via dotenv ou docker-compose)
+✅ Check 2 – Redis fonctionne en standalone (tu peux tester via redis-cli ping)
+✅ Check 3 – Ton app démarre sans throw dès qu’il manque une clé
+
+🧠 Bonus : Script de debug rapide
+bash
+Copier
+Modifier
+docker compose exec bennespro_app printenv | grep STRIPE
+docker compose logs redis | tail -n 50

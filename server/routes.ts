@@ -80,13 +80,16 @@ function generateFidPdfContent(fid: any) {
   };
 }
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Initialize Stripe only if key is provided
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2024-12-18.acacia" as any,
+  });
+  console.log("✅ Stripe initialized successfully");
+} else {
+  console.warn("⚠️ STRIPE_SECRET_KEY not configured. Payment features will be disabled.");
 }
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-12-18.acacia" as any,
-});
 
 // Rate limiting for production only
 const authLimiter = process.env.NODE_ENV === 'production' ? rateLimit({
@@ -646,6 +649,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment intent creation
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ 
+          message: "Payment processing is currently unavailable. Stripe is not configured." 
+        });
+      }
+
       const { amount, orderId } = req.body;
       
       const paymentIntent = await stripe.paymentIntents.create({
