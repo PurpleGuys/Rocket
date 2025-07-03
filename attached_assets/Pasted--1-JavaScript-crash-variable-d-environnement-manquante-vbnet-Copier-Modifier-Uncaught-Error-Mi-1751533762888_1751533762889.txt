@@ -1,0 +1,103 @@
+🚨 1. JavaScript crash : variable d’environnement manquante
+vbnet
+Copier
+Modifier
+Uncaught Error: Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY
+❗ Gravité : CRITIQUE
+👉 Cela provoque un crash immédiat du front-end si ce n’est pas géré proprement.
+
+🧠 Explication :
+Ton build Vite utilise une variable d’environnement VITE_STRIPE_PUBLIC_KEY, mais elle n’a pas été définie pendant la compilation (ou l’est vide).
+
+✅ Solution :
+Vérifie que la variable est présente dans ton .env.production :
+
+env
+Copier
+Modifier
+VITE_STRIPE_PUBLIC_KEY=pk_live_...
+Si tu as buildé avec docker, assure-toi que la variable est injectée AVANT vite build :
+
+dockerfile
+Copier
+Modifier
+ENV VITE_STRIPE_PUBLIC_KEY=$VITE_STRIPE_PUBLIC_KEY
+Sinon, modifie ton code pour rendre cette variable optionnelle ou avec fallback :
+
+ts
+Copier
+Modifier
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  console.warn("Stripe public key is not set.");
+} else {
+  // init Stripe
+}
+⚠️ 2. JSON.parse error dans les source maps
+pgsql
+Copier
+Modifier
+Erreur dans les liens source : JSON.parse: unexpected character at line 1 column 1
+❗ Gravité : Basse à moyenne (pas bloquant, mais pollue la console)
+🧠 Explication :
+Ton navigateur essaie de charger un fichier .map (fichier de debug JS) via une URL mal encodée :
+
+perl
+Copier
+Modifier
+https://purpleguy.world/%3Canonymous%20code%3E
+→ %3Canonymous%20code%3E = <anonymous code> mal encodé = problème de sourceMappingURL.
+
+✅ Solution :
+Tu as deux options :
+
+Désactiver les source maps en prod (recommandé) dans vite.config.js :
+
+js
+Copier
+Modifier
+export default defineConfig({
+  build: {
+    sourcemap: false
+  }
+})
+Ou corriger le chemin du sourceMappingURL (mais inutile en prod)
+
+🔐 3. Problèmes avec Stripe/m.stripe.network en contexte tiers (iframe)
+less
+Copier
+Modifier
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/... »
+❗ Gravité : Info / Alerte navigateur (ne provoque pas la page blanche)
+🧠 Explication :
+Les navigateurs modernes bloquent les cookies/stockage tiers par défaut. Ce message est généré par Firefox/Chrome pour t’informer que des éléments comme Stripe Checkout ou d'autres intégrations (iframes, JS SDK) sont bridés pour la vie privée.
+
+✅ Solution :
+Aucun correctif requis sauf si tu as des problèmes avec Stripe Checkout/Elements → sinon, tu peux ignorer.
+
+✅ En résumé
+🔍 Problème	🎯 Gravité	✅ Action
+VITE_STRIPE_PUBLIC_KEY manquant	Critique	Ajoute dans .env.production + rebuild
+Source maps JSON.parse	Moyenne	sourcemap: false dans vite.config.js
+Stripe tracking + cookie warning	Faible	Ignorer, sauf si Stripe Checkout bug
+
+🛠 Prochaines étapes
+Ajoute cette ligne dans .env.production :
+
+env
+Copier
+Modifier
+VITE_STRIPE_PUBLIC_KEY=pk_test_...
+Rebuild ton app :
+
+bash
+Copier
+Modifier
+npm run build
+ou
+
+bash
+Copier
+Modifier
+docker compose build app
+docker compose up -d
+Souhaites-tu que je te fasse un exemple complet de `vite.config.js
