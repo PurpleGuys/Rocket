@@ -11,12 +11,36 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Utiliser PostgreSQL standard pour tous les environnements
-// Compatible avec Neon Database (qui supporte aussi le driver PostgreSQL standard)
-export const pool = new PgPool({ 
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+// Détection automatique de l'environnement de base de données
+function getDatabaseConfig() {
+  const databaseUrl = process.env.DATABASE_URL!;
+  
+  // Si c'est une URL Neon Database (cloud), utiliser SSL
+  const isNeonDatabase = databaseUrl.includes('neon.tech') || databaseUrl.includes('pooler.supabase.com');
+  
+  // Si c'est PostgreSQL Docker local, pas de SSL
+  const isDockerPostgres = databaseUrl.includes('postgres:5432') || databaseUrl.includes('localhost:5433');
+  
+  let sslConfig;
+  if (isNeonDatabase) {
+    sslConfig = { rejectUnauthorized: false };
+    console.log(`✅ Neon Database SSL config applied`);
+  } else if (isDockerPostgres) {
+    sslConfig = false;
+    console.log(`✅ Docker PostgreSQL config applied (no SSL)`);
+  } else {
+    // Fallback: essayer sans SSL pour PostgreSQL local
+    sslConfig = false;
+    console.log(`✅ Local PostgreSQL config applied (no SSL)`);
+  }
+  
+  return {
+    connectionString: databaseUrl,
+    ssl: sslConfig
+  };
+}
+
+export const pool = new PgPool(getDatabaseConfig());
 
 export const db = pgDrizzle(pool, { schema });
 

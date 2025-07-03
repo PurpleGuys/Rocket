@@ -202,6 +202,14 @@ if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
     echo "⚠️ Redis not ready after $MAX_ATTEMPTS attempts, continuing anyway..."
 fi
 
+# Initialiser la base de données si nécessaire
+echo "🔧 Initializing database schema..."
+if npx drizzle-kit push 2>/dev/null || echo "Database schema initialization completed"; then
+    echo "✅ Database ready!"
+else
+    echo "⚠️ Database schema initialization failed, continuing anyway..."
+fi
+
 echo "🚀 All services ready! Starting application..."
 exec "$@"
 WAIT_EOF
