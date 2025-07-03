@@ -1,0 +1,261 @@
+index-B4RM_2EP.js:498 ⚠️ VITE_STRIPE_PUBLIC_KEY not found - Stripe features will be disabled
+(anonymous) @ index-B4RM_2EP.js:498
+index-B4RM_2EP.js:498 Please configure your Stripe public key in your environment variables
+(anonymous) @ index-B4RM_2EP.js:498
+index-B4RM_2EP.js:48 
+            
+            
+           GET https://purpleguy.world/api/auth/me 401 (Unauthorized)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+i @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+fetch @ index-B4RM_2EP.js:48
+yc @ index-B4RM_2EP.js:48
+onSubscribe @ index-B4RM_2EP.js:48
+subscribe @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+oS @ index-B4RM_2EP.js:38
+vp @ index-B4RM_2EP.js:40
+Bo @ index-B4RM_2EP.js:40
+H0 @ index-B4RM_2EP.js:40
+ci @ index-B4RM_2EP.js:38
+XI @ index-B4RM_2EP.js:40
+bi @ index-B4RM_2EP.js:40
+zS @ index-B4RM_2EP.js:40
+w @ index-B4RM_2EP.js:25
+A @ index-B4RM_2EP.js:25
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+index-B4RM_2EP.js:48 
+            
+            
+           GET https://purpleguy.world/api/services 500 (Internal Server Error)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+i @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+fetch @ index-B4RM_2EP.js:48
+yc @ index-B4RM_2EP.js:48
+onSubscribe @ index-B4RM_2EP.js:48
+subscribe @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+oS @ index-B4RM_2EP.js:38
+vp @ index-B4RM_2EP.js:40
+Bo @ index-B4RM_2EP.js:40
+XI @ index-B4RM_2EP.js:40
+bi @ index-B4RM_2EP.js:40
+H0 @ index-B4RM_2EP.js:40
+ci @ index-B4RM_2EP.js:38
+(anonymous) @ index-B4RM_2EP.js:40
+setTimeout
+GM @ index-B4RM_2EP.js:48
+o @ index-B4RM_2EP.js:48
+batch @ index-B4RM_2EP.js:48
+Vs @ index-B4RM_2EP.js:48
+setData @ index-B4RM_2EP.js:48
+onSuccess @ index-B4RM_2EP.js:48
+m @ index-B4RM_2EP.js:48
+Promise.then
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+fetch @ index-B4RM_2EP.js:48
+yc @ index-B4RM_2EP.js:48
+onSubscribe @ index-B4RM_2EP.js:48
+subscribe @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+oS @ index-B4RM_2EP.js:38
+vp @ index-B4RM_2EP.js:40
+Bo @ index-B4RM_2EP.js:40
+H0 @ index-B4RM_2EP.js:40
+ci @ index-B4RM_2EP.js:38
+XI @ index-B4RM_2EP.js:40
+bi @ index-B4RM_2EP.js:40
+zS @ index-B4RM_2EP.js:40
+w @ index-B4RM_2EP.js:25
+A @ index-B4RM_2EP.js:25
+out-4.5.44.js:1 
+            
+            
+           POST https://m.stripe.com/6 net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ out-4.5.44.js:1
+i @ out-4.5.44.js:1
+s @ out-4.5.44.js:1
+(anonymous) @ out-4.5.44.js:1
+(anonymous) @ out-4.5.44.js:1
+Promise.then
+S @ out-4.5.44.js:1
+y @ out-4.5.44.js:1
+E @ out-4.5.44.js:1
+e.onload @ inner.html:1
+script
+(anonymous) @ inner.html:1
+(anonymous) @ inner.html:1
+index-B4RM_2EP.js:48 
+            
+            
+           POST https://purpleguy.world/api/auth/login 500 (Internal Server Error)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+Ae @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:438
+d @ index-B4RM_2EP.js:438
+(anonymous) @ index-B4RM_2EP.js:438
+(anonymous) @ index-B4RM_2EP.js:438
+Ul @ index-B4RM_2EP.js:438
+mutationFn @ index-B4RM_2EP.js:438
+fn @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+execute @ index-B4RM_2EP.js:48
+await in execute
+mutate @ index-B4RM_2EP.js:48
+p @ index-B4RM_2EP.js:516
+(anonymous) @ index-B4RM_2EP.js:516
+await in (anonymous)
+vO @ index-B4RM_2EP.js:37
+yO @ index-B4RM_2EP.js:37
+jO @ index-B4RM_2EP.js:37
+x0 @ index-B4RM_2EP.js:37
+W2 @ index-B4RM_2EP.js:37
+(anonymous) @ index-B4RM_2EP.js:37
+ig @ index-B4RM_2EP.js:40
+h2 @ index-B4RM_2EP.js:37
+Ef @ index-B4RM_2EP.js:37
+Iv @ index-B4RM_2EP.js:37
+DO @ index-B4RM_2EP.js:37
+index-B4RM_2EP.js:48 
+            
+            
+           POST https://purpleguy.world/api/auth/login 500 (Internal Server Error)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+Ae @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:438
+d @ index-B4RM_2EP.js:438
+(anonymous) @ index-B4RM_2EP.js:438
+(anonymous) @ index-B4RM_2EP.js:438
+Ul @ index-B4RM_2EP.js:438
+mutationFn @ index-B4RM_2EP.js:438
+fn @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+execute @ index-B4RM_2EP.js:48
+await in execute
+mutate @ index-B4RM_2EP.js:48
+p @ index-B4RM_2EP.js:516
+(anonymous) @ index-B4RM_2EP.js:516
+await in (anonymous)
+vO @ index-B4RM_2EP.js:37
+yO @ index-B4RM_2EP.js:37
+jO @ index-B4RM_2EP.js:37
+x0 @ index-B4RM_2EP.js:37
+W2 @ index-B4RM_2EP.js:37
+(anonymous) @ index-B4RM_2EP.js:37
+ig @ index-B4RM_2EP.js:40
+h2 @ index-B4RM_2EP.js:37
+Ef @ index-B4RM_2EP.js:37
+Iv @ index-B4RM_2EP.js:37
+DO @ index-B4RM_2EP.js:37
+index-B4RM_2EP.js:48 
+            
+            
+           GET https://purpleguy.world/api/services 500 (Internal Server Error)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+i @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+fetch @ index-B4RM_2EP.js:48
+yc @ index-B4RM_2EP.js:48
+onSubscribe @ index-B4RM_2EP.js:48
+subscribe @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+oS @ index-B4RM_2EP.js:38
+vp @ index-B4RM_2EP.js:40
+Bo @ index-B4RM_2EP.js:40
+XI @ index-B4RM_2EP.js:40
+bi @ index-B4RM_2EP.js:40
+H0 @ index-B4RM_2EP.js:40
+ci @ index-B4RM_2EP.js:38
+(anonymous) @ index-B4RM_2EP.js:40
+index-B4RM_2EP.js:48 
+            
+            
+           GET https://purpleguy.world/api/services 500 (Internal Server Error)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+i @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+fetch @ index-B4RM_2EP.js:48
+yc @ index-B4RM_2EP.js:48
+onSubscribe @ index-B4RM_2EP.js:48
+subscribe @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+oS @ index-B4RM_2EP.js:38
+vp @ index-B4RM_2EP.js:40
+Bo @ index-B4RM_2EP.js:40
+XI @ index-B4RM_2EP.js:40
+bi @ index-B4RM_2EP.js:40
+H0 @ index-B4RM_2EP.js:40
+ci @ index-B4RM_2EP.js:38
+(anonymous) @ index-B4RM_2EP.js:40
+index-B4RM_2EP.js:48 
+            
+            
+           GET https://purpleguy.world/api/services 500 (Internal Server Error)
+(anonymous) @ index-B4RM_2EP.js:48
+d @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+jg @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+i @ index-B4RM_2EP.js:48
+g @ index-B4RM_2EP.js:48
+start @ index-B4RM_2EP.js:48
+fetch @ index-B4RM_2EP.js:48
+yc @ index-B4RM_2EP.js:48
+onSubscribe @ index-B4RM_2EP.js:48
+subscribe @ index-B4RM_2EP.js:48
+(anonymous) @ index-B4RM_2EP.js:48
+oS @ index-B4RM_2EP.js:38
+vp @ index-B4RM_2EP.js:40
+Bo @ index-B4RM_2EP.js:40
+XI @ index-B4RM_2EP.js:40
+bi @ index-B4RM_2EP.js:40
+H0 @ index-B4RM_2EP.js:40
+ci @ index-B4RM_2EP.js:38
+(anonymous) @ index-B4RM_2EP.js:40
+index-B4RM_2EP.js:48 
+            
+            
+           GET https://purpleguy.world/api/services 500 (Internal Server Error)
