@@ -5,36 +5,39 @@ clear
 echo "🚀 DÉPLOIEMENT DOCKER BENNESPRO"
 echo "================================"
 
-# Arrêter tout proprement avec nettoyage forcé
-echo "🛑 Arrêt et nettoyage complet des containers..."
-sudo docker-compose down --remove-orphans --volumes 2>/dev/null || true
+# NETTOYAGE ULTRA-AGRESSIF
+echo "🛑 NETTOYAGE ULTRA-AGRESSIF EN COURS..."
 
-# Forcer la suppression des containers par nom ET ID
-echo "🗑️ Suppression forcée des containers BennesPro..."
-sudo docker rm -f bennespro_postgres bennespro_redis bennespro_app 2>/dev/null || true
+# Arrêter Docker Compose avec tous les flags
+sudo docker-compose down --remove-orphans --volumes --rmi all 2>/dev/null || true
 
-# Supprimer tous les containers avec le nom contenant "bennespro"
-for container in $(sudo docker ps -aq --filter "name=bennespro"); do
-    echo "Suppression du container: $container"
-    sudo docker rm -f $container 2>/dev/null || true
-done
+# Arrêter et supprimer TOUS les containers
+echo "🔥 Arrêt et suppression de TOUS les containers..."
+sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
+sudo docker rm -f $(sudo docker ps -aq) 2>/dev/null || true
 
-# Supprimer les containers par ID partiel (comme dans l'erreur)
-for container in $(sudo docker ps -aq); do
-    name=$(sudo docker inspect --format='{{.Name}}' $container 2>/dev/null || echo "")
-    if [[ "$name" == *"bennespro"* ]]; then
-        echo "Suppression du container trouvé: $container ($name)"
-        sudo docker rm -f $container 2>/dev/null || true
-    fi
-done
+# Supprimer toutes les images
+echo "🖼️ Suppression de toutes les images..."
+sudo docker rmi -f $(sudo docker images -aq) 2>/dev/null || true
 
-# Nettoyage réseau et volumes
-echo "🌐 Nettoyage des réseaux et volumes..."
-sudo docker network rm bennespro_network 2>/dev/null || true
-sudo docker volume rm bennespro_postgres_data bennespro_redis_data 2>/dev/null || true
-sudo docker network prune -f 2>/dev/null || true
-sudo docker volume prune -f 2>/dev/null || true
-sudo docker system prune -af
+# Supprimer tous les volumes
+echo "💾 Suppression de tous les volumes..."
+sudo docker volume rm $(sudo docker volume ls -q) 2>/dev/null || true
+
+# Supprimer tous les réseaux
+echo "🌐 Suppression de tous les réseaux..."
+sudo docker network rm $(sudo docker network ls -q) 2>/dev/null || true
+
+# Nettoyage système complet
+echo "🧹 Nettoyage système complet..."
+sudo docker system prune -af --volumes
+
+# Redémarrer Docker pour être sûr
+echo "🔄 Redémarrage du service Docker..."
+sudo systemctl restart docker
+sleep 5
+
+echo "✅ NETTOYAGE TERMINÉ - Docker complètement réinitialisé"
 
 # Créer Dockerfile ultra-robuste
 cat > Dockerfile << 'EOF'
