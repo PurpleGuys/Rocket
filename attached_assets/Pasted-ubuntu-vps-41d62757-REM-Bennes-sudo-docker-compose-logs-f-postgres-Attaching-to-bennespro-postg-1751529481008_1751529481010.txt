@@ -1,0 +1,134 @@
+ubuntu@vps-41d62757:~/REM-Bennes$ sudo docker-compose logs -f postgres
+Attaching to bennespro_postgres
+bennespro_postgres | The files belonging to this database system will be owned by user "postgres".
+bennespro_postgres | This user must also own the server process.
+bennespro_postgres |
+bennespro_postgres | The database cluster will be initialized with this locale configuration:
+bennespro_postgres |   provider:    libc
+bennespro_postgres |   LC_COLLATE:  C
+bennespro_postgres |   LC_CTYPE:    C
+bennespro_postgres |   LC_MESSAGES: en_US.utf8
+bennespro_postgres |   LC_MONETARY: en_US.utf8
+bennespro_postgres |   LC_NUMERIC:  en_US.utf8
+bennespro_postgres |   LC_TIME:     en_US.utf8
+bennespro_postgres | The default text search configuration will be set to "english".
+bennespro_postgres |
+bennespro_postgres | Data page checksums are disabled.
+bennespro_postgres |
+bennespro_postgres | fixing permissions on existing directory /var/lib/postgresql/data/pgdata ... ok
+bennespro_postgres | creating subdirectories ... ok
+bennespro_postgres | selecting dynamic shared memory implementation ... posix
+bennespro_postgres | selecting default max_connections ... 100
+bennespro_postgres | selecting default shared_buffers ... 128MB
+bennespro_postgres | selecting default time zone ... UTC
+bennespro_postgres | creating configuration files ... ok
+bennespro_postgres | running bootstrap script ... ok
+bennespro_postgres | sh: locale: not found
+bennespro_postgres | 2025-07-03 07:53:34.177 UTC [36] WARNING:  no usable system locales were found
+bennespro_postgres | performing post-bootstrap initialization ... ok
+bennespro_postgres | initdb: warning: enabling "trust" authentication for local connections
+bennespro_postgres | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+bennespro_postgres | syncing data to disk ... ok
+bennespro_postgres |
+bennespro_postgres |
+bennespro_postgres | Success. You can now start the database server using:
+bennespro_postgres |
+bennespro_postgres |     pg_ctl -D /var/lib/postgresql/data/pgdata -l logfile start
+bennespro_postgres |
+bennespro_postgres | waiting for server to start....2025-07-03 07:53:35.087 UTC [42] LOG:  redirecting log output to logging collector process
+bennespro_postgres | 2025-07-03 07:53:35.087 UTC [42] HINT:  Future log output will appear in directory "log".
+bennespro_postgres |  done
+bennespro_postgres | server started
+bennespro_postgres | CREATE DATABASE
+bennespro_postgres |
+bennespro_postgres |
+bennespro_postgres | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+bennespro_postgres |
+bennespro_postgres | waiting for server to shut down.... done
+bennespro_postgres | server stopped
+bennespro_postgres |
+bennespro_postgres | PostgreSQL init process complete; ready for start up.
+bennespro_postgres |
+bennespro_postgres | 2025-07-03 07:53:35.420 UTC [1] LOG:  redirecting log output to logging collector process
+bennespro_postgres | 2025-07-03 07:53:35.420 UTC [1] HINT:  Future log output will appear in directory "log".
+
+
+ChatGPT a dit :
+Parfait, tes logs montrent que PostgreSQL est bien initialisé, tourne correctement, et accepte les connexions — mais sans SSL.
+
+Voici la confirmation clé dans le log :
+
+bash
+Copier
+Modifier
+PostgreSQL init process complete; ready for start up.
+Et aussi :
+
+bash
+Copier
+Modifier
+initdb: warning: enabling "trust" authentication for local connections
+🔓 Cela signifie que toutes les connexions locales sont autorisées sans mot de passe pour l’instant (mode trust), donc pas de gestion SSL, ce qui explique l’erreur de ton app.
+
+✅ Étapes pour corriger ton erreur The server does not support SSL connections
+🔁 Étape 1 – Modifier la connexion dans .env
+Vérifie que ta variable DATABASE_URL dans le fichier .env n’impose pas SSL. Exemple correct :
+
+env
+Copier
+Modifier
+DATABASE_URL=postgres://postgres:yourpassword@postgres:5432/yourdatabase
+🟥 À éviter :
+
+env
+Copier
+Modifier
+...@postgres:5432/yourdb?ssl=true         ❌
+...@postgres:5432/yourdb?sslmode=require  ❌
+🟩 Optionnel (explicite pour éviter l’ambiguïté) :
+
+env
+Copier
+Modifier
+...@postgres:5432/yourdb?sslmode=disable  ✅
+🔁 Étape 2 – Adapter pg.Pool dans ton code (db.ts)
+Dans ton fichier de configuration Postgres, remplace :
+
+ts
+Copier
+Modifier
+new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+})
+par :
+
+ts
+Copier
+Modifier
+new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: false
+})
+💡 Bonus : Rendu adaptatif pour dev/prod
+Pour éviter ce problème à l’avenir entre local/dev et cloud/prod :
+
+ts
+Copier
+Modifier
+const isProduction = process.env.NODE_ENV === 'production';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: isProduction ? { rejectUnauthorized: false } : false
+});
+🧪 Étape 3 – Relancer proprement
+bash
+Copier
+Modifier
+docker compose down -v  # (optionnel : reset data)
+docker compose up --build
+Souhaites-tu que je te refasse un .env complet propre avec toutes les clés requises ?
+Ou un extrait complet de db.ts sécurisé ?

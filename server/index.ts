@@ -53,12 +53,21 @@ function log(message: string, source = "express", level = "INFO") {
     });
   });
 
-  // Register API routes
+  // Setup API routes first
   log("Setting up API routes...", "STARTUP");
   const server = await registerRoutes(app);
 
-  // Serve static files in production
-  if (process.env.NODE_ENV === "production") {
+  // Setup Vite in development mode
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const { setupVite } = await import("./vite");
+      await setupVite(app, server);
+      log("🎨 Vite middleware configured successfully", "STARTUP", "SUCCESS");
+    } catch (error) {
+      log(`❌ Vite setup failed: ${error?.message}`, "STARTUP", "ERROR");
+    }
+  } else {
+    // Production mode - serve static files
     const path = await import("path");
     const { fileURLToPath } = await import("url");
     
@@ -72,37 +81,27 @@ function log(message: string, source = "express", level = "INFO") {
     app.get("*", (req, res) => {
       res.sendFile(path.join(__dirname, "../dist/public/index.html"));
     });
+
+    // Error handling middleware
+    app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+      log(`❌ Error: ${err.message}`, "ERROR");
+      res.status(500).json({ 
+        message: "Internal server error",
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    });
   }
 
-  // Error handling middleware
-  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    log(`❌ Error: ${err.message}`, "ERROR");
-    res.status(500).json({ 
-      message: "Internal server error",
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-  });
-
   // Start server
-  server.listen(port, "0.0.0.0", async () => {
+  server.listen(port, "0.0.0.0", () => {
     log("═══════════════════════════════════════════════", "STARTUP", "SUCCESS");
     log("🚀 BennesPro Server Successfully Started!", "STARTUP", "SUCCESS");
     log(`📡 Server running on: http://localhost:${port}`, "STARTUP", "SUCCESS");
     log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`, "STARTUP", "SUCCESS");
-    log("═══════════════════════════════════════════════", "STARTUP", "SUCCESS");
-    
-    // Setup Vite in development mode
-    if (process.env.NODE_ENV !== "production") {
-      try {
-        const { setupVite } = await import("./vite");
-        await setupVite(app, server);
-        log("🎨 Vite middleware configured successfully", "STARTUP", "SUCCESS");
-      } catch (error) {
-        log(`❌ Vite setup failed: ${error?.message}`, "STARTUP", "ERROR");
-      }
-    } else {
+    if (process.env.NODE_ENV === "production") {
       log("🚀 Production mode: Serving static files", "STARTUP", "SUCCESS");
     }
+    log("═══════════════════════════════════════════════", "STARTUP", "SUCCESS");
   });
 
   server.on('error', (err: any) => {
