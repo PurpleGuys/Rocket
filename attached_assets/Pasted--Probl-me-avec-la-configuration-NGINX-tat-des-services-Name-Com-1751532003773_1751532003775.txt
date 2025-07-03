@@ -1,0 +1,53 @@
+
+❌ Problème avec la configuration NGINX
+📊 État des services:
+       Name                     Command                       State            Ports
+--------------------------------------------------------------------------------------
+bennespro_app        ./wait-for-services.sh npx ...   Up (health: starting)   5000/tcp
+bennespro_nginx      /docker-entrypoint.sh ngin ...   Restarting
+bennespro_postgres   docker-entrypoint.sh postgres    Up (healthy)            5432/tcp
+bennespro_redis      docker-entrypoint.sh redis ...   Up (healthy)            6379/tcp
+ubuntu@vps-41d62757:~/REM-Bennes$ sudo docker-compose logs -f app
+Attaching to bennespro_app
+bennespro_app | 🔍 Waiting for PostgreSQL and Redis services...
+bennespro_app | ⏳ Waiting for PostgreSQL at postgres:5432...
+bennespro_app |   Attempt 1/60 for PostgreSQL...
+bennespro_app | ✅ PostgreSQL is ready!
+bennespro_app | ⏳ Waiting for Redis at redis:6379...
+bennespro_app |   Attempt 1/60 for Redis...
+bennespro_app | ✅ Redis is ready (ping successful)!
+bennespro_app | 🔧 Initializing database schema...
+bennespro_app | No config path provided, using default 'drizzle.config.json'
+bennespro_app | /app/drizzle.config.json file does not exist
+bennespro_app | Database schema initialization completed
+bennespro_app | ✅ Database ready!
+bennespro_app | 🚀 All services ready! Starting application...
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | ✅ Docker PostgreSQL config applied (no SSL)
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | SendGrid API key not configured. Email sending will be disabled.
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | SendGrid API key not configured. Email sending will be disabled.
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | ⚠️ STRIPE_SECRET_KEY not configured. Payment features will be disabled.
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app | 8:38:05 AM [INFO] [STARTUP] 🚀 BennesPro Application Starting...
+bennespro_app | 8:38:05 AM [INFO] [STARTUP] Environment: production
+bennespro_app | 8:38:05 AM [INFO] [STARTUP] Node.js Version: v20.19.3
+bennespro_app | 1:24:19 PM [INFO] [DATABASE] 🔍 Testing database connectivity...
+bennespro_app | 1:24:19 PM [INFO] [DATABASE] 🔗 Database Type: PostgreSQL (Standard)
+bennespro_app | 1:24:19 PM [SUCCESS] [DATABASE] ✅ Database connected successfully
+bennespro_app | 1:24:19 PM [INFO] [DATABASE] 📅 PostgreSQL Time: Thu Jul 03 2025 08:38:05 GMT+0000 (Coordinated Universal Time)
+bennespro_app | 1:24:19 PM [INFO] [DATABASE] 🗄️ PostgreSQL Version: PostgreSQL 16.9 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+bennespro_app | 1:24:19 PM [INFO] [DATABASE] 📊 Found 0 tables in database:
+bennespro_app | 8:38:05 AM [INFO] [STARTUP] Setting up API routes...
+bennespro_app | 8:38:05 AM [SUCCESS] [STARTUP] ═══════════════════════════════════════════════
+bennespro_app | 8:38:05 AM [SUCCESS] [STARTUP] 🚀 BennesPro Server Successfully Started!
+bennespro_app | 8:38:05 AM [SUCCESS] [STARTUP] 📡 Server running on: http://localhost:5000
+bennespro_app | 8:38:05 AM [SUCCESS] [STARTUP] 🌍 Environment: production
+bennespro_app | 8:38:05 AM [SUCCESS] [STARTUP] 🚀 Production mode: Serving static files
+bennespro_app | 8:38:05 AM [SUCCESS] [STARTUP] ═══════════════════════════════════════════════
