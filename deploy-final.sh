@@ -9,12 +9,29 @@ echo "================================"
 echo "🛑 Arrêt et nettoyage complet des containers..."
 sudo docker-compose down --remove-orphans --volumes 2>/dev/null || true
 
-# Forcer la suppression des containers nommés BennesPro
+# Forcer la suppression des containers par nom ET ID
+echo "🗑️ Suppression forcée des containers BennesPro..."
 sudo docker rm -f bennespro_postgres bennespro_redis bennespro_app 2>/dev/null || true
 
-# Nettoyage complet
-sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
-sudo docker rm $(sudo docker ps -aq) 2>/dev/null || true
+# Supprimer tous les containers avec le nom contenant "bennespro"
+for container in $(sudo docker ps -aq --filter "name=bennespro"); do
+    echo "Suppression du container: $container"
+    sudo docker rm -f $container 2>/dev/null || true
+done
+
+# Supprimer les containers par ID partiel (comme dans l'erreur)
+for container in $(sudo docker ps -aq); do
+    name=$(sudo docker inspect --format='{{.Name}}' $container 2>/dev/null || echo "")
+    if [[ "$name" == *"bennespro"* ]]; then
+        echo "Suppression du container trouvé: $container ($name)"
+        sudo docker rm -f $container 2>/dev/null || true
+    fi
+done
+
+# Nettoyage réseau et volumes
+echo "🌐 Nettoyage des réseaux et volumes..."
+sudo docker network rm bennespro_network 2>/dev/null || true
+sudo docker volume rm bennespro_postgres_data bennespro_redis_data 2>/dev/null || true
 sudo docker network prune -f 2>/dev/null || true
 sudo docker volume prune -f 2>/dev/null || true
 sudo docker system prune -af
