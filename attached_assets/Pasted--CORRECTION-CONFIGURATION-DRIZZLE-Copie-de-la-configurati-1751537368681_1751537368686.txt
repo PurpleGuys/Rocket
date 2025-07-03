@@ -1,0 +1,62 @@
+🔧 CORRECTION CONFIGURATION DRIZZLE
+===================================
+📋 Copie de la configuration Drizzle...
+Successfully copied 2.05kB to bennespro_app:/app/drizzle.config.ts
+📋 Copie du schéma de base de données...
+Successfully copied 37.4kB to bennespro_app:/app/shared/schema.ts
+📦 Installation des dépendances Drizzle...
+
+up to date, audited 513 packages in 14s
+
+75 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+📁 Création du dossier migrations...
+🗄️ Initialisation du schéma de base de données...
+npm warn exec The following package was not found and will be installed: drizzle-kit@0.31.4
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+Reading config file '/app/drizzle.config.ts'
+Cannot find module 'drizzle-kit'
+Require stack:
+- /app/drizzle.config.ts
+- /home/nodejs/.npm/_npx/7c7555b0b81cc7e0/node_modules/drizzle-kit/bin.cjs
+🔍 Vérification des tables créées...
+Did not find any relations.
+🔄 Redémarrage de l'application...
+bennespro_app
+⏳ Attente du redémarrage (20 secondes)...
+🔍 Vérification de la connexion à la base de données...
+SendGrid API key not configured. Email sending will be disabled.
+SendGrid API key not configured. Email sending will be disabled.
+⚠️ STRIPE_SECRET_KEY not configured. Payment features will be disabled.
+Error in getServices(): error: relation "services" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getServices (/app/server/storage.ts:281:28)
+    at async <anonymous> (/app/server/routes.ts:548:24) {
+  length: 108,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '198',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
