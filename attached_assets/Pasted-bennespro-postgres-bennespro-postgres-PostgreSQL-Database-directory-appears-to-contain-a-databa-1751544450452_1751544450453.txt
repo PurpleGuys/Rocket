@@ -1,0 +1,14 @@
+bennespro_postgres |
+bennespro_postgres | PostgreSQL Database directory appears to contain a database; Skipping initialization
+bennespro_postgres |
+bennespro_postgres | 2025-07-03 12:02:06.628 UTC [1] LOG:  starting PostgreSQL 16.9 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+bennespro_postgres | 2025-07-03 12:02:06.628 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+bennespro_postgres | 2025-07-03 12:02:06.628 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+bennespro_postgres | 2025-07-03 12:02:06.631 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+bennespro_postgres | 2025-07-03 12:02:06.636 UTC [29] LOG:  database system was shut down at 2025-07-03 11:59:42 UTC
+bennespro_postgres | 2025-07-03 12:02:06.647 UTC [1] LOG:  database system is ready to accept connections
+bennespro_postgres | 2025-07-03 12:03:23.690 UTC [88] ERROR:  relation "users" does not exist at character 530
+bennespro_postgres | 2025-07-03 12:03:23.690 UTC [88] STATEMENT:  select "id", "email", "password", "first_name", "last_name", "phone", "role", "is_verified", "verification_token", "reset_password_token", "reset_password_expires", "last_login", "login_attempts", "lock_until", "two_factor_secret", "two_factor_enabled", "account_type", "company_name", "siret", "tva_number", "ape_code", "address", "city", "postal_code", "country", "preferred_language", "marketing_consent", "is_active", "profile_picture", "notify_on_inactivity", "last_inactivity_notification", "created_at", "updated_at" from "users" where "users"."email" = $1
+bennespro_postgres | 2025-07-03 12:07:06.735 UTC [27] LOG:  checkpoint starting: time
+bennespro_postgres | 2025-07-03 12:07:06.749 UTC [27] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.005 s, sync=0.002 s, total=0.014 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/195FFE8, redo lsn=0/195FFB0
+
