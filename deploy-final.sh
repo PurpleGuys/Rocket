@@ -298,12 +298,12 @@ services:
       - GOOGLE_MAPS_API_KEY=optional
       - REMONDIS_SALES_EMAIL=commercial@remondis.fr
     ports:
-      - "8080:8080"
+      - "8080:5000"
     volumes:
       - ./uploads:/app/uploads
       - app_logs:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -383,7 +383,7 @@ services:
       - ./uploads:/app/uploads
       - app_logs:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -499,7 +499,7 @@ http {
         # API Routes with rate limiting
         location /api/ {
             limit_req zone=api burst=20 nodelay;
-            proxy_pass http://app:8080;
+            proxy_pass http://app:5000;
             proxy_timeout 30s;
             proxy_connect_timeout 5s;
         }
@@ -507,14 +507,14 @@ http {
         # Login endpoints with stricter rate limiting
         location ~ ^/api/(auth|login) {
             limit_req zone=login burst=5 nodelay;
-            proxy_pass http://app:8080;
+            proxy_pass http://app:5000;
             proxy_timeout 30s;
             proxy_connect_timeout 5s;
         }
 
         # Static files and frontend
         location / {
-            proxy_pass http://app:8080;
+            proxy_pass http://app:5000;
             proxy_timeout 30s;
             proxy_connect_timeout 5s;
             
@@ -526,7 +526,7 @@ http {
 
         # Health check endpoint
         location /health {
-            proxy_pass http://app:8080/api/health;
+            proxy_pass http://app:5000/api/health;
             access_log off;
         }
     }
@@ -545,7 +545,7 @@ fi
 # Lancer Docker Compose
 echo "🚀 Lancement de Docker Compose..."
 if [ "$DOMAIN" = "localhost" ]; then
-    echo "📍 Application disponible sur: http://localhost:8080"
+    echo "📍 Application disponible sur: http://localhost:5000"
     sudo docker-compose up --build -d
 else
     echo "🌍 Application HTTPS disponible sur: https://$DOMAIN"
@@ -565,7 +565,7 @@ echo ""
 echo "🎉 DÉPLOIEMENT BENNESPRO TERMINÉ !"
 echo "=================================="
 if [ "$DOMAIN" = "localhost" ]; then
-    echo "🔗 http://localhost:8080"
+    echo "🔗 http://localhost:5000"
 else
     echo "🔗 https://$DOMAIN (après configuration SSL)"
 fi
@@ -804,17 +804,17 @@ sudo docker-compose ps
 
 test_service "postgres" "sudo docker-compose exec -T postgres pg_isready -U bennespro -d bennespro"
 test_service "redis" "sudo docker-compose exec -T redis redis-cli ping"
-test_service "app" "curl -sf http://localhost:8080/api/health"
+test_service "app" "curl -sf http://localhost:5000/api/health"
 
 # Test final de l'API
 echo "🧪 Test complet de l'API..."
-if curl -sf http://localhost:8080/api/health | grep -q "ok\|healthy\|success" 2>/dev/null; then
+if curl -sf http://localhost:5000/api/health | grep -q "ok\|healthy\|success" 2>/dev/null; then
     echo "✅ API complètement fonctionnelle !"
     
     # Tests additionnels des endpoints critiques
     echo "🔍 Test des endpoints critiques..."
-    curl -sf http://localhost:8080/api/services >/dev/null && echo "✅ Services endpoint OK" || echo "⚠️ Services endpoint en cours de chargement"
-    curl -sf http://localhost:8080/api/waste-types >/dev/null && echo "✅ Waste-types endpoint OK" || echo "⚠️ Waste-types endpoint en cours de chargement"
+    curl -sf http://localhost:5000/api/services >/dev/null && echo "✅ Services endpoint OK" || echo "⚠️ Services endpoint en cours de chargement"
+    curl -sf http://localhost:5000/api/waste-types >/dev/null && echo "✅ Waste-types endpoint OK" || echo "⚠️ Waste-types endpoint en cours de chargement"
 else
     echo "⚠️ API en cours de démarrage - peut nécessiter quelques minutes supplémentaires"
 fi
@@ -822,8 +822,8 @@ fi
 echo ""
 echo "🎉 DÉPLOIEMENT DOCKER BENNESPRO TERMINÉ !"
 echo "═══════════════════════════════════════"
-echo "📱 Application Web: http://localhost:8080"
-echo "🔍 API Health Check: http://localhost:8080/api/health"
+echo "📱 Application Web: http://localhost:5000"
+echo "🔍 API Health Check: http://localhost:5000/api/health"
 echo "📊 PostgreSQL: localhost:5433 (bennespro/securepwd)"
 echo "🔴 Redis: localhost:6379"
 echo ""
