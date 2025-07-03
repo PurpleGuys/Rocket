@@ -1,0 +1,72 @@
+ubuntu@vps-41d62757:~/aaa$ sudo ./vps-quick-diagnostic.sh
+🔍 DIAGNOSTIC RAPIDE VPS PURPLEGUY.WORLD
+========================================
+📦 CONTAINERS ACTIFS:
+CONTAINER ID   IMAGE                COMMAND                  CREATED         STATUS                   PORTS                                                                          NAMES
+1281bab705f3   nginx:alpine         "/docker-entrypoint.…"   6 minutes ago   Up 6 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp   bennespro_nginx
+df29bfeae87a   aaa_app              "./wait-for-services…"   6 minutes ago   Up 6 minutes (healthy)   5000/tcp                                                                       bennespro_app
+21cf46a18019   redis:7-alpine       "docker-entrypoint.s…"   7 minutes ago   Up 7 minutes (healthy)   6379/tcp                                                                       bennespro_redis
+08a2a5b7375e   postgres:16-alpine   "docker-entrypoint.s…"   7 minutes ago   Up 7 minutes (healthy)   5432/tcp                                                                       bennespro_postgres
+
+📊 LOGS APPLICATION (20 dernières lignes):
+Container trouvé: bennespro_app
+    at async DatabaseStorage.getServices (/app/server/storage.ts:281:28)
+    at async <anonymous> (/app/server/routes.ts:548:24) {
+  length: 108,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '198',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+
+🗄️ LOGS POSTGRESQL (10 dernières lignes):
+Container PostgreSQL: bennespro_postgres
+2025-07-03 09:49:44.369 UTC [128] ERROR:  relation "services" does not exist at character 198
+2025-07-03 09:49:44.369 UTC [128] STATEMENT:  select "id", "name", "volume", "base_price", "description", "image_url", "length", "width", "height", "waste_types", "max_weight", "included_services", "is_active", "created_at", "updated_at" from "services" where "services"."is_active" = $1
+2025-07-03 09:49:48.664 UTC [129] ERROR:  relation "services" does not exist at character 198
+2025-07-03 09:49:48.664 UTC [129] STATEMENT:  select "id", "name", "volume", "base_price", "description", "image_url", "length", "width", "height", "waste_types", "max_weight", "included_services", "is_active", "created_at", "updated_at" from "services" where "services"."is_active" = $1
+2025-07-03 09:49:50.036 UTC [130] ERROR:  relation "services" does not exist at character 198
+2025-07-03 09:49:50.036 UTC [130] STATEMENT:  select "id", "name", "volume", "base_price", "description", "image_url", "length", "width", "height", "waste_types", "max_weight", "included_services", "is_active", "created_at", "updated_at" from "services" where "services"."is_active" = $1
+2025-07-03 09:49:57.366 UTC [138] ERROR:  relation "services" does not exist at character 198
+2025-07-03 09:49:57.366 UTC [138] STATEMENT:  select "id", "name", "volume", "base_price", "description", "image_url", "length", "width", "height", "waste_types", "max_weight", "included_services", "is_active", "created_at", "updated_at" from "services" where "services"."is_active" = $1
+2025-07-03 09:52:40.967 UTC [27] LOG:  checkpoint starting: time
+2025-07-03 09:52:45.096 UTC [27] LOG:  checkpoint complete: wrote 44 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=4.119 s, sync=0.004 s, total=4.130 s; sync files=11, longest=0.002 s, average=0.001 s; distance=260 kB, estimate=260 kB; lsn=0/195FCB8, redo lsn=0/195FC80
+
+🌐 TEST CONNEXION LOCALE:
+Health check (port 8080):
+Status: 000
+❌ Échec connexion port 8080
+Health check (port 5000):
+Status: 000
+❌ Échec connexion port 5000
+
+🔧 VARIABLES D'ENVIRONNEMENT DANS LE CONTAINER:
+STRIPE_SECRET_KEY présent:
+VITE_STRIPE_PUBLIC_KEY présent:
+DATABASE_URL présent:
+postgresql://postgres:BennesPr
+🗂️ FICHIERS .ENV DISPONIBLES:
+-rw-rw-r-- 1 ubuntu ubuntu 3242 Jul  3 09:41 .env.example
+-rw-rw-r-- 1 ubuntu ubuntu 1903 Jul  3 09:47 .env.production
+
+📁 STRUCTURE DU PROJET:
+-rw-rw-r--  1 ubuntu ubuntu   1447 Jul  3 09:47 Dockerfile
+-rw-rw-r--  1 ubuntu ubuntu   1447 Jul  3 09:47 Dockerfile.production
+-rw-rw-r--  1 ubuntu ubuntu   1936 Jul  3 09:47 docker-compose-ssl.yml
+-rw-r--r--  1 root   root     2651 Jul  3 09:44 docker-compose.yml
+-rw-rw-r--  1 ubuntu ubuntu   4308 Jul  3 09:41 package.json
+
+🔍 DIAGNOSTIC TERMINÉ
+====================
