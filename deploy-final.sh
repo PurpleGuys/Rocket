@@ -16,7 +16,7 @@ sudo docker system prune -af
 # Créer Dockerfile ultra-robuste
 cat > Dockerfile << 'EOF'
 # Multi-stage build pour optimisation
-FROM node:20-alpine as base
+FROM node:20-alpine AS base
 
 # Installation des dépendances système
 RUN apk add --no-cache \
@@ -33,7 +33,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Optimisation du cache Docker
-FROM base as dependencies
+FROM base AS dependencies
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY vite.config.ts ./
@@ -45,7 +45,7 @@ COPY components.json ./
 RUN npm ci --only=production --ignore-scripts && \
     npm cache clean --force
 
-FROM dependencies as build
+FROM dependencies AS build
 # Réinstaller toutes les dépendances pour le build
 RUN npm ci
 
@@ -92,7 +92,7 @@ RUN cp vite.config.ts.production vite.config.ts && \
     echo "Build completed successfully"
 
 # Production stage
-FROM base as production
+FROM base AS production
 
 # Créer utilisateur système sécurisé
 RUN addgroup -g 1001 -S nodejs && \
