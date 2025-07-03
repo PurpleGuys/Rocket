@@ -5,9 +5,12 @@ clear
 echo "🚀 DÉPLOIEMENT DOCKER BENNESPRO"
 echo "================================"
 
-# Arrêter tout
-sudo docker-compose down 2>/dev/null || true
+# Arrêter tout proprement
+echo "🛑 Arrêt des containers existants..."
+sudo docker-compose down --remove-orphans 2>/dev/null || true
 sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
+sudo docker rm $(sudo docker ps -aq) 2>/dev/null || true
+sudo docker network prune -f 2>/dev/null || true
 sudo docker system prune -af
 
 # Créer Dockerfile qui FONCTIONNE
@@ -47,11 +50,21 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 EXPOSE 5000
 
-# Start avec tsx pour dev ou production
-CMD ["npx", "tsx", "server/index.ts"]
+# Créer script d'attente pour PostgreSQL
+RUN echo '#!/bin/sh\n\
+echo "Waiting for PostgreSQL..."\n\
+while ! pg_isready -h postgres -p 5432 -U bennespro; do\n\
+  echo "PostgreSQL is unavailable - sleeping"\n\
+  sleep 2\n\
+done\n\
+echo "PostgreSQL is up - executing command"\n\
+exec "$@"' > /app/wait-for-postgres.sh && chmod +x /app/wait-for-postgres.sh
+
+# Start avec attente PostgreSQL puis tsx
+CMD ["/app/wait-for-postgres.sh", "npx", "tsx", "server/index.ts"]
 EOF
 
-# Créer docker-compose simple
+# Créer docker-compose avec health checks
 cat > docker-compose.yml << 'EOF'
 services:
   postgres:
@@ -64,11 +77,21 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bennespro -d bennespro"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   app:
     build: .
@@ -83,8 +106,11 @@ services:
     ports:
       - "8080:5000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
@@ -138,17 +164,35 @@ fi
 echo "🏗️ Building et démarrage..."
 sudo docker-compose up --build -d
 
-# Attendre et tester
-sleep 15
+# Attendre que tous les services soient prêts
+echo "⏳ Attente du démarrage des services..."
+sleep 20
+
+# Tester PostgreSQL
+echo "🔍 Test PostgreSQL..."
+sudo docker-compose exec -T postgres pg_isready -U bennespro -d bennespro || echo "PostgreSQL en cours de démarrage..."
+
+# Tester l'application avec retry
 echo "🔍 Test de l'application..."
-curl -s http://localhost:8080/api/health || echo "App démarrage en cours..."
+for i in {1..10}; do
+    if curl -s http://localhost:8080/api/health >/dev/null 2>&1; then
+        echo "✅ Application opérationnelle !"
+        break
+    else
+        echo "⏳ Tentative $i/10 - App en cours de démarrage..."
+        sleep 5
+    fi
+done
 
 echo ""
 echo "✅ DÉPLOIEMENT TERMINÉ !"
 echo "📱 Application: http://localhost:8080"
 echo "🔍 Santé: http://localhost:8080/api/health"
+echo "📊 Base de données: PostgreSQL sur port 5433"
 echo ""
 echo "🛠️ Commandes utiles:"
-echo "  sudo docker-compose logs app    # Voir les logs"
-echo "  sudo docker-compose down       # Arrêter"
-echo "  sudo docker-compose up -d      # Redémarrer"
+echo "  sudo docker-compose logs app              # Voir les logs de l'app"
+echo "  sudo docker-compose logs postgres         # Voir les logs PostgreSQL" 
+echo "  sudo docker-compose down                  # Arrêter tous les services"
+echo "  sudo docker-compose up -d                 # Redémarrer tous les services"
+echo "  sudo docker-compose ps                    # Voir le statut des containers"
