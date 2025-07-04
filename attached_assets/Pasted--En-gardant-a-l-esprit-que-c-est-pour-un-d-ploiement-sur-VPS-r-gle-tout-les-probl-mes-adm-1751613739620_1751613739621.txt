@@ -1,0 +1,105 @@
+
+
+En gardant a l'esprit que c'est pour un déploiement sur VPS règle tout les problèmes :
+
+
+/admin/users
+
+﻿
+index-CfklQhCi.js:498 ⚠️ VITE_STRIPE_PUBLIC_KEY not found in environment - using fallback key
+
+ Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+index-CfklQhCi.js:40 TypeError: g.filter is not a function
+    at aW (index-CfklQhCi.js:516:165410)
+    at Xv (index-CfklQhCi.js:38:17018)
+    at Xh (index-CfklQhCi.js:40:3139)
+    at WS (index-CfklQhCi.js:40:44833)
+    at qS (index-CfklQhCi.js:40:39790)
+    at JI (index-CfklQhCi.js:40:39718)
+    at bm (index-CfklQhCi.js:40:39570)
+    at cx (index-CfklQhCi.js:40:35934)
+    at H0 (index-CfklQhCi.js:40:36738)
+    at ci (index-CfklQhCi.js:38:3279)
+index-CfklQhCi.js:516 Uncaught TypeError: g.filter is not a function
+    at aW (index-CfklQhCi.js:516:165410)
+    at Xv (index-CfklQhCi.js:38:17018)
+    at Xh (index-CfklQhCi.js:40:3139)
+    at WS (index-CfklQhCi.js:40:44833)
+    at qS (index-CfklQhCi.js:40:39790)
+    at JI (index-CfklQhCi.js:40:39718)
+    at bm (index-CfklQhCi.js:40:39570)
+    at cx (index-CfklQhCi.js:40:35934)
+    at H0 (index-CfklQhCi.js:40:36738)
+    at ci (index-CfklQhCi.js:38:3279)
+shared-52bde51db9135…caed2c8db801ae.js:1 
+ POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+ 
+ Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+shared-52bde51db9135…caed2c8db801ae.js:1 
+ POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+ 
+ Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+shared-52bde51db9135…caed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135…db801ae.js:1:217748
+shared-52bde51db9135…caed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135…db801ae.js:1:217748
+out-4.5.44.js:1 
+ POST https://m.stripe.com/6 net::ERR_BLOCKED_BY_ADBLOCKER
+
+--------------------------------------------------------------------------------------
+
+Accès non autorisé lors des exports excel sur /admin et gestion des utilisateurs
+
+-------------------------------------------------------------------------------------
+
+sur /admin et google maps : 
+index-CfklQhCi.js:502 Refused to load the script 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDdbfW9SDdQt7LhqVV_JHWUpT8w8EAZkjc&libraries=geometry,places' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com https://*.replit.com". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
+(anonymous)	@	index-CfklQhCi.js:502
+vp	@	index-CfklQhCi.js:40
+Bo	@	index-CfklQhCi.js:40
+tM	@	index-CfklQhCi.js:40
+bi	@	index-CfklQhCi.js:40
+H0	@	index-CfklQhCi.js:40
+ci	@	index-CfklQhCi.js:38
+(anonymous)	@	index-CfklQhCi.js:40
+setTimeout		
+ZM	@	index-CfklQhCi.js:48
+o	@	index-CfklQhCi.js:48
+batch	@	index-CfklQhCi.js:48
+Vs	@	index-CfklQhCi.js:48
+setData	@	index-CfklQhCi.js:48
+onSuccess	@	index-CfklQhCi.js:48
+m	@	index-CfklQhCi.js:48
+Promise.then		
+g	@	index-CfklQhCi.js:48
+start	@	index-CfklQhCi.js:48
+fetch	@	index-CfklQhCi.js:48
+yc	@	index-CfklQhCi.js:48
+onSubscribe	@	index-CfklQhCi.js:48
+subscribe	@	index-CfklQhCi.js:48
+(anonymous)	@	index-CfklQhCi.js:48
+oS	@	index-CfklQhCi.js:38
+vp	@	index-CfklQhCi.js:40
+Bo	@	index-CfklQhCi.js:40
+tM	@	index-CfklQhCi.js:40
+bi	@	index-CfklQhCi.js:40
+H0	@	index-CfklQhCi.js:40
+ci	@	index-CfklQhCi.js:38
+(anonymous)	@	index-CfklQhCi.js:40
+--------------------------------------------------------------------------------------------------------------
+
+sur / admin ajouter une photo sur une benne Impossible d'ajouter une photo : https://purpleguy.world/api/admin/services/images/upload 502 (Bad Gateway)
+
+
+------------------------------------------------------------------------------------------------------------------
+
+https://purpleguy.world/booking vérifie que tout se passe bien correctement comme prévu 
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+Esthétique : 
+
+Il faut centrer les conteneurs dans la section Gamme Complète de
+Bennes Particulier & Professionnel parceque la ils sont 3 et ca fait pas propre
+et généralement améliore la page d'arrivée sur le site a 10000000% en gardant l'esprit actuelle 
