@@ -56,6 +56,10 @@ export default function AdminUsers() {
     try {
       const response = await fetch('/api/export/users', {
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {

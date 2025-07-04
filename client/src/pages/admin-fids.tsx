@@ -198,6 +198,10 @@ export default function AdminFids() {
     try {
       const response = await fetch('/api/export/fids', {
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {

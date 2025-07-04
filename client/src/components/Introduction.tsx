@@ -85,17 +85,17 @@ export default function Introduction() {
               </div>
             </div>
             {/* Boutons desktop */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {user ? (
                 // Utilisateur connecté
                 <>
                   <Link href={user.role === 'admin' ? '/dashboard' : '/client-dashboard'}>
-                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50 text-sm lg:text-base px-3 lg:px-4">
                       {user.role === 'admin' ? 'Admin Panel' : 'Mon Dashboard'}
                     </Button>
                   </Link>
                   <Link href="/booking">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg text-sm lg:text-base px-3 lg:px-4">
                       Réserver maintenant
                     </Button>
                   </Link>
@@ -111,12 +111,12 @@ export default function Introduction() {
                 // Utilisateur non connecté
                 <>
                   <Link href="/auth">
-                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50 text-sm lg:text-base px-3 lg:px-4">
                       Se connecter
                     </Button>
                   </Link>
                   <Link href="/auth">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                    <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg text-sm lg:text-base px-3 lg:px-4">
                       Réserver maintenant
                     </Button>
                   </Link>
@@ -305,12 +305,7 @@ export default function Introduction() {
             </p>
           </div>
 
-          <div className={`grid gap-4 sm:gap-6 md:gap-8 px-4 sm:px-6 md:px-0 ${
-            Array.isArray(services) && services.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto' : 
-            Array.isArray(services) && services.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto' :
-            Array.isArray(services) && services.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-            'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-          }`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-0 justify-items-center">
             {Array.isArray(services) && services.length > 0 ? services.map((service: Service, index: number) => {
               // Assigner des catégories basées sur le volume
               const getServiceCategory = (volume: number) => {
@@ -418,7 +413,7 @@ export default function Introduction() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0 mb-16">
             {[
               {
                 icon: <Zap className="h-8 w-8" />,
@@ -504,7 +499,7 @@ export default function Introduction() {
               <p className="text-gray-600">Nos labels de qualité et certifications professionnelles</p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 items-center px-4 sm:px-0">
               {[
                 { name: "ISO 14001", desc: "Management environnemental" },
                 { name: "ICPE", desc: "Centres agréés" },
@@ -539,7 +534,7 @@ export default function Introduction() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0">
             {[
               {
                 step: "01",
