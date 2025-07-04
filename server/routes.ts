@@ -804,7 +804,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Export users to Excel (development route)
-  app.get("/api/export/users", async (req, res) => {
+  app.get("/api/export/users", authenticateToken, requireAdmin, async (req, res) => {
     console.log('Export users request - NODE_ENV:', process.env.NODE_ENV);
     try {
       const XLSX = await import('xlsx');
@@ -858,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Export FIDs to Excel (development route)
-  app.get("/api/export/fids", async (req, res) => {
+  app.get("/api/export/fids", authenticateToken, requireAdmin, async (req, res) => {
     console.log('Export FIDs request - NODE_ENV:', process.env.NODE_ENV);
     try {
       const XLSX = await import('xlsx');

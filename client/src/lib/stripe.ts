@@ -1,11 +1,16 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Stripe temporairement désactivé pour tests
-const STRIPE_DISABLED = true;
+// Configuration Stripe pour production
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
-console.log('🚫 Stripe temporairement désactivé pour tests');
+if (!stripePublicKey) {
+  console.warn('⚠️ VITE_STRIPE_PUBLIC_KEY not found in environment - Stripe payments will be disabled');
+}
 
-// Export conditionnel de stripePromise - null quand désactivé
-export const stripePromise = STRIPE_DISABLED 
-  ? Promise.resolve(null)
-  : loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+// Export de stripePromise avec gestion d'erreur gracieuse
+export const stripePromise = stripePublicKey 
+  ? loadStripe(stripePublicKey).catch((err) => {
+      console.error('Failed to load Stripe:', err);
+      return null;
+    })
+  : Promise.resolve(null);

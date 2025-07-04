@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +26,9 @@ import {
   Factory,
   Calendar,
   ArrowRight,
-  Play
+  Play,
+  Menu,
+  X
 } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -41,6 +44,9 @@ export default function Introduction() {
   // Vérifier l'état de connexion de l'utilisateur
   const { user } = useAuth();
   const logoutMutation = useLogout();
+  
+  // État pour le menu mobile
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
@@ -52,7 +58,7 @@ export default function Introduction() {
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
                 alt="Remondis" 
-                className="h-12 w-auto"
+                className="h-10 sm:h-12 w-auto"
               />
               <div className="hidden md:flex items-center space-x-8 ml-8">
                 <a href="#services" className="text-gray-700 hover:text-red-600 font-medium transition-colors cursor-pointer" onClick={(e) => {
@@ -78,7 +84,8 @@ export default function Introduction() {
                 </a>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            {/* Boutons desktop */}
+            <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 // Utilisateur connecté
                 <>
@@ -116,52 +123,156 @@ export default function Introduction() {
                 </>
               )}
             </div>
+            
+            {/* Bouton hamburger mobile */}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
         </div>
+        
+        {/* Menu mobile */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 right-0 bg-white shadow-lg border-b-2 border-red-600 z-50">
+            <div className="px-4 py-4 space-y-3">
+              <a 
+                href="#services" 
+                className="block text-gray-700 hover:text-red-600 font-medium transition-colors py-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Services
+              </a>
+              <a 
+                href="#process" 
+                className="block text-gray-700 hover:text-red-600 font-medium transition-colors py-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' });
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Comment ça marche
+              </a>
+              <Link 
+                href="/faq" 
+                className="block text-gray-700 hover:text-red-600 font-medium transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                FAQ
+              </Link>
+              <a 
+                href="#contact" 
+                className="block text-gray-700 hover:text-red-600 font-medium transition-colors py-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Contact
+              </a>
+              
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                {user ? (
+                  <>
+                    <Link href={user.role === 'admin' ? '/dashboard' : '/client-dashboard'} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full border-red-600 text-red-600 hover:bg-red-50">
+                        {user.role === 'admin' ? 'Admin Panel' : 'Mon Dashboard'}
+                      </Button>
+                    </Link>
+                    <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                        Réserver maintenant
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full text-gray-600 hover:text-red-600"
+                      onClick={() => {
+                        logoutMutation.mutate();
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      Déconnexion
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full border-red-600 text-red-600 hover:bg-red-50">
+                        Se connecter
+                      </Button>
+                    </Link>
+                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                        Réserver maintenant
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section - Style Booking.com */}
       <div className="relative bg-gradient-to-br from-red-600 via-red-700 to-black text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="relative container-responsive py-12 md:py-20 lg:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-8">
-              <div className="space-y-4">
-                <Badge className="bg-white/20 text-white border-white/30 px-4 py-2">
+              <div className="space-y-4 md:space-y-6">
+                <Badge className="bg-white/20 text-white border-white/30 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm inline-block">
                   🏆 Votre partenaire dans la gestion de vos déchets
                 </Badge>
-                <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                   Location de
                   <span className="block text-white">Bennes</span>
                   <span className="block text-red-200">Particulier & Professionnel</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-red-100 leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-red-100 leading-relaxed">
                   Simplifiez la gestion de vos déchets avec notre plateforme digitale. 
                   Devis instantané, planification de la livraison minimum 24h avant intervention, traitement éco-responsable.
                 </p>
               </div>
               
-              <div className="flex justify-center">
-                <Link href="/booking">
-                  <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 px-8 py-4 text-lg font-semibold shadow-xl">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <Link href="/booking" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full bg-white text-red-600 hover:bg-red-50 px-6 sm:px-8 py-4 text-base sm:text-lg font-semibold shadow-xl btn-touch">
                     <Calendar className="mr-2 h-5 w-5" />
                     Réserver ma benne
                   </Button>
                 </Link>
+                <Link href="/auth/register" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full border-2 border-white text-white hover:bg-white/20 px-6 sm:px-8 py-4 text-base sm:text-lg font-semibold btn-touch">
+                    <ArrowRight className="mr-2 h-5 w-5" />
+                    Créer mon Compte Pro
+                  </Button>
+                </Link>
               </div>
 
-              <div className="flex items-center space-x-8 pt-4">
+              <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold">24h</div>
-                  <div className="text-sm text-red-200">Planification minimum</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold">24h</div>
+                  <div className="text-xs sm:text-sm text-red-200">Planification minimum</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold">98%</div>
-                  <div className="text-sm text-red-200">Satisfaction client</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold">98%</div>
+                  <div className="text-xs sm:text-sm text-red-200">Satisfaction client</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold">700+</div>
-                  <div className="text-sm text-red-200">Bennes livrées</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold">700+</div>
+                  <div className="text-xs sm:text-sm text-red-200">Bennes livrées</div>
                 </div>
               </div>
             </div>
@@ -194,11 +305,11 @@ export default function Introduction() {
             </p>
           </div>
 
-          <div className={`grid gap-8 ${
-            Array.isArray(services) && services.length === 3 ? 'lg:grid-cols-3 max-w-5xl mx-auto' : 
-            Array.isArray(services) && services.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' :
-            Array.isArray(services) && services.length === 1 ? 'lg:grid-cols-1 max-w-md mx-auto' :
-            'md:grid-cols-2 lg:grid-cols-4'
+          <div className={`grid gap-4 sm:gap-6 md:gap-8 px-4 sm:px-6 md:px-0 ${
+            Array.isArray(services) && services.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto' : 
+            Array.isArray(services) && services.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto' :
+            Array.isArray(services) && services.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
+            'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
           }`}>
             {Array.isArray(services) && services.length > 0 ? services.map((service: Service, index: number) => {
               // Assigner des catégories basées sur le volume
@@ -246,22 +357,22 @@ export default function Introduction() {
               return (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden">
                   <div className={`h-2 bg-gradient-to-r ${category.color}`}></div>
-                  <CardContent className="p-8">
+                  <CardContent className="p-4 sm:p-6 md:p-8">
                     <div className={`w-16 h-16 ${category.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
                       <div className={category.iconColor}>
                         {category.icon}
                       </div>
                     </div>
                     
-                    <div className="text-center space-y-4">
-                      <div className="space-y-2">
-                        <h3 className="text-2xl font-bold text-black">{service.volume}m³</h3>
-                        <h4 className="text-lg font-semibold text-gray-800">{category.title}</h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">{category.description}</p>
+                    <div className="text-center space-y-3 sm:space-y-4">
+                      <div className="space-y-1 sm:space-y-2">
+                        <h3 className="text-xl sm:text-2xl font-bold text-black">{service.volume}m³</h3>
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-800">{category.title}</h4>
+                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{category.description}</p>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div className="text-2xl font-bold text-red-600">À partir de {service.basePrice}€</div>
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="text-lg sm:text-xl md:text-2xl font-bold text-red-600">À partir de {service.basePrice}€</div>
                         <ul className="space-y-1">
                           {category.features.map((feature, idx) => (
                             <li key={idx} className="text-xs text-gray-500 flex items-center justify-center">

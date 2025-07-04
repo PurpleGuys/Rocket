@@ -1,0 +1,55 @@
+En gardant a l'esprit que c'est pour un déploiement sur VPS règle tout les problèmes :
+
+REGLE TOUT LE SYSTEME STRIPE DE A A Z POUR UN DEPLOYEMENT ET UN FONCTIONNEMENT CORRECTE
+/admin/users
+
+﻿
+index-CfklQhCi.js:498 ⚠️ VITE_STRIPE_PUBLIC_KEY not found in environment - using fallback key
+
+ Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+index-CfklQhCi.js:40 TypeError: g.filter is not a function
+    at aW (index-CfklQhCi.js:516:165410)
+    at Xv (index-CfklQhCi.js:38:17018)
+    at Xh (index-CfklQhCi.js:40:3139)
+    at WS (index-CfklQhCi.js:40:44833)
+    at qS (index-CfklQhCi.js:40:39790)
+    at JI (index-CfklQhCi.js:40:39718)
+    at bm (index-CfklQhCi.js:40:39570)
+    at cx (index-CfklQhCi.js:40:35934)
+    at H0 (index-CfklQhCi.js:40:36738)
+    at ci (index-CfklQhCi.js:38:3279)
+index-CfklQhCi.js:516 Uncaught TypeError: g.filter is not a function
+    at aW (index-CfklQhCi.js:516:165410)
+    at Xv (index-CfklQhCi.js:38:17018)
+    at Xh (index-CfklQhCi.js:40:3139)
+    at WS (index-CfklQhCi.js:40:44833)
+    at qS (index-CfklQhCi.js:40:39790)
+    at JI (index-CfklQhCi.js:40:39718)
+    at bm (index-CfklQhCi.js:40:39570)
+    at cx (index-CfklQhCi.js:40:35934)
+    at H0 (index-CfklQhCi.js:40:36738)
+    at ci (index-CfklQhCi.js:38:3279)
+shared-52bde51db9135…caed2c8db801ae.js:1 
+ POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+ 
+ Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+shared-52bde51db9135…caed2c8db801ae.js:1 
+ POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+ 
+ Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+shared-52bde51db9135…caed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135…db801ae.js:1:217748
+shared-52bde51db9135…caed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135…db801ae.js:1:217748
+out-4.5.44.js:1 
+ POST https://m.stripe.com/6 net::ERR_BLOCKED_BY_ADBLOCKER
+
+--------------------------------------------------------------------------------------
+
+Accès non autorisé lors des exports excel sur /admin et gestion des utilisateurs
+
+-------------------------------------------------------------------------------------
+
+Esthétique : 
+FAIS EN SORTE QUE 1000% DES PAGES DU SITE SOIENT RESPONSIVE ET ADAPTE A 100% DES APPAREILS ORDI, TEL ETC JE VEUX PAS QUE LES OBJETS SE CHEVAUCHENT 
+et généralement améliore la page d'arrivée sur le site a 10000000% en gardant l'esprit actuelle 
