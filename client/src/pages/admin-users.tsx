@@ -44,7 +44,11 @@ export default function AdminUsers() {
   // Fetch users
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["/api/admin/users"],
-    queryFn: () => apiRequest("GET", "/api/admin/users"),
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/admin/users");
+      // S'assurer que la réponse est un tableau
+      return Array.isArray(response) ? response : [];
+    },
   });
 
   // Export users to Excel
@@ -121,7 +125,7 @@ export default function AdminUsers() {
   });
 
   // Filter users
-  const filteredUsers = users.filter((user: User) => {
+  const filteredUsers = (Array.isArray(users) ? users : []).filter((user: User) => {
     const matchesSearch = searchTerm === "" || 
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,10 +143,11 @@ export default function AdminUsers() {
   });
 
   // Calculate statistics
-  const totalUsers = users.length;
-  const activeUsers = users.filter((u: User) => u.isActive).length;
-  const verifiedUsers = users.filter((u: User) => u.isVerified).length;
-  const adminUsers = users.filter((u: User) => u.role === 'admin').length;
+  const usersArray = Array.isArray(users) ? users : [];
+  const totalUsers = usersArray.length;
+  const activeUsers = usersArray.filter((u: User) => u.isActive).length;
+  const verifiedUsers = usersArray.filter((u: User) => u.isVerified).length;
+  const adminUsers = usersArray.filter((u: User) => u.role === 'admin').length;
 
   if (isLoading) {
     return (

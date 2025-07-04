@@ -34,7 +34,7 @@ import { useAuth, useLogout } from "@/hooks/useAuth";
 
 export default function Introduction() {
   // Récupérer les services disponibles
-  const { data: services } = useQuery({
+  const { data: services } = useQuery<Service[]>({
     queryKey: ['/api/services'],
   });
 
@@ -194,7 +194,12 @@ export default function Introduction() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className={`grid gap-8 ${
+            Array.isArray(services) && services.length === 3 ? 'lg:grid-cols-3 max-w-5xl mx-auto' : 
+            Array.isArray(services) && services.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' :
+            Array.isArray(services) && services.length === 1 ? 'lg:grid-cols-1 max-w-md mx-auto' :
+            'md:grid-cols-2 lg:grid-cols-4'
+          }`}>
             {Array.isArray(services) && services.length > 0 ? services.map((service: Service, index: number) => {
               // Assigner des catégories basées sur le volume
               const getServiceCategory = (volume: number) => {

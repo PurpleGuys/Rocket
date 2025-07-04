@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,19 @@ import { Clock, Shield, Truck, CheckCircle, Calculator, Play, User, LogOut, Sett
 import { Service } from "@shared/schema";
 
 export default function Home() {
-  const [showBooking, setShowBooking] = useState(false);
+  const [location, navigate] = useLocation();
+  const [showBooking, setShowBooking] = useState(location === '/booking');
   const { currentStep, setCurrentStep, bookingData, resetBooking } = useBookingState();
   const { user, isAuthenticated } = useAuth();
   const logoutMutation = useLogout();
-  const [, navigate] = useLocation();
+
+  // Auto-show booking interface when navigating to /booking
+  useEffect(() => {
+    if (location === '/booking' && !showBooking) {
+      setShowBooking(true);
+      setCurrentStep(1);
+    }
+  }, [location, showBooking, setCurrentStep]);
 
   // Récupérer les services disponibles
   const { data: services } = useQuery({

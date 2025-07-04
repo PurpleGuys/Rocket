@@ -160,7 +160,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "'unsafe-eval'", 
             "https://js.stripe.com",
             "https://replit.com",
-            "https://*.replit.com"
+            "https://*.replit.com",
+            "https://maps.googleapis.com",
+            "https://maps.gstatic.com"
           ],
           styleSrc: [
             "'self'", 
