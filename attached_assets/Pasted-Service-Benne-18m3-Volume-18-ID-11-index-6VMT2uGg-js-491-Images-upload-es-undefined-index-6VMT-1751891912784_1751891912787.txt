@@ -1,0 +1,726 @@
+Service: Benne 18m3, Volume: 18, ID: 11
+index-6VMT2uGg.js:491 Images uploadées: undefined
+index-6VMT2uGg.js:491 Service: Big Bag, Volume: 1, ID: 8
+index-6VMT2uGg.js:491 Images uploadées: undefined
+index-6VMT2uGg.js:491 Service: Benne 10m3, Volume: 10, ID: 9
+index-6VMT2uGg.js:491 Images uploadées: undefined
+index-6VMT2uGg.js:491 Service: Benne 18m3, Volume: 18, ID: 11
+index-6VMT2uGg.js:491 Images uploadées: (4) [{…}, {…}, {…}, {…}]
+index-6VMT2uGg.js:491 Path: /uploads/services/11/22M3 petit man.png_1749630411334 → URL: /api/uploads/services/11/22M3 petit man.png_1749630411334
+index-6VMT2uGg.js:491 Path: /uploads/services/11/cotÃ©droit.png_1749630411554 → URL: /api/uploads/services/11/cotÃ©droit.png_1749630411554
+index-6VMT2uGg.js:491 Path: /uploads/services/11/cotÃ©gauche.png_1749630411754 → URL: /api/uploads/services/11/cotÃ©gauche.png_1749630411754
+index-6VMT2uGg.js:491 Path: /uploads/services/11/Face.png_1749630411954 → URL: /api/uploads/services/11/Face.png_1749630411954
+22M3%20petit%20man.png_1749630411334:1 
+            
+            
+           GET https://purpleguy.world/api/uploads/services/11/22M3%20petit%20man.png_1749630411334 404 (Not Found)
+Image
+B0 @ index-6VMT2uGg.js:40
+zS @ index-6VMT2uGg.js:40
+ZI @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+VS @ index-6VMT2uGg.js:40
+w @ index-6VMT2uGg.js:25
+A @ index-6VMT2uGg.js:25
+index-6VMT2uGg.js:491 Service: Big Bag, Volume: 1, ID: 8
+index-6VMT2uGg.js:491 Images uploadées: [{…}]
+index-6VMT2uGg.js:491 Path: /uploads/services/8/Bigbag REM.png_1749549297889 → URL: /api/uploads/services/8/Bigbag REM.png_1749549297889
+Bigbag%20REM.png_1749549297889:1 
+            
+            
+           GET https://purpleguy.world/api/uploads/services/8/Bigbag%20REM.png_1749549297889 404 (Not Found)
+Image
+B0 @ index-6VMT2uGg.js:40
+zS @ index-6VMT2uGg.js:40
+ZI @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+VS @ index-6VMT2uGg.js:40
+w @ index-6VMT2uGg.js:25
+A @ index-6VMT2uGg.js:25
+index-6VMT2uGg.js:491 Service: Benne 10m3, Volume: 10, ID: 9
+index-6VMT2uGg.js:491 Images uploadées: (3) [{…}, {…}, {…}]
+index-6VMT2uGg.js:491 Path: /uploads/services/9/10M3 rem.png_1749549310210 → URL: /api/uploads/services/9/10M3 rem.png_1749549310210
+index-6VMT2uGg.js:491 Path: /uploads/services/9/10m3 sans petit man deux.png_1749549310399 → URL: /api/uploads/services/9/10m3 sans petit man deux.png_1749549310399
+index-6VMT2uGg.js:491 Path: /uploads/services/9/10M3 sans petit man.png_1749549310583 → URL: /api/uploads/services/9/10M3 sans petit man.png_1749549310583
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+10M3%20rem.png_1749549310210:1 
+            
+            
+           GET https://purpleguy.world/api/uploads/services/9/10M3%20rem.png_1749549310210 404 (Not Found)
+Image
+B0 @ index-6VMT2uGg.js:40
+zS @ index-6VMT2uGg.js:40
+ZI @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+VS @ index-6VMT2uGg.js:40
+w @ index-6VMT2uGg.js:25
+A @ index-6VMT2uGg.js:25
+index-6VMT2uGg.js:502 
+            
+            
+           POST https://purpleguy.world/api/calculate-distance net::ERR_CONNECTION_REFUSED
+lr @ index-6VMT2uGg.js:502
+(anonymous) @ index-6VMT2uGg.js:502
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+VS @ index-6VMT2uGg.js:40
+w @ index-6VMT2uGg.js:25
+A @ index-6VMT2uGg.js:25
+index-6VMT2uGg.js:502 Distance calculation error: TypeError: Failed to fetch
+    at lr (index-6VMT2uGg.js:502:35813)
+    at index-6VMT2uGg.js:502:35598
+    at gp (index-6VMT2uGg.js:40:24283)
+    at Bo (index-6VMT2uGg.js:40:42409)
+    at rM (index-6VMT2uGg.js:40:41231)
+    at Ni (index-6VMT2uGg.js:40:40278)
+    at H0 (index-6VMT2uGg.js:40:36886)
+    at di (index-6VMT2uGg.js:38:3279)
+    at index-6VMT2uGg.js:40:34263
+lr @ index-6VMT2uGg.js:502
+await in lr
+(anonymous) @ index-6VMT2uGg.js:502
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+(anonymous) @ index-6VMT2uGg.js:40
+setTimeout
+XM @ index-6VMT2uGg.js:48
+o @ index-6VMT2uGg.js:48
+batch @ index-6VMT2uGg.js:48
+Vs @ index-6VMT2uGg.js:48
+setData @ index-6VMT2uGg.js:48
+onSuccess @ index-6VMT2uGg.js:48
+m @ index-6VMT2uGg.js:48
+Promise.then
+g @ index-6VMT2uGg.js:48
+start @ index-6VMT2uGg.js:48
+fetch @ index-6VMT2uGg.js:48
+yc @ index-6VMT2uGg.js:48
+onSubscribe @ index-6VMT2uGg.js:48
+subscribe @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+lS @ index-6VMT2uGg.js:38
+gp @ index-6VMT2uGg.js:40
+Bo @ index-6VMT2uGg.js:40
+H0 @ index-6VMT2uGg.js:40
+di @ index-6VMT2uGg.js:38
+rM @ index-6VMT2uGg.js:40
+Ni @ index-6VMT2uGg.js:40
+VS @ index-6VMT2uGg.js:40
+w @ index-6VMT2uGg.js:25
+A @ index-6VMT2uGg.js:25
+index-6VMT2uGg.js:491 Service: Benne 18m3, Volume: 18, ID: 11
+index-6VMT2uGg.js:491 Images uploadées: (4) [{…}, {…}, {…}, {…}]
+index-6VMT2uGg.js:491 Path: /uploads/services/11/22M3 petit man.png_1749630411334 → URL: /api/uploads/services/11/22M3 petit man.png_1749630411334
+index-6VMT2uGg.js:491 Path: /uploads/services/11/cotÃ©droit.png_1749630411554 → URL: /api/uploads/services/11/cotÃ©droit.png_1749630411554
+index-6VMT2uGg.js:491 Path: /uploads/services/11/cotÃ©gauche.png_1749630411754 → URL: /api/uploads/services/11/cotÃ©gauche.png_1749630411754
+index-6VMT2uGg.js:491 Path: /uploads/services/11/Face.png_1749630411954 → URL: /api/uploads/services/11/Face.png_1749630411954
+index-6VMT2uGg.js:491 Service: Big Bag, Volume: 1, ID: 8
+index-6VMT2uGg.js:491 Images uploadées: [{…}]
+index-6VMT2uGg.js:491 Path: /uploads/services/8/Bigbag REM.png_1749549297889 → URL: /api/uploads/services/8/Bigbag REM.png_1749549297889
+index-6VMT2uGg.js:491 Service: Benne 10m3, Volume: 10, ID: 9
+index-6VMT2uGg.js:491 Images uploadées: (3) [{…}, {…}, {…}]
+index-6VMT2uGg.js:491 Path: /uploads/services/9/10M3 rem.png_1749549310210 → URL: /api/uploads/services/9/10M3 rem.png_1749549310210
+index-6VMT2uGg.js:491 Path: /uploads/services/9/10m3 sans petit man deux.png_1749549310399 → URL: /api/uploads/services/9/10m3 sans petit man deux.png_1749549310399
+index-6VMT2uGg.js:491 Path: /uploads/services/9/10M3 sans petit man.png_1749549310583 → URL: /api/uploads/services/9/10M3 sans petit man.png_1749549310583
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 
+            
+            
+           POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.then
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+value @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+33306 @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e.O @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+ 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+e @ shared-52bde51db9135…caed2c8db801ae.js:1
+c @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+Promise.then
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ controller-with-prec…81d78da89aab65.js:1
+e @ controller-with-prec…81d78da89aab65.js:1
+value @ controller-with-prec…81d78da89aab65.js:1
+e @ controller-with-prec…81d78da89aab65.js:1
+33306 @ controller-with-prec…81d78da89aab65.js:1
+e @ controller-with-prec…81d78da89aab65.js:1
+(anonymous) @ controller-with-prec…81d78da89aab65.js:1
+e.O @ controller-with-prec…81d78da89aab65.js:1
+(anonymous) @ controller-with-prec…81d78da89aab65.js:1
+(anonymous) @ controller-with-prec…81d78da89aab65.js:1
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135adabfcaed2c8db801ae.js:1:217748
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.catch
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.then
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+value @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+33306 @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e.O @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 
+            
+            
+           POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.then
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+log @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+log @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+33306 @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e.O @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+ 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+e @ shared-52bde51db9135…caed2c8db801ae.js:1
+c @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135…caed2c8db801ae.js:1
+Promise.then
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+value @ shared-52bde51db9135…caed2c8db801ae.js:1
+log @ shared-52bde51db9135…caed2c8db801ae.js:1
+log @ controller-with-prec…81d78da89aab65.js:1
+e @ controller-with-prec…81d78da89aab65.js:1
+33306 @ controller-with-prec…81d78da89aab65.js:1
+e @ controller-with-prec…81d78da89aab65.js:1
+(anonymous) @ controller-with-prec…81d78da89aab65.js:1
+e.O @ controller-with-prec…81d78da89aab65.js:1
+(anonymous) @ controller-with-prec…81d78da89aab65.js:1
+(anonymous) @ controller-with-prec…81d78da89aab65.js:1
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135adabfcaed2c8db801ae.js:1:217748
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.catch
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.then
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+log @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+log @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+33306 @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+e.O @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+out-4.5.44.js:1 
+            
+            
+           POST https://m.stripe.com/6 net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ out-4.5.44.js:1
+i @ out-4.5.44.js:1
+s @ out-4.5.44.js:1
+(anonymous) @ out-4.5.44.js:1
+(anonymous) @ out-4.5.44.js:1
+Promise.then
+S @ out-4.5.44.js:1
+y @ out-4.5.44.js:1
+E @ out-4.5.44.js:1
+e.onload @ inner.html:1
+script
+(anonymous) @ inner.html:1
+(anonymous) @ inner.html:1
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 
+            
+            
+           POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135adabfcaed2c8db801ae.js:1:217748
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+Promise.catch
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+index-6VMT2uGg.js:48 
+            
+            
+           GET https://purpleguy.world/api/places/autocomplete?input=1%20Rue%20de%20Bruxelles net::ERR_CONNECTION_REFUSED
+(anonymous) @ index-6VMT2uGg.js:48
+d @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+jg @ index-6VMT2uGg.js:48
+Ae @ index-6VMT2uGg.js:48
+R @ index-6VMT2uGg.js:521
+onChange @ index-6VMT2uGg.js:521
+bO @ index-6VMT2uGg.js:37
+wO @ index-6VMT2uGg.js:37
+CO @ index-6VMT2uGg.js:37
+x0 @ index-6VMT2uGg.js:37
+H2 @ index-6VMT2uGg.js:37
+(anonymous) @ index-6VMT2uGg.js:37
+ig @ index-6VMT2uGg.js:40
+x2 @ index-6VMT2uGg.js:37
+Tf @ index-6VMT2uGg.js:37
+Iv @ index-6VMT2uGg.js:37
+VO @ index-6VMT2uGg.js:37
+index-6VMT2uGg.js:521 Erreur autocomplete: TypeError: Failed to fetch
+    at index-6VMT2uGg.js:48:45358
+    at d (index-6VMT2uGg.js:48:44679)
+    at Object.next (index-6VMT2uGg.js:48:43962)
+    at index-6VMT2uGg.js:48:43614
+    at new Promise (<anonymous>)
+    at jg (index-6VMT2uGg.js:48:43411)
+    at Ae (index-6VMT2uGg.js:48:45060)
+    at R (index-6VMT2uGg.js:521:410168)
+    at onChange (index-6VMT2uGg.js:521:415451)
+    at Object.bO (index-6VMT2uGg.js:37:9864)
+R @ index-6VMT2uGg.js:521
+await in R
+onChange @ index-6VMT2uGg.js:521
+bO @ index-6VMT2uGg.js:37
+wO @ index-6VMT2uGg.js:37
+CO @ index-6VMT2uGg.js:37
+x0 @ index-6VMT2uGg.js:37
+H2 @ index-6VMT2uGg.js:37
+(anonymous) @ index-6VMT2uGg.js:37
+ig @ index-6VMT2uGg.js:40
+x2 @ index-6VMT2uGg.js:37
+Tf @ index-6VMT2uGg.js:37
+Iv @ index-6VMT2uGg.js:37
+VO @ index-6VMT2uGg.js:37
+index-6VMT2uGg.js:48 
+            
+            
+           POST https://purpleguy.world/api/calculate-pricing net::ERR_CONNECTION_REFUSED
+(anonymous) @ index-6VMT2uGg.js:48
+d @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+(anonymous) @ index-6VMT2uGg.js:48
+jg @ index-6VMT2uGg.js:48
+Ae @ index-6VMT2uGg.js:48
+Q @ index-6VMT2uGg.js:521
+bO @ index-6VMT2uGg.js:37
+wO @ index-6VMT2uGg.js:37
+CO @ index-6VMT2uGg.js:37
+x0 @ index-6VMT2uGg.js:37
+H2 @ index-6VMT2uGg.js:37
+(anonymous) @ index-6VMT2uGg.js:37
+ig @ index-6VMT2uGg.js:40
+x2 @ index-6VMT2uGg.js:37
+Tf @ index-6VMT2uGg.js:37
+Iv @ index-6VMT2uGg.js:37
+VO @ index-6VMT2uGg.js:37
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 
+            
+            
+           POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+e @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+c @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+setTimeout
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+(anonymous) @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+value @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+log @ shared-52bde51db9135adabfcaed2c8db801ae.js:1
+log @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+value @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+value @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+(anonymous) @ controller-with-preconnect-e0721a5fd37acf455c81d78da89aab65.js:1
+shared-52bde51db9135adabfcaed2c8db801ae.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-52bde51db9135adabfcaed2c8db801ae.js:1:217748
