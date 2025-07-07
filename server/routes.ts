@@ -2119,15 +2119,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         breakdown.transport = transportCost;
         totalPrice += transportCost;
 
-        // Add treatment costs for each waste type (prix par tonne × tonnage max configuré)
+        // Add treatment costs for the selected waste type (prix par tonne × tonnage max configuré)
         const maxTonnage = parseFloat(rentalPricing.maxTonnage) || 0;
-        for (const wasteTypeId of wasteTypes) {
-          const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(wasteTypeId);
-          if (treatmentPricing && maxTonnage > 0) {
-            const pricePerTon = parseFloat(treatmentPricing.pricePerTon);
-            const treatmentCost = pricePerTon * maxTonnage;
-            breakdown.treatment += treatmentCost;
-            totalPrice += treatmentCost;
+        if (wasteType && maxTonnage > 0) {
+          // Get waste type ID based on name
+          const wasteTypesList = await storage.getWasteTypes();
+          const selectedWasteType = wasteTypesList.find(wt => wt.name === wasteType);
+          
+          if (selectedWasteType) {
+            const treatmentPricing = await storage.getTreatmentPricingByWasteTypeId(selectedWasteType.id);
+            if (treatmentPricing) {
+              const pricePerTon = parseFloat(treatmentPricing.pricePerTon);
+              const treatmentCost = pricePerTon * maxTonnage;
+              breakdown.treatment += treatmentCost;
+              totalPrice += treatmentCost;
+            }
           }
         }
 
@@ -2885,94 +2891,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Calculate pricing for service avec fallback hors ligne  
-  app.post("/api/calculate-pricing", async (req, res) => {
-    try {
-      const { serviceId, wasteType, address, distance, durationDays, bsdOption } = req.body;
-      
-      if (!serviceId || !wasteType || !address) {
-        return res.status(400).json({ 
-          success: false,
-          error: "Missing required fields" 
-        });
-      }
-
-      // Utiliser le service de pricing hors ligne pour éviter les erreurs VPS
-      try {
-        const { OfflinePricingService } = await import('./pricingService');
-        
-        const pricing = OfflinePricingService.calculatePricing({
-          serviceId: parseInt(serviceId),
-          wasteType,
-          address,
-          distance,
-          durationDays: parseInt(durationDays) || 7,
-          bsdOption: Boolean(bsdOption)
-        });
-
-        return res.json({
-          success: true,
-          ...pricing,
-          source: 'offline_calculation'
-        });
-        
-      } catch (offlineError) {
-        console.log('Fallback vers calcul traditionnel:', offlineError);
-        // Continuer avec l'ancien système si le nouveau échoue
-      }
-
-      // Récupérer le service
-      const services = await storage.getServices();
-      const service = Array.isArray(services) ? services.find((s: any) => s.id === serviceId) : null;
-      
-      if (!service) {
-        return res.status(404).json({ 
-          success: false,
-          error: "Service not found" 
-        });
-      }
-
-      // Calcul du prix de base
-      const basePrice = parseFloat(service.basePrice) || 50;
-      const locationPrice = basePrice * durationDays;
-      
-      // Frais de transport basés sur la distance
-      const transportFee = distance * 2.5; // 2.5€/km aller-retour
-      
-      // Frais BSD optionnel
-      const bsdFee = bsdOption ? 15 : 0;
-      
-      // Total
-      const total = locationPrice + transportFee + bsdFee;
-      
-      const pricingItems = [
-        { label: `Location ${service.name} (${durationDays} jour${durationDays > 1 ? 's' : ''})`, amount: locationPrice },
-        { label: `Transport (${distance * 2} km aller-retour)`, amount: transportFee },
-      ];
-      
-      if (bsdOption) {
-        pricingItems.push({ label: "BSD (Bordereau de Suivi des Déchets)", amount: bsdFee });
-      }
-
-      res.json({
-        success: true,
-        pricing: {
-          service: locationPrice,
-          transport: transportFee,
-          bsd: bsdFee,
-          total: Math.round(total * 100) / 100,
-          items: pricingItems
-        }
-      });
-
-    } catch (error: any) {
-      console.error("Error calculating pricing:", error);
-      res.status(500).json({ 
-        success: false,
-        error: "Failed to calculate pricing"
-      });
-    }
-  });
+  // Calculate pricing for service avec fallback hors ligne
+  // SUPPRIMÉ - Endpoint en double avec celui de la ligne 1991
 
   // ==================== FID ROUTES ====================
   
