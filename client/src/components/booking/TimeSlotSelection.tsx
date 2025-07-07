@@ -16,6 +16,14 @@ export default function TimeSlotSelection() {
   );
   const [selectedTimeSlotId, setSelectedTimeSlotId] = useState<number | null>(null);
   const [pickupOption, setPickupOption] = useState<"auto" | "manual">("auto");
+  
+  // Charger les données existantes du booking au montage
+  useEffect(() => {
+    if (bookingData.deliveryTimeSlot) {
+      setSelectedDate(bookingData.deliveryTimeSlot.date);
+      setSelectedTimeSlotId(bookingData.deliveryTimeSlot.id);
+    }
+  }, []);
 
   const { data: timeSlots, isLoading } = useQuery({
     queryKey: ['/api/timeslots', selectedDate],
@@ -75,32 +83,40 @@ export default function TimeSlotSelection() {
   const calendarDays = generateCalendarDays();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <Calendar className="h-6 w-6 mr-3 text-primary-600" />
-        <h2 className="text-xl font-semibold text-slate-900">Choisissez votre créneau</h2>
+    <div className="space-y-8">
+      <div className="text-center">
+        <div className="flex items-center justify-center mb-4">
+          <Calendar className="h-8 w-8 mr-3 text-red-600" />
+          <h2 className="text-3xl font-bold text-slate-900">Choisissez vos dates</h2>
+        </div>
+        <p className="text-lg text-slate-600">Sélectionnez quand vous souhaitez recevoir et récupérer votre benne</p>
       </div>
 
       {/* Date Selection */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-medium text-slate-900 mb-4">Date de livraison</h3>
-          <div className="grid grid-cols-7 gap-2">
+      <Card className="border-2 border-red-100 shadow-lg">
+        <CardContent className="p-8">
+          <div className="flex items-center mb-6">
+            <Clock className="h-6 w-6 mr-3 text-red-600" />
+            <h3 className="text-2xl font-semibold text-slate-900">📅 Date de livraison</h3>
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
             {calendarDays.map((date) => {
               const dateStr = date.toISOString().split('T')[0];
+              const isSelected = selectedDate === dateStr;
               return (
                 <Button
                   key={dateStr}
-                  variant={selectedDate === dateStr ? "default" : "outline"}
+                  variant={isSelected ? "default" : "outline"}
                   onClick={() => setSelectedDate(dateStr)}
-                  className={`h-auto flex flex-col py-3 ${
-                    selectedDate === dateStr
-                      ? "bg-primary-600 hover:bg-primary-700"
-                      : ""
+                  className={`h-auto flex flex-col py-4 px-3 transition-all duration-200 ${
+                    isSelected
+                      ? "bg-red-600 hover:bg-red-700 border-red-600 shadow-md scale-105"
+                      : "hover:border-red-300 hover:bg-red-50"
                   }`}
                 >
-                  <div className="text-xs mb-1">{formatDate(date).split(' ')[0]}</div>
-                  <div className="text-sm">{date.getDate()}</div>
+                  <div className="text-xs mb-1 font-medium">{formatDate(date).split(' ')[0]}</div>
+                  <div className="text-lg font-bold">{date.getDate()}</div>
+                  <div className="text-xs">{formatDate(date).split(' ').slice(1).join(' ')}</div>
                 </Button>
               );
             })}
@@ -109,55 +125,64 @@ export default function TimeSlotSelection() {
       </Card>
 
       {/* Time Slots */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-medium text-slate-900 mb-4">
-            Créneaux disponibles pour le {new Date(selectedDate).toLocaleDateString('fr-FR')}
-          </h3>
+      <Card className="border-2 border-blue-100 shadow-lg">
+        <CardContent className="p-8">
+          <div className="flex items-center mb-6">
+            <Clock className="h-6 w-6 mr-3 text-blue-600" />
+            <h3 className="text-2xl font-semibold text-slate-900">
+              ⏰ Créneaux pour le {new Date(selectedDate).toLocaleDateString('fr-FR')}
+            </h3>
+          </div>
           
           {isLoading ? (
             <div className="flex items-center justify-center h-32">
-              <div className="animate-spin w-6 h-6 border-4 border-primary-600 border-t-transparent rounded-full" />
+              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+              <span className="ml-3 text-blue-600 font-medium">Chargement des créneaux...</span>
             </div>
           ) : timeSlots && timeSlots.length > 0 ? (
             <RadioGroup 
               value={selectedTimeSlotId?.toString() || ""}
               onValueChange={(value) => setSelectedTimeSlotId(parseInt(value))}
             >
-              <div className="grid md:grid-cols-2 gap-4">
-                {timeSlots.map((slot: TimeSlot) => (
-                  <div key={slot.id} className="relative">
-                    <RadioGroupItem value={slot.id.toString()} id={slot.id.toString()} className="sr-only" />
-                    <Label
-                      htmlFor={slot.id.toString()}
-                      className={`cursor-pointer block p-4 border-2 rounded-lg transition-colors ${
-                        selectedTimeSlotId === slot.id
-                          ? "border-primary-500 bg-primary-50"
-                          : "border-slate-200 hover:border-primary-300"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-slate-900">
-                          {slot.startTime === "08:00" ? "Matin" : "Après-midi"}
-                        </h4>
-                        <span className="text-red-600 text-sm flex items-center">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Disponible
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-600">{slot.startTime} - {slot.endTime}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Livraison entre {slot.startTime} et {slot.endTime}
-                      </p>
-                    </Label>
-                  </div>
-                ))}
+              <div className="grid md:grid-cols-2 gap-6">
+                {timeSlots.map((slot: TimeSlot) => {
+                  const isSelected = selectedTimeSlotId === slot.id;
+                  const isMorning = slot.startTime === "08:00";
+                  return (
+                    <div key={slot.id} className="relative">
+                      <RadioGroupItem value={slot.id.toString()} id={slot.id.toString()} className="sr-only" />
+                      <Label
+                        htmlFor={slot.id.toString()}
+                        className={`cursor-pointer block p-6 border-2 rounded-xl transition-all duration-200 ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50 shadow-lg scale-105"
+                            : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-bold text-xl text-slate-900">
+                            {isMorning ? "🌅 Matin" : "🌇 Après-midi"}
+                          </h4>
+                          <CheckCircle className="h-6 w-6 text-green-500" />
+                        </div>
+                        <div className="text-lg font-semibold text-blue-700 mb-2">
+                          {slot.startTime} - {slot.endTime}
+                        </div>
+                        <div className="text-sm text-slate-600 flex items-center">
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                            Places disponibles
+                          </span>
+                        </div>
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             </RadioGroup>
           ) : (
-            <Alert>
-              <XCircle className="h-4 w-4" />
-              <AlertDescription>
+            <Alert className="border-orange-200 bg-orange-50">
+              <XCircle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-800">
                 Aucun créneau disponible pour cette date. Veuillez sélectionner une autre date.
               </AlertDescription>
             </Alert>
@@ -166,9 +191,12 @@ export default function TimeSlotSelection() {
       </Card>
 
       {/* Pickup Options */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-medium text-slate-900 mb-4">Date de récupération</h3>
+      <Card className="border-2 border-purple-100 shadow-lg">
+        <CardContent className="p-8">
+          <div className="flex items-center mb-6">
+            <Calendar className="h-6 w-6 mr-3 text-purple-600" />
+            <h3 className="text-2xl font-semibold text-slate-900">🔄 Date de récupération</h3>
+          </div>
           <RadioGroup value={pickupOption} onValueChange={(value) => setPickupOption(value as "auto" | "manual")}>
             <div className="space-y-4">
               <div className="flex items-center space-x-2">

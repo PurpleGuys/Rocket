@@ -481,42 +481,50 @@ export default function PaymentStep() {
       </div>
       
       {/* Résumé de la réservation */}
-      <Card>
+      <Card className="border-2 border-green-200 bg-green-50/50">
         <CardHeader>
-          <CardTitle>Résumé de votre réservation</CardTitle>
+          <CardTitle className="flex items-center text-green-800">
+            <CheckCircle className="h-6 w-6 mr-3" />
+            Résumé de votre réservation
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {bookingData.service && (
-            <div className="flex justify-between">
-              <span className="text-slate-600">Service :</span>
-              <span className="font-medium">{bookingData.service.name}</span>
+            <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+              <span className="text-slate-600 font-medium">🚛 Service :</span>
+              <span className="font-bold text-green-700">{bookingData.service.name}</span>
             </div>
           )}
           {bookingData.durationDays && (
-            <div className="flex justify-between">
-              <span className="text-slate-600">Durée :</span>
-              <span className="font-medium">{bookingData.durationDays} jour{bookingData.durationDays > 1 ? 's' : ''}</span>
+            <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+              <span className="text-slate-600 font-medium">⏱️ Durée :</span>
+              <span className="font-bold text-green-700">{bookingData.durationDays} jour{bookingData.durationDays > 1 ? 's' : ''}</span>
             </div>
           )}
           {bookingData.address && (
-            <div className="flex justify-between">
-              <span className="text-slate-600">Adresse :</span>
-              <span className="font-medium text-right">{bookingData.address.street}, {bookingData.address.postalCode} {bookingData.address.city}</span>
+            <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+              <span className="text-slate-600 font-medium">📍 Adresse :</span>
+              <span className="font-bold text-green-700 text-right">{bookingData.address.street}, {bookingData.address.postalCode} {bookingData.address.city}</span>
             </div>
           )}
-          {bookingData.deliveryTimeSlot && (
-            <div className="flex justify-between">
-              <span className="text-slate-600">Livraison :</span>
-              <span className="font-medium">
+          {bookingData.deliveryTimeSlot ? (
+            <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+              <span className="text-slate-600 font-medium">📅 Livraison :</span>
+              <span className="font-bold text-green-700">
                 {new Date(bookingData.deliveryTimeSlot.date).toLocaleDateString('fr-FR')} 
                 {bookingData.deliveryTimeSlot.startTime && ` de ${bookingData.deliveryTimeSlot.startTime} à ${bookingData.deliveryTimeSlot.endTime}`}
               </span>
             </div>
+          ) : (
+            <div className="flex justify-between items-center p-3 bg-red-100 rounded-lg border border-red-300">
+              <span className="text-red-600 font-medium">⚠️ Date de livraison :</span>
+              <span className="font-bold text-red-700">Non sélectionnée</span>
+            </div>
           )}
           {bookingData.pickupTimeSlot && (
-            <div className="flex justify-between">
-              <span className="text-slate-600">Récupération :</span>
-              <span className="font-medium">
+            <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+              <span className="text-slate-600 font-medium">🔄 Récupération :</span>
+              <span className="font-bold text-green-700">
                 {new Date(bookingData.pickupTimeSlot.date).toLocaleDateString('fr-FR')}
                 {bookingData.pickupTimeSlot.startTime && ` de ${bookingData.pickupTimeSlot.startTime} à ${bookingData.pickupTimeSlot.endTime}`}
               </span>

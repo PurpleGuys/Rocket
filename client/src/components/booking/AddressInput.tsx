@@ -262,17 +262,23 @@ export default function AddressInput() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <MapPin className="h-6 w-6 mr-3 text-primary-600" />
-        <h2 className="text-xl font-semibold text-slate-900">Adresse de livraison</h2>
+    <div className="space-y-8">
+      <div className="text-center">
+        <div className="flex items-center justify-center mb-4">
+          <MapPin className="h-8 w-8 mr-3 text-red-600" />
+          <h2 className="text-3xl font-bold text-slate-900">Où livrer votre benne ?</h2>
+        </div>
+        <p className="text-lg text-slate-600">Indiquez l'adresse précise pour une livraison parfaite</p>
       </div>
 
-      <Card>
-        <CardContent className="p-6 space-y-6">
+      <Card className="border-2 border-orange-100 shadow-lg">
+        <CardContent className="p-8 space-y-6">
           {/* Delivery Location Type Selection */}
           <div className="space-y-4">
-            <Label className="text-base font-medium">Où souhaitez-vous la livraison ?</Label>
+            <div className="flex items-center mb-4">
+              <Building className="h-6 w-6 mr-3 text-orange-600" />
+              <Label className="text-2xl font-semibold text-slate-900">🏢 Où souhaitez-vous la livraison ?</Label>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div 
                 className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${

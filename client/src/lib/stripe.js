@@ -1,10 +1,13 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Configuration Stripe avec gestion d'erreur souple
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_51RTkOhQWGRGBWlNRLtI1Rc4q4qE4H4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B';
+// Configuration Stripe avec clé publique correcte
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-    console.warn('⚠️ VITE_STRIPE_PUBLIC_KEY not found in environment - using fallback key');
+if (!stripePublicKey) {
+    console.error('❌ VITE_STRIPE_PUBLIC_KEY manquante dans les variables d\'environnement');
+    throw new Error('Clé publique Stripe manquante');
 }
 
-export var stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
+console.log('✅ Stripe configuré avec clé publique:', stripePublicKey.substring(0, 12) + '...');
+
+export const stripePromise = loadStripe(stripePublicKey);
