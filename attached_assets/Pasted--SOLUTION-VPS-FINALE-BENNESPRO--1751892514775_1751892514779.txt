@@ -1,0 +1,312 @@
+
+╔══════════════════════════════════════════════════════╗
+║         SOLUTION VPS FINALE BENNESPRO                ║
+║         Déploiement 100% Fonctionnel                 ║
+╚══════════════════════════════════════════════════════╝
+
+
+═══ Vérifications préliminaires ═══
+⚠ Node.js version 18 détectée, version 20 recommandée
+✓ Environnement vérifié
+
+═══ Mise à jour du code ═══
+Saved working directory and index state WIP on main: 440a8e1 Enable secure connections to the website for enhanced data protection
+From https://github.com/PurpleGuys/REM-Bennes
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   cleanup-docker.sh
+        modified:   deploy-corrected.sh
+        modified:   deploy-final.sh
+        modified:   deploy-ssl-working.sh
+        modified:   docker-deploy-auto.sh
+        modified:   fix-drizzle-config.sh
+        modified:   fix-port-conflict.sh
+        modified:   fix-ssl-deployment.sh
+        modified:   fix-vps-deployment.sh
+        modified:   vps-build.sh
+        modified:   vps-complete-fix.sh
+        modified:   vps-diagnostic.sh
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .env.backup
+        .env.docker
+        .env.production
+        .env.vps
+        Dockerfile
+        Dockerfile.prod
+        Dockerfile.production
+        PRODUCTION_SETUP.md
+        bennespro-production.tar.gz
+        docker-compose-backend.yml
+        docker-compose-ssl.yml
+        docker-compose.yml
+        dump.test
+        fix-all-api-keys.sh
+        lsof.save
+        monitoring/
+        nginx-current.conf
+        nginx-ssl-phase1.conf
+        nginx-ssl-phase2.conf
+        nginx.conf
+        scripts/backup.sh
+        scripts/curl-format.txt
+        scripts/deploy.sh
+        scripts/full-test.sh
+        scripts/health-check.sh
+        scripts/ssl-init.sh
+        scripts/start.sh
+        scripts/system-hardening.sh
+        start-production.sh
+        test-temp.sh
+        test_db.js
+        vite.config.ts.backup
+        vite.config.ts.fixed
+        wait-for-services.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (899e0276c402a88e69e7819a538b9e9493273e7d)
+✓ Code mis à jour
+
+═══ Installation des dépendances ═══
+npm warn using --force Recommended protections disabled.
+npm warn config production Use `--omit=dev` instead.
+
+up to date, audited 617 packages in 5s
+
+88 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (5 moderate, 1 high)
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+✓ Dépendances installées
+
+═══ Configuration de l'environnement ═══
+xargs: unmatched single quote; by default quotes are special to xargs unless you use the -0 option
+./SOLUTION-VPS-FINALE.sh: line 144: export: `2': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `DEPLOY-DOCKER-NOW.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `DEPLOY-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `Dockerfile.prod': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `Dockerfile.production': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `NGINX-HTTPS-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `PRODUCTION_SETUP.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `SSL-FIX-COMMANDS.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `URGENT-PORT-FIX.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `URGENT-VPS-FIX.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `VPS-DEPLOYMENT-COMPLETE-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `bennespro-production.tar.gz': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `certbot-webroot': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `cleanup-docker.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `components.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps-postgresql.cjs': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-corrected.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-final.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-replit.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-simple.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-ssl-working.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose-backend.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose-ssl.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-deploy-auto.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-diagnostic.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-fix-ports.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `drizzle.config.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `drizzle.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `dump.test': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-all-api-keys.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-database-schema.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-drizzle-config.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-network-access.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-nginx-immediate.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-port-conflict.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-ssl-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-vps-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `init.sql': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `lsof.save': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-current.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-ssl-phase1.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-ssl-phase2.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `package-lock.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `package.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `postcss.config.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `quick-deploy.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `replit.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `start-production.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tailwind.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-all-vps-routes.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-api-endpoints-vps.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-api-endpoints.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-redis.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-temp.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test.sql': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test_db.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tsconfig.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tsconfig.prod.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts.backup': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts.fixed': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-build.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-complete-fix.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-deployment-guide.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-diagnostic.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `wait-for-services.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `DEPLOY-DOCKER-NOW.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `DEPLOY-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `Dockerfile.prod': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `Dockerfile.production': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `NGINX-HTTPS-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `PRODUCTION_SETUP.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `SSL-FIX-COMMANDS.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `URGENT-PORT-FIX.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `URGENT-VPS-FIX.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `VPS-DEPLOYMENT-COMPLETE-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `bennespro-production.tar.gz': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `certbot-webroot': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `cleanup-docker.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `components.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps-postgresql.cjs': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-corrected.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-final.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-replit.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-simple.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-ssl-working.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose-backend.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose-ssl.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-deploy-auto.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-diagnostic.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-fix-ports.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `drizzle.config.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `drizzle.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `dump.test': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-all-api-keys.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-database-schema.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-drizzle-config.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-network-access.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-nginx-immediate.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-port-conflict.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-ssl-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-vps-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `init.sql': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `lsof.save': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-current.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-ssl-phase1.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-ssl-phase2.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `package-lock.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `package.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `postcss.config.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `quick-deploy.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `replit.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `start-production.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tailwind.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-all-vps-routes.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-api-endpoints-vps.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-api-endpoints.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-redis.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-temp.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test.sql': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test_db.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tsconfig.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tsconfig.prod.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts.backup': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts.fixed': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-build.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-complete-fix.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-deployment-guide.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-diagnostic.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `wait-for-services.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `DEPLOY-DOCKER-NOW.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `DEPLOY-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `Dockerfile.prod': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `Dockerfile.production': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `NGINX-HTTPS-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `PRODUCTION_SETUP.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `SSL-FIX-COMMANDS.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `URGENT-PORT-FIX.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `URGENT-VPS-FIX.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `VPS-DEPLOYMENT-COMPLETE-GUIDE.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `bennespro-production.tar.gz': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `certbot-webroot': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `cleanup-docker.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `components.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps-postgresql.cjs': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `debug-vps.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-corrected.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-final.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-replit.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-simple.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy-ssl-working.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `deploy.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose-backend.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose-ssl.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-compose.yml': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-deploy-auto.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-diagnostic.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `docker-fix-ports.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `drizzle.config.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `drizzle.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `dump.test': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-all-api-keys.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-database-schema.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-drizzle-config.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-network-access.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-nginx-immediate.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-port-conflict.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-ssl-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `fix-vps-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `init.sql': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `lsof.save': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-current.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-ssl-phase1.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx-ssl-phase2.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `nginx.conf': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `package-lock.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `package.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `postcss.config.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `quick-deploy.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `replit.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `start-production.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tailwind.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-all-vps-routes.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-api-endpoints-vps.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-api-endpoints.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-deployment.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-redis.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test-temp.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test.sql': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `test_db.js': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tsconfig.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `tsconfig.prod.json': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts.backup': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vite.config.ts.fixed': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-build.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-complete-fix.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-deployment-guide.md': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `vps-diagnostic.sh': not a valid identifier
+./SOLUTION-VPS-FINALE.sh: line 144: export: `wait-for-services.sh': not a valid identifier

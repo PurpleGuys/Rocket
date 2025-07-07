@@ -1,63 +1,48 @@
 #!/bin/bash
 
-# DIAGNOSTIC RAPIDE VPS - IDENTIFIER LE PROBLÈME
+# ===============================================
+# DIAGNOSTIC RAPIDE VPS PURPLEGUY.WORLD
+# ===============================================
+
 echo "🔍 DIAGNOSTIC RAPIDE VPS PURPLEGUY.WORLD"
 echo "========================================"
 
-# 1. Vérifier les containers
-echo "📦 CONTAINERS ACTIFS:"
-sudo docker ps
+# 1. Vérifier les processus
+echo -e "\n📊 PM2 Status:"
+pm2 list
 
-echo ""
-echo "📊 LOGS APPLICATION (20 dernières lignes):"
-if sudo docker ps | grep -q "bennespro_app\|app"; then
-    CONTAINER_NAME=$(sudo docker ps --format "table {{.Names}}" | grep -E "bennespro_app|app" | head -1)
-    echo "Container trouvé: $CONTAINER_NAME"
-    sudo docker logs $CONTAINER_NAME --tail 20
-else
-    echo "❌ Container application non trouvé"
-fi
+# 2. Vérifier les ports
+echo -e "\n🔌 Ports en écoute:"
+sudo netstat -tlnp | grep -E "(5000|80|443)"
 
-echo ""
-echo "🗄️ LOGS POSTGRESQL (10 dernières lignes):"
-if sudo docker ps | grep -q "postgres"; then
-    POSTGRES_CONTAINER=$(sudo docker ps --format "table {{.Names}}" | grep postgres | head -1)
-    echo "Container PostgreSQL: $POSTGRES_CONTAINER"
-    sudo docker logs $POSTGRES_CONTAINER --tail 10
-else
-    echo "❌ Container PostgreSQL non trouvé"
-fi
+# 3. Vérifier Nginx
+echo -e "\n🌐 Nginx Status:"
+sudo systemctl status nginx --no-pager | head -n 5
 
-echo ""
-echo "🌐 TEST CONNEXION LOCALE:"
-echo "Health check (port 8080):"
-curl -s -w "Status: %{http_code}\n" http://localhost:8080/api/health || echo "❌ Échec connexion port 8080"
+# 4. Tester l'API locale
+echo -e "\n🧪 Test API locale:"
+echo -n "Health Check: "
+curl -s http://localhost:5000/api/health && echo " ✓" || echo " ✗"
 
-echo "Health check (port 5000):"
-curl -s -w "Status: %{http_code}\n" http://localhost:5000/api/health || echo "❌ Échec connexion port 5000"
+# 5. Tester l'accès externe
+echo -e "\n🌍 Test accès externe:"
+echo -n "Frontend HTTPS: "
+curl -s -o /dev/null -w "%{http_code}" https://purpleguy.world
 
-echo ""
-echo "🔧 VARIABLES D'ENVIRONNEMENT DANS LE CONTAINER:"
-if sudo docker ps | grep -q "bennespro_app\|app"; then
-    CONTAINER_NAME=$(sudo docker ps --format "table {{.Names}}" | grep -E "bennespro_app|app" | head -1)
-    echo "STRIPE_SECRET_KEY présent:"
-    sudo docker exec $CONTAINER_NAME printenv STRIPE_SECRET_KEY | head -c 20 || echo "❌ STRIPE_SECRET_KEY manquant"
-    
-    echo "VITE_STRIPE_PUBLIC_KEY présent:"
-    sudo docker exec $CONTAINER_NAME printenv VITE_STRIPE_PUBLIC_KEY | head -c 20 || echo "❌ VITE_STRIPE_PUBLIC_KEY manquant"
-    
-    echo "DATABASE_URL présent:"
-    sudo docker exec $CONTAINER_NAME printenv DATABASE_URL | head -c 30 || echo "❌ DATABASE_URL manquant"
-fi
+echo -e "\n"
+echo -n "API HTTPS: "
+curl -s -o /dev/null -w "%{http_code}" https://purpleguy.world/api/health
 
-echo ""
-echo "🗂️ FICHIERS .ENV DISPONIBLES:"
-ls -la .env* 2>/dev/null || echo "❌ Aucun fichier .env trouvé"
+# 6. Vérifier les logs récents
+echo -e "\n\n📋 Dernières erreurs PM2:"
+pm2 logs bennespro --lines 5 --err --nostream
 
-echo ""
-echo "📁 STRUCTURE DU PROJET:"
-ls -la | grep -E "Dockerfile|docker-compose|package.json"
+# 7. Vérifier l'espace disque
+echo -e "\n💾 Espace disque:"
+df -h | grep -E "(Filesystem|/$)"
 
-echo ""
-echo "🔍 DIAGNOSTIC TERMINÉ"
-echo "===================="
+# 8. Vérifier les variables d'environnement
+echo -e "\n🔐 Variables d'environnement chargées:"
+cd /home/ubuntu/REM-Bennes 2>/dev/null && grep -E "^(NODE_ENV|PORT|DATABASE_URL|GOOGLE_MAPS|STRIPE)" .env | sed 's/=.*/=***/'
+
+echo -e "\n✅ Diagnostic terminé"
