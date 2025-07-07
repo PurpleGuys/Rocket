@@ -2778,70 +2778,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Adresse de départ fixe (siège de l'entreprise)
         const originAddress = "123 Rue de l'Industrie, 75001 Paris, France";
         
-        // Calculer la distance via l'API OpenRouteService (gratuite) avec gestion d'erreur robuste
-        let originData: any[] = [];
-        let destinationData: any[] = [];
+        // Utiliser l'API Google Maps si disponible, sinon fallback intelligent
+        const googleMapsKey = process.env.GOOGLE_MAPS_API_KEY;
         
-        try {
-          const geocodeOrigin = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(originAddress)}&limit=1`, {
-            headers: {
-              'User-Agent': 'BennesPro/1.0'
+        if (googleMapsKey && googleMapsKey.startsWith('AIzaSy') && googleMapsKey.length > 30) {
+          // Utiliser Google Distance Matrix API
+          try {
+            const distanceUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(originAddress)}&destinations=${encodeURIComponent(address)}&key=${googleMapsKey}&units=metric`;
+            
+            const distanceResponse = await fetch(distanceUrl);
+            const distanceData = await distanceResponse.json();
+            
+            if (distanceData.status === 'OK' && distanceData.rows?.[0]?.elements?.[0]?.status === 'OK') {
+              const element = distanceData.rows[0].elements[0];
+              const distance = Math.round(element.distance.value / 1000); // km
+              const duration = Math.round(element.duration.value / 60);   // min
+              
+              return res.json({
+                success: true,
+                distance: distance,
+                duration: duration,
+                source: 'google_maps_api'
+              });
             }
-          });
-          
-          const originText = await geocodeOrigin.text();
-          if (originText.startsWith('[') || originText.startsWith('{')) {
-            originData = JSON.parse(originText);
+          } catch (googleError) {
+            console.log('Google Maps API erreur, utilisation fallback');
           }
-        } catch (err) {
-          console.log('Erreur géocodage origine:', err);
         }
         
-        try {
-          const geocodeDestination = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`, {
-            headers: {
-              'User-Agent': 'BennesPro/1.0'
-            }
-          });
-          
-          const destinationText = await geocodeDestination.text();
-          if (destinationText.startsWith('[') || destinationText.startsWith('{')) {
-            destinationData = JSON.parse(destinationText);
-          }
-        } catch (err) {
-          console.log('Erreur géocodage destination:', err);
-        }
-        
-        if (originData.length === 0 || destinationData.length === 0) {
-          // Fallback intelligent basé sur l'analyse du code postal/ville
-          const distance = calculateDistanceFromAddress(address);
-          return res.json({
-            success: true,
-            distance: distance,
-            duration: Math.floor(distance * 2),
-            source: 'fallback'
-          });
-        }
-        
-        const originLat = parseFloat(originData[0].lat);
-        const originLon = parseFloat(originData[0].lon);
-        const destLat = parseFloat(destinationData[0].lat);
-        const destLon = parseFloat(destinationData[0].lon);
-        
-        // Calcul de distance haversine
-        const R = 6371; // Rayon de la Terre en km
-        const dLat = (destLat - originLat) * Math.PI / 180;
-        const dLon = (destLon - originLon) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(originLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        const distance = Math.round(R * c);
-        
+        // Fallback intelligent si Google Maps non disponible
+        const distance = calculateDistanceFromAddress(address);
         res.json({
           success: true,
           distance: distance,
-          duration: Math.floor(distance * 1.5), // Durée approximative en minutes
+          duration: Math.floor(distance * 1.5),
+          source: 'fallback_intelligent'
         });
 
       } catch (geoError) {
