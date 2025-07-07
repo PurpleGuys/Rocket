@@ -3,7 +3,17 @@
 ## Project Overview
 A comprehensive waste management and sustainability platform that leverages intelligent technologies to enhance environmental engagement through digital solutions. The application provides rental booking, customer management, and administrative features for dumpster rental services.
 
-## Recent Changes (July 4, 2025)
+## Recent Changes (July 7, 2025)
+
+### ✅ ADBLOCKER STRIPE PROTECTION - PROBLÈME /BOOKING CORRIGÉ (July 7, 2025)
+✓ RÉSOLU: Erreurs "ERR_BLOCKED_BY_ADBLOCKER" sur page /booking qui empêchaient les paiements
+✓ IMPLÉMENTÉ: Système de détection AdBlock robuste avec fallback gracieux
+✓ CRÉÉ: PaymentFallback avec instructions détaillées pour désactiver AdBlock
+✓ AJOUTÉ: Configuration Stripe anti-AdBlock avec retry automatique et délais
+✓ AMÉLIORÉ: Messages d'erreur informatifs avec alternatives de paiement manuel
+✓ CONFIGURÉ: Gestion d'erreur Stripe comprehensive avec options de contact
+✓ TESTÉ: Composant AdBlockNotice réutilisable pour autres sections
+✓ VALIDÉ: Expérience utilisateur fluide même avec bloqueurs de publicités actifs
 
 ### ✅ STRIPE VPS PRODUCTION DEPLOYMENT - PROBLÈMES RÉSOLUS (July 4, 2025)
 ✓ RÉSOLU: Configuration Stripe hardcodée avec clés live pour VPS production

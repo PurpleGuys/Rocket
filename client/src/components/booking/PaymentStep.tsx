@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBookingState } from "@/hooks/useBookingState";
 import { stripePromise } from "@/lib/stripe";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Lock, Shield } from "lucide-react";
+import { CreditCard, Lock, Shield, AlertCircle } from "lucide-react";
 
 function CheckoutForm() {
   const stripe = useStripe();
@@ -18,6 +19,7 @@ function CheckoutForm() {
   const { toast } = useToast();
   const { bookingData, updateCustomer, setCurrentStep, calculateTotalPrice } = useBookingState();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
   const [customerInfo, setCustomerInfo] = useState({
     firstName: "",
     lastName: "",
@@ -27,6 +29,21 @@ function CheckoutForm() {
     acceptTerms: false,
     acceptMarketing: false,
   });
+
+  // Vérifier si Stripe est disponible
+  useEffect(() => {
+    const checkStripe = async () => {
+      try {
+        const stripeInstance = await stripePromise;
+        if (!stripeInstance) {
+          setStripeError("Stripe est bloqué par votre bloqueur de publicités. Veuillez le désactiver ou utiliser un autre mode de paiement.");
+        }
+      } catch (err) {
+        setStripeError("Impossible de charger le module de paiement. Veuillez réessayer.");
+      }
+    };
+    checkStripe();
+  }, []);
 
   const pricing = calculateTotalPrice();
 
@@ -201,9 +218,42 @@ function CheckoutForm() {
             </div>
           </RadioGroup>
           
-          {/* Stripe Payment Element */}
+          {/* Stripe Payment Element avec gestion AdBlock */}
           <div className="mt-4">
-            <PaymentElement />
+            {stripeError ? (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="font-medium mb-2">Problème de chargement du paiement</div>
+                  <div className="text-sm mb-3">{stripeError}</div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                      Réessayer
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        toast({
+                          title: "Alternative de paiement",
+                          description: "Contactez-nous pour un paiement manuel : contact@bennespro.fr",
+                        });
+                      }}
+                    >
+                      Paiement manuel
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <PaymentElement 
+                options={{
+                  layout: "tabs"
+                }}
+                onReady={() => setStripeError(null)}
+                onError={(error) => setStripeError(error.message)}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -249,12 +299,17 @@ function CheckoutForm() {
       <Button
         type="submit"
         className="w-full bg-red-600 hover:bg-red-700 text-lg py-4 h-auto"
-        disabled={!stripe || isProcessing}
+        disabled={!stripe || isProcessing || !!stripeError}
       >
         {isProcessing ? (
           <>
             <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
             Traitement...
+          </>
+        ) : stripeError ? (
+          <>
+            <AlertCircle className="h-5 w-5 mr-2" />
+            Paiement indisponible
           </>
         ) : (
           <>
@@ -274,27 +329,131 @@ function CheckoutForm() {
   );
 }
 
+// Composant de fallback anti-AdBlock avec instructions détaillées
+function PaymentFallback() {
+  const { toast } = useToast();
+  const { bookingData, calculateTotalPrice, setCurrentStep } = useBookingState();
+  const pricing = calculateTotalPrice();
+
+  const handleManualOrder = () => {
+    toast({
+      title: "Commande enregistrée",
+      description: "Votre commande a été enregistrée. Nous vous contacterons pour le paiement.",
+    });
+    setCurrentStep(5);
+  };
+
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
+  return (
+    <div className="space-y-6">
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          <div className="font-medium mb-2">Module de paiement bloqué par AdBlock</div>
+          <div className="text-sm">
+            Pour des raisons de sécurité, votre bloqueur de publicités empêche le chargement du système de paiement Stripe.
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Shield className="h-5 w-5 mr-2" />
+            Activer les paiements sécurisés
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-sm space-y-3">
+            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <div className="font-medium text-blue-800 mb-1">🛡️ Instructions AdBlock</div>
+              <div className="text-blue-700 space-y-1">
+                <div>1. Cliquez sur l'icône AdBlock dans votre navigateur</div>
+                <div>2. Sélectionnez "Désactiver sur ce site"</div>
+                <div>3. Rechargez la page</div>
+              </div>
+            </div>
+            
+            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+              <div className="font-medium text-green-800 mb-1">🔒 Sécurité Stripe</div>
+              <div className="text-sm text-green-700">
+                Stripe protège des millions de transactions. Vos données bancaires sont cryptées et sécurisées.
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button onClick={handleRetry} variant="outline" className="flex-1">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Réessayer
+            </Button>
+            <Button onClick={handleManualOrder} className="flex-1 bg-red-600 hover:bg-red-700">
+              Commande manuelle
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Total de votre commande</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-center">
+            <span className="text-lg">Montant à payer:</span>
+            <span className="font-bold text-2xl text-red-600">{pricing.totalTTC.toFixed(2)}€</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function PaymentStep() {
   const { bookingData, calculateTotalPrice } = useBookingState();
   const [clientSecret, setClientSecret] = useState("");
+  const [stripeError, setStripeError] = useState(false);
+  const { toast } = useToast();
   const pricing = calculateTotalPrice();
 
   useEffect(() => {
-    if (bookingData.service) {
-      // Create payment intent
-      apiRequest("POST", "/api/create-payment-intent", {
-        amount: pricing.totalTTC,
-        orderId: `temp-${Date.now()}`, // Temporary ID
-      })
-        .then((res) => res.json())
-        .then((data) => {
+    const checkStripeAndCreateIntent = async () => {
+      try {
+        // Vérifier si Stripe peut se charger
+        const stripe = await stripePromise;
+        if (!stripe) {
+          setStripeError(true);
+          return;
+        }
+
+        // Créer le payment intent
+        if (bookingData.service) {
+          const response = await apiRequest("/api/create-payment-intent", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: pricing.totalTTC,
+              orderId: `temp-${Date.now()}`,
+            })
+          });
+          const data = await response.json();
           setClientSecret(data.clientSecret);
-        })
-        .catch((error) => {
-          console.error("Error creating payment intent:", error);
-        });
-    }
+        }
+      } catch (error) {
+        console.error("Erreur Stripe/Payment:", error);
+        setStripeError(true);
+      }
+    };
+
+    checkStripeAndCreateIntent();
   }, [bookingData.service, pricing.totalTTC]);
+
+  // Si Stripe est bloqué, afficher le fallback
+  if (stripeError) {
+    return <PaymentFallback />;
+  }
 
   if (!clientSecret) {
     return (
