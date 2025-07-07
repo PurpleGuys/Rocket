@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
@@ -8,8 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, AlertTriangle, CheckCircle, MapPin, Truck, Clock, CreditCard } from "lucide-react";
-import GradientBackground from "@/components/ui/gradient-background";
+import { Calendar, AlertTriangle, CheckCircle, MapPin, Truck, Clock, CreditCard, Euro, Package } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface BookingDetails {
   serviceId: number;
@@ -119,71 +119,68 @@ export default function CheckoutRedesign() {
 
   if (!bookingData) {
     return (
-      <GradientBackground>
+      <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto py-12 px-4">
-          <Card className="max-w-2xl mx-auto border-2 border-orange-200 shadow-xl">
+          <Card className="max-w-2xl mx-auto">
             <CardContent className="p-12 text-center">
-              <Truck className="h-16 w-16 mx-auto mb-6 text-orange-500" />
+              <Truck className="h-16 w-16 mx-auto mb-6 text-gray-400" />
               <p className="text-xl text-gray-700 mb-8">
                 Aucune réservation en cours. Commencez par sélectionner votre service.
               </p>
-              <Button asChild className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold">
-                <a href="/booking">🚀 Commencer la réservation</a>
+              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                <a href="/booking">Commencer la réservation</a>
               </Button>
             </CardContent>
           </Card>
         </div>
-      </GradientBackground>
+      </div>
     );
   }
 
   return (
-    <GradientBackground>
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto py-8 px-4">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold text-slate-900 mb-4">✨ Finalisation de votre commande</h1>
-          <p className="text-xl text-slate-600">Vérifiez les détails et confirmez votre réservation</p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Finalisation de votre commande</h1>
 
-        <div className="max-w-6xl mx-auto">
-          <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-3">
+        <div className="max-w-5xl mx-auto">
+          <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-3">
             {/* Colonne principale */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6">
               {/* Résumé de la commande */}
-              <Card className="border-2 border-green-200 shadow-2xl bg-gradient-to-br from-white to-green-50/30">
-                <CardHeader className="bg-green-600 text-white rounded-t-xl p-6">
-                  <CardTitle className="text-2xl flex items-center">
-                    <CheckCircle className="mr-3 h-7 w-7" />
-                    📋 Récapitulatif de votre réservation
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Package className="mr-2 h-5 w-5" />
+                    Récapitulatif de votre réservation
                   </CardTitle>
+                  <CardDescription>Vérifiez les détails de votre commande</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8 space-y-6">
+                <CardContent className="space-y-4">
                   {/* Service */}
-                  <div className="bg-white p-5 rounded-xl shadow-md">
+                  <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <Truck className="h-6 w-6 mr-3 text-green-600" />
+                        <Truck className="h-5 w-5 mr-3 text-gray-600" />
                         <div>
-                          <h3 className="font-bold text-lg">{bookingData.serviceName}</h3>
-                          <p className="text-gray-600">Volume: {bookingData.serviceVolume}m³</p>
+                          <h3 className="font-semibold">{bookingData.serviceName}</h3>
+                          <p className="text-sm text-gray-600">Volume: {bookingData.serviceVolume}m³</p>
                         </div>
                       </div>
-                      <span className="text-2xl font-bold text-green-700">{bookingData.pricing.service.toFixed(2)}€</span>
+                      <span className="text-xl font-bold text-gray-900">{bookingData.pricing.service.toFixed(2)}€</span>
                     </div>
                   </div>
 
                   {/* Adresse */}
-                  <div className="bg-white p-5 rounded-xl shadow-md">
+                  <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-start">
-                      <MapPin className="h-6 w-6 mr-3 text-blue-600 mt-1" />
+                      <MapPin className="h-5 w-5 mr-3 text-gray-600 mt-1" />
                       <div className="flex-1">
-                        <h4 className="font-semibold mb-2">📍 Adresse de livraison</h4>
-                        <p className="text-gray-700">
+                        <h4 className="font-semibold mb-1">Adresse de livraison</h4>
+                        <p className="text-sm text-gray-700">
                           {bookingData.address}<br />
                           {bookingData.postalCode} {bookingData.city}
                         </p>
-                        <p className="text-sm text-gray-500 mt-2">Distance: {bookingData.distance} km aller-retour</p>
+                        <p className="text-xs text-gray-500 mt-2">Distance: {bookingData.distance} km aller-retour</p>
                       </div>
                     </div>
                   </div>
@@ -221,15 +218,13 @@ export default function CheckoutRedesign() {
                   </div>
 
                   {/* Types de déchets */}
-                  <div className="bg-white p-5 rounded-xl shadow-md">
-                    <h4 className="font-semibold mb-3 flex items-center">
-                      <span className="text-2xl mr-2">♻️</span> Types de déchets
-                    </h4>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">Types de déchets</h4>
                     <div className="flex flex-wrap gap-2">
                       {bookingData.wasteTypes.map((waste, index) => (
-                        <span key={index} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                        <Badge key={index} variant="secondary">
                           {waste}
-                        </span>
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -237,15 +232,15 @@ export default function CheckoutRedesign() {
               </Card>
 
               {/* Conditions d'évacuation */}
-              <Card className="border-2 border-orange-200 shadow-2xl">
-                <CardHeader className="bg-orange-500 text-white rounded-t-xl">
-                  <CardTitle className="flex items-center text-xl">
-                    <AlertTriangle className="mr-3 h-6 w-6" />
-                    ⚠️ Conditions d'évacuation obligatoires
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <AlertTriangle className="mr-2 h-5 w-5 text-amber-600" />
+                    Conditions d'évacuation obligatoires
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <p className="text-orange-800 font-medium">Toutes les conditions doivent être acceptées :</p>
+                <CardContent className="space-y-4">
+                  <p className="text-amber-800 font-medium">Toutes les conditions doivent être acceptées :</p>
                   
                   <div className="space-y-4">
                     {[
@@ -254,7 +249,7 @@ export default function CheckoutRedesign() {
                       { key: 'spaceRequirements', label: "Je confirme disposer de l'espace nécessaire" },
                       { key: 'groundProtection', label: "Je protégerai le sol si nécessaire" }
                     ].map((condition) => (
-                      <div key={condition.key} className="flex items-start space-x-3 p-3 hover:bg-orange-50 rounded-lg transition-colors">
+                      <div key={condition.key} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
                         <Checkbox
                           checked={evacuationConditions[condition.key as keyof typeof evacuationConditions]}
                           onCheckedChange={(checked) => 
@@ -273,11 +268,11 @@ export default function CheckoutRedesign() {
             {/* Colonne de droite - Prix et paiement */}
             <div className="space-y-6">
               {/* Résumé des prix */}
-              <Card className="border-2 border-blue-200 shadow-2xl sticky top-4">
-                <CardHeader className="bg-blue-600 text-white rounded-t-xl">
-                  <CardTitle className="text-xl flex items-center">
-                    <CreditCard className="mr-3 h-6 w-6" />
-                    💳 Total à payer
+              <Card className="sticky top-4">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    Total à payer
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
@@ -291,9 +286,9 @@ export default function CheckoutRedesign() {
                       <span className="font-medium">{bookingData.pricing.transport.toFixed(2)}€</span>
                     </div>
                     <Separator className="my-4" />
-                    <div className="flex justify-between text-2xl font-bold">
+                    <div className="flex justify-between text-xl font-bold">
                       <span>Total TTC</span>
-                      <span className="text-blue-600">{bookingData.pricing.total.toFixed(2)}€</span>
+                      <span className="text-red-600">{bookingData.pricing.total.toFixed(2)}€</span>
                     </div>
                   </div>
 
@@ -315,7 +310,7 @@ export default function CheckoutRedesign() {
                   <Button
                     type="submit"
                     disabled={!allConditionsAccepted || !acceptTerms || isProcessing || !deliveryDate}
-                    className="w-full py-6 text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
                   >
                     {isProcessing ? (
                       <div className="flex items-center justify-center">
@@ -343,6 +338,6 @@ export default function CheckoutRedesign() {
           </form>
         </div>
       </div>
-    </GradientBackground>
+    </div>
   );
 }
