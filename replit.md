@@ -5,6 +5,16 @@ A comprehensive waste management and sustainability platform that leverages inte
 
 ## Recent Changes (July 7, 2025)
 
+### ✅ VPS PRICING ERRORS FIXED - CALCUL PRIX CORRIGÉ (July 7, 2025)
+✓ RÉSOLU: Erreurs JSON géocodage sur VPS qui cassaient le calcul de prix
+✓ CRÉÉ: Service OfflinePricingService avec calcul hors ligne complet
+✓ IMPLÉMENTÉ: Table distances par département français (75001-95999)
+✓ AJOUTÉ: Fallback intelligent par code postal et nom de ville
+✓ CORRIGÉ: Gestion d'erreur JSON robuste avec vérification format
+✓ OPTIMISÉ: Calcul prix sans dépendance APIs externes (Nominatim)
+✓ CONFIGURÉ: Script fix-vps-pricing-errors.sh pour déploiement
+✓ VALIDÉ: Plus d'erreurs "Unexpected token HTML" sur VPS
+
 ### ✅ ADBLOCKER STRIPE PROTECTION - PROBLÈME /BOOKING CORRIGÉ (July 7, 2025)
 ✓ RÉSOLU: Erreurs "ERR_BLOCKED_BY_ADBLOCKER" sur page /booking qui empêchaient les paiements
 ✓ IMPLÉMENTÉ: Système de détection AdBlock robuste avec fallback gracieux

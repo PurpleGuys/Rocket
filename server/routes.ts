@@ -2714,6 +2714,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fonction de calcul de distance intelligente basée sur l'adresse
+  const calculateDistanceFromAddress = (address: string): number => {
+    const addressLower = address.toLowerCase();
+    
+    // Extraction du code postal français (5 chiffres)
+    const postalCodeMatch = address.match(/\b(\d{5})\b/);
+    
+    if (postalCodeMatch) {
+      const postalCode = postalCodeMatch[1];
+      const dept = postalCode.substring(0, 2);
+      
+      // Distances approximatives par département depuis Paris (75)
+      const distancesByDept: { [key: string]: number } = {
+        '75': 15, '77': 35, '78': 25, '91': 30, '92': 18, '93': 22, '94': 20, '95': 28,
+        '01': 350, '02': 120, '03': 280, '13': 650, '31': 550, '33': 450, '34': 600,
+        '35': 300, '44': 350, '59': 200, '67': 350, '69': 350
+      };
+      
+      if (distancesByDept[dept]) {
+        return distancesByDept[dept];
+      }
+      
+      // Calcul approximatif pour autres départements
+      const deptNum = parseInt(dept);
+      if (deptNum <= 95) return 150; // Proche de Paris
+      if (deptNum <= 30) return 400; // Sud
+      if (deptNum <= 60) return 300; // Centre/Est
+      return 250; // Autres
+    }
+    
+    // Analyse par mots-clés de villes principales
+    const cityDistances: { [key: string]: number } = {
+      'paris': 15, 'marseille': 650, 'lyon': 350, 'toulouse': 550, 'nice': 700,
+      'nantes': 350, 'montpellier': 600, 'strasbourg': 350, 'bordeaux': 450,
+      'lille': 200, 'rennes': 300, 'reims': 120, 'grenoble': 450, 'dijon': 250
+    };
+    
+    for (const [city, distance] of Object.entries(cityDistances)) {
+      if (addressLower.includes(city)) {
+        return distance;
+      }
+    }
+    
+    // Fallback par défaut pour Île-de-France
+    return 50;
+  };
+
   // Calculate distance for delivery address
   app.post("/api/calculate-distance", async (req, res) => {
     try {
@@ -2731,20 +2778,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Adresse de départ fixe (siège de l'entreprise)
         const originAddress = "123 Rue de l'Industrie, 75001 Paris, France";
         
-        // Calculer la distance via l'API OpenRouteService (gratuite)
-        const geocodeOrigin = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(originAddress)}&limit=1`);
-        const originData = await geocodeOrigin.json();
+        // Calculer la distance via l'API OpenRouteService (gratuite) avec gestion d'erreur robuste
+        let originData: any[] = [];
+        let destinationData: any[] = [];
         
-        const geocodeDestination = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
-        const destinationData = await geocodeDestination.json();
+        try {
+          const geocodeOrigin = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(originAddress)}&limit=1`, {
+            headers: {
+              'User-Agent': 'BennesPro/1.0'
+            }
+          });
+          
+          const originText = await geocodeOrigin.text();
+          if (originText.startsWith('[') || originText.startsWith('{')) {
+            originData = JSON.parse(originText);
+          }
+        } catch (err) {
+          console.log('Erreur géocodage origine:', err);
+        }
+        
+        try {
+          const geocodeDestination = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`, {
+            headers: {
+              'User-Agent': 'BennesPro/1.0'
+            }
+          });
+          
+          const destinationText = await geocodeDestination.text();
+          if (destinationText.startsWith('[') || destinationText.startsWith('{')) {
+            destinationData = JSON.parse(destinationText);
+          }
+        } catch (err) {
+          console.log('Erreur géocodage destination:', err);
+        }
         
         if (originData.length === 0 || destinationData.length === 0) {
-          // Fallback si géocodage échoue
-          const distance = Math.floor(Math.random() * 45) + 5;
+          // Fallback intelligent basé sur l'analyse du code postal/ville
+          const distance = calculateDistanceFromAddress(address);
           return res.json({
             success: true,
             distance: distance,
             duration: Math.floor(distance * 2),
+            source: 'fallback'
           });
         }
         
@@ -2770,14 +2845,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
 
       } catch (geoError) {
-        console.error("Geocoding error:", geoError);
+        console.log("Erreur géocodage, utilisation du fallback intelligent");
         
-        // Fallback en cas d'erreur API
-        const distance = Math.floor(Math.random() * 45) + 5;
+        // Fallback intelligent basé sur l'analyse de l'adresse
+        const distance = calculateDistanceFromAddress(address);
         res.json({
           success: true,
           distance: distance,
           duration: Math.floor(distance * 2),
+          source: 'fallback_intelligent'
         });
       }
 
@@ -2790,7 +2866,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Calculate pricing for service
+  // Calculate pricing for service avec fallback hors ligne  
   app.post("/api/calculate-pricing", async (req, res) => {
     try {
       const { serviceId, wasteType, address, distance, durationDays, bsdOption } = req.body;
@@ -2800,6 +2876,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: false,
           error: "Missing required fields" 
         });
+      }
+
+      // Utiliser le service de pricing hors ligne pour éviter les erreurs VPS
+      try {
+        const { OfflinePricingService } = await import('./pricingService');
+        
+        const pricing = OfflinePricingService.calculatePricing({
+          serviceId: parseInt(serviceId),
+          wasteType,
+          address,
+          distance,
+          durationDays: parseInt(durationDays) || 7,
+          bsdOption: Boolean(bsdOption)
+        });
+
+        return res.json({
+          success: true,
+          ...pricing,
+          source: 'offline_calculation'
+        });
+        
+      } catch (offlineError) {
+        console.log('Fallback vers calcul traditionnel:', offlineError);
+        // Continuer avec l'ancien système si le nouveau échoue
       }
 
       // Récupérer le service
