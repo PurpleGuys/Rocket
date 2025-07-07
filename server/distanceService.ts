@@ -20,8 +20,8 @@ export class DistanceService {
    * Géocode une adresse en coordonnées GPS
    */
   static async geocodeAddress(address: string): Promise<GeocodeResult> {
-    if (!this.GOOGLE_MAPS_API_KEY || this.GOOGLE_MAPS_API_KEY.length < 30) {
-      // Fallback intelligent si pas de vraie clé API
+    if (!this.GOOGLE_MAPS_API_KEY) {
+      console.log("⚠️ GOOGLE_MAPS_API_KEY manquante, utilisation du fallback");
       return this.fallbackGeocode(address);
     }
 
@@ -81,8 +81,8 @@ export class DistanceService {
    * Calcule la distance et le temps de trajet entre deux adresses
    */
   static async calculateDistance(originAddress: string, destinationAddress: string): Promise<DistanceMatrixResult> {
-    if (!this.GOOGLE_MAPS_API_KEY || this.GOOGLE_MAPS_API_KEY.length < 30) {
-      // Fallback si pas de vraie clé API
+    if (!this.GOOGLE_MAPS_API_KEY) {
+      console.log("⚠️ GOOGLE_MAPS_API_KEY manquante, utilisation du fallback distance");
       return this.fallbackDistanceCalculation(destinationAddress);
     }
 

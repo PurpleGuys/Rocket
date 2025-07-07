@@ -51,6 +51,14 @@ export default function TimeSlotSelection() {
         } : null;
 
         updateTimeSlots(timeSlot, pickupTimeSlot || undefined);
+        
+        // Sauvegarder les dates dans le localStorage pour checkout
+        localStorage.setItem('bookingDates', JSON.stringify({
+          deliveryDate: timeSlot.date,
+          deliveryTimeSlot: timeSlot,
+          pickupDate: pickupTimeSlot?.date || pickupDate.toISOString().split('T')[0],
+          pickupTimeSlot: pickupTimeSlot
+        }));
       }
     }
   }, [selectedTimeSlotId, timeSlots, selectedDate, bookingData.durationDays, pickupOption, updateTimeSlots]);

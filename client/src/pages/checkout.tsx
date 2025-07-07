@@ -33,7 +33,12 @@ const CheckoutForm = ({ bookingDetails }: { bookingDetails: BookingDetails }) =>
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
+  
+  // Récupérer les dates du localStorage
+  const savedDates = localStorage.getItem('bookingDates');
+  const parsedDates = savedDates ? JSON.parse(savedDates) : null;
+  const [selectedDate, setSelectedDate] = useState(parsedDates?.deliveryDate || "");
+  const [pickupDate] = useState(parsedDates?.pickupDate || "");
   
   // États pour les cases à cocher obligatoires
   const [evacuationConditions, setEvacuationConditions] = useState({
