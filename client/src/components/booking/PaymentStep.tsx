@@ -54,6 +54,16 @@ function CheckoutForm() {
       return;
     }
 
+    // Vérifier que toutes les données nécessaires sont présentes
+    if (!bookingData.deliveryTimeSlot) {
+      toast({
+        title: "Informations manquantes",
+        description: "Veuillez sélectionner une date de livraison dans l'étape précédente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!customerInfo.acceptTerms) {
       toast({
         title: "Conditions requises",
@@ -465,10 +475,55 @@ export default function PaymentStep() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <Lock className="h-6 w-6 mr-3 text-primary-600" />
-        <h2 className="text-xl font-semibold text-slate-900">Paiement sécurisé</h2>
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">Finaliser la commande</h2>
+        <p className="text-slate-600">Complétez vos informations et procédez au paiement</p>
       </div>
+      
+      {/* Résumé de la réservation */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Résumé de votre réservation</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {bookingData.service && (
+            <div className="flex justify-between">
+              <span className="text-slate-600">Service :</span>
+              <span className="font-medium">{bookingData.service.name}</span>
+            </div>
+          )}
+          {bookingData.durationDays && (
+            <div className="flex justify-between">
+              <span className="text-slate-600">Durée :</span>
+              <span className="font-medium">{bookingData.durationDays} jour{bookingData.durationDays > 1 ? 's' : ''}</span>
+            </div>
+          )}
+          {bookingData.address && (
+            <div className="flex justify-between">
+              <span className="text-slate-600">Adresse :</span>
+              <span className="font-medium text-right">{bookingData.address.street}, {bookingData.address.postalCode} {bookingData.address.city}</span>
+            </div>
+          )}
+          {bookingData.deliveryTimeSlot && (
+            <div className="flex justify-between">
+              <span className="text-slate-600">Livraison :</span>
+              <span className="font-medium">
+                {new Date(bookingData.deliveryTimeSlot.date).toLocaleDateString('fr-FR')} 
+                {bookingData.deliveryTimeSlot.startTime && ` de ${bookingData.deliveryTimeSlot.startTime} à ${bookingData.deliveryTimeSlot.endTime}`}
+              </span>
+            </div>
+          )}
+          {bookingData.pickupTimeSlot && (
+            <div className="flex justify-between">
+              <span className="text-slate-600">Récupération :</span>
+              <span className="font-medium">
+                {new Date(bookingData.pickupTimeSlot.date).toLocaleDateString('fr-FR')}
+                {bookingData.pickupTimeSlot.startTime && ` de ${bookingData.pickupTimeSlot.startTime} à ${bookingData.pickupTimeSlot.endTime}`}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Elements 
         stripe={stripePromise} 

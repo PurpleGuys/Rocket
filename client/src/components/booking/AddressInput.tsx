@@ -189,23 +189,35 @@ export default function AddressInput() {
     
     setIsCalculatingDistance(true);
     try {
-      const deliveryAddress = `${formData.street}, ${formData.city}, ${formData.postalCode}, ${formData.country}`;
-      const response = await fetch('/api/calculate-distance', {
+      const response = await fetch('/api/calculate-pricing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deliveryAddress }),
+        body: JSON.stringify({
+          serviceId: bookingData.service?.id || 9, // Service par défaut pour le calcul
+          wasteType: "Gravats et matériaux inertes", // Type par défaut
+          address: formData.street,
+          postalCode: formData.postalCode,
+          city: formData.city,
+          durationDays: bookingData.durationDays || 7,
+          bsdOption: false
+        }),
       });
       
       if (response.ok) {
         const result = await response.json();
-        setCalculatedDistance(result.distance);
+        if (result.success && result.distance) {
+          setCalculatedDistance(result.distance.kilometers);
+        } else {
+          console.log('Distance calculation: using fallback');
+          setCalculatedDistance(15); // Distance estimée par défaut
+        }
       } else {
         console.error('Failed to calculate distance:', response.statusText);
-        setCalculatedDistance(null);
+        setCalculatedDistance(15); // Distance estimée par défaut
       }
     } catch (error) {
       console.error('Error calculating distance:', error);
-      setCalculatedDistance(null);
+      setCalculatedDistance(15); // Distance estimée par défaut
     } finally {
       setIsCalculatingDistance(false);
     }

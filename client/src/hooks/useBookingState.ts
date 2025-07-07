@@ -99,9 +99,12 @@ export function useBookingState() {
     try {
       const response = await apiRequest("POST", "/api/calculate-pricing", {
         serviceId: bookingData.service.id,
-        customerAddress: `${bookingData.address.street}, ${bookingData.address.postalCode} ${bookingData.address.city}`,
-        wasteTypes: bookingData.wasteTypes,
-        durationDays: bookingData.durationDays
+        wasteType: bookingData.wasteTypes[0] || "Gravats et matériaux inertes",
+        address: bookingData.address.street,
+        postalCode: bookingData.address.postalCode,
+        city: bookingData.address.city,
+        durationDays: bookingData.durationDays,
+        bsdOption: false
       });
 
       setPriceData(response);
