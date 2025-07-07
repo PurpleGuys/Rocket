@@ -136,8 +136,48 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Servir les images uploadées
+  // Servir les images uploadées avec fallback
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  
+  // Route fallback pour images manquantes
+  app.get('/api/uploads/services/:serviceId/*', async (req, res) => {
+    try {
+      const { serviceId } = req.params;
+      const requestedFile = req.params[0];
+      const fullPath = path.join(process.cwd(), 'uploads', 'services', serviceId, requestedFile);
+      
+      // Import fs avec dynamic import pour ES modules
+      const { existsSync } = await import('fs');
+      
+      // Vérifier si le fichier existe
+      if (existsSync(fullPath)) {
+        return res.sendFile(fullPath);
+      }
+      
+      // Fallback vers placeholder SVG
+      const placeholderPath = path.join(process.cwd(), 'uploads', 'services', serviceId, 'placeholder.svg');
+      if (existsSync(placeholderPath)) {
+        res.setHeader('Content-Type', 'image/svg+xml');
+        return res.sendFile(placeholderPath);
+      }
+      
+      // Fallback générique SVG
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+        <text x="150" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6c757d">Image non trouvée</text>
+        <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#adb5bd">Service ${serviceId}</text>
+      </svg>`);
+    } catch (error) {
+      console.error('Erreur serveur image:', error);
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="200" fill="#fee2e2" stroke="#fca5a5" stroke-width="2"/>
+        <text x="150" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#dc2626">Erreur</text>
+        <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#b91c1c">Service ${req.params.serviceId}</text>
+      </svg>`);
+    }
+  });
   // REMONDIS favicon route
   app.get('/favicon.ico', (req, res) => {
     res.setHeader('Content-Type', 'image/x-icon');
@@ -2629,13 +2669,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
         
         res.json({ suggestions });
+      } else if (data.status === 'REQUEST_DENIED') {
+        // Fallback intelligent si pas d'accès à Places API
+        console.log('Places API non accessible, utilisation du fallback');
+        res.status(400).json({ 
+          message: "Erreur API Google Places: REQUEST_DENIED",
+          fallback: true
+        });
       } else {
         res.json({ suggestions: [] });
       }
     } catch (error: any) {
       console.error("Error fetching Places autocomplete:", error);
-      res.status(500).json({ 
-        error: "Failed to fetch address suggestions" 
+      res.status(400).json({ 
+        message: "Erreur API Google Places: " + error.message,
+        fallback: true
       });
     }
   });

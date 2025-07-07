@@ -9,6 +9,78 @@ set -e  # Arrête le script en cas d'erreur
 
 echo "🔧 DÉMARRAGE CORRECTION STRIPE DÉPLOIEMENT VPS"
 
+# CORRECTIONS AJOUTÉES - GOOGLE MAPS API & IMAGES
+echo "🗺️ Configuration Google Maps API..."
+cat > google-maps-api-setup.md << 'EOF'
+# Configuration Google Maps API VPS
+
+## APIs Requises
+Votre clé Google Maps doit avoir accès à :
+1. **Distance Matrix API** - Pour calcul distances précises
+2. **Geocoding API** - Pour conversion adresses en coordonnées
+3. **Places API** - Pour autocomplétion adresses (optionnel)
+
+## Configuration Console Google Cloud
+1. Allez sur https://console.cloud.google.com/
+2. Sélectionnez votre projet
+3. APIs & Services > Bibliothèque
+4. Activez les 3 APIs ci-dessus
+5. Credentials > Modifier votre clé API
+6. Restrictions d'API > Ajouter les 3 APIs
+7. Restrictions IP > Ajouter votre IP VPS
+
+## Test de la clé API
+```bash
+# Test Distance Matrix API
+curl "https://maps.googleapis.com/maps/api/distancematrix/json?origins=Paris&destinations=Lyon&key=VOTRE_CLE"
+
+# Test Geocoding API
+curl "https://maps.googleapis.com/maps/api/geocode/json?address=Paris&key=VOTRE_CLE"
+
+# Test Places API
+curl "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Paris&key=VOTRE_CLE"
+```
+
+## Coût approximatif
+- Distance Matrix : 0,005€ par calcul
+- Geocoding : 0,005€ par géocodage
+- Places : 0,017€ par requête d'autocomplétion
+
+## Fallback si Places API non disponible
+Si vous n'activez pas Places API, l'autocomplétion ne fonctionnera pas mais les calculs de prix continueront de fonctionner.
+EOF
+
+# 2. Corrections images manquantes
+echo "📸 Correction images manquantes..."
+mkdir -p uploads/services/{8,9,11}
+
+# Créer des images SVG pour services manquants
+cat > uploads/services/8/placeholder.svg << 'EOF'
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  <text x="150" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#6c757d">Big Bag</text>
+  <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#adb5bd">1m³</text>
+</svg>
+EOF
+
+cat > uploads/services/9/placeholder.svg << 'EOF'
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  <text x="150" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#6c757d">Benne 10m³</text>
+  <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#adb5bd">Volume: 10m³</text>
+</svg>
+EOF
+
+cat > uploads/services/11/placeholder.svg << 'EOF'
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  <text x="150" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#6c757d">Benne 18m³</text>
+  <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#adb5bd">Volume: 18m³</text>
+</svg>
+EOF
+
+echo "✅ Images placeholder créées pour services 8, 9, 11"
+
 # 1. Correction variables d'environnement Stripe en dur
 echo "📝 Configuration variables Stripe production..."
 

@@ -75,7 +75,15 @@ export default function AddressInput() {
         setAddressSuggestions(suggestions);
         setShowSuggestions(true);
       } else {
-        console.error('Failed to fetch address suggestions');
+        // Gestion des erreurs API Google Places
+        const errorData = await response.json().catch(() => null);
+        console.error('Erreur autocomplete:', errorData?.message || 'Erreur inconnue');
+        
+        // Si c'est une erreur REQUEST_DENIED, on peut continuer sans autocomplétion
+        if (errorData?.fallback) {
+          console.log('Places API non disponible, saisie manuelle autorisée');
+        }
+        
         setAddressSuggestions([]);
         setShowSuggestions(false);
       }
