@@ -14,6 +14,8 @@ import Dashboard from "@/pages/dashboard";
 import ClientDashboard from "@/pages/client-dashboard";
 import NotFound from "@/pages/not-found";
 import Checkout from "@/pages/checkout";
+import BookingRedesign from "@/pages/booking-redesign";
+import CheckoutRedesign from "@/pages/checkout-redesign";
 import PaymentSuccess from "@/pages/payment-success";
 import Legal from "@/pages/legal";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -46,7 +48,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/auth" component={Auth} />
-      <Route path="/booking" component={Home} />
+      <Route path="/booking" component={BookingRedesign} />
       <Route path="/profile" component={Profile} />
       <Route path="/client-dashboard" component={ClientDashboard} />
       <Route path="/dashboard" component={Dashboard} />
@@ -55,7 +57,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/*" component={Admin} />
       <Route path="/admin" component={Admin} />
-      <Route path="/checkout" component={Checkout} />
+      <Route path="/checkout" component={CheckoutRedesign} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/legal" component={Legal} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
@@ -64,7 +66,6 @@ function Router() {
       <Route path="/validate-delivery" component={ValidateDelivery} />
       <Route path="/faq" component={FAQ} />
       <Route path="/introduction" component={Introduction} />
-      <Route path="/booking" component={Home} />
       <Route path="/" component={Introduction} />
       <Route component={NotFound} />
     </Switch>

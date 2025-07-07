@@ -4,6 +4,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Gradient animations */
+@keyframes gradient-x {
+  0%, 100% {
+    transform: translateX(0%) translateY(0%);
+  }
+  50% {
+    transform: translateX(5%) translateY(-5%);
+  }
+}
+
+@keyframes gradient-y {
+  0%, 100% {
+    transform: translateX(0%) translateY(0%);
+  }
+  50% {
+    transform: translateX(-5%) translateY(5%);
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 15s ease infinite;
+}
+
+.animate-gradient-y {
+  animation: gradient-y 20s ease infinite;
+}
+
 :root {
       --background: 0 0% 100%;
 --foreground: 20 14.3% 4.1%;
