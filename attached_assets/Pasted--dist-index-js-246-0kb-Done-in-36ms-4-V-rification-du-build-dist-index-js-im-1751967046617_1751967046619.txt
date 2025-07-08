@@ -1,0 +1,40 @@
+
+  dist/index.js  246.0kb
+
+⚡ Done in 36ms
+4. Vérification du build...
+dist/index.js:        "import.meta.env.VITE_STRIPE_PUBLIC_KEY": JSON.stringify("pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS")
+Correction post-build nécessaire...
+
+✅ TERMINÉ!
+Les clés de production sont maintenant hardcodées dans l'application.
+ubuntu@vps-41d62757:~/JobDone$ sudo pm2 restart bennespro --update-env
+[PM2] Applying action restartProcessId on app [bennespro](ids: [ 0 ])
+[PM2] [bennespro](0) ✓
+┌────┬──────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name         │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bennespro    │ default     │ N/A     │ cluster │ 157230   │ 0s     │ 83   │ online    │ 0%       │ 40.4mb   │ root     │ disabled │
+└────┴──────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@vps-41d62757:~/JobDone$ sudo pm2 restart bennespro
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bennespro](ids: [ 0 ])
+[PM2] [bennespro](0) ✓
+┌────┬──────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name         │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bennespro    │ default     │ N/A     │ cluster │ 157513   │ 0s     │ 88   │ online    │ 0%       │ 40.5mb   │ root     │ disabled │
+└────┴──────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@vps-41d62757:~/JobDone$ sudo pm2 logs bennespro
+[TAILING] Tailing last 15 lines for [bennespro] process (change the value with --lines option)
+/home/ubuntu/JobDone/logs/pm2-error-0.log last 15 lines:
+/home/ubuntu/JobDone/logs/pm2-out-0.log last 15 lines:
+0|bennespro  | 2025-07-08T09:30:10:
+0|bennespro  | 2025-07-08T09:30:10:
+0|bennespro  | 2025-07-08T09:30:13:
+0|bennespro  | 2025-07-08T09:30:13:
+0|bennespro  | 2025-07-08T09:30:15:
+0|bennespro  | 2025-07-08T09:30:15:
+0|bennespro  | 2025-07-08T09:30:18:
+0|bennespro  | 2025-07-08T09:30:18:
+^C
