@@ -1,0 +1,92 @@
+vite.config.production.ts
+TypeScript
+vite.config.ts
+TypeScript
+Uncaught Error: Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY
+    <anonymous> https://purpleguy.world/assets/index-LThyw_Wa.js:498
+index-LThyw_Wa.js:498:9899
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2Fpurpleguy.world%2F&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=6e03455c-01d9-47a2-b9fe-ea3553550dbef8f7b7&sid=NA&version=6&preview=false&__shared_params__[version]=basil » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé.
+out-4.5.44.js:1:39660
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 2
+La demande d’accès aux cookies ou au stockage sur « https://m.stripe.com/6 » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+
+
+ChatGPT a dit :
+Merci pour les fichiers vite.config.ts et vite.config.production.ts.
+
+L’erreur Stripe que tu rencontres :
+
+vbnet
+Copier
+Modifier
+Uncaught Error: Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY
+signifie que la variable d’environnement VITE_STRIPE_PUBLIC_KEY n’a pas été injectée au moment du build de Vite. Cela n’a rien à voir avec la config Nginx ou SSL, mais avec le moment où tu exécutes vite build.
+
+✅ Diagnostic clair
+Vite injecte les variables VITE_ au moment du build (vite build).
+
+Si VITE_STRIPE_PUBLIC_KEY n’est pas disponible dans l’environnement shell à ce moment-là, elle n’est pas intégrée dans le bundle index-*.js.
+
+D’après ton erreur, ce n’est pas la valeur qui est incorrecte, mais la clé qui est absente.
+
+🔎 Étapes pour corriger
+1. Assure-toi que le .env est lu pendant le build
+Si tu utilises un .env à la racine du projet, il faut qu’il soit présent au moment du vite build.
+
+Exemple de .env :
+
+env
+Copier
+Modifier
+VITE_STRIPE_PUBLIC_KEY=pk_live_1234567890abcdef
+Attention : pas de guillemets autour de la valeur. ✅
+
+2. Relance proprement le build avec la variable dans l’environnement
+Voici comment faire dans un terminal :
+
+bash
+Copier
+Modifier
+export VITE_STRIPE_PUBLIC_KEY=pk_live_1234567890abcdef
+npm run build
+💡 Ou, si tu veux utiliser le .env automatiquement :
+
+bash
+Copier
+Modifier
+cp .env.production .env
+npm install
+npm run build
+⚠️ Assure-toi que le fichier .env contient bien VITE_STRIPE_PUBLIC_KEY=... et qu’il est à la racine du projet client, sinon Vite ne le charge pas.
+
+3. Vérifie si la clé est bien injectée
+Tu peux chercher dans le fichier JS généré :
+
+bash
+Copier
+Modifier
+grep 'pk_live_' dist/assets/index-*.js
+S’il ne trouve rien → la variable n’était pas injectée au build.
+
+4. Redéploie ton site
+Une fois rebuild, redémarre l’app (ou redeploie avec Docker ou PM2).
+
+🧠 Bonus : vérifie vite.config.ts
+Je vois que tu utilises :
+
+ts
+Copier
+Modifier
+defineConfig({
+  plugins: [react()],
+})
+👉 Si tu fais des configs séparées pour production, assure-toi que dotenv est bien lu dans vite.config.production.ts ou que .env.production est à la racine.
+
+🧩 Résumé
+Étape	Action
+✅ 1	.env contient VITE_STRIPE_PUBLIC_KEY=...
+✅ 2	npm run build exécuté avec la variable dispo
+✅ 3	grep pk_live_ dist/assets/index-*.js donne un résultat
+✅ 4	Site redémarré (Nginx reverse proxy ok)
+
+Si tu veux, envoie le contenu exact de ton .env et la commande que tu utilises pour builder, et je te confirme si c’est ok ou pas.
