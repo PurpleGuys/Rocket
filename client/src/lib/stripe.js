@@ -10,4 +10,5 @@ if (!stripePublicKey) {
 
 console.log('✅ Stripe configuré avec clé publique:', stripePublicKey.substring(0, 12) + '...');
 
-export const stripePromise = loadStripe(stripePublicKey);
+// Utilisation de loadStripe avec la clé publique depuis import.meta.env
+export const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);

@@ -1,7 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Configuration Stripe pour production VPS avec protection AdBlock
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS';
+// Configuration Stripe avec clé publique depuis import.meta.env
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
 console.log('✅ Stripe Production Key configurée');
 
