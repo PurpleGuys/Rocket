@@ -1,9 +1,9 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Configuration Stripe avec clé publique depuis import.meta.env
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+// PRODUCTION - Clé Stripe forcée directement
+const stripePublicKey = 'pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS';
 
-console.log('✅ Stripe Production Key configurée');
+console.log('✅ Stripe Production Key configurée:', stripePublicKey.substring(0, 15) + '...');
 
 // Configuration anti-AdBlock pour Stripe
 const stripeOptions = {
