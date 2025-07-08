@@ -9,10 +9,12 @@ PASSWORD="Remondis2025$"
 
 # 1. Créer un script Node.js pour hasher le mot de passe et créer l'utilisateur
 echo "1. Création du script d'ajout d'utilisateur..."
-cat > create-admin-user.js << 'EOF'
-const bcrypt = require('bcryptjs');
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
+cat > create-admin-user.mjs << 'EOF'
+import bcrypt from 'bcryptjs';
+import pg from 'pg';
+import dotenv from 'dotenv';
+
+const { Pool } = pg;
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -41,7 +43,7 @@ async function createAdminUser() {
         phone,
         role,
         is_active,
-        email_verified,
+        is_verified,
         created_at,
         updated_at
       ) VALUES (
@@ -51,7 +53,7 @@ async function createAdminUser() {
         password = EXCLUDED.password,
         role = 'admin',
         is_active = true,
-        email_verified = true,
+        is_verified = true,
         updated_at = NOW()
       RETURNING id, email, first_name, last_name, role;
     `;
@@ -88,11 +90,11 @@ EOF
 
 # 2. Exécuter le script
 echo "2. Exécution du script..."
-node create-admin-user.js
+node create-admin-user.mjs
 
 # 3. Nettoyer
 echo "3. Nettoyage..."
-rm -f create-admin-user.js
+rm -f create-admin-user.mjs
 
 echo ""
 echo "✅ TERMINÉ!"
