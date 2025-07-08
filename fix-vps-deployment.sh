@@ -1,69 +1,85 @@
 #!/bin/bash
 
-# 🚀 Script de Correction VPS BennesPro - ÉCRAN BLANC RÉSOLU
-# Ce script corrige définitivement le problème d'écran blanc sur VPS
+echo "🚀 FIX VPS DEPLOYMENT - CALCULATE-PRICING 404"
+echo "==========================================="
+echo ""
 
-echo "🔧 CORRECTION VPS BENNESPRO - ÉCRAN BLANC"
-echo "=========================================="
+# Commandes à exécuter sur le VPS
+cat << 'VPSCOMMANDS' > vps-commands.sh
+#!/bin/bash
 
-# 1. Arrêter tous les processus Node.js existants
-echo "🛑 Arrêt des processus existants..."
-pkill -f "node\|tsx\|npm" 2>/dev/null || true
-sleep 2
+cd /home/ubuntu/JobDone
 
-# 2. Nettoyard des anciens builds
-echo "🧹 Nettoyage des anciens builds..."
-rm -rf dist/
-rm -rf node_modules/.vite/
-rm -rf .vite/
+echo "1. Pull dernière version..."
+git pull
 
-# 3. Build complet de l'application React
-echo "⚡ Build complet de l'application React..."
+echo "2. Clean build..."
+rm -rf dist
+
+echo "3. Install dependencies..."
+npm install
+
+echo "4. Build production..."
 NODE_ENV=production npm run build
 
-# Vérifier que le build a réussi
-if [ ! -f "dist/index.html" ]; then
-    echo "❌ ERREUR: Build échec, création manuelle..."
-    mkdir -p dist
-    cp client/index.html dist/
-    echo "✅ Fichier HTML copié manuellement"
+echo "5. Vérification de la route dans le build..."
+if grep -q "calculate-pricing" dist/server/routes.js 2>/dev/null; then
+    echo "✅ Route calculate-pricing trouvée dans le build!"
+else
+    echo "❌ ATTENTION: Route calculate-pricing non trouvée dans le build!"
 fi
 
-# 4. Vérifier les variables d'environnement
-echo "🔍 Vérification configuration..."
-if [ ! -f ".env" ]; then
-    echo "❌ Fichier .env manquant!"
-    exit 1
+echo "6. Redémarrage du serveur..."
+# Essayer PM2 d'abord
+if command -v pm2 &> /dev/null; then
+    pm2 restart bennespro || pm2 start npm --name bennespro -- start
+else
+    # Sinon utiliser systemctl
+    if systemctl is-active --quiet bennespro; then
+        sudo systemctl restart bennespro
+    else
+        # Dernier recours - kill et restart
+        sudo killall node 2>/dev/null || true
+        sleep 2
+        sudo NODE_ENV=production npm start &
+    fi
 fi
 
-# Forcer les bonnes variables pour VPS
-cat > .env.vps << EOF
-NODE_ENV=production
-PORT=5000
-HOST=0.0.0.0
+echo "7. Test de l'endpoint après 5 secondes..."
+sleep 5
 
-# Base de données
-DATABASE_URL=postgresql://bennespro_user:yourpassword@localhost:5432/bennespro_db
+curl -X POST https://purpleguy.world/api/calculate-pricing \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serviceId": 8,
+    "wasteType": "construction",
+    "address": "123 rue de la République, 75001 Paris",
+    "postalCode": "75001",
+    "city": "Paris",
+    "durationDays": 7,
+    "bsdOption": false
+  }'
 
-# Email SendGrid  
-SENDGRID_API_KEY=your_sendgrid_key
-SENDGRID_VERIFIED_SENDER_EMAIL=noreply@votre-domaine.com
+echo ""
+echo "✅ Déploiement terminé!"
+VPSCOMMANDS
 
-# JWT Secret
-JWT_SECRET=your-super-secret-jwt-key-here-minimum-32-chars
-
-# Google Maps
-GOOGLE_MAPS_API_KEY=your_google_maps_key
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_your_stripe_key
-VITE_STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key
-EOF
-
-# 5. Démarrer en mode production avec tsx (SOLUTION ROBUSTE)
-echo "🚀 Démarrage serveur production..."
-echo "📡 Application disponible sur: http://votre-ip:5000"
-echo "🌐 Pour accès externe, configurez Nginx comme proxy"
-
-# Utiliser tsx pour éviter les problèmes de compilation
-NODE_ENV=production npx tsx server/index.ts
+echo ""
+echo "Script créé: vps-commands.sh"
+echo ""
+echo "EXÉCUTEZ CES COMMANDES SUR VOTRE VPS:"
+echo "======================================"
+echo ""
+echo "1. Copiez ce script sur le VPS:"
+echo "   scp vps-commands.sh ubuntu@162.19.67.3:/home/ubuntu/"
+echo ""
+echo "2. Connectez-vous au VPS:"
+echo "   ssh ubuntu@162.19.67.3"
+echo ""
+echo "3. Exécutez le script:"
+echo "   chmod +x vps-commands.sh"
+echo "   ./vps-commands.sh"
+echo ""
+echo "OU exécutez directement:"
+echo "========================"
+echo "ssh ubuntu@162.19.67.3 'bash -s' < vps-commands.sh"

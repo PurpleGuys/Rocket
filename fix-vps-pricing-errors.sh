@@ -1,107 +1,84 @@
 #!/bin/bash
 
-# ===============================================
-# SCRIPT CORRECTION ERREURS CALCUL PRIX VPS
-# Résout les erreurs de géocodage et pricing
-# ===============================================
+echo "🛠️ FIX VPS CALCULATE-PRICING 404 ERROR"
+echo "====================================="
+echo ""
+echo "Ce script va corriger l'erreur 404 sur /api/calculate-pricing"
+echo ""
 
-set -e
+# Instructions pour le VPS
+cat << 'EOF'
+INSTRUCTIONS POUR VOTRE VPS:
+===========================
 
-echo "🔧 CORRECTION ERREURS CALCUL PRIX VPS"
+1. Connectez-vous au VPS:
+   ssh ubuntu@162.19.67.3
 
-# 1. Mise à jour script VPS avec correction pricing
-echo "📝 Mise à jour script déploiement VPS..."
+2. Allez dans le dossier du projet:
+   cd /home/ubuntu/JobDone
 
-cat >> vps-stripe-deployment-fix.sh << 'EOF'
+3. Récupérez la dernière version:
+   git pull
 
-# ===============================================
-# CORRECTION ERREURS CALCUL PRIX VPS
-# ===============================================
+4. Rebuild l'application:
+   npm run build
 
-echo "🔧 Correction erreurs calcul prix..."
+5. Redémarrez le serveur:
+   - Si vous utilisez PM2:
+     pm2 restart bennespro
+   
+   - Si vous utilisez systemd:
+     sudo systemctl restart bennespro
+   
+   - Si vous lancez manuellement:
+     sudo killall node
+     sudo NODE_ENV=production npm start
 
-# Copie du service de pricing hors ligne
-cp server/pricingService.ts dist/server/
+6. Vérifiez les logs:
+   - PM2: pm2 logs bennespro --lines 50
+   - Systemd: sudo journalctl -u bennespro -f
+   - Manuel: Les logs apparaissent dans le terminal
 
-# Variables d'environnement pour éviter erreurs API
-cat >> dist/.env << 'EOL'
+7. Testez l'endpoint:
+   curl -X POST https://purpleguy.world/api/calculate-pricing \
+     -H "Content-Type: application/json" \
+     -d '{
+       "serviceId": 8,
+       "wasteType": "construction", 
+       "address": "123 rue de la République, 75001 Paris",
+       "postalCode": "75001",
+       "city": "Paris",
+       "durationDays": 7,
+       "bsdOption": false
+     }'
 
-# PRICING CONFIGURATION
-ENABLE_OFFLINE_PRICING=true
-DISABLE_EXTERNAL_APIS=true
-DEFAULT_DISTANCE_FALLBACK=35
-PRICING_MODE=offline
+PROBLÈMES COURANTS:
+==================
 
-EOL
+Si l'erreur 404 persiste:
 
-echo "✅ Configuration pricing VPS terminée"
+1. Vérifiez que la route existe dans le build:
+   grep -n "calculate-pricing" dist/server/routes.js
+
+2. Vérifiez le processus node:
+   ps aux | grep node
+
+3. Vérifiez les ports:
+   sudo netstat -tlnp | grep :5000
+
+4. Vérifiez Nginx (si utilisé):
+   sudo nginx -t
+   sudo systemctl reload nginx
+
+5. Si le build échoue:
+   - Supprimez node_modules et réinstallez:
+     rm -rf node_modules package-lock.json
+     npm install
+     npm run build
+
 EOF
 
-# 2. Test du service de pricing hors ligne
-echo "🧪 Test service pricing hors ligne..."
-
-cat > test-pricing.js << 'EOF'
-// Test du service de pricing hors ligne
-const testAddresses = [
-  "75001 Paris",
-  "13001 Marseille", 
-  "69001 Lyon",
-  "31000 Toulouse",
-  "92100 Boulogne-Billancourt"
-];
-
-const testServices = [8, 9, 11]; // Big Bag, 10m3, 18m3
-const testWasteTypes = ['gravats', 'bois', 'tout_venant'];
-
-console.log('🧪 Test calcul pricing hors ligne...');
-
-testAddresses.forEach(address => {
-  testServices.forEach(serviceId => {
-    testWasteTypes.forEach(wasteType => {
-      try {
-        // Simulation du calcul
-        const distance = calculateDistanceFromAddress(address);
-        console.log(`✅ ${address} → Service ${serviceId} → ${wasteType} → ${distance}km`);
-      } catch (err) {
-        console.error(`❌ Erreur: ${address} → ${err.message}`);
-      }
-    });
-  });
-});
-
-function calculateDistanceFromAddress(address) {
-  const addressLower = address.toLowerCase();
-  const postalCodeMatch = address.match(/\b(\d{5})\b/);
-  
-  if (postalCodeMatch) {
-    const dept = postalCodeMatch[1].substring(0, 2);
-    const distances = {
-      '75': 15, '13': 650, '69': 350, '31': 550, '92': 18
-    };
-    return distances[dept] || 150;
-  }
-  return 50;
-}
-EOF
-
-node test-pricing.js
-
-# 3. Instructions de déploiement
 echo ""
-echo "🎯 CORRECTIONS APPLIQUÉES:"
-echo "✅ Service pricing hors ligne créé"
-echo "✅ Gestion d'erreur JSON robuste"  
-echo "✅ Calcul distance intelligent par département"
-echo "✅ Fallback gracieux sans APIs externes"
+echo "✅ Instructions créées!"
 echo ""
-echo "📋 DÉPLOIEMENT VPS:"
-echo "1. ./vps-stripe-deployment-fix.sh"
-echo "2. Vérifier logs: sudo journalctl -fu bennespro"
-echo "3. Test API: curl http://localhost:5000/api/health"
-echo ""
-echo "🚀 PLUS D'ERREURS GÉOCODAGE SUR VPS!"
-
-# Nettoyage
-rm -f test-pricing.js
-
-echo "✅ Script correction terminé"
+echo "Suivez ces étapes sur votre VPS pour corriger l'erreur 404."
