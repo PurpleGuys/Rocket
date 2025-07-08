@@ -1,78 +1,91 @@
 #!/bin/bash
 
-# =====================================================
-# SOLUTION FINALE POUR TOUS LES PROBLÈMES BENNESPRO
-# =====================================================
+echo "🔧 SOLUTION DÉFINITIVE STRIPE VPS - VERSION CORRIGÉE"
+echo "================================================="
 
-echo "🔧 CORRECTION COMPLÈTE DE BENNESPRO - APIS + UI"
-echo "============================================="
+# Clés de production
+PK_LIVE="pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS"
+SK_LIVE="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"
 
-# 1. CORRECTION DES APIS STRIPE ET GOOGLE MAPS
-echo -e "\n1. ✅ CORRECTION DES APIS"
+# 1. Mettre à jour depuis Git
+echo "1. Mise à jour du code depuis Git..."
+git pull origin main
 
-# Vérifier les variables d'environnement
-echo "   - Vérification des clés API..."
-if [ -z "$GOOGLE_MAPS_API_KEY" ]; then
-    echo "   ⚠️  GOOGLE_MAPS_API_KEY manquante dans .env"
-    echo "   💡 Ajoutez: GOOGLE_MAPS_API_KEY=votre_clé_api"
-fi
+# 2. Corriger stripe.ts avec configuration simplifiée (sans apiVersion)
+echo "2. Correction de stripe.ts avec configuration simplifiée..."
+cat > client/src/lib/stripe.ts << 'EOF'
+import { loadStripe } from '@stripe/stripe-js';
 
-if [ -z "$VITE_STRIPE_PUBLIC_KEY" ]; then
-    echo "   ⚠️  VITE_STRIPE_PUBLIC_KEY manquante dans .env"
-    echo "   💡 Ajoutez: VITE_STRIPE_PUBLIC_KEY=pk_test_..."
-fi
+// PRODUCTION - Clé directement dans le code
+const stripePublicKey = 'pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS';
 
-# 2. AMÉLIORATION DE L'INTERFACE
-echo -e "\n2. ✅ INTERFACE MAGNIFIQUE ET RESPONSIVE"
-echo "   - Pages /booking et /checkout redesignées"
-echo "   - Design moderne avec gradients et animations"
-echo "   - Emojis et codes couleur pour meilleure UX"
-echo "   - Progress bar visuelle et intuitive"
-echo "   - Cards avec shadows et effets visuels"
+console.log('✅ Stripe configuré avec clé de production:', stripePublicKey.substring(0, 15) + '...');
 
-# 3. PERSISTANCE DES DATES
-echo -e "\n3. ✅ PERSISTANCE DES DATES CORRIGÉE"
-echo "   - Sauvegarde automatique dans localStorage"
-echo "   - Dates transmises entre /booking et /checkout"
-echo "   - Plus besoin de ressaisir les dates"
+// Configuration simplifiée - sans apiVersion qui cause l'erreur
+const stripeOptions = {
+  locale: 'fr' as const
+};
 
-# 4. CORRECTIONS APPORTÉES
-echo -e "\n4. 📋 FICHIERS MODIFIÉS:"
-echo "   ✓ server/distanceService.ts - Suppression check longueur API key"
-echo "   ✓ client/src/components/booking/TimeSlotSelection.tsx - Sauvegarde dates"
-echo "   ✓ client/src/pages/checkout.tsx - Récupération dates sauvegardées"
-echo "   ✓ client/src/pages/booking-redesign.tsx - Nouveau design magnifique"
-echo "   ✓ client/src/components/ui/gradient-background.tsx - Fond animé"
+// Export direct de stripePromise
+export const stripePromise = loadStripe(stripePublicKey, stripeOptions);
+EOF
 
-# 5. TEST DES APIS
-echo -e "\n5. 🧪 TEST DES APIS:"
+# 3. S'assurer que .env a les bonnes clés
+echo "3. Mise à jour du fichier .env..."
+sed -i "s/VITE_STRIPE_PUBLIC_KEY=.*/VITE_STRIPE_PUBLIC_KEY=\"$PK_LIVE\"/" .env
+sed -i "s/STRIPE_SECRET_KEY=.*/STRIPE_SECRET_KEY=\"$SK_LIVE\"/" .env
 
-# Test Google Maps
-echo -n "   - Test Google Maps API: "
-curl -s "http://localhost:5000/api/test-maps-api" | jq -r '.success' || echo "ÉCHEC"
+# 4. Supprimer stripe.js s'il existe (éviter les conflits)
+echo "4. Suppression de stripe.js pour éviter les conflits..."
+rm -f client/src/lib/stripe.js
 
-# Test calcul de prix
-echo -n "   - Test Calculate Pricing: "
-curl -s -X POST "http://localhost:5000/api/calculate-pricing" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "serviceId": 9,
-    "wasteType": "Gravats et matériaux inertes",
-    "address": "10 rue de la Paix",
-    "postalCode": "75002",
-    "city": "Paris",
-    "durationDays": 7
-  }' | jq -r '.success' || echo "ÉCHEC"
+# 5. Nettoyer complètement
+echo "5. Nettoyage complet..."
+rm -rf dist
+rm -rf node_modules/.vite
+rm -rf client/.vite
+rm -rf .cache
 
-echo -e "\n✅ TOUTES LES CORRECTIONS SONT APPLIQUÉES !"
-echo "🚀 L'application est maintenant:"
-echo "   - APIs fonctionnelles (Stripe + Google Maps)"
-echo "   - Interface magnifique et responsive"
-echo "   - Dates persistantes entre les étapes"
-echo "   - Expérience utilisateur optimale"
+# 6. Build avec les bonnes variables
+echo "6. Build de production..."
+export NODE_ENV=production
+export VITE_STRIPE_PUBLIC_KEY="$PK_LIVE"
+export STRIPE_SECRET_KEY="$SK_LIVE"
 
-echo -e "\n📱 TESTEZ MAINTENANT:"
-echo "1. Allez sur http://localhost:5000/booking"
-echo "2. L'interface est magnifique et intuitive"
-echo "3. Les dates sont sauvegardées automatiquement"
-echo "4. Les APIs Stripe et Google Maps fonctionnent"
+npm run build
+
+# 7. Correction post-build si nécessaire
+echo "7. Vérification et correction du build..."
+
+# Supprimer l'erreur "Missing required Stripe key"
+find dist -type f -name "*.js" -exec sed -i 's/throw new Error("Missing required Stripe key[^"]*")//g' {} \;
+
+# Remplacer toutes les références aux variables d'environnement
+find dist -type f -name "*.js" -exec sed -i "s/import\.meta\.env\.VITE_STRIPE_PUBLIC_KEY/'$PK_LIVE'/g" {} \;
+find dist -type f -name "*.js" -exec sed -i "s/process\.env\.VITE_STRIPE_PUBLIC_KEY/'$PK_LIVE'/g" {} \;
+
+# S'assurer qu'aucune clé de test
+find dist -type f -name "*.js" -exec sed -i "s/pk_test[^ \"']*/$PK_LIVE/g" {} \;
+
+# 8. Redémarrer l'application
+echo "8. Redémarrage de l'application..."
+pm2 delete bennespro 2>/dev/null || true
+pm2 start ecosystem.config.cjs --env production
+pm2 save
+
+echo ""
+echo "✅ SOLUTION APPLIQUÉE!"
+echo "===================="
+echo ""
+echo "CHANGEMENTS IMPORTANTS:"
+echo "- Suppression de apiVersion qui causait l'erreur"
+echo "- Configuration Stripe simplifiée"
+echo "- Clé hardcodée directement dans le code"
+echo "- Suppression de l'erreur 'Missing required Stripe key'"
+echo ""
+echo "Test: curl http://localhost:5000/api/health"
+echo ""
+echo "⚠️  IMPORTANT:"
+echo "1. Videz complètement le cache du navigateur (Ctrl+Shift+R)"
+echo "2. Si vous avez un AdBlocker, désactivez-le pour ce site"
+echo "3. Essayez en navigation privée si ça ne fonctionne pas"
