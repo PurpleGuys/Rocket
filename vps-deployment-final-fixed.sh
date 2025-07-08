@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🚀 DÉPLOIEMENT VPS FINAL - CORRECTION COMPLÈTE"
-echo "=============================================="
+echo "🚀 DÉPLOIEMENT VPS BENNESPRO - VERSION CORRIGÉE"
+echo "==============================================="
 
 # 1. Vérifier les prérequis
 echo -e "\n1️⃣ VÉRIFICATION DES PRÉREQUIS..."
@@ -19,6 +19,13 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 echo "✅ npm v$(npm -v)"
+
+# Vérifier PM2
+if ! command -v pm2 &> /dev/null; then
+    echo "⚠️  PM2 n'est pas installé, installation..."
+    sudo npm install -g pm2
+fi
+echo "✅ PM2 installé"
 
 # 2. Vérifier le fichier .env
 echo -e "\n2️⃣ VÉRIFICATION DU FICHIER .ENV..."
@@ -43,13 +50,19 @@ else
     echo "✅ Toutes les variables critiques sont configurées"
 fi
 
-# 3. Installation des dépendances
+# 3. Installation des dépendances (incluant terser)
 echo -e "\n3️⃣ INSTALLATION DES DÉPENDANCES..."
 npm install
 
+# Installer terser si nécessaire
+if ! npm list terser >/dev/null 2>&1; then
+    echo "Installation de terser pour le build Vite..."
+    npm install --save-dev terser
+fi
+
 # 4. Build de l'application
 echo -e "\n4️⃣ BUILD DE L'APPLICATION..."
-npm run build
+NODE_ENV=production npm run build
 
 if [ ! -d "dist" ]; then
     echo "❌ Le build a échoué (dossier dist manquant)"
@@ -57,62 +70,20 @@ if [ ! -d "dist" ]; then
 fi
 echo "✅ Build réussi"
 
-# 5. Configuration TypeScript pour production
-echo -e "\n5️⃣ CRÉATION DU FICHIER tsconfig.prod.json..."
-
-cat > tsconfig.prod.json << 'EOF'
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "ES2022",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": false,
-    "noEmit": false,
-    "outDir": "./dist-server"
-  },
-  "include": ["server/**/*"],
-  "exclude": ["node_modules", "dist", "client"]
-}
-EOF
-
-echo "✅ tsconfig.prod.json créé"
-
-# 6. Configuration PM2
-echo -e "\n6️⃣ CONFIGURATION PM2..."
-
-cat > ecosystem.config.cjs << 'EOF'
-module.exports = {
-  apps: [{
-    name: 'bennespro',
-    script: 'npx',
-    args: 'tsx server/index.ts',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 5000
-    },
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    error_file: './logs/pm2-error.log',
-    out_file: './logs/pm2-out.log',
-    time: true
-  }]
-};
-EOF
-
-echo "✅ ecosystem.config.cjs créé"
-
-# 7. Créer le dossier logs
+# 5. Créer le dossier logs
+echo -e "\n5️⃣ CRÉATION DES DOSSIERS..."
 mkdir -p logs
+mkdir -p uploads
+echo "✅ Dossiers créés"
 
-# 8. Configuration Nginx
-echo -e "\n7️⃣ CONFIGURATION NGINX..."
+# 6. Configuration Nginx
+echo -e "\n6️⃣ CONFIGURATION NGINX..."
 
+# Supprimer les liens symboliques cassés
+sudo rm -f /etc/nginx/sites-enabled/portainer 2>/dev/null
+sudo rm -f /etc/nginx/sites-enabled/default 2>/dev/null
+
+# Créer la configuration Nginx
 sudo tee /etc/nginx/sites-available/bennespro > /dev/null << 'EOF'
 server {
     listen 80;
@@ -124,6 +95,11 @@ server {
 
     # Taille max des uploads
     client_max_body_size 50M;
+
+    # Headers de sécurité
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
 
     # Proxy vers l'application Node.js
     location / {
@@ -154,19 +130,50 @@ EOF
 
 # Activer le site
 sudo ln -sf /etc/nginx/sites-available/bennespro /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
 
-echo "✅ Nginx configuré"
+# Tester la configuration
+if sudo nginx -t; then
+    sudo systemctl reload nginx
+    echo "✅ Nginx configuré et rechargé"
+else
+    echo "❌ Erreur de configuration Nginx"
+    exit 1
+fi
 
-# 9. Démarrage avec PM2
-echo -e "\n8️⃣ DÉMARRAGE DE L'APPLICATION..."
+# 7. Démarrage avec PM2
+echo -e "\n7️⃣ DÉMARRAGE DE L'APPLICATION..."
 
 # Arrêter l'instance existante si elle existe
 pm2 stop bennespro 2>/dev/null || true
 pm2 delete bennespro 2>/dev/null || true
 
+# Vérifier si ecosystem.config.cjs existe
+if [ ! -f "ecosystem.config.cjs" ]; then
+    echo "Création du fichier ecosystem.config.cjs..."
+    cat > ecosystem.config.cjs << 'EOL'
+module.exports = {
+  apps: [{
+    name: 'bennespro',
+    script: 'npx',
+    args: 'tsx server/index.ts',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 5000
+    },
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    error_file: './logs/pm2-error.log',
+    out_file: './logs/pm2-out.log',
+    time: true
+  }]
+};
+EOL
+fi
+
 # Démarrer l'application
-pm2 start ecosystem.config.cjs
+pm2 start ecosystem.config.cjs --env production
 pm2 save
 pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
@@ -186,6 +193,8 @@ echo ""
 sleep 5
 if curl -s http://localhost:5000/api/health | grep -q "ok"; then
     echo "✅ L'API répond correctement !"
+    echo ""
+    echo "🎉 L'application BennesPro est maintenant déployée et fonctionnelle !"
 else
     echo "❌ L'API ne répond pas, vérifiez les logs avec: pm2 logs bennespro"
 fi

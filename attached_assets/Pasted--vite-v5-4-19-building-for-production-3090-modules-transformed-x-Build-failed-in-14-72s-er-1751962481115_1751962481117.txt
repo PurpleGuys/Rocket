@@ -1,0 +1,107 @@
+
+vite v5.4.19 building for production...
+✓ 3090 modules transformed.
+x Build failed in 14.72s
+error during build:
+[vite:terser] terser not found. Since Vite v3, terser has become an optional dependency. You need to install it.
+    at loadTerserPath (file:///home/ubuntu/JobDone/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:19705:13)
+    at Object.renderChunk (file:///home/ubuntu/JobDone/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:19740:27)
+    at file:///home/ubuntu/JobDone/node_modules/rollup/dist/es/shared/node-entry.js:22288:40
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+✅ Build réussi
+
+5️⃣ CRÉATION DU FICHIER tsconfig.prod.json...
+✅ tsconfig.prod.json créé
+
+6️⃣ CONFIGURATION PM2...
+✅ ecosystem.config.js créé
+
+7️⃣ CONFIGURATION NGINX...
+2025/07/08 08:13:52 [emerg] 35218#35218: open() "/etc/nginx/sites-enabled/portainer" failed (2: No such file or directory) in /etc/nginx/nginx.conf:61
+nginx: configuration file /etc/nginx/nginx.conf test failed
+✅ Nginx configuré
+
+8️⃣ DÉMARRAGE DE L'APPLICATION...
+[PM2][ERROR] File ecosystem.config.js malformated
+Error [ERR_REQUIRE_ESM]: require() of ES Module /home/ubuntu/JobDone/ecosystem.config.js from /usr/lib/node_modules/pm2/lib/Common.js not supported.
+ecosystem.config.js is treated as an ES module file as it is a .js file whose nearest parent package.json contains "type": "module" which declares all .js files in that package scope as ES modules.
+Instead either rename ecosystem.config.js to end in .cjs, change the requiring code to use dynamic import() which is available in all CommonJS modules, or change "type": "module" to "type": "commonjs" in /home/ubuntu/JobDone/package.json to treat all .js files as CommonJS (using .mjs for all ES modules instead).
+
+    at Common.parseConfig (/usr/lib/node_modules/pm2/lib/Common.js:331:12)
+    at API._startJson (/usr/lib/node_modules/pm2/lib/API.js:934:25)
+    at API.start (/usr/lib/node_modules/pm2/lib/API.js:329:12)
+    at /usr/lib/node_modules/pm2/lib/binaries/CLI.js:297:13
+    at /usr/lib/node_modules/pm2/node_modules/async/internal/withoutIndex.js:8:40
+    at replenish (/usr/lib/node_modules/pm2/node_modules/async/internal/eachOfLimit.js:81:17)
+    at /usr/lib/node_modules/pm2/node_modules/async/internal/eachOfLimit.js:86:9
+    at eachLimit (/usr/lib/node_modules/pm2/node_modules/async/forEachLimit.js:47:45)
+    at awaitable (/usr/lib/node_modules/pm2/node_modules/async/internal/awaitify.js:14:28)
+    at Command.<anonymous> (/usr/lib/node_modules/pm2/lib/binaries/CLI.js:296:7)
+    at Command.listener (/usr/lib/node_modules/pm2/node_modules/commander/index.js:315:8)
+    at Command.emit (node:events:517:28)
+    at Command.parseArgs (/usr/lib/node_modules/pm2/node_modules/commander/index.js:651:12)
+    at Command.parse (/usr/lib/node_modules/pm2/node_modules/commander/index.js:474:21)
+    at beginCommandProcessing (/usr/lib/node_modules/pm2/lib/binaries/CLI.js:154:13)
+    at /usr/lib/node_modules/pm2/lib/binaries/CLI.js:228:7
+    at /usr/lib/node_modules/pm2/lib/API.js:181:16
+    at /usr/lib/node_modules/pm2/lib/Client.js:54:16
+    at Timeout._onTimeout (/usr/lib/node_modules/pm2/lib/Client.js:369:9) {
+  code: 'ERR_REQUIRE_ESM'
+}
+[PM2] Saving current process list...
+[PM2][WARN] PM2 is not managing any process, skipping save...
+[PM2][WARN] To force saving use: pm2 save --force
+[PM2] Init System found: systemd
+Platform systemd
+Template
+[Unit]
+Description=PM2 process manager
+Documentation=https://pm2.keymetrics.io/
+After=network.target
+
+[Service]
+Type=forking
+User=ubuntu
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PM2_HOME=/home/ubuntu/.pm2
+PIDFile=/home/ubuntu/.pm2/pm2.pid
+Restart=on-failure
+
+ExecStart=/usr/lib/node_modules/pm2/bin/pm2 resurrect
+ExecReload=/usr/lib/node_modules/pm2/bin/pm2 reload all
+ExecStop=/usr/lib/node_modules/pm2/bin/pm2 kill
+
+[Install]
+WantedBy=multi-user.target
+
+Target path
+/etc/systemd/system/pm2-ubuntu.service
+Command list
+[ 'systemctl enable pm2-ubuntu' ]
+[PM2] Writing init configuration in /etc/systemd/system/pm2-ubuntu.service
+[PM2] Making script booting at startup...
+[PM2] [-] Executing: systemctl enable pm2-ubuntu...
+[PM2] [v] Command successfully executed.
++---------------------------------------+
+[PM2] Freeze a process list on reboot via:
+$ pm2 save
+
+[PM2] Remove init script via:
+$ pm2 unstartup systemd
+
+✅ DÉPLOIEMENT TERMINÉ !
+============================
+
+📋 VÉRIFICATIONS:
+  - Application: http://162.19.67.3
+  - Logs PM2: pm2 logs bennespro
+  - Status: pm2 status
+
+🧪 TEST DE L'API:
+  curl http://localhost:5000/api/health
+
+❌ L'API ne répond pas, vérifiez les logs avec: pm2 logs bennespro
+ubuntu@vps-41d62757:~/JobDone$

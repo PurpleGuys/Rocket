@@ -1,0 +1,175 @@
+Node.js v20.19.3
+bennespro_app  | 🔍 Waiting for PostgreSQL and Redis services...
+bennespro_app  | ⏳ Waiting for PostgreSQL at postgres:5432...
+bennespro_app  |   Attempt 1/60 for PostgreSQL...
+bennespro_app  | ✅ PostgreSQL is ready!
+bennespro_app  | ⏳ Waiting for Redis at redis:6379...
+bennespro_app  |   Attempt 1/60 for Redis...
+bennespro_app  | ✅ Redis is ready (ping successful)!
+bennespro_app  | 🔧 Initializing database schema...
+bennespro_app  | No config path provided, using default 'drizzle.config.json'
+bennespro_app  | /app/drizzle.config.json file does not exist
+bennespro_app  | Database schema initialization completed
+bennespro_app  | ✅ Database ready!
+bennespro_app  | 🚀 All services ready! Starting application...
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | ✅ Docker PostgreSQL config applied (no SSL)
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | API key does not start with "SG.".
+bennespro_app  | SendGrid email service initialized successfully.
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | API key does not start with "SG.".
+bennespro_app  | SendGrid email service initialized successfully.
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | ✅ Stripe initialized successfully
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | 7:49:44 AM [INFO] [STARTUP] 🚀 BennesPro Application Starting...
+bennespro_app  | 7:49:44 AM [INFO] [STARTUP] Environment: "production"
+bennespro_app  | 7:49:44 AM [INFO] [STARTUP] Node.js Version: v20.19.3
+bennespro_app  | 1:24:19 PM [INFO] [DATABASE] 🔍 Testing database connectivity...
+bennespro_app  | 1:24:19 PM [ERROR] [DATABASE] ❌ Database connection failed: Error: getaddrinfo EAI_AGAIN base
+bennespro_app  |     at /app/node_modules/pg-pool/index.js:45:11
+bennespro_app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+bennespro_app  |     at async testDatabaseConnection (/app/server/db.ts:53:20)
+bennespro_app  |     at async <anonymous> (/app/server/index.ts:28:3) {
+bennespro_app  |   errno: -3001,
+bennespro_app  |   code: 'EAI_AGAIN',
+bennespro_app  |   syscall: 'getaddrinfo',
+bennespro_app  |   hostname: 'base'
+bennespro_app  | }
+bennespro_app  | node:internal/process/promises:391
+bennespro_app  |     triggerUncaughtException(err, true /* fromPromise */);
+bennespro_app  |     ^
+bennespro_app  |
+bennespro_app  | Error: getaddrinfo EAI_AGAIN base
+bennespro_app  |     at /app/node_modules/pg-pool/index.js:45:11
+bennespro_app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+bennespro_app  |     at async testDatabaseConnection (/app/server/db.ts:53:20)
+bennespro_app  |     at async <anonymous> (/app/server/index.ts:28:3) {
+bennespro_app  |   errno: -3001,
+bennespro_app  |   code: 'EAI_AGAIN',
+bennespro_app  |   syscall: 'getaddrinfo',
+bennespro_app  |   hostname: 'base'
+bennespro_app  | }
+bennespro_app  |
+bennespro_app  | Node.js v20.19.3
+bennespro_app  | 🔍 Waiting for PostgreSQL and Redis services...
+bennespro_app  | ⏳ Waiting for PostgreSQL at postgres:5432...
+bennespro_app  |   Attempt 1/60 for PostgreSQL...
+bennespro_app  | ✅ PostgreSQL is ready!
+bennespro_app  | ⏳ Waiting for Redis at redis:6379...
+bennespro_app  |   Attempt 1/60 for Redis...
+bennespro_app  | ✅ Redis is ready (ping successful)!
+bennespro_app  | 🔧 Initializing database schema...
+bennespro_app  | No config path provided, using default 'drizzle.config.json'
+bennespro_app  | /app/drizzle.config.json file does not exist
+bennespro_app  | Database schema initialization completed
+bennespro_app  | ✅ Database ready!
+bennespro_app  | 🚀 All services ready! Starting application...
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | ✅ Docker PostgreSQL config applied (no SSL)
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | API key does not start with "SG.".
+bennespro_app  | SendGrid email service initialized successfully.
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | SendGrid email service initialized successfully.
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | API key does not start with "SG.".
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | ✅ Stripe initialized successfully
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | 7:49:55 AM [INFO] [STARTUP] 🚀 BennesPro Application Starting...
+bennespro_app  | 7:49:55 AM [INFO] [STARTUP] Environment: "production"
+bennespro_app  | 7:49:55 AM [INFO] [STARTUP] Node.js Version: v20.19.3
+bennespro_app  | 1:24:19 PM [INFO] [DATABASE] 🔍 Testing database connectivity...
+bennespro_app  | 1:24:19 PM [ERROR] [DATABASE] ❌ Database connection failed: Error: getaddrinfo EAI_AGAIN base
+bennespro_app  |     at /app/node_modules/pg-pool/index.js:45:11
+bennespro_app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+bennespro_app  |     at async testDatabaseConnection (/app/server/db.ts:53:20)
+bennespro_app  |     at async <anonymous> (/app/server/index.ts:28:3) {
+bennespro_app  |   errno: -3001,
+bennespro_app  |   code: 'EAI_AGAIN',
+bennespro_app  |   syscall: 'getaddrinfo',
+bennespro_app  |   hostname: 'base'
+bennespro_app  | }
+bennespro_app  | node:internal/process/promises:391
+bennespro_app  |     triggerUncaughtException(err, true /* fromPromise */);
+bennespro_app  |     ^
+bennespro_app  |
+bennespro_app  | Error: getaddrinfo EAI_AGAIN base
+bennespro_app  |     at /app/node_modules/pg-pool/index.js:45:11
+bennespro_app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+bennespro_app  |     at async testDatabaseConnection (/app/server/db.ts:53:20)
+bennespro_app  |     at async <anonymous> (/app/server/index.ts:28:3) {
+bennespro_app  |   errno: -3001,
+bennespro_app  |   code: 'EAI_AGAIN',
+bennespro_app  |   syscall: 'getaddrinfo',
+bennespro_app  |   hostname: 'base'
+bennespro_app  | }
+bennespro_app  |
+bennespro_app  | Node.js v20.19.3
+bennespro_app  | 🔍 Waiting for PostgreSQL and Redis services...
+bennespro_app  | ⏳ Waiting for PostgreSQL at postgres:5432...
+bennespro_app  |   Attempt 1/60 for PostgreSQL...
+bennespro_app  | ✅ PostgreSQL is ready!
+bennespro_app  | ⏳ Waiting for Redis at redis:6379...
+bennespro_app  |   Attempt 1/60 for Redis...
+bennespro_app  | ✅ Redis is ready (ping successful)!
+bennespro_app  | 🔧 Initializing database schema...
+bennespro_app  | No config path provided, using default 'drizzle.config.json'
+bennespro_app  | /app/drizzle.config.json file does not exist
+bennespro_app  | Database schema initialization completed
+bennespro_app  | ✅ Database ready!
+bennespro_app  | 🚀 All services ready! Starting application...
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | ✅ Docker PostgreSQL config applied (no SSL)
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | API key does not start with "SG.".
+bennespro_app  | SendGrid email service initialized successfully.
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | API key does not start with "SG.".
+bennespro_app  | SendGrid email service initialized successfully.
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | ✅ Stripe initialized successfully
+bennespro_app  | [dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+bennespro_app  | 7:50:07 AM [INFO] [STARTUP] 🚀 BennesPro Application Starting...
+bennespro_app  | 7:50:07 AM [INFO] [STARTUP] Environment: "production"
+bennespro_app  | 7:50:07 AM [INFO] [STARTUP] Node.js Version: v20.19.3
+bennespro_app  | 1:24:19 PM [INFO] [DATABASE] 🔍 Testing database connectivity...
+bennespro_app  | 1:24:19 PM [ERROR] [DATABASE] ❌ Database connection failed: Error: getaddrinfo EAI_AGAIN base
+bennespro_app  |     at /app/node_modules/pg-pool/index.js:45:11
+bennespro_app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+bennespro_app  |     at async testDatabaseConnection (/app/server/db.ts:53:20)
+bennespro_app  |     at async <anonymous> (/app/server/index.ts:28:3) {
+bennespro_app  |   errno: -3001,
+bennespro_app  |   code: 'EAI_AGAIN',
+bennespro_app  |   syscall: 'getaddrinfo',
+bennespro_app  |   hostname: 'base'
+bennespro_app  | }
+bennespro_app  | node:internal/process/promises:391
+bennespro_app  |     triggerUncaughtException(err, true /* fromPromise */);
+bennespro_app  |     ^
+bennespro_app  |
+bennespro_app  | Error: getaddrinfo EAI_AGAIN base
+bennespro_app  |     at /app/node_modules/pg-pool/index.js:45:11
+bennespro_app  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+bennespro_app  |     at async testDatabaseConnection (/app/server/db.ts:53:20)
+bennespro_app  |     at async <anonymous> (/app/server/index.ts:28:3) {
+bennespro_app  |   errno: -3001,
+bennespro_app  |   code: 'EAI_AGAIN',
+bennespro_app  |   syscall: 'getaddrinfo',
+bennespro_app  |   hostname: 'base'
+bennespro_app  | }
+bennespro_app  |
+bennespro_app  | Node.js v20.19.3
