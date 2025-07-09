@@ -618,12 +618,26 @@ export class DatabaseStorage implements IStorage {
 
   // Transport Pricing
   async getTransportPricing(): Promise<TransportPricing | undefined> {
-    const [pricing] = await db
-      .select()
-      .from(transportPricing)
-      .where(eq(transportPricing.isActive, true))
-      .orderBy(desc(transportPricing.createdAt));
-    return pricing || undefined;
+    try {
+      console.log('[DEBUG] getTransportPricing called');
+      
+      const result = await db
+        .select()
+        .from(transportPricing)
+        .where(eq(transportPricing.isActive, true))
+        .orderBy(desc(transportPricing.createdAt));
+      
+      console.log('[DEBUG] getTransportPricing query result:', result);
+      console.log('[DEBUG] Result length:', result.length);
+      
+      const [pricing] = result;
+      console.log('[DEBUG] First pricing:', pricing);
+      
+      return pricing || undefined;
+    } catch (error) {
+      console.error('[DEBUG] Error in getTransportPricing:', error);
+      throw error;
+    }
   }
 
   async createTransportPricing(pricing: InsertTransportPricing): Promise<TransportPricing> {
@@ -636,7 +650,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateTransportPricing(pricing: UpdateTransportPricing): Promise<TransportPricing | undefined> {
     // Get the current active pricing
+    console.log('[DEBUG] updateTransportPricing called with:', pricing);
     const current = await this.getTransportPricing();
+    console.log('[DEBUG] Current transport pricing:', current);
+    
     if (!current) {
       throw new Error('No active transport pricing found');
     }
@@ -649,6 +666,8 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(transportPricing.id, current.id))
       .returning();
+    
+    console.log('[DEBUG] Updated transport pricing:', updatedPricing);
     return updatedPricing || undefined;
   }
 
