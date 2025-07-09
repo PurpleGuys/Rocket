@@ -1,8 +1,15 @@
 import { loadStripe } from '@stripe/stripe-js';
+import { STRIPE_PUBLIC_KEY } from './stripe-config';
 
-// PRODUCTION KEY - NO ENV VARIABLES
-const STRIPE_KEY = 'pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS';
+// Create stripe promise with error handling
+let stripePromise = null;
+try {
+  stripePromise = loadStripe(STRIPE_PUBLIC_KEY, { locale: 'fr' });
+  console.log('✅ Stripe configured with production key:', STRIPE_PUBLIC_KEY.substring(0, 15) + '...');
+} catch (error) {
+  console.error('❌ Failed to initialize Stripe:', error);
+  // Return null to avoid breaking the app
+  stripePromise = Promise.resolve(null);
+}
 
-export const stripePromise = loadStripe(STRIPE_KEY, { locale: 'fr' });
-
-console.log('✅ Stripe configured with production key');
+export { stripePromise };
