@@ -20,7 +20,12 @@ import { cn } from "@/lib/utils";
 import { SimpleContainerImage } from "@/components/ui/SimpleContainerImage";
 import FidForm from "./FidForm";
 
-export default function ServiceSelection() {
+interface ServiceSelectionProps {
+  updatePriceData?: (data: any) => void;
+  onContinue?: () => void;
+}
+
+export default function ServiceSelection({ updatePriceData, onContinue }: ServiceSelectionProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
@@ -88,6 +93,21 @@ export default function ServiceSelection() {
       setEndDate(calculatedEndDate);
     }
   }, [startDate, durationDays]);
+
+  // Déclencher automatiquement le calcul du prix quand toutes les données sont présentes
+  useEffect(() => {
+    const shouldCalculate = selectedServiceId && 
+                          selectedWasteType && 
+                          deliveryAddress && 
+                          postalCode && 
+                          city && 
+                          durationDays > 0;
+    
+    if (shouldCalculate) {
+      console.log('Déclenchement automatique du calcul de prix');
+      calculatePricing();
+    }
+  }, [selectedServiceId, selectedWasteType, deliveryAddress, postalCode, city, durationDays]);
 
   // Pré-remplir automatiquement l'adresse de l'entreprise quand sélectionnée
   useEffect(() => {
@@ -159,9 +179,27 @@ export default function ServiceSelection() {
 
   // Fonction pour calculer le prix total
   const calculatePricing = async () => {
-    if (!selectedServiceId || !selectedWasteType || !deliveryAddress) return;
+    if (!selectedServiceId || !selectedWasteType || !deliveryAddress || !postalCode || !city) {
+      console.log('Calcul de prix annulé - données manquantes:', {
+        selectedServiceId,
+        selectedWasteType,
+        deliveryAddress,
+        postalCode,
+        city
+      });
+      return;
+    }
 
     try {
+      console.log('Calcul du prix avec:', {
+        serviceId: selectedServiceId,
+        wasteType: selectedWasteType,
+        address: deliveryAddress,
+        postalCode,
+        city,
+        durationDays
+      });
+
       const response = await fetch('/api/calculate-pricing', {
         method: 'POST',
         headers: {
@@ -171,19 +209,27 @@ export default function ServiceSelection() {
           serviceId: selectedServiceId,
           wasteType: selectedWasteType,
           address: deliveryAddress,
-          distance: distance,
+          postalCode: postalCode,
+          city: city,
           durationDays: durationDays,
           bsdOption: bsdOption
         })
       });
 
       const data = await response.json();
+      console.log('Réponse API calculate-pricing:', data);
 
-      if (data.success) {
+      if (data.success && data.pricing) {
         setPriceData(data.pricing);
+        // Mettre à jour le prix dans le contexte global
+        if (updatePriceData) {
+          updatePriceData(data);
+        }
+      } else {
+        console.error('Erreur API calculate-pricing:', data.message || 'Pas de données de prix');
       }
     } catch (error) {
-      console.error('Pricing calculation error:', error);
+      console.error('Erreur appel API calculate-pricing:', error);
     }
   };
 
@@ -228,11 +274,21 @@ export default function ServiceSelection() {
 
   // Fonction pour procéder à la réservation
   const handleBooking = () => {
-    // Validation complète avant de procéder au checkout
-    if (!selectedServiceId || !deliveryAddress.trim() || !selectedWasteType) {
+    // Validation complète avant de procéder
+    if (!selectedServiceId || !deliveryAddress.trim() || !selectedWasteType || !postalCode || !city) {
       toast({
         title: "Informations manquantes",
         description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Vérifier que le prix est calculé
+    if (!priceData || !priceData.total) {
+      toast({
+        title: "Prix non calculé",
+        description: "Veuillez patienter pendant le calcul du prix.",
         variant: "destructive",
       });
       return;
@@ -259,30 +315,28 @@ export default function ServiceSelection() {
       return;
     }
 
-    // Préparer les données de réservation avec les nouvelles informations de durée
-    const bookingDetails = {
-      serviceId: selectedServiceId,
-      serviceName: service?.name,
-      serviceVolume: service?.volume,
-      address: deliveryAddress,
-      postalCode: postalCode,
-      city: city,
-      wasteTypes: [selectedWasteType],
-      bsdOption: bsdOption,
-      fidData: fidData,
-      distance: distance * 2, // Distance aller-retour
-      // Nouvelles données de durée de location
-      startDate: startDate?.toISOString(),
-      endDate: endDate?.toISOString(),
-      durationDays: durationDays,
-      deliveryLocationType: deliveryLocationType,
-      constructionSiteContactPhone: constructionSiteContactPhone,
-      pricing: priceData
-    };
+    // Sauvegarder les données dans le contexte global via les props
+    const selectedService = services?.find((s: Service) => s.id === selectedServiceId);
+    if (selectedService) {
+      // Mettre à jour le service dans le contexte global
+      sessionStorage.setItem('selectedService', JSON.stringify(selectedService));
+      sessionStorage.setItem('durationDays', durationDays.toString());
+      sessionStorage.setItem('wasteTypes', JSON.stringify([selectedWasteType]));
+      sessionStorage.setItem('address', JSON.stringify({
+        street: deliveryAddress,
+        postalCode: postalCode,
+        city: city
+      }));
+      sessionStorage.setItem('priceData', JSON.stringify(priceData));
+    }
 
-    // Sauvegarder dans sessionStorage et rediriger vers checkout
-    sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
-    setLocation('/checkout');
+    // Appeler la fonction onContinue si elle existe pour passer à l'étape suivante
+    if (onContinue) {
+      onContinue();
+    } else {
+      // Fallback: rediriger vers checkout
+      setLocation('/checkout');
+    }
   };
 
   // Fonction pour gérer la soumission du formulaire FID
@@ -824,9 +878,9 @@ export default function ServiceSelection() {
                   onClick={handleBooking}
                   className="w-full bg-red-600 hover:bg-red-700 text-white"
                   size="lg"
-                  disabled={!selectedServiceId || !deliveryAddress || !selectedWasteType || (bsdOption && !fidData)}
+                  disabled={!selectedServiceId || !deliveryAddress || !selectedWasteType || !priceData || (bsdOption && !fidData)}
                 >
-                  Réserver maintenant
+                  {onContinue ? 'Suivant' : 'Réserver maintenant'}
                 </Button>
               </div>
             ) : (

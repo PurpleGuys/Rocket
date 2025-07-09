@@ -19,7 +19,18 @@ import { Service } from "@shared/schema";
 export default function Home() {
   const [location, navigate] = useLocation();
   const [showBooking, setShowBooking] = useState(location === '/booking');
-  const { currentStep, setCurrentStep, bookingData, resetBooking } = useBookingState();
+  const { 
+    currentStep, 
+    setCurrentStep, 
+    bookingData, 
+    resetBooking, 
+    updatePriceData,
+    updateService,
+    updateAddress,
+    updateWasteTypes,
+    updateDuration,
+    calculatePrice
+  } = useBookingState();
   const { user, isAuthenticated } = useAuth();
   const logoutMutation = useLogout();
 
@@ -50,10 +61,36 @@ export default function Home() {
     resetBooking();
   };
 
+  const handleServiceContinue = () => {
+    // Récupérer les données depuis sessionStorage
+    const selectedService = JSON.parse(sessionStorage.getItem('selectedService') || '{}');
+    const wasteTypes = JSON.parse(sessionStorage.getItem('wasteTypes') || '[]');
+    const address = JSON.parse(sessionStorage.getItem('address') || '{}');
+    const durationDays = parseInt(sessionStorage.getItem('durationDays') || '7');
+    
+    // Mettre à jour le contexte global
+    if (selectedService.id) {
+      updateService(selectedService);
+    }
+    if (wasteTypes.length > 0) {
+      updateWasteTypes(wasteTypes);
+    }
+    if (address.street) {
+      updateAddress(address);
+    }
+    updateDuration(durationDays);
+    
+    // Passer à l'étape suivante
+    setCurrentStep(2);
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <ServiceSelection />;
+        return <ServiceSelection 
+          updatePriceData={updatePriceData} 
+          onContinue={handleServiceContinue}
+        />;
       case 2:
         return <AddressInput />;
       case 3:
@@ -63,7 +100,10 @@ export default function Home() {
       case 5:
         return <OrderConfirmation onNewOrder={handleCloseBooking} />;
       default:
-        return <ServiceSelection />;
+        return <ServiceSelection 
+          updatePriceData={updatePriceData}
+          onContinue={handleServiceContinue}
+        />;
     }
   };
 
@@ -314,7 +354,10 @@ export default function Home() {
         {/* Quick Booking Form */}
         <Card className="max-w-4xl mx-auto shadow-xl">
           <CardContent className="p-8">
-            <ServiceSelection />
+            <ServiceSelection 
+              updatePriceData={updatePriceData}
+              onContinue={handleServiceContinue}
+            />
           </CardContent>
         </Card>
 

@@ -93,13 +93,23 @@ export function useBookingState() {
   // Fonction pour déclencher le calcul de prix via l'API
   const calculatePrice = async () => {
     if (!bookingData.service || !bookingData.address) {
+      console.log('Calcul prix annulé - données manquantes');
       return;
     }
 
     try {
+      console.log('Calcul prix avec:', {
+        serviceId: bookingData.service.id,
+        wasteType: bookingData.wasteTypes[0],
+        address: bookingData.address.street,
+        postalCode: bookingData.address.postalCode,
+        city: bookingData.address.city,
+        durationDays: bookingData.durationDays
+      });
+
       const response = await apiRequest("POST", "/api/calculate-pricing", {
         serviceId: bookingData.service.id,
-        wasteType: bookingData.wasteTypes[0] || "Gravats et matériaux inertes",
+        wasteType: bookingData.wasteTypes[0] || "construction",
         address: bookingData.address.street,
         postalCode: bookingData.address.postalCode,
         city: bookingData.address.city,
@@ -107,15 +117,22 @@ export function useBookingState() {
         bsdOption: false
       });
 
+      console.log('Réponse calcul prix:', response);
       setPriceData(response);
     } catch (error) {
       console.error("Erreur calcul prix:", error);
+      setPriceData(null);
     }
+  };
+
+  // Fonction pour mettre à jour les données de prix (appelée par ServiceSelection)
+  const updatePriceData = (data: any) => {
+    setPriceData(data);
   };
 
   // Fonction pour obtenir les prix calculés
   const calculateTotalPrice = () => {
-    if (!priceData) {
+    if (!priceData || !priceData.pricing) {
       return {
         basePrice: 0,
         durationPrice: 0,
@@ -130,21 +147,25 @@ export function useBookingState() {
       };
     }
 
-    const basePrice = parseFloat(bookingData.service?.basePrice || '0');
-    const transportCost = priceData.transportCost || 0;
-    const totalTreatmentCost = priceData.totalTreatmentCost || 0;
-    const totalHT = basePrice + transportCost + totalTreatmentCost;
+    const pricing = priceData.pricing;
+    const basePrice = pricing.service || 0;
+    const durationPrice = pricing.durationSupplement || 0;
+    const transportCost = pricing.transport || 0;
+    const treatmentCost = pricing.treatment || 0;
+    const bsdCost = pricing.bsd || 0;
+    
+    const totalHT = pricing.total || (basePrice + durationPrice + transportCost + treatmentCost + bsdCost);
     const vat = totalHT * 0.2;
     const totalTTC = totalHT + vat;
 
     return {
       basePrice,
-      durationPrice: 0,
+      durationPrice,
       deliveryFee: 0,
       transportCost,
-      treatmentCosts: priceData.treatmentCosts || {},
-      totalTreatmentCost,
-      maxTonnage: priceData.maxTonnage || 0,
+      treatmentCosts: {},
+      totalTreatmentCost: treatmentCost,
+      maxTonnage: priceData.duration?.maxTonnage || 0,
       totalHT,
       vat,
       totalTTC,
@@ -181,5 +202,6 @@ export function useBookingState() {
     calculatePrice,
     calculateTotalPrice,
     resetBooking,
+    updatePriceData,
   };
 }
