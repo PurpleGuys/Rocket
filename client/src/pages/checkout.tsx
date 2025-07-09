@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, AlertTriangle } from "lucide-react";
+import { Calendar, AlertTriangle, Home, Phone, X } from "lucide-react";
+import { Link } from "wouter";
 
 // Stripe imports supprimés pour mode test
 
@@ -389,10 +390,65 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navigation Header - Matching home page style */}
+      <nav className="bg-white shadow-lg border-b-2 border-red-600 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <Link href="/">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
+                  alt="Remondis" 
+                  className="h-10 sm:h-12 w-auto cursor-pointer"
+                />
+              </Link>
+              <div className="hidden md:flex items-center space-x-2 ml-8">
+                <Link href="/" className="text-gray-700 hover:text-red-600 font-medium transition-colors px-3 py-2">
+                  <Home className="h-4 w-4 inline mr-1" />
+                  Accueil
+                </Link>
+                <Link href="/faq" className="text-gray-700 hover:text-red-600 font-medium transition-colors px-3 py-2">
+                  FAQ
+                </Link>
+                <a href="tel:0344451158" className="text-gray-700 hover:text-red-600 font-medium transition-colors px-3 py-2">
+                  <Phone className="h-4 w-4 inline mr-1" />
+                  03 44 45 11 58
+                </a>
+              </div>
+            </div>
+            {/* Boutons desktop */}
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+              <Link href="/">
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600 hover:text-red-600"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Mobile close button */}
+            <div className="md:hidden">
+              <Link href="/">
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600 hover:text-red-600"
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Finaliser votre réservation</h1>
-          <p className="text-gray-600 mt-2">Complétez votre paiement pour confirmer votre commande</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Finaliser votre réservation</h1>
+          <p className="text-gray-600">Complétez votre paiement pour confirmer votre commande</p>
         </div>
 
         {/* Mode test sans Stripe Elements */}

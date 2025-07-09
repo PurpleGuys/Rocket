@@ -53,14 +53,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassw
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
-        <CardDescription className="text-center">
-          Accédez à votre compte Remondis
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="w-full">
+      <div className="space-y-6">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Adresse email</Label>
@@ -149,6 +143,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassw
               type="button"
               variant="link"
               className="text-sm text-muted-foreground hover:text-primary"
+              onClick={onForgotPassword}
             >
               Mot de passe oublié ?
             </Button>
@@ -168,7 +163,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassw
             )}
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

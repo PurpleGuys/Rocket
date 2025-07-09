@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ArrowLeft } from "lucide-react";
 
 export default function Auth() {
   const [, navigate] = useLocation();
@@ -17,100 +18,97 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="mb-6">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
-              alt="REMONDIS" 
-              className="h-16 w-auto mx-auto"
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            REMONDIS France
-          </h1>
-          <p className="text-gray-600">
-            Gestion professionnelle des déchets
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Back button */}
+      <div className="absolute top-8 left-8">
+        <Link href="/">
+          <Button 
+            variant="ghost"
+            size="sm"
+            className="text-gray-600 hover:text-red-600"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour à l'accueil
+          </Button>
+        </Link>
+      </div>
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register" | "forgot")}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Connexion</TabsTrigger>
-            <TabsTrigger value="register">Inscription</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="login" className="mt-6">
-            <LoginForm
-              onSuccess={handleAuthSuccess}
-              onSwitchToRegister={() => setActiveTab("register")}
-              onForgotPassword={() => setActiveTab("forgot")}
-            />
-          </TabsContent>
-
-          <TabsContent value="register" className="mt-6">
-            <RegisterForm
-              onSuccess={handleAuthSuccess}
-              onSwitchToLogin={() => setActiveTab("login")}
-            />
-          </TabsContent>
-
-          <TabsContent value="forgot" className="mt-6">
-            <ForgotPasswordForm
-              onBackToLogin={() => setActiveTab("login")}
-            />
-          </TabsContent>
-        </Tabs>
-
-        {/* Liens légaux */}
-        <div className="mt-8 text-center">
-          <Separator className="mb-4" />
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>En vous inscrivant, vous acceptez nos :</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => navigate("/legal")}
-                className="text-red-600 hover:text-red-700 p-0 h-auto"
-              >
-                Conditions Générales de Vente
-              </Button>
-              <span>•</span>
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => navigate("/privacy-policy")}
-                className="text-red-600 hover:text-red-700 p-0 h-auto"
-              >
-                Politique de Confidentialité
-              </Button>
+      <div className="flex items-center justify-center min-h-screen py-12 px-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="mb-6">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/3/32/Remondis_logo.svg" 
+                alt="REMONDIS" 
+                className="h-12 w-auto mx-auto"
+              />
             </div>
-            <div className="flex justify-center">
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => navigate("/retraction-rights")}
-                className="text-red-600 hover:text-red-700 p-0 h-auto"
-              >
-                Droit de Rétractation
-              </Button>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+              Connexion à votre espace
+            </h1>
+            <p className="text-gray-600 text-sm">
+              Gérez vos réservations et suivez vos commandes
+            </p>
+          </div>
+
+          <Card className="shadow-sm border-gray-200">
+            <CardContent className="p-0">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register" | "forgot")}>
+                <TabsList className="grid w-full grid-cols-2 rounded-t-lg rounded-b-none h-12">
+                  <TabsTrigger value="login" className="data-[state=active]:bg-white data-[state=active]:text-red-600">
+                    Connexion
+                  </TabsTrigger>
+                  <TabsTrigger value="register" className="data-[state=active]:bg-white data-[state=active]:text-red-600">
+                    Inscription
+                  </TabsTrigger>
+                </TabsList>
+
+                <div className="p-6">
+                  <TabsContent value="login" className="mt-0">
+                    <LoginForm
+                      onSuccess={handleAuthSuccess}
+                      onSwitchToRegister={() => setActiveTab("register")}
+                      onForgotPassword={() => setActiveTab("forgot")}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="register" className="mt-0">
+                    <RegisterForm
+                      onSuccess={handleAuthSuccess}
+                      onSwitchToLogin={() => setActiveTab("login")}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="forgot" className="mt-0">
+                    <ForgotPasswordForm
+                      onBackToLogin={() => setActiveTab("login")}
+                    />
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Liens légaux */}
+          <div className="mt-8 text-center">
+            <Separator className="mb-4" />
+            <div className="text-xs text-gray-500">
+              <p className="mb-2">En vous inscrivant, vous acceptez nos</p>
+              <div className="flex flex-wrap justify-center gap-1">
+                <Link href="/legal" className="text-red-600 hover:text-red-700 hover:underline">
+                  Conditions Générales
+                </Link>
+                <span>•</span>
+                <Link href="/privacy-policy" className="text-red-600 hover:text-red-700 hover:underline">
+                  Politique de Confidentialité
+                </Link>
+                <span>•</span>
+                <Link href="/retraction-rights" className="text-red-600 hover:text-red-700 hover:underline">
+                  Droit de Rétractation
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            En vous connectant, vous acceptez nos{" "}
-            <a href="#" className="text-red-600 hover:underline">
-              conditions d'utilisation
-            </a>{" "}
-            et notre{" "}
-            <a href="#" className="text-red-600 hover:underline">
-              politique de confidentialité
-            </a>
-          </p>
         </div>
       </div>
     </div>

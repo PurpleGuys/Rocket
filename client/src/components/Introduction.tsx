@@ -254,7 +254,7 @@ export default function Introduction() {
                   </Button>
                 </Link>
                 <Link href="/auth/register" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full border-2 border-white text-white hover:bg-white/20 px-6 sm:px-8 py-4 text-base sm:text-lg font-semibold btn-touch">
+                  <Button size="lg" className="w-full bg-white/10 text-white hover:bg-white/20 border-2 border-white px-6 sm:px-8 py-4 text-base sm:text-lg font-semibold shadow-xl backdrop-blur-sm btn-touch">
                     <ArrowRight className="mr-2 h-5 w-5" />
                     Créer mon Compte Pro
                   </Button>
