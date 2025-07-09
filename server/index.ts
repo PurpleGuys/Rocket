@@ -31,6 +31,26 @@ function log(message: string, source = "express", level = "INFO") {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+  // Security headers with Helmet
+  if (process.env.NODE_ENV === "production") {
+    const helmet = (await import("helmet")).default;
+    app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com", "https://maps.googleapis.com"],
+          imgSrc: ["'self'", "data:", "https:", "blob:"],
+          connectSrc: ["'self'", "https://api.stripe.com", "https://maps.googleapis.com"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          frameSrc: ["'self'", "https://js.stripe.com"]
+        }
+      },
+      crossOriginEmbedderPolicy: false
+    }));
+    log("🔒 Security headers configured with Helmet", "STARTUP", "SUCCESS");
+  }
+
   // CORS for development
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");

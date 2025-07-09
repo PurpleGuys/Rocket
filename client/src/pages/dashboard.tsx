@@ -685,9 +685,42 @@ function UsersManagementPage() {
           </div>
           <div className="flex gap-2">
             <Button 
-              onClick={() => {
-                // Export to Excel
-                window.open('/api/admin/users/export', '_blank');
+              onClick={async () => {
+                try {
+                  const token = localStorage.getItem('auth_token');
+                  const response = await fetch('/api/export/users', {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                    },
+                  });
+
+                  if (!response.ok) {
+                    throw new Error('Export failed');
+                  }
+
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `utilisateurs_${new Date().toISOString().split('T')[0]}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                  
+                  toast({
+                    title: "Export réussi",
+                    description: "Le fichier Excel des utilisateurs a été téléchargé avec succès.",
+                  });
+                } catch (error) {
+                  console.error('Export error:', error);
+                  toast({
+                    title: "Erreur",
+                    description: "Erreur lors de l'export Excel des utilisateurs",
+                    variant: "destructive",
+                  });
+                }
               }}
               variant="outline"
               className="border-green-600 text-green-600 hover:bg-green-50"
@@ -2747,8 +2780,7 @@ function TransportPricingPage() {
   // Mutation pour mettre à jour les tarifs
   const updatePricingMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("PUT", "/api/admin/transport-pricing", data);
-      return response.json();
+      return apiRequest("PUT", "/api/admin/transport-pricing", data);
     },
     onSuccess: () => {
       toast({
@@ -2758,9 +2790,10 @@ function TransportPricingPage() {
       refetch();
     },
     onError: (error: any) => {
+      console.error("Erreur mise à jour tarifs transport:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de sauvegarder les tarifs de transport.",
+        description: error.message || "Impossible de sauvegarder les tarifs de transport.",
         variant: "destructive",
       });
     },
