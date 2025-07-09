@@ -96,7 +96,7 @@ function CheckoutForm() {
         paymentStatus: "pending",
       };
 
-      const orderResponse = await apiRequest("POST", "/api/orders", orderData);
+      const orderResponse = await apiRequest("/api/orders", "POST", orderData);
       const order = await orderResponse.json();
 
       // Update customer in booking state

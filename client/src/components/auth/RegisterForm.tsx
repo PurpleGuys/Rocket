@@ -90,7 +90,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      return apiRequest("POST", "/api/auth/register", {
+      return apiRequest("/api/auth/register", "POST", {
         ...data,
         isCompany: data.accountType === "professionnel",
       });

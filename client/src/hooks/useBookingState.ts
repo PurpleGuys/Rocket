@@ -107,7 +107,7 @@ export function useBookingState() {
         durationDays: bookingData.durationDays
       });
 
-      const response = await apiRequest("POST", "/api/calculate-pricing", {
+      const response = await apiRequest("/api/calculate-pricing", "POST", {
         serviceId: bookingData.service.id,
         wasteType: bookingData.wasteTypes[0] || "construction",
         address: bookingData.address.street,

@@ -63,7 +63,7 @@ export default function AdminFids() {
   const { data: fids = [], isLoading } = useQuery({
     queryKey: ["/api/admin/fids", filterStatus, searchTerm],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/admin/fids");
+      const response = await apiRequest("/api/admin/fids", "GET");
       return response.json();
     },
   });
@@ -107,7 +107,7 @@ export default function AdminFids() {
 
   const exportToPdf = async (fidId: number) => {
     try {
-      const response = await apiRequest("GET", `/api/admin/fids/${fidId}/export-pdf`);
+      const response = await apiRequest(`/api/admin/fids/${fidId}/export-pdf`, "GET");
       const data = await response.json();
       
       if (!data.success) {

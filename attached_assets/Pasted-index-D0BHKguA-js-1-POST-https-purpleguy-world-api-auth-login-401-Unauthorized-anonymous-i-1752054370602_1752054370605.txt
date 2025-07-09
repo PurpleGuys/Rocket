@@ -1,0 +1,65 @@
+index-D0BHKguA.js:1   POST https://purpleguy.world/api/auth/login 401 (Unauthorized)
+(anonymous) @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+Di @ index-D0BHKguA.js:1
+Oi @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:20
+(anonymous) @ index-D0BHKguA.js:20
+(anonymous) @ index-D0BHKguA.js:20
+(anonymous) @ index-D0BHKguA.js:20
+Op @ index-D0BHKguA.js:20
+mutationFn @ index-D0BHKguA.js:20
+fn @ index-D0BHKguA.js:1
+u @ index-D0BHKguA.js:1
+start @ index-D0BHKguA.js:1
+execute @ index-D0BHKguA.js:1
+await in execute
+mutate @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:20
+(anonymous) @ index-D0BHKguA.js:20
+await in (anonymous)
+Cn @ vendor-Bjk0m85c.js:20
+Ln @ vendor-Bjk0m85c.js:20
+(anonymous) @ vendor-Bjk0m85c.js:20
+_l @ vendor-Bjk0m85c.js:20
+Pl @ vendor-Bjk0m85c.js:20
+(anonymous) @ vendor-Bjk0m85c.js:20
+Zs @ vendor-Bjk0m85c.js:20
+wn @ vendor-Bjk0m85c.js:20
+Ml @ vendor-Bjk0m85c.js:20
+It @ vendor-Bjk0m85c.js:20
+Ft @ vendor-Bjk0m85c.js:20
+index-D0BHKguA.js:1   PUT https://purpleguy.world/api/admin/transport-pricing 500 (Internal Server Error)
+(anonymous) @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+Di @ index-D0BHKguA.js:1
+Oi @ index-D0BHKguA.js:1
+mutationFn @ index-D0BHKguA.js:20
+fn @ index-D0BHKguA.js:1
+u @ index-D0BHKguA.js:1
+start @ index-D0BHKguA.js:1
+execute @ index-D0BHKguA.js:1
+await in execute
+mutate @ index-D0BHKguA.js:1
+(anonymous) @ index-D0BHKguA.js:1
+onSubmit @ index-D0BHKguA.js:20
+Cn @ vendor-Bjk0m85c.js:20
+Ln @ vendor-Bjk0m85c.js:20
+(anonymous) @ vendor-Bjk0m85c.js:20
+_l @ vendor-Bjk0m85c.js:20
+Pl @ vendor-Bjk0m85c.js:20
+(anonymous) @ vendor-Bjk0m85c.js:20
+Zs @ vendor-Bjk0m85c.js:20
+wn @ vendor-Bjk0m85c.js:20
+Ml @ vendor-Bjk0m85c.js:20
+It @ vendor-Bjk0m85c.js:20
+Ft @ vendor-Bjk0m85c.js:20
+index-D0BHKguA.js:20  Erreur mise à jour tarifs transport: Error: 500: {"message":"Error updating transport pricing: No active transport pricing found"}
+    at index-D0BHKguA.js:1:47873
+    at index-D0BHKguA.js:1:47577
+    at Object.next (index-D0BHKguA.js:1:47682)
+    at i (index-D0BHKguA.js:1:46328)

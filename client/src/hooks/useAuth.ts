@@ -28,8 +28,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (data: LoginUser) => {
-      const response = await apiRequest("POST", "/api/auth/login", data);
-      return response.json();
+      const response = await apiRequest("/api/auth/login", "POST", data);
+      return response;
     },
     onSuccess: (data) => {
       // Store tokens
@@ -73,8 +73,8 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: async (data: InsertUser) => {
-      const response = await apiRequest("POST", "/api/auth/register", data);
-      return response.json();
+      const response = await apiRequest("/api/auth/register", "POST", data);
+      return response;
     },
     onSuccess: (data) => {
       toast({
@@ -105,8 +105,8 @@ export function useLogout() {
         headers["x-session-token"] = sessionToken;
       }
       
-      const response = await apiRequest("POST", "/api/auth/logout", {});
-      return response.json();
+      const response = await apiRequest("/api/auth/logout", "POST", {});
+      return response;
     },
     onSuccess: () => {
       // Clear tokens
@@ -142,8 +142,8 @@ export function useUpdateProfile() {
 
   return useMutation({
     mutationFn: async (data: UpdateUser) => {
-      const response = await apiRequest("PATCH", "/api/auth/profile", data);
-      return response.json();
+      const response = await apiRequest("/api/auth/profile", "PATCH", data);
+      return response;
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["/api/auth/me"], data.user);
@@ -169,8 +169,8 @@ export function useChangePassword() {
 
   return useMutation({
     mutationFn: async (data: ChangePassword) => {
-      const response = await apiRequest("POST", "/api/auth/change-password", data);
-      return response.json();
+      const response = await apiRequest("/api/auth/change-password", "POST", data);
+      return response;
     },
     onSuccess: (data) => {
       toast({
@@ -201,8 +201,8 @@ export function useLogoutAllDevices() {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("DELETE", "/api/auth/sessions");
-      return response.json();
+      const response = await apiRequest("/api/auth/sessions", "DELETE");
+      return response;
     },
     onSuccess: (data) => {
       // Clear tokens and cache
@@ -230,8 +230,8 @@ export function useVerifyEmail() {
 
   return useMutation({
     mutationFn: async (token: string) => {
-      const response = await apiRequest("POST", "/api/auth/verify-email", { token });
-      return response.json();
+      const response = await apiRequest("/api/auth/verify-email", "POST", { token });
+      return response;
     },
     onSuccess: (data) => {
       toast({
@@ -254,8 +254,8 @@ export function useResendVerification() {
 
   return useMutation({
     mutationFn: async (email: string) => {
-      const response = await apiRequest("POST", "/api/auth/resend-verification", { email });
-      return response.json();
+      const response = await apiRequest("/api/auth/resend-verification", "POST", { email });
+      return response;
     },
     onSuccess: (data) => {
       toast({

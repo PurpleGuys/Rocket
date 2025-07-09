@@ -45,7 +45,7 @@ export default function AdminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["/api/admin/users"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/admin/users");
+      const response = await apiRequest("/api/admin/users", "GET");
       // S'assurer que la réponse est un tableau
       return Array.isArray(response) ? response : [];
     },
@@ -91,7 +91,7 @@ export default function AdminUsers() {
 
   // Delete user mutation
   const deleteUserMutation = useMutation({
-    mutationFn: (userId: number) => apiRequest("DELETE", `/api/admin/users/${userId}`),
+    mutationFn: (userId: number) => apiRequest(`/api/admin/users/${userId}`, "DELETE"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({
@@ -111,7 +111,7 @@ export default function AdminUsers() {
   // Toggle user status mutation
   const toggleUserStatusMutation = useMutation({
     mutationFn: ({ userId, isActive }: { userId: number; isActive: boolean }) =>
-      apiRequest("PATCH", `/api/admin/users/${userId}`, { isActive }),
+      apiRequest(`/api/admin/users/${userId}`, "PATCH", { isActive }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({

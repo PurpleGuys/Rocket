@@ -477,7 +477,7 @@ function UsersManagementPage() {
   // Mutation pour créer un utilisateur
   const createUserMutation = useMutation({
     mutationFn: async (userData: any) => {
-      const response = await apiRequest("POST", "/api/admin/users", userData);
+      const response = await apiRequest("/api/admin/users", "POST", userData);
       return response.json();
     },
     onSuccess: () => {
@@ -500,7 +500,7 @@ function UsersManagementPage() {
   // Mutation pour mettre à jour un utilisateur
   const updateUserMutation = useMutation({
     mutationFn: async ({ userId, userData }: { userId: number; userData: any }) => {
-      const response = await apiRequest("PUT", `/api/admin/users/${userId}`, userData);
+      const response = await apiRequest(`/api/admin/users/${userId}`, "PUT", userData);
       return response.json();
     },
     onSuccess: () => {
@@ -524,7 +524,7 @@ function UsersManagementPage() {
   // Mutation pour vérifier manuellement un utilisateur
   const verifyUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      const response = await apiRequest("POST", `/api/admin/users/${userId}/verify`, {});
+      const response = await apiRequest(`/api/admin/users/${userId}/verify`, "POST", {});
       return response.json();
     },
     onSuccess: () => {
@@ -546,7 +546,7 @@ function UsersManagementPage() {
   // Mutation pour supprimer un utilisateur
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      await apiRequest("DELETE", `/api/admin/users/${userId}`);
+      await apiRequest(`/api/admin/users/${userId}`, "DELETE");
     },
     onSuccess: () => {
       toast({
@@ -567,7 +567,7 @@ function UsersManagementPage() {
   // Mutation pour gérer les notifications d'inactivité
   const toggleNotificationMutation = useMutation({
     mutationFn: async ({ userId, enabled }: { userId: number; enabled: boolean }) => {
-      const response = await apiRequest("PATCH", `/api/admin/users/${userId}/notifications`, {
+      const response = await apiRequest(`/api/admin/users/${userId}/notifications`, "PATCH", {
         notifyOnInactivity: enabled
       });
       return response.json();
@@ -2780,7 +2780,7 @@ function TransportPricingPage() {
   // Mutation pour mettre à jour les tarifs
   const updatePricingMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("PUT", "/api/admin/transport-pricing", data);
+      return apiRequest("/api/admin/transport-pricing", "PUT", data);
     },
     onSuccess: () => {
       toast({
@@ -3070,7 +3070,7 @@ function TreatmentPricingPage() {
   // Mutation pour créer un type de déchet
   const createWasteTypeMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("POST", "/api/admin/waste-types", data);
+      const response = await apiRequest("/api/admin/waste-types", "POST", data);
       return response.json();
     },
     onSuccess: (createdWasteType) => {
@@ -3092,7 +3092,7 @@ function TreatmentPricingPage() {
   const createTreatmentPricingMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("Données envoyées pour création:", data);
-      const response = await apiRequest("POST", "/api/admin/treatment-pricing", data);
+      const response = await apiRequest("/api/admin/treatment-pricing", "POST", data);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `Erreur ${response.status}`);
@@ -3124,7 +3124,7 @@ function TreatmentPricingPage() {
   // Mutation pour mettre à jour un tarif de traitement
   const updateTreatmentPricingMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("PUT", `/api/admin/treatment-pricing/${data.id}`, data);
+      const response = await apiRequest(`/api/admin/treatment-pricing/${data.id}`, "PUT", data);
       return response.json();
     },
     onSuccess: () => {
@@ -3150,7 +3150,7 @@ function TreatmentPricingPage() {
   // Mutation pour supprimer un tarif de traitement
   const deleteTreatmentPricingMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest("DELETE", `/api/admin/treatment-pricing/${id}`);
+      const response = await apiRequest(`/api/admin/treatment-pricing/${id}`, "DELETE");
       return response.json();
     },
     onSuccess: () => {
@@ -4424,7 +4424,7 @@ function BankDepositsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/admin/bank-deposits", data),
+    mutationFn: (data: any) => apiRequest("/api/admin/bank-deposits", "POST", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/bank-deposits"] });
       setIsDialogOpen(false);
@@ -4443,7 +4443,7 @@ function BankDepositsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => apiRequest("PUT", `/api/admin/bank-deposits/${id}`, data),
+    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/bank-deposits/${id}`, "PUT", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/bank-deposits"] });
       setIsDialogOpen(false);
@@ -4463,7 +4463,7 @@ function BankDepositsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/bank-deposits/${id}`),
+    mutationFn: (id: number) => apiRequest(`/api/admin/bank-deposits/${id}`, "DELETE"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/bank-deposits"] });
       toast({

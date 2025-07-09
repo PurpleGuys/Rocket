@@ -79,7 +79,7 @@ export default function FidDetailModal({ fid, isOpen, onClose }: FidDetailModalP
   // Update FID mutation
   const updateFidMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("PUT", `/api/admin/fids/${fid.id}`, data);
+      const response = await apiRequest(`/api/admin/fids/${fid.id}`, "PUT", data);
       return response.json();
     },
     onSuccess: () => {
@@ -102,7 +102,7 @@ export default function FidDetailModal({ fid, isOpen, onClose }: FidDetailModalP
   // Validate FID mutation
   const validateFidMutation = useMutation({
     mutationFn: async ({ status, comment }: { status: 'validated' | 'rejected'; comment?: string }) => {
-      const response = await apiRequest("PUT", `/api/admin/fids/${fid.id}/validate`, {
+      const response = await apiRequest(`/api/admin/fids/${fid.id}/validate`, "PUT", {
         status,
         adminComments: comment
       });

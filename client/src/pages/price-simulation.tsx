@@ -102,7 +102,7 @@ export default function PriceSimulation() {
     setAddress(value);
     if (value.length > 3) {
       try {
-        const response = await apiRequest("GET", `/api/places/autocomplete?input=${encodeURIComponent(value)}`);
+        const response = await apiRequest(`/api/places/autocomplete?input=${encodeURIComponent(value)}`, "GET");
         const data = await response.json();
         setAddressSuggestions(data.suggestions || []);
         setShowSuggestions(true);
@@ -134,7 +134,7 @@ export default function PriceSimulation() {
 
     setIsCalculating(true);
     try {
-      const response = await apiRequest("POST", "/api/calculate-pricing", {
+      const response = await apiRequest("/api/calculate-pricing", "POST", {
         serviceId: selectedServiceId,
         address,
         postalCode,
@@ -171,7 +171,7 @@ export default function PriceSimulation() {
         throw new Error("Données manquantes");
       }
 
-      const response = await apiRequest("POST", "/api/orders/test", {
+      const response = await apiRequest("/api/orders/test", "POST", {
         serviceId: selectedServiceId,
         wasteTypes: selectedWasteTypes,
         deliveryDate: deliveryDate?.toISOString(),
