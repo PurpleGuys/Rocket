@@ -11,12 +11,14 @@ import { useBookingState } from "@/hooks/useBookingState";
 import { stripePromise } from "@/lib/stripe";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Lock, Shield, AlertCircle } from "lucide-react";
+import { CreditCard, Lock, Shield, AlertCircle, ExternalLink } from "lucide-react";
+import { useLocation } from "wouter";
 
 function CheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const { bookingData, updateCustomer, setCurrentStep, calculateTotalPrice } = useBookingState();
   const [isProcessing, setIsProcessing] = useState(false);
   const [stripeError, setStripeError] = useState<string | null>(null);
@@ -46,6 +48,37 @@ function CheckoutForm() {
   }, []);
 
   const pricing = calculateTotalPrice();
+
+  // Sauvegarder les données dans sessionStorage pour la page checkout
+  useEffect(() => {
+    if (bookingData.service && bookingData.address && bookingData.deliveryTimeSlot) {
+      const bookingDetails = {
+        serviceId: bookingData.service.id,
+        serviceName: bookingData.service.name,
+        serviceVolume: bookingData.service.volume,
+        address: bookingData.address.street,
+        postalCode: bookingData.address.postalCode,
+        city: bookingData.address.city,
+        wasteTypes: bookingData.wasteTypes,
+        distance: 0, // Distance calculée côté serveur
+        pricing: {
+          service: pricing.basePrice,
+          transport: pricing.transportCost,
+          total: pricing.totalTTC
+        }
+      };
+      sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+      
+      // Sauvegarder aussi les dates
+      const bookingDates = {
+        deliveryDate: bookingData.deliveryTimeSlot.date,
+        pickupDate: bookingData.pickupTimeSlot?.date,
+        deliveryTimeSlot: bookingData.deliveryTimeSlot,
+        pickupTimeSlot: bookingData.pickupTimeSlot
+      };
+      localStorage.setItem('bookingDates', JSON.stringify(bookingDates));
+    }
+  }, [bookingData, pricing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -305,29 +338,52 @@ function CheckoutForm() {
         </CardContent>
       </Card>
 
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        className="w-full bg-red-600 hover:bg-red-700 text-lg py-4 h-auto"
-        disabled={!stripe || isProcessing || !!stripeError}
-      >
-        {isProcessing ? (
-          <>
-            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-            Traitement...
-          </>
-        ) : stripeError ? (
-          <>
-            <AlertCircle className="h-5 w-5 mr-2" />
-            Paiement indisponible
-          </>
-        ) : (
-          <>
-            <Lock className="h-5 w-5 mr-2" />
-            Payer {pricing.totalTTC.toFixed(2)}€
-          </>
-        )}
-      </Button>
+      {/* Submit Buttons */}
+      <div className="space-y-3">
+        <Button
+          type="button"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-4 h-auto"
+          onClick={() => {
+            // Sauvegarder les informations client avant de naviguer
+            updateCustomer({
+              firstName: customerInfo.firstName,
+              lastName: customerInfo.lastName,
+              email: customerInfo.email,
+              phone: customerInfo.phone,
+            });
+            // Naviguer vers la page checkout séparée
+            setLocation('/checkout');
+          }}
+        >
+          <ExternalLink className="h-5 w-5 mr-2" />
+          Continuer vers la page de paiement
+        </Button>
+        
+        <div className="text-center text-sm text-gray-500">ou</div>
+        
+        <Button
+          type="submit"
+          className="w-full bg-red-600 hover:bg-red-700 text-lg py-4 h-auto"
+          disabled={!stripe || isProcessing || !!stripeError}
+        >
+          {isProcessing ? (
+            <>
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+              Traitement...
+            </>
+          ) : stripeError ? (
+            <>
+              <AlertCircle className="h-5 w-5 mr-2" />
+              Paiement indisponible
+            </>
+          ) : (
+            <>
+              <Lock className="h-5 w-5 mr-2" />
+              Payer {pricing.totalTTC.toFixed(2)}€
+            </>
+          )}
+        </Button>
+      </div>
 
       <div className="text-center">
         <p className="text-xs text-slate-500 flex items-center justify-center">
