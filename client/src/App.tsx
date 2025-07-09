@@ -25,6 +25,7 @@ import ValidateDelivery from "@/pages/validate-delivery";
 import FAQ from "@/pages/FAQ";
 import Introduction from "@/components/Introduction";
 import CookieConsent from "@/components/CookieConsent";
+import AuthTest from "@/pages/auth-test";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -66,6 +67,7 @@ function Router() {
       <Route path="/validate-delivery" component={ValidateDelivery} />
       <Route path="/faq" component={FAQ} />
       <Route path="/introduction" component={Introduction} />
+      <Route path="/auth-test" component={AuthTest} />
       <Route path="/" component={Introduction} />
       <Route component={NotFound} />
     </Switch>

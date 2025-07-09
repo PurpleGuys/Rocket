@@ -17,7 +17,7 @@ export default function BookingRedesign() {
 
   // Get current user
   const { data: user } = useQuery({
-    queryKey: ['/api/users/me'],
+    queryKey: ['/api/auth/me'],
     retry: false
   });
 
