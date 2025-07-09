@@ -1160,7 +1160,7 @@ function OrdersManagementSection({ allOrders }: { allOrders: any }) {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ orderId, newStatus }: { orderId: number; newStatus: string }) => {
-      await apiRequest(`/api/admin/orders/${orderId}/status`, 'PUT', { status: newStatus });
+      await apiRequest('PUT', `/api/admin/orders/${orderId}/status`, { status: newStatus });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
@@ -1682,7 +1682,7 @@ function OrdersPage() {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ orderId, newStatus }: { orderId: number; newStatus: string }) => {
-      await apiRequest(`/api/admin/orders/${orderId}/status`, 'PUT', { status: newStatus });
+      await apiRequest('PUT', `/api/admin/orders/${orderId}/status`, { status: newStatus });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
@@ -5326,7 +5326,7 @@ function DeliveryDateConfirmDialog({ order, onSuccess }: { order: any; onSuccess
 
   const confirmDateMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest(`/api/admin/orders/${order.id}/validate-delivery-date`, 'PUT', {
+      await apiRequest('PUT', `/api/admin/orders/${order.id}/validate-delivery-date`, {
         confirmedDate: order.deliveryDate
       });
     },
@@ -5383,7 +5383,7 @@ function DeliveryDateModifyDialog({ order, onSuccess }: { order: any; onSuccess:
 
   const modifyDateMutation = useMutation({
     mutationFn: async (proposedDate: string) => {
-      await apiRequest(`/api/admin/orders/${order.id}/propose-delivery-date`, 'PUT', {
+      await apiRequest('PUT', `/api/admin/orders/${order.id}/propose-delivery-date`, {
         proposedDate
       });
     },
