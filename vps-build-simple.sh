@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "🚀 BUILD SIMPLE SANS QT"
+echo ""
+echo "Exécutez ces commandes sur votre VPS:"
+echo ""
+echo "cd /home/ubuntu/JobDone"
+echo ""
+echo "# 1. Désactiver Qt et builder uniquement le frontend"
+echo "export QT_QPA_PLATFORM=offscreen"
+echo "npx vite build"
+echo ""
+echo "# 2. Démarrer directement sans le build complet"
+echo "export NODE_ENV=production"
+echo "export VITE_STRIPE_PUBLIC_KEY=\"pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS\""
+echo "npx tsx server/index.ts"
