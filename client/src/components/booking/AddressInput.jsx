@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,18 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useBookingState } from "@/hooks/useBookingState";
 import { MapPin, Search } from "lucide-react";
 export default function AddressInput() {
-    var _a, _b, _c, _d, _e;
-    var _f = useBookingState(), bookingData = _f.bookingData, updateAddress = _f.updateAddress;
-    var _g = useState({
-        street: ((_a = bookingData.address) === null || _a === void 0 ? void 0 : _a.street) || "",
-        city: ((_b = bookingData.address) === null || _b === void 0 ? void 0 : _b.city) || "",
-        postalCode: ((_c = bookingData.address) === null || _c === void 0 ? void 0 : _c.postalCode) || "",
-        country: ((_d = bookingData.address) === null || _d === void 0 ? void 0 : _d.country) || "FR",
-        deliveryNotes: ((_e = bookingData.address) === null || _e === void 0 ? void 0 : _e.deliveryNotes) || "",
-    }), formData = _g[0], setFormData = _g[1];
-    var _h = useState(""), addressSearch = _h[0], setAddressSearch = _h[1];
-    var calculatedDistance = useState(12)[0]; // Mock distance calculation
-    useEffect(function () {
+    const { bookingData, updateAddress } = useBookingState();
+    const [formData, setFormData] = useState({
+        street: bookingData.address?.street || "",
+        city: bookingData.address?.city || "",
+        postalCode: bookingData.address?.postalCode || "",
+        country: bookingData.address?.country || "FR",
+        deliveryNotes: bookingData.address?.deliveryNotes || "",
+    });
+    const [addressSearch, setAddressSearch] = useState("");
+    const calculatedDistance = useState(12)[0]; // Mock distance calculation
+    useEffect(() => {
         // Update address when form data changes
         if (formData.street && formData.city && formData.postalCode) {
             updateAddress({
@@ -41,11 +29,12 @@ export default function AddressInput() {
             });
         }
     }, [formData, updateAddress]);
-    var handleInputChange = function (field, value) {
-        setFormData(function (prev) {
-            var _a;
-            return (__assign(__assign({}, prev), (_a = {}, _a[field] = value, _a)));
-        });
+    
+    const handleInputChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
     };
     return (<div className="space-y-6">
       <div className="flex items-center mb-6">
@@ -61,7 +50,7 @@ export default function AddressInput() {
               Rechercher une adresse
             </Label>
             <div className="relative">
-              <Input id="address-search" placeholder="Tapez votre adresse..." value={addressSearch} onChange={function (e) { return setAddressSearch(e.target.value); }} className="pr-10"/>
+              <Input id="address-search" placeholder="Tapez votre adresse..." value={addressSearch} onChange={(e) => setAddressSearch(e.target.value)} className="pr-10"/>
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4"/>
             </div>
             <p className="text-sm text-slate-500 mt-1">
@@ -75,13 +64,13 @@ export default function AddressInput() {
               <Label htmlFor="street" className="text-sm font-medium text-slate-700 mb-2 block">
                 Numéro et rue *
               </Label>
-              <Input id="street" required value={formData.street} onChange={function (e) { return handleInputChange("street", e.target.value); }} placeholder="123 Rue de la République"/>
+              <Input id="street" required value={formData.street} onChange={(e) => handleInputChange("street", e.target.value)} placeholder="123 Rue de la République"/>
             </div>
             <div>
               <Label htmlFor="city" className="text-sm font-medium text-slate-700 mb-2 block">
                 Ville *
               </Label>
-              <Input id="city" required value={formData.city} onChange={function (e) { return handleInputChange("city", e.target.value); }} placeholder="Paris"/>
+              <Input id="city" required value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} placeholder="Paris"/>
             </div>
           </div>
 
@@ -90,13 +79,13 @@ export default function AddressInput() {
               <Label htmlFor="postal-code" className="text-sm font-medium text-slate-700 mb-2 block">
                 Code postal *
               </Label>
-              <Input id="postal-code" required value={formData.postalCode} onChange={function (e) { return handleInputChange("postalCode", e.target.value); }} placeholder="75001"/>
+              <Input id="postal-code" required value={formData.postalCode} onChange={(e) => handleInputChange("postalCode", e.target.value)} placeholder="75001"/>
             </div>
             <div>
               <Label htmlFor="country" className="text-sm font-medium text-slate-700 mb-2 block">
                 Pays
               </Label>
-              <Select value={formData.country} onValueChange={function (value) { return handleInputChange("country", value); }}>
+              <Select value={formData.country} onValueChange={(value) => handleInputChange("country", value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -113,7 +102,7 @@ export default function AddressInput() {
             <Label htmlFor="delivery-notes" className="text-sm font-medium text-slate-700 mb-2 block">
               Instructions de livraison
             </Label>
-            <Textarea id="delivery-notes" rows={3} placeholder="Informations complémentaires pour la livraison (accès difficile, étage, etc.)" value={formData.deliveryNotes} onChange={function (e) { return handleInputChange("deliveryNotes", e.target.value); }}/>
+            <Textarea id="delivery-notes" rows={3} placeholder="Informations complémentaires pour la livraison (accès difficile, étage, etc.)" value={formData.deliveryNotes} onChange={(e) => handleInputChange("deliveryNotes", e.target.value)}/>
           </div>
 
           {/* Delivery Distance Calculator */}

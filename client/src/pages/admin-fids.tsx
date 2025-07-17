@@ -64,7 +64,7 @@ export default function AdminFids() {
     queryKey: ["/api/admin/fids", filterStatus, searchTerm],
     queryFn: async () => {
       const response = await apiRequest("/api/admin/fids", "GET");
-      return response.json();
+      return response;
     },
   });
 

@@ -12,6 +12,15 @@ export function useAuth() {
     refetchOnMount: true,
     refetchInterval: false,
     enabled: true,
+    // Prevent unhandled promise rejections
+    throwOnError: false,
+    // Handle errors gracefully
+    onError: (error: any) => {
+      // Only log non-authentication errors
+      if (!error.message?.includes('401') && !error.message?.includes('403')) {
+        console.error('Auth error:', error);
+      }
+    },
   });
 
   return {

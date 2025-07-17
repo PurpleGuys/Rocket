@@ -2,8 +2,13 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    try {
+      const text = (await res.text()) || res.statusText;
+      throw new Error(`${res.status}: ${text}`);
+    } catch (e) {
+      // Handle cases where response body is not readable
+      throw new Error(`${res.status}: ${res.statusText}`);
+    }
   }
 }
 
@@ -82,9 +87,11 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: false,
       staleTime: 30 * 60 * 1000, // 30 minutes
       retry: false,
+      throwOnError: false, // Prevent unhandled promise rejections
     },
     mutations: {
       retry: false,
+      throwOnError: false, // Prevent unhandled promise rejections
     },
   },
 });
