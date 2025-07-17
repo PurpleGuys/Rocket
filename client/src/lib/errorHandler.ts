@@ -4,6 +4,14 @@ export function setupGlobalErrorHandling() {
   window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     
+    // Check if it's the specific fetch parameter error
+    if (event.reason?.message?.includes('is not a valid HTTP method')) {
+      console.error('CRITICAL: fetch() parameter order error detected!');
+      console.error('This indicates a bug in the fetch call - URL and method parameters are swapped');
+      event.preventDefault();
+      return;
+    }
+    
     // Check if it's an authentication error (401/403)
     if (event.reason?.message?.includes('401') || event.reason?.message?.includes('403')) {
       // Silently handle auth errors - they are expected when not logged in
