@@ -48,7 +48,7 @@ export function OrderManagement({ order }: OrderManagementProps) {
 
   const resendConfirmationMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', `/api/admin/orders/${order.id}/resend-confirmation`);
+      return await apiRequest(`/api/admin/orders/${order.id}/resend-confirmation`, 'POST');
     },
     onSuccess: () => {
       toast({

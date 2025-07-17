@@ -94,7 +94,7 @@ export default function CheckoutRedesign() {
         acceptTerms
       };
 
-      const response = await apiRequest('POST', '/api/orders', orderData);
+      const response = await apiRequest('/api/orders', 'POST', orderData);
       
       toast({
         title: "✅ Commande créée avec succès !",

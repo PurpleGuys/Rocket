@@ -143,7 +143,7 @@ export default function ClientDashboard() {
 
   const createRecurringOrderMutation = useMutation({
     mutationFn: async (data: any) => {
-      await apiRequest('POST', '/api/orders/recurring', data);
+      await apiRequest('/api/orders/recurring', 'POST', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders/recurring'] });
