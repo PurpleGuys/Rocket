@@ -131,3 +131,25 @@ function log(message: string, source = "express", level = "INFO") {
     }
   });
 })();
+
+// Global error handlers for VPS deployment
+process.on('uncaughtException', (error) => {
+  console.error('🔴 [ERROR] [UNCAUGHT] Uncaught Exception:', error);
+  console.error('🔴 [ERROR] [UNCAUGHT] Stack:', error.stack);
+  // Don't exit in production - log and continue
+  if (process.env.NODE_ENV === 'production') {
+    console.error('🔴 [ERROR] [UNCAUGHT] Production: Continuing despite error');
+  } else {
+    process.exit(1);
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🔴 [ERROR] [UNHANDLED] Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit in production - log and continue
+  if (process.env.NODE_ENV === 'production') {
+    console.error('🔴 [ERROR] [UNHANDLED] Production: Continuing despite error');
+  } else {
+    process.exit(1);
+  }
+});

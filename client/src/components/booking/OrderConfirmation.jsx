@@ -2,13 +2,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useBookingState } from "@/hooks/useBookingState";
 import { CheckCircle, RotateCcw, Mail, Phone, Truck } from "lucide-react";
-export default function OrderConfirmation(_a) {
-    var _b, _c, _d, _e, _f, _g, _h, _j;
-    var onNewOrder = _a.onNewOrder;
-    var _k = useBookingState(), bookingData = _k.bookingData, calculateTotalPrice = _k.calculateTotalPrice;
-    var pricing = calculateTotalPrice();
+export default function OrderConfirmation({ onNewOrder }) {
+    const { bookingData, calculateTotalPrice } = useBookingState();
+    const pricing = calculateTotalPrice();
     // Generate a mock order number
-    var orderNumber = "BNE-".concat(new Date().getFullYear(), "-").concat(String(Date.now()).slice(-6));
+    const orderNumber = `BNE-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
     return (<div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
@@ -25,7 +23,7 @@ export default function OrderConfirmation(_a) {
             </strong>{' '}
             entre{' '}
             <strong>
-              {(_b = bookingData.deliveryTimeSlot) === null || _b === void 0 ? void 0 : _b.startTime} et {(_c = bookingData.deliveryTimeSlot) === null || _c === void 0 ? void 0 : _c.endTime}
+              {bookingData.deliveryTimeSlot?.startTime} et {bookingData.deliveryTimeSlot?.endTime}
             </strong>
           </p>
         </div>
@@ -43,7 +41,7 @@ export default function OrderConfirmation(_a) {
                   <div className="flex justify-between">
                     <span className="text-slate-600">Service:</span>
                     <span className="font-medium">
-                      {(_d = bookingData.service) === null || _d === void 0 ? void 0 : _d.name} - {bookingData.durationDays} jour{bookingData.durationDays > 1 ? 's' : ''}
+                      {bookingData.service?.name} - {bookingData.durationDays} jour{bookingData.durationDays > 1 ? 's' : ''}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -62,16 +60,16 @@ export default function OrderConfirmation(_a) {
                   <div>
                     <span className="text-slate-600 block">Adresse:</span>
                     <span className="font-medium">
-                      {(_e = bookingData.address) === null || _e === void 0 ? void 0 : _e.street}<br />
-                      {(_f = bookingData.address) === null || _f === void 0 ? void 0 : _f.postalCode} {(_g = bookingData.address) === null || _g === void 0 ? void 0 : _g.city}, {(_h = bookingData.address) === null || _h === void 0 ? void 0 : _h.country}
+                      {bookingData.address?.street}<br />
+                      {bookingData.address?.postalCode} {bookingData.address?.city}, {bookingData.address?.country}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-600 block">Date et heure:</span>
                     <span className="font-medium">
                       {bookingData.deliveryTimeSlot
-            ? "".concat(new Date(bookingData.deliveryTimeSlot.date).toLocaleDateString('fr-FR'), ", ").concat(bookingData.deliveryTimeSlot.startTime, "-").concat(bookingData.deliveryTimeSlot.endTime)
-            : 'À confirmer'}
+                        ? `${new Date(bookingData.deliveryTimeSlot.date).toLocaleDateString('fr-FR')}, ${bookingData.deliveryTimeSlot.startTime}-${bookingData.deliveryTimeSlot.endTime}`
+                        : 'À confirmer'}
                     </span>
                   </div>
                   <div>

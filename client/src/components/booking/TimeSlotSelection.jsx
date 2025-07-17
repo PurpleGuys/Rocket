@@ -8,25 +8,26 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBookingState } from "@/hooks/useBookingState";
 import { Calendar, CheckCircle, XCircle, Info } from "lucide-react";
 export default function TimeSlotSelection() {
-    var _a = useBookingState(), bookingData = _a.bookingData, updateTimeSlots = _a.updateTimeSlots;
-    var _b = useState(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Tomorrow
-    ), selectedDate = _b[0], setSelectedDate = _b[1];
-    var _c = useState(null), selectedTimeSlotId = _c[0], setSelectedTimeSlotId = _c[1];
-    var _d = useState("auto"), pickupOption = _d[0], setPickupOption = _d[1];
-    var _e = useQuery({
+    const { bookingData, updateTimeSlots } = useBookingState();
+    const [selectedDate, setSelectedDate] = useState(
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Tomorrow
+    );
+    const [selectedTimeSlotId, setSelectedTimeSlotId] = useState(null);
+    const [pickupOption, setPickupOption] = useState("auto");
+    const { data: timeSlots, isLoading } = useQuery({
         queryKey: ['/api/timeslots', selectedDate],
         enabled: !!selectedDate,
-    }), timeSlots = _e.data, isLoading = _e.isLoading;
-    useEffect(function () {
+    });
+    useEffect(() => {
         if (selectedTimeSlotId && timeSlots) {
-            var timeSlot = timeSlots.find(function (slot) { return slot.id === selectedTimeSlotId; });
+            const timeSlot = timeSlots.find(slot => slot.id === selectedTimeSlotId);
             if (timeSlot) {
                 // Calculate pickup date based on duration
-                var deliveryDate = new Date(selectedDate);
-                var pickupDate = new Date(deliveryDate);
+                const deliveryDate = new Date(selectedDate);
+                const pickupDate = new Date(deliveryDate);
                 pickupDate.setDate(pickupDate.getDate() + bookingData.durationDays);
                 // Create a mock pickup time slot
-                var pickupTimeSlot = pickupOption === "auto" ? {
+                const pickupTimeSlot = pickupOption === "auto" ? {
                     id: -1,
                     date: pickupDate.toISOString().split('T')[0],
                     startTime: "08:00",
@@ -39,11 +40,11 @@ export default function TimeSlotSelection() {
             }
         }
     }, [selectedTimeSlotId, timeSlots, selectedDate, bookingData.durationDays, pickupOption, updateTimeSlots]);
-    var generateCalendarDays = function () {
-        var days = [];
-        var today = new Date();
-        for (var i = 1; i <= 14; i++) {
-            var date = new Date(today);
+    const generateCalendarDays = () => {
+        const days = [];
+        const today = new Date();
+        for (let i = 1; i <= 14; i++) {
+            const date = new Date(today);
             date.setDate(today.getDate() + i);
             // Skip weekends
             if (date.getDay() === 0 || date.getDay() === 6)
@@ -52,14 +53,16 @@ export default function TimeSlotSelection() {
         }
         return days;
     };
-    var formatDate = function (date) {
+    
+    const formatDate = (date) => {
         return date.toLocaleDateString('fr-FR', {
             weekday: 'short',
             day: 'numeric',
             month: 'short'
         });
     };
-    var calendarDays = generateCalendarDays();
+    
+    const calendarDays = generateCalendarDays();
     return (<div className="space-y-6">
       <div className="flex items-center mb-6">
         <Calendar className="h-6 w-6 mr-3 text-primary-600"/>
@@ -71,15 +74,22 @@ export default function TimeSlotSelection() {
         <CardContent className="p-6">
           <h3 className="text-lg font-medium text-slate-900 mb-4">Date de livraison</h3>
           <div className="grid grid-cols-7 gap-2">
-            {calendarDays.map(function (date) {
-            var dateStr = date.toISOString().split('T')[0];
-            return (<Button key={dateStr} variant={selectedDate === dateStr ? "default" : "outline"} onClick={function () { return setSelectedDate(dateStr); }} className={"h-auto flex flex-col py-3 ".concat(selectedDate === dateStr
-                    ? "bg-primary-600 hover:bg-primary-700"
-                    : "")}>
-                  <div className="text-xs mb-1">{formatDate(date).split(' ')[0]}</div>
-                  <div className="text-sm">{date.getDate()}</div>
-                </Button>);
-        })}
+            {calendarDays.map((date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                return (
+                    <Button 
+                        key={dateStr} 
+                        variant={selectedDate === dateStr ? "default" : "outline"} 
+                        onClick={() => setSelectedDate(dateStr)} 
+                        className={`h-auto flex flex-col py-3 ${selectedDate === dateStr
+                            ? "bg-primary-600 hover:bg-primary-700"
+                            : ""}`}
+                    >
+                        <div className="text-xs mb-1">{formatDate(date).split(' ')[0]}</div>
+                        <div className="text-sm">{date.getDate()}</div>
+                    </Button>
+                );
+            })}
           </div>
         </CardContent>
       </Card>

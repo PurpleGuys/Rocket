@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { setupGlobalErrorHandling } from "./lib/errorHandler";
+import React from "react";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import AdminFids from "@/pages/admin-fids";
@@ -75,6 +77,11 @@ function Router() {
 }
 
 function App() {
+  // Setup global error handling for VPS deployment
+  React.useEffect(() => {
+    setupGlobalErrorHandling();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

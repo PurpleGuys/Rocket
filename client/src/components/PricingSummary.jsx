@@ -4,15 +4,17 @@ import { Badge } from "@/components/ui/badge";
 import { useBookingState } from "@/hooks/useBookingState";
 import { Receipt, Shield, Truck, Phone, Save, ArrowRight, ArrowLeft } from "lucide-react";
 export default function PricingSummary() {
-    var _a = useBookingState(), currentStep = _a.currentStep, setCurrentStep = _a.setCurrentStep, bookingData = _a.bookingData, calculateTotalPrice = _a.calculateTotalPrice;
-    var pricing = calculateTotalPrice();
-    var canProceed = currentStep === 1 ? bookingData.service : true;
-    var handleNext = function () {
+    const { currentStep, setCurrentStep, bookingData, calculateTotalPrice } = useBookingState();
+    const pricing = calculateTotalPrice();
+    const canProceed = currentStep === 1 ? bookingData.service : true;
+    
+    const handleNext = () => {
         if (currentStep < 4) {
             setCurrentStep(currentStep + 1);
         }
     };
-    var handlePrevious = function () {
+    
+    const handlePrevious = () => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
         }
@@ -38,9 +40,11 @@ export default function PricingSummary() {
             {bookingData.wasteTypes && bookingData.wasteTypes.length > 0 && (<div className="space-y-1">
                 <span className="text-sm text-slate-600">Types de déchets:</span>
                 <div className="flex flex-wrap gap-1">
-                  {bookingData.wasteTypes.map(function (type) { return (<Badge key={type} variant="secondary" className="text-xs">
+                  {bookingData.wasteTypes.map((type) => (
+                    <Badge key={type} variant="secondary" className="text-xs">
                       {type}
-                    </Badge>); })}
+                    </Badge>
+                  ))}
                 </div>
               </div>)}
           </div>)}
