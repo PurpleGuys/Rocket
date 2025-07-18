@@ -110,67 +110,48 @@ function CheckoutForm() {
     setIsProcessing(true);
 
     try {
-      // Create order
-      const orderData = {
+      // Préparer les données de réservation
+      const fullBookingData = {
         serviceId: bookingData.service!.id,
-        deliveryTimeSlotId: bookingData.deliveryTimeSlot?.id,
-        pickupTimeSlotId: bookingData.pickupTimeSlot?.id,
-        customerFirstName: customerInfo.firstName,
-        customerLastName: customerInfo.lastName,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        deliveryStreet: bookingData.address!.street,
-        deliveryCity: bookingData.address!.city,
-        deliveryPostalCode: bookingData.address!.postalCode,
-        deliveryCountry: bookingData.address!.country,
-        deliveryNotes: bookingData.address!.deliveryNotes,
-        durationDays: bookingData.durationDays,
-        wasteTypes: bookingData.wasteTypes,
-        status: "pending",
-        paymentStatus: "pending",
+        wasteTypeId: bookingData.wasteTypes[0], // Premier type de déchet sélectionné
+        deliveryDate: bookingData.deliveryTimeSlot!.date,
+        pickupDate: bookingData.pickupTimeSlot?.date || bookingData.deliveryTimeSlot!.date,
+        deliveryTimeSlotId: bookingData.deliveryTimeSlot!.id,
+        pickupTimeSlotId: bookingData.pickupTimeSlot?.id || bookingData.deliveryTimeSlot!.id,
+        address: bookingData.address!.street,
+        city: bookingData.address!.city,
+        postalCode: bookingData.address!.postalCode,
+        additionalInfo: customerInfo.acceptMarketing ? "Accepte les communications marketing" : "",
+        rentalDays: 7, // Par défaut 7 jours
+        transportPrice: pricing.transportCost,
+        treatmentPrice: 0, // À calculer si nécessaire
+        rentalPrice: pricing.basePrice,
+        totalPrice: pricing.totalTTC
       };
 
-      const orderResponse = await apiRequest("/api/orders", "POST", orderData);
-      const order = await orderResponse.json();
-
-      // Update customer in booking state
-      updateCustomer({
-        firstName: customerInfo.firstName,
-        lastName: customerInfo.lastName,
-        email: customerInfo.email,
-        phone: customerInfo.phone,
-        createAccount: customerInfo.createAccount,
+      // Créer la commande en base de données
+      const orderResponse = await apiRequest("/api/orders", "POST", {
+        bookingData: fullBookingData
       });
 
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}?order_id=${order.id}`,
-        },
-        redirect: 'if_required',
-      });
-
-      if (error) {
-        toast({
-          title: "Erreur de paiement",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        // Payment successful, move to confirmation
-        toast({
-          title: "Paiement réussi",
-          description: "Votre commande a été confirmée avec succès!",
-        });
-        setCurrentStep(5);
+      if (!orderResponse.success || !orderResponse.order) {
+        throw new Error("Impossible de créer la commande");
       }
-    } catch (error: any) {
+
+      // Stocker les infos de commande et client pour checkout
+      localStorage.setItem('orderId', orderResponse.order.id.toString());
+      localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+      
+      // Rediriger vers la page de paiement
+      setLocation('/checkout');
+      
+    } catch (error) {
+      console.error("Error creating order:", error);
       toast({
         title: "Erreur",
-        description: error.message || "Une erreur est survenue lors du traitement de votre commande.",
+        description: "Impossible de créer la commande. Veuillez réessayer.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };

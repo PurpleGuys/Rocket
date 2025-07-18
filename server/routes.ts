@@ -718,6 +718,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create order from booking flow
+  app.post("/api/orders", authenticateToken, async (req, res) => {
+    try {
+      const { bookingData } = req.body;
+      const user = req.user;
+      
+      if (!user) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+      
+      // Create order in database
+      const order = await storage.createOrder({
+        userId: user.id,
+        serviceId: bookingData.serviceId,
+        wasteTypes: [bookingData.wasteTypeId.toString()],
+        deliveryDate: new Date(bookingData.deliveryDate),
+        pickupDate: new Date(bookingData.pickupDate),
+        deliveryTimeSlotId: bookingData.deliveryTimeSlotId,
+        pickupTimeSlotId: bookingData.pickupTimeSlotId,
+        durationDays: bookingData.rentalDays,
+        basePrice: bookingData.totalPrice.toFixed(2),
+        status: "pending",
+        customerFirstName: user.firstName || "",
+        customerLastName: user.lastName || "",
+        customerEmail: user.email,
+        customerPhone: user.phone || "",
+        customerCompany: user.companyName || "",
+        customerSiret: user.siret || "",
+        deliveryStreet: bookingData.address,
+        deliveryCity: bookingData.city,
+        deliveryPostalCode: bookingData.postalCode,
+        notes: bookingData.additionalInfo || "",
+        pricingBreakdown: JSON.stringify({
+          transportPrice: bookingData.transportPrice,
+          treatmentPrice: bookingData.treatmentPrice,
+          rentalPrice: bookingData.rentalPrice,
+          totalPrice: bookingData.totalPrice
+        })
+      });
+      
+      res.json({ 
+        success: true,
+        order: order
+      });
+    } catch (error: any) {
+      console.error("Error creating order:", error);
+      res.status(500).json({ message: "Error creating order: " + error.message });
+    }
+  });
+
   // Create payment intent for order from booking flow
   app.post("/api/create-order-payment", async (req, res) => {
     try {
@@ -727,26 +777,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { bookingData, amount } = req.body;
+      const { orderId, amount } = req.body;
       
-      // Create payment intent with booking metadata
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert euros to cents
         currency: "eur",
         metadata: {
-          serviceId: bookingData.serviceId,
-          wasteTypeId: bookingData.wasteTypeId,
-          address: bookingData.address,
-          city: bookingData.city,
-          postalCode: bookingData.postalCode,
+          orderId: orderId.toString(),
         },
       });
 
       res.json({ 
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id 
       });
     } catch (error: any) {
+      console.error("Error creating payment intent:", error);
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
     }
   });
