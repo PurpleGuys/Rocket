@@ -1,0 +1,93 @@
+XHRGET
+https://purpleguy.world/api/auth/me
+[HTTP/2 401  24ms]
+
+	
+GET
+	https://purpleguy.world/api/auth/me
+État
+401
+VersionHTTP/2
+Transfert2,04 Ko (taille 34 o)
+Politique de référentno-referrer
+Priorité de la requêteHighest
+Résolution DNSSystème
+
+    	
+    access-control-allow-headers
+    	Origin, X-Requested-With, Content-Type, Accept, Authorization
+    access-control-allow-methods
+    	GET, POST, PUT, DELETE, OPTIONS, PATCH
+    access-control-allow-origin
+    	*
+    content-length
+    	34
+    content-security-policy
+    	default-src 'self';script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com https://*.replit.com https://maps.googleapis.com https://maps.gstatic.com;style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;font-src 'self' https://fonts.gstatic.com;img-src 'self' data: https: blob:;connect-src 'self' https://api.stripe.com https://*.stripe.com https://m.stripe.network https://maps.googleapis.com https://api.sendgrid.com https://*.cloudflare.com wss: ws:;frame-src 'self' https://js.stripe.com https://hooks.stripe.com;worker-src 'self' blob:;child-src 'self' blob:;object-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests
+    content-security-policy
+    	default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com https://maps.gstatic.com; frame-src https://js.stripe.com https://hooks.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://maps.googleapis.com;
+    content-type
+    	application/json; charset=utf-8
+    cross-origin-opener-policy
+    	same-origin
+    cross-origin-resource-policy
+    	same-origin
+    date
+    	Fri, 18 Jul 2025 12:42:05 GMT
+    etag
+    	W/"22-4+Nx/ZFKFSL3BfQyoEqOt9R50XU"
+    origin-agent-cluster
+    	?1
+    referrer-policy
+    	no-referrer
+    server
+    	nginx/1.26.0 (Ubuntu)
+    strict-transport-security
+    	max-age=31536000; includeSubDomains; preload
+    x-content-type-options
+    	nosniff
+    x-content-type-options
+    	nosniff
+    x-dns-prefetch-control
+    	off
+    x-download-options
+    	noopen
+    X-Firefox-Spdy
+    	h2
+    x-frame-options
+    	SAMEORIGIN
+    x-frame-options
+    	SAMEORIGIN
+    x-permitted-cross-domain-policies
+    	none
+    x-xss-protection
+    	0
+    x-xss-protection
+    	1; mode=block
+    	
+    Accept
+    	*/*
+    Accept-Encoding
+    	gzip, deflate, br, zstd
+    Accept-Language
+    	fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3
+    Connection
+    	keep-alive
+    Cookie
+    	__stripe_mid=826714af-53db-4348-ac46-0404f04f3defa302ba; __stripe_sid=d1d593e9-3190-47b4-8cee-04f39be2dd00e3fa19
+    DNT
+    	1
+    Host
+    	purpleguy.world
+    Priority
+    	u=0
+    Sec-Fetch-Dest
+    	empty
+    Sec-Fetch-Mode
+    	cors
+    Sec-Fetch-Site
+    	same-origin
+    TE
+    	trailers
+    User-Agent
+    	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0

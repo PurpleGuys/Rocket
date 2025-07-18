@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiRequest } from "@/lib/queryClient";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function TestLoginPage() {
   const [email, setEmail] = useState("ethan.petrovic@remondis.fr");
   const [password, setPassword] = useState("LoulouEP150804@");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const testLogin = async () => {
     setLoading(true);
@@ -30,8 +32,13 @@ export default function TestLoginPage() {
       // Store tokens if successful
       if (response.token) {
         localStorage.setItem("auth_token", response.token);
+      }
+      if (response.sessionToken) {
         localStorage.setItem("session_token", response.sessionToken);
       }
+      
+      // Invalidate auth queries to refresh user state
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
     } catch (error: any) {
       console.error('Login error:', error);
       setResult({ success: false, error: error.message || error.toString() });
@@ -67,13 +74,81 @@ export default function TestLoginPage() {
         throw new Error(`${response.status}: ${JSON.stringify(data)}`);
       }
       
+      // Store tokens from response
+      if (data.token) {
+        localStorage.setItem("auth_token", data.token);
+      }
+      if (data.sessionToken) {
+        localStorage.setItem("session_token", data.sessionToken);
+      }
+      
       setResult({ success: true, data, method: "direct fetch" });
+      
+      // Invalidate auth queries
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
     } catch (error: any) {
       console.error('Direct fetch error:', error);
       setResult({ success: false, error: error.message || error.toString(), method: "direct fetch" });
     } finally {
       setLoading(false);
     }
+  };
+  
+  const testAuthMe = async () => {
+    setLoading(true);
+    setResult(null);
+    
+    try {
+      const token = localStorage.getItem("auth_token");
+      const sessionToken = localStorage.getItem("session_token");
+      
+      console.log('Testing /api/auth/me with tokens:', {
+        authToken: token ? token.substring(0, 20) + '...' : 'none',
+        sessionToken: sessionToken ? sessionToken.substring(0, 20) + '...' : 'none'
+      });
+      
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json"
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      if (sessionToken) {
+        headers["x-session-token"] = sessionToken;
+      }
+      
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        headers,
+        credentials: "include"
+      });
+      
+      const data = response.ok ? await response.json() : null;
+      
+      console.log('/api/auth/me response:', {
+        status: response.status,
+        data
+      });
+      
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      
+      setResult({ success: true, data, method: "/api/auth/me test" });
+    } catch (error: any) {
+      console.error('/api/auth/me error:', error);
+      setResult({ success: false, error: error.message || error.toString(), method: "/api/auth/me test" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const clearTokens = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("session_token");
+    queryClient.clear();
+    setResult({ message: "Tokens supprimés et cache vidé" });
   };
 
   return (
@@ -103,7 +178,7 @@ export default function TestLoginPage() {
             />
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button 
               onClick={testLogin} 
               disabled={loading}
@@ -118,6 +193,22 @@ export default function TestLoginPage() {
               variant="outline"
             >
               Test avec fetch direct
+            </Button>
+            
+            <Button 
+              onClick={testAuthMe} 
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Test /api/auth/me
+            </Button>
+            
+            <Button 
+              onClick={clearTokens} 
+              disabled={loading}
+              variant="destructive"
+            >
+              Effacer tokens
             </Button>
           </div>
           

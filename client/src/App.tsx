@@ -31,6 +31,7 @@ import Introduction from "@/components/Introduction";
 import CookieConsent from "@/components/CookieConsent";
 import AuthTest from "@/pages/auth-test";
 import TestLogin from "@/pages/test-login";
+import AuthDebug from "@/pages/auth-debug";
 import StripeErrorHandler from "@/components/StripeErrorHandler";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 
@@ -78,6 +79,7 @@ function Router() {
           <Route path="/introduction" component={Introduction} />
           <Route path="/auth-test" component={AuthTest} />
           <Route path="/test-login" component={TestLogin} />
+          <Route path="/auth-debug" component={AuthDebug} />
           <Route path="/" component={Introduction} />
           <Route component={NotFound} />
         </Switch>
