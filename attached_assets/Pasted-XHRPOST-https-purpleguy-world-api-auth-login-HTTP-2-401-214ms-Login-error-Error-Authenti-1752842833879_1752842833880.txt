@@ -1,0 +1,146 @@
+XHRPOST
+https://purpleguy.world/api/auth/login
+[HTTP/2 401  214ms]
+
+Login error: Error: Authentication required
+    Ee https://purpleguy.world/assets/index-O5odweAF.js:48
+    c https://purpleguy.world/assets/index-O5odweAF.js:521
+    eR https://purpleguy.world/assets/index-O5odweAF.js:37
+    rR https://purpleguy.world/assets/index-O5odweAF.js:37
+    sR https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ly https://purpleguy.world/assets/index-O5odweAF.js:37
+    fS https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    Dg https://purpleguy.world/assets/index-O5odweAF.js:40
+    LC https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    cg https://purpleguy.world/assets/index-O5odweAF.js:37
+    yR https://purpleguy.world/assets/index-O5odweAF.js:37
+    hS https://purpleguy.world/assets/index-O5odweAF.js:37
+    nf https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    createRoot https://purpleguy.world/assets/index-O5odweAF.js:40
+    <anonymous> https://purpleguy.world/assets/index-O5odweAF.js:521
+<anonymous code>:1:145535
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/v3/fingerprinted/js/m-outer-15a2b40a058ddff1cffdb63779fe3de1.js » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/v3/fingerprinted/js/m-outer-15a2b40a058ddff1cffdb63779fe3de1.js » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 3
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2Fpurpleguy.world%2Ftest-login&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=826714af-53db-4348-ac46-0404f04f3defa302ba&sid=d1d593e9-3190-47b4-8cee-04f39be2dd00e3fa19&version=6&preview=false&__shared_params__[version]=basil » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé.
+out-4.5.44.js:1:39660
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2Fpurpleguy.world%2Ftest-login&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=826714af-53db-4348-ac46-0404f04f3defa302ba&sid=d1d593e9-3190-47b4-8cee-04f39be2dd00e3fa19&version=6&preview=false&__shared_params__[version]=v3 » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé.
+
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 2
+Testing direct fetch... index-O5odweAF.js:521:124971
+XHRPOST
+https://purpleguy.world/api/auth/login
+[HTTP/2 401  164ms]
+
+Direct fetch response: 
+Object { message: "Email ou mot de passe incorrect" }
+index-O5odweAF.js:521:125207
+Direct fetch error: Error: 401: {"message":"Email ou mot de passe incorrect"}
+    d https://purpleguy.world/assets/index-O5odweAF.js:521
+    eR https://purpleguy.world/assets/index-O5odweAF.js:37
+    rR https://purpleguy.world/assets/index-O5odweAF.js:37
+    sR https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ly https://purpleguy.world/assets/index-O5odweAF.js:37
+    fS https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    Dg https://purpleguy.world/assets/index-O5odweAF.js:40
+    LC https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    cg https://purpleguy.world/assets/index-O5odweAF.js:37
+    yR https://purpleguy.world/assets/index-O5odweAF.js:37
+    hS https://purpleguy.world/assets/index-O5odweAF.js:37
+    nf https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    createRoot https://purpleguy.world/assets/index-O5odweAF.js:40
+    <anonymous> https://purpleguy.world/assets/index-O5odweAF.js:521
+<anonymous code>:1:145535
+Testing login with: 
+Object { email: "ethan.petrovic@remondis.fr", password: "LoulouEP150804@" }
+index-O5odweAF.js:521:124541
+XHRPOST
+https://purpleguy.world/api/auth/login
+[HTTP/2 401  165ms]
+
+Login error: Error: Authentication required
+    Ee https://purpleguy.world/assets/index-O5odweAF.js:48
+    c https://purpleguy.world/assets/index-O5odweAF.js:521
+    eR https://purpleguy.world/assets/index-O5odweAF.js:37
+    rR https://purpleguy.world/assets/index-O5odweAF.js:37
+    sR https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ly https://purpleguy.world/assets/index-O5odweAF.js:37
+    fS https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    Dg https://purpleguy.world/assets/index-O5odweAF.js:40
+    LC https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    cg https://purpleguy.world/assets/index-O5odweAF.js:37
+    yR https://purpleguy.world/assets/index-O5odweAF.js:37
+    hS https://purpleguy.world/assets/index-O5odweAF.js:37
+    nf https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    createRoot https://purpleguy.world/assets/index-O5odweAF.js:40
+    <anonymous> https://purpleguy.world/assets/index-O5odweAF.js:521
+<anonymous code>:1:145535
+Testing direct fetch... index-O5odweAF.js:521:124971
+XHRPOST
+https://purpleguy.world/api/auth/login
+[HTTP/2 401  178ms]
+
+Direct fetch response: 
+Object { message: "Email ou mot de passe incorrect" }
+index-O5odweAF.js:521:125207
+Direct fetch error: Error: 401: {"message":"Email ou mot de passe incorrect"}
+    d https://purpleguy.world/assets/index-O5odweAF.js:521
+    eR https://purpleguy.world/assets/index-O5odweAF.js:37
+    rR https://purpleguy.world/assets/index-O5odweAF.js:37
+    sR https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ly https://purpleguy.world/assets/index-O5odweAF.js:37
+    fS https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    Dg https://purpleguy.world/assets/index-O5odweAF.js:40
+    LC https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    cg https://purpleguy.world/assets/index-O5odweAF.js:37
+    yR https://purpleguy.world/assets/index-O5odweAF.js:37
+    hS https://purpleguy.world/assets/index-O5odweAF.js:37
+    nf https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    createRoot https://purpleguy.world/assets/index-O5odweAF.js:40
+    <anonymous> https://purpleguy.world/assets/index-O5odweAF.js:521
+<anonymous code>:1:145535
+Testing login with: 
+Object { email: "ethan.petrovic@remondis.fr", password: "LoulouEP150804@" }
+index-O5odweAF.js:521:124541
+XHRPOST
+https://purpleguy.world/api/auth/login
+[HTTP/2 401  136ms]
+
+Login error: Error: Authentication required
+    Ee https://purpleguy.world/assets/index-O5odweAF.js:48
+    c https://purpleguy.world/assets/index-O5odweAF.js:521
+    eR https://purpleguy.world/assets/index-O5odweAF.js:37
+    rR https://purpleguy.world/assets/index-O5odweAF.js:37
+    sR https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ly https://purpleguy.world/assets/index-O5odweAF.js:37
+    fS https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    Dg https://purpleguy.world/assets/index-O5odweAF.js:40
+    LC https://purpleguy.world/assets/index-O5odweAF.js:37
+    af https://purpleguy.world/assets/index-O5odweAF.js:37
+    cg https://purpleguy.world/assets/index-O5odweAF.js:37
+    yR https://purpleguy.world/assets/index-O5odweAF.js:37
+    hS https://purpleguy.world/assets/index-O5odweAF.js:37
+    nf https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    Ac https://purpleguy.world/assets/index-O5odweAF.js:37
+    createRoot https://purpleguy.world/assets/index-O5odweAF.js:40
+    <anonymous> https://purpleguy.world/assets/index-O5odweAF.js:521
