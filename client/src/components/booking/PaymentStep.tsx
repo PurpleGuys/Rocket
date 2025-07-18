@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CreditCard, Lock, Shield, AlertCircle, ExternalLink } from "lucide-react";
 import { useLocation } from "wouter";
+import AdBlockDetector from "@/components/AdBlockDetector";
 
 function CheckoutForm() {
   const stripe = useStripe();
@@ -497,15 +498,11 @@ export default function PaymentStep() {
 
         // Créer le payment intent
         if (bookingData.service) {
-          const response = await apiRequest("/api/create-payment-intent", {
-            method: "POST",
-            body: JSON.stringify({
-              amount: pricing.totalTTC,
-              orderId: `temp-${Date.now()}`,
-            })
+          const response = await apiRequest("/api/create-payment-intent", "POST", {
+            amount: pricing.totalTTC,
+            orderId: `temp-${Date.now()}`,
           });
-          const data = await response.json();
-          setClientSecret(data.clientSecret);
+          setClientSecret(response.client_secret);
         }
       } catch (error) {
         console.error("Erreur Stripe/Payment:", error);

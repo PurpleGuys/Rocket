@@ -1,0 +1,223 @@
+Images uploadées: []
+shared-89f46740c4fdc6c96c254be28c012eed.js:1 
+            
+            
+           POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+e @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+c @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+setTimeout
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+Promise.then
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+value @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+96957 @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e.O @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+ 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+e @ shared-89f46740c4fdc…254be28c012eed.js:1
+c @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+setTimeout
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+Promise.then
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ controller-with-prec…f4cc5a3468c9b1.js:1
+e @ controller-with-prec…f4cc5a3468c9b1.js:1
+value @ controller-with-prec…f4cc5a3468c9b1.js:1
+e @ controller-with-prec…f4cc5a3468c9b1.js:1
+96957 @ controller-with-prec…f4cc5a3468c9b1.js:1
+e @ controller-with-prec…f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-prec…f4cc5a3468c9b1.js:1
+e.O @ controller-with-prec…f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-prec…f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-prec…f4cc5a3468c9b1.js:1
+shared-89f46740c4fdc6c96c254be28c012eed.js:1 
+            
+            
+           POST https://r.stripe.com/b net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+e @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+c @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+setTimeout
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+Promise.then
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+log @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+log @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+96957 @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e.O @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+ 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+e @ shared-89f46740c4fdc…254be28c012eed.js:1
+c @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+setTimeout
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc…254be28c012eed.js:1
+Promise.then
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+value @ shared-89f46740c4fdc…254be28c012eed.js:1
+log @ shared-89f46740c4fdc…254be28c012eed.js:1
+log @ controller-with-prec…f4cc5a3468c9b1.js:1
+e @ controller-with-prec…f4cc5a3468c9b1.js:1
+96957 @ controller-with-prec…f4cc5a3468c9b1.js:1
+e @ controller-with-prec…f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-prec…f4cc5a3468c9b1.js:1
+e.O @ controller-with-prec…f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-prec…f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-prec…f4cc5a3468c9b1.js:1
+shared-89f46740c4fdc6c96c254be28c012eed.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-89f46740c4fdc6c96c254be28c012eed.js:1:217756
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+Promise.catch
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+e @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+c @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+setTimeout
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+Promise.then
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+value @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+96957 @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e.O @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+shared-89f46740c4fdc6c96c254be28c012eed.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-89f46740c4fdc6c96c254be28c012eed.js:1:217756
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+Promise.catch
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+e @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+c @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+setTimeout
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+(anonymous) @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+Promise.then
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+value @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+log @ shared-89f46740c4fdc6c96c254be28c012eed.js:1
+log @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+96957 @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+e.O @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+(anonymous) @ controller-with-preconnect-0d1ab56245210e05d8f4cc5a3468c9b1.js:1
+out-4.5.44.js:1 
+            
+            
+           POST https://m.stripe.com/6 net::ERR_BLOCKED_BY_ADBLOCKER
+(anonymous) @ out-4.5.44.js:1
+i @ out-4.5.44.js:1
+s @ out-4.5.44.js:1
+(anonymous) @ out-4.5.44.js:1
+(anonymous) @ out-4.5.44.js:1
+Promise.then
+S @ out-4.5.44.js:1
+y @ out-4.5.44.js:1
+E @ out-4.5.44.js:1
+e.onload @ inner.html:1
+script
+(anonymous) @ inner.html:1
+(anonymous) @ inner.html:1
+index-Dr_ZeL-6.js:48 
+            
+            
+           GET https://purpleguy.world/api/auth/me 401 (Unauthorized)

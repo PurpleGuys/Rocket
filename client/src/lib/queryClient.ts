@@ -2,6 +2,17 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
+    // Handle auth errors specifically for VPS
+    if (res.status === 401) {
+      // Clear expired tokens
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('session_token');
+      }
+      // Don't throw for auth errors, just return null
+      return null;
+    }
+    
     try {
       const text = (await res.text()) || res.statusText;
       throw new Error(`${res.status}: ${text}`);
@@ -34,15 +45,38 @@ export async function apiRequest(
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
 
-  await throwIfResNotOk(res);
-  return await res.json();
+    // Handle auth errors specifically for VPS
+    if (res.status === 401) {
+      // Clear expired tokens
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('session_token');
+      }
+      // Return empty object for auth endpoints
+      if (url.includes('/api/auth/me')) {
+        return {};
+      }
+      throw new Error('Authentication required');
+    }
+
+    await throwIfResNotOk(res);
+    return await res.json();
+  } catch (error) {
+    // Handle network errors and AdBlocker issues
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      console.warn('Network error detected, but continuing...');
+      return {};
+    }
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

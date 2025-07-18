@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { setupGlobalErrorHandling } from "./lib/errorHandler";
+import { initializeVPSCompatibility } from "./lib/vps-compatibility";
+import { initializeVPSFix } from "./lib/vps-fix";
 import React from "react";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
@@ -28,6 +30,8 @@ import FAQ from "@/pages/FAQ";
 import Introduction from "@/components/Introduction";
 import CookieConsent from "@/components/CookieConsent";
 import AuthTest from "@/pages/auth-test";
+import StripeErrorHandler from "@/components/StripeErrorHandler";
+import AuthErrorHandler from "@/components/AuthErrorHandler";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -49,37 +53,43 @@ function Router() {
   }
 
   return (
-    <Switch>
-      <Route path="/auth" component={Auth} />
-      <Route path="/booking" component={BookingRedesign} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/client-dashboard" component={ClientDashboard} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/dashboard/*" component={Dashboard} />
-      <Route path="/admin/fids" component={AdminFids} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/*" component={Admin} />
-      <Route path="/admin" component={Admin} />
-      <Route path="/checkout" component={CheckoutRedesign} />
-      <Route path="/payment-success" component={PaymentSuccess} />
-      <Route path="/legal" component={Legal} />
-      <Route path="/privacy-policy" component={PrivacyPolicy} />
-      <Route path="/retraction-rights" component={RetractionRights} />
-      <Route path="/price-simulation" component={PriceSimulation} />
-      <Route path="/validate-delivery" component={ValidateDelivery} />
-      <Route path="/faq" component={FAQ} />
-      <Route path="/introduction" component={Introduction} />
-      <Route path="/auth-test" component={AuthTest} />
-      <Route path="/" component={Introduction} />
-      <Route component={NotFound} />
-    </Switch>
+    <AuthErrorHandler>
+      <StripeErrorHandler>
+        <Switch>
+          <Route path="/auth" component={Auth} />
+          <Route path="/booking" component={BookingRedesign} />
+          <Route path="/profile" component={Profile} />
+          <Route path="/client-dashboard" component={ClientDashboard} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/dashboard/*" component={Dashboard} />
+          <Route path="/admin/fids" component={AdminFids} />
+          <Route path="/admin/users" component={AdminUsers} />
+          <Route path="/admin/*" component={Admin} />
+          <Route path="/admin" component={Admin} />
+          <Route path="/checkout" component={CheckoutRedesign} />
+          <Route path="/payment-success" component={PaymentSuccess} />
+          <Route path="/legal" component={Legal} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/retraction-rights" component={RetractionRights} />
+          <Route path="/price-simulation" component={PriceSimulation} />
+          <Route path="/validate-delivery" component={ValidateDelivery} />
+          <Route path="/faq" component={FAQ} />
+          <Route path="/introduction" component={Introduction} />
+          <Route path="/auth-test" component={AuthTest} />
+          <Route path="/" component={Introduction} />
+          <Route component={NotFound} />
+        </Switch>
+      </StripeErrorHandler>
+    </AuthErrorHandler>
   );
 }
 
 function App() {
-  // Setup global error handling for VPS deployment
+  // Setup global error handling and VPS compatibility
   React.useEffect(() => {
     setupGlobalErrorHandling();
+    initializeVPSCompatibility();
+    initializeVPSFix();
   }, []);
 
   return (
