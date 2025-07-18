@@ -146,10 +146,23 @@ export default function BookingPage() {
     
     try {
       // Store booking data in localStorage for checkout page
-      localStorage.setItem('bookingData', JSON.stringify(bookingData));
+      const dataToStore = {
+        ...bookingData,
+        deliveryDate: bookingData.deliveryDate?.toISOString(),
+        pickupDate: bookingData.pickupDate?.toISOString()
+      };
       
-      // Navigate to checkout
-      navigate('/checkout-new');
+      console.log('Storing booking data:', dataToStore);
+      localStorage.setItem('bookingData', JSON.stringify(dataToStore));
+      
+      // Verify data was stored
+      const stored = localStorage.getItem('bookingData');
+      console.log('Verified stored data:', stored);
+      
+      // Small delay to ensure localStorage is written
+      setTimeout(() => {
+        navigate('/checkout-new');
+      }, 100);
     } catch (error) {
       console.error('Error saving booking:', error);
       toast({
@@ -157,7 +170,6 @@ export default function BookingPage() {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   };

@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 
 // Fonction pour générer des images SVG de conteneurs
 const generateContainerSVG = (serviceName: string, imageType?: string) => {
-  const volume = serviceName.match(/(\d+)m3/)?.[1] || '15';
+  // Vérifier que serviceName est défini avant d'utiliser match
+  const volume = serviceName && typeof serviceName === 'string' 
+    ? (serviceName.match(/(\d+)m3/)?.[1] || '15')
+    : '15';
   
   // Couleurs selon le type de vue
   const colorMap: Record<string, { bg: string; accent: string }> = {
@@ -36,7 +39,7 @@ const generateContainerSVG = (serviceName: string, imageType?: string) => {
       
       <!-- Volume text -->
       <text x="200" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">
-        ${serviceName}
+        ${serviceName || 'Service'}
       </text>
       
       <!-- Photo type -->
@@ -106,8 +109,8 @@ export function ServiceImageDisplay({ serviceId, serviceName, className = "" }: 
       {/* Image principale */}
       <div className="relative">
         <img
-          src={generateContainerSVG(serviceName, imageTypeLabel)}
-          alt={`${serviceName} - ${imageTypeLabel}`}
+          src={generateContainerSVG(serviceName || 'Service', imageTypeLabel)}
+          alt={`${serviceName || 'Service'} - ${imageTypeLabel}`}
           className="w-full h-full object-cover"
         />
         

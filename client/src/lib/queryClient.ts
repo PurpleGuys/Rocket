@@ -28,6 +28,12 @@ export async function apiRequest(
   method: string = "GET",
   data?: unknown | undefined,
 ): Promise<any> {
+  // Guard against undefined url
+  if (!url || typeof url !== 'string') {
+    console.error('Invalid URL provided to apiRequest:', url);
+    throw new Error('URL is required for API request');
+  }
+  
   const headers: Record<string, string> = {};
   
   // Add auth headers
@@ -61,7 +67,7 @@ export async function apiRequest(
         localStorage.removeItem('session_token');
       }
       // Return empty object for auth endpoints
-      if (url.includes('/api/auth/me')) {
+      if (url && url.includes && url.includes('/api/auth/me')) {
         return {};
       }
       throw new Error('Authentication required');

@@ -170,19 +170,27 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     // Get booking data from localStorage
+    console.log('Checkout page - checking localStorage');
     const storedData = localStorage.getItem('bookingData');
+    console.log('Retrieved data from localStorage:', storedData);
+    
     if (!storedData) {
+      console.log('No booking data found in localStorage');
       toast({
         title: "Erreur",
         description: "Aucune réservation en cours. Veuillez recommencer.",
         variant: "destructive"
       });
-      navigate('/booking');
+      setTimeout(() => {
+        navigate('/booking-new');
+      }, 2000);
       return;
     }
 
     try {
       const data = JSON.parse(storedData);
+      console.log('Parsed booking data:', data);
+      
       // Parse dates back to Date objects
       data.deliveryDate = data.deliveryDate ? new Date(data.deliveryDate) : null;
       data.pickupDate = data.pickupDate ? new Date(data.pickupDate) : null;
@@ -197,18 +205,24 @@ export default function CheckoutPage() {
         description: "Données de réservation invalides",
         variant: "destructive"
       });
-      navigate('/booking');
+      setTimeout(() => {
+        navigate('/booking-new');
+      }, 2000);
     }
   }, []);
 
   const createPaymentIntent = async (data: BookingData) => {
     try {
+      console.log('Creating payment intent for:', data);
+      
       const response = await apiRequest("/api/create-order-payment", "POST", {
         bookingData: data,
         amount: data.totalPrice
       });
 
-      if (response.clientSecret) {
+      console.log('Payment intent response:', response);
+      
+      if (response && response.clientSecret) {
         setClientSecret(response.clientSecret);
       } else {
         throw new Error("Pas de client secret reçu");
@@ -220,7 +234,9 @@ export default function CheckoutPage() {
         description: "Impossible de créer le paiement. Veuillez réessayer.",
         variant: "destructive"
       });
-      navigate('/booking');
+      setTimeout(() => {
+        navigate('/booking-new');
+      }, 2000);
     } finally {
       setLoading(false);
     }
