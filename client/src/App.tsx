@@ -32,6 +32,9 @@ import CookieConsent from "@/components/CookieConsent";
 import AuthTest from "@/pages/auth-test";
 import TestLogin from "@/pages/test-login";
 import AuthDebug from "@/pages/auth-debug";
+import BookingNew from "@/pages/booking";
+import CheckoutNew from "@/pages/checkout";
+import BookingConfirmation from "@/pages/booking-confirmation";
 import StripeErrorHandler from "@/components/StripeErrorHandler";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 
@@ -80,6 +83,9 @@ function Router() {
           <Route path="/auth-test" component={AuthTest} />
           <Route path="/test-login" component={TestLogin} />
           <Route path="/auth-debug" component={AuthDebug} />
+          <Route path="/booking-new" component={BookingNew} />
+          <Route path="/checkout-new" component={CheckoutNew} />
+          <Route path="/booking-confirmation" component={BookingConfirmation} />
           <Route path="/" component={Introduction} />
           <Route component={NotFound} />
         </Switch>

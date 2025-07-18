@@ -718,6 +718,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create payment intent for order from booking flow
+  app.post("/api/create-order-payment", async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ 
+          message: "Payment processing is currently unavailable. Stripe is not configured." 
+        });
+      }
+
+      const { bookingData, amount } = req.body;
+      
+      // Create payment intent with booking metadata
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert euros to cents
+        currency: "eur",
+        metadata: {
+          serviceId: bookingData.serviceId,
+          wasteTypeId: bookingData.wasteTypeId,
+          address: bookingData.address,
+          city: bookingData.city,
+          postalCode: bookingData.postalCode,
+        },
+      });
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
   // Update order payment status
   app.post("/api/orders/:id/payment", async (req, res) => {
     try {
