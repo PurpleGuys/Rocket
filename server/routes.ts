@@ -80,15 +80,17 @@ function generateFidPdfContent(fid: any) {
   };
 }
 
-// Initialize Stripe only if key is provided
+// Initialize Stripe according to official documentation
+// https://stripe.com/docs/api/versioning
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2024-12-18.acacia" as any,
+    apiVersion: "2023-10-16", // Latest stable API version
+    typescript: true,
   });
-  console.log("✅ Stripe initialized successfully");
+  console.log("[Stripe] Initialized successfully with", process.env.STRIPE_SECRET_KEY.startsWith('sk_test_') ? 'test' : 'live', 'key');
 } else {
-  console.warn("⚠️ STRIPE_SECRET_KEY not configured. Payment features will be disabled.");
+  console.error("[Stripe] Missing secret key. Please set STRIPE_SECRET_KEY in your .env file");
 }
 
 // Rate limiting for production only

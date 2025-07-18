@@ -3,43 +3,35 @@
  * Corrige: Stripe AdBlocker, 401 Unauthorized, et erreurs de réseau
  */
 
-// Injection globale de la clé Stripe pour contourner les AdBlockers
+// Injection de Stripe selon la documentation officielle
 export const injectStripeKey = () => {
   if (typeof window === 'undefined') return;
   
-  const STRIPE_KEY = 'pk_live_51RTkOEH7j6Qmye8ANaVnmmha9hqIUhENTbJo94UZ9D7Ia3hRu7jFbVcBtfO4lJvLiluHxqdproixaCIglmZORP0h00IWlpRCiS';
+  // Get key from environment or use window fallback
+  const STRIPE_KEY = import.meta.env?.VITE_STRIPE_PUBLIC_KEY || window.VITE_STRIPE_PUBLIC_KEY;
   
-  // Forcer la clé partout
-  window.VITE_STRIPE_PUBLIC_KEY = STRIPE_KEY;
-  window.STRIPE_PUBLIC_KEY = STRIPE_KEY;
+  if (!STRIPE_KEY) {
+    console.error('[Stripe] Missing public key');
+    return;
+  }
   
-  // Créer script Stripe avec protection
+  // Create Stripe script according to documentation
   const script = document.createElement('script');
   script.src = 'https://js.stripe.com/v3/';
   script.async = true;
   script.onload = () => {
-    console.log('✅ Stripe chargé avec succès');
-    // Initialiser Stripe immédiatement
-    if (window.Stripe) {
+    console.log('[Stripe] Script loaded successfully');
+    // Initialize Stripe if available
+    if (window.Stripe && STRIPE_KEY) {
       const stripe = window.Stripe(STRIPE_KEY);
       window.stripeInstance = stripe;
+      console.log('[Stripe] Instance created');
     }
   };
   script.onerror = () => {
-    console.error('❌ Stripe bloqué par AdBlocker');
-    // Créer un mock pour éviter les erreurs
-    window.Stripe = () => ({
-      elements: () => ({
-        create: () => ({
-          mount: () => {},
-          on: () => {},
-          off: () => {},
-          destroy: () => {}
-        })
-      }),
-      createToken: () => Promise.resolve({ error: { message: 'Stripe désactivé' } }),
-      createPaymentMethod: () => Promise.resolve({ error: { message: 'Stripe désactivé' } })
-    });
+    console.error('[Stripe] Script blocked by AdBlocker');
+    // Show user-friendly error
+    window.dispatchEvent(new CustomEvent('stripe-blocked'));
   };
   
   document.head.appendChild(script);
