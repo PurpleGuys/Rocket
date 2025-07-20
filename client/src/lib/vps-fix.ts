@@ -3,38 +3,11 @@
  * Corrige: Stripe AdBlocker, 401 Unauthorized, et erreurs de réseau
  */
 
-// Injection de Stripe selon la documentation officielle
+// Injection de Stripe désactivée - utilisation de loadStripe depuis @stripe/stripe-js
 export const injectStripeKey = () => {
-  if (typeof window === 'undefined') return;
-  
-  // Get key from environment or use window fallback
-  const STRIPE_KEY = import.meta.env?.VITE_STRIPE_PUBLIC_KEY || window.VITE_STRIPE_PUBLIC_KEY;
-  
-  if (!STRIPE_KEY) {
-    console.error('[Stripe] Missing public key');
-    return;
-  }
-  
-  // Create Stripe script according to documentation
-  const script = document.createElement('script');
-  script.src = 'https://js.stripe.com/v3/';
-  script.async = true;
-  script.onload = () => {
-    console.log('[Stripe] Script loaded successfully');
-    // Initialize Stripe if available
-    if (window.Stripe && STRIPE_KEY) {
-      const stripe = window.Stripe(STRIPE_KEY);
-      window.stripeInstance = stripe;
-      console.log('[Stripe] Instance created');
-    }
-  };
-  script.onerror = () => {
-    console.error('[Stripe] Script blocked by AdBlocker');
-    // Show user-friendly error
-    window.dispatchEvent(new CustomEvent('stripe-blocked'));
-  };
-  
-  document.head.appendChild(script);
+  // Fonction désactivée pour éviter le chargement multiple de Stripe
+  // Stripe est maintenant chargé via loadStripe dans client/src/lib/stripe.js
+  console.log('[Stripe] Using official loadStripe method');
 };
 
 // Correctif pour les erreurs 401 Unauthorized
@@ -145,7 +118,7 @@ export const initializeVPSFix = () => {
   console.log('🔧 Initialisation des correctifs VPS...');
   
   // Appliquer tous les correctifs
-  injectStripeKey();
+  // injectStripeKey(); // Désactivé - Stripe est chargé via loadStripe
   fixAuthErrors();
   fixNetworkErrors();
   fixJavaScriptErrors();

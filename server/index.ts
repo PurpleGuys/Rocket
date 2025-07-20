@@ -41,7 +41,16 @@ function log(message: string, source = "express", level = "INFO") {
           styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
           scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com", "https://maps.googleapis.com"],
           imgSrc: ["'self'", "data:", "https:", "blob:"],
-          connectSrc: ["'self'", "https://api.stripe.com", "https://maps.googleapis.com"],
+          connectSrc: [
+            "'self'", 
+            "https://api.stripe.com", 
+            "https://*.stripe.com",
+            "https://js.stripe.com",
+            "https://r.stripe.com", 
+            "https://m.stripe.com",
+            "https://m.stripe.network",
+            "https://maps.googleapis.com"
+          ],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
           frameSrc: ["'self'", "https://js.stripe.com"]
         }

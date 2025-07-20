@@ -9,9 +9,9 @@ if (!stripePublicKey) {
 
 // Initialize Stripe according to official documentation
 // https://stripe.com/docs/stripe-js
+// Note: apiVersion is not supported in the client-side Stripe.js
 export const stripePromise = stripePublicKey ? loadStripe(stripePublicKey, {
-  locale: 'fr',
-  apiVersion: '2023-10-16'
+  locale: 'fr'
 }) : null;
 
 // Export the public key for components that need it

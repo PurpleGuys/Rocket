@@ -15,24 +15,11 @@ export const isVPSEnvironment = () => {
   );
 };
 
-// Configuration Stripe anti-AdBlock
+// Configuration Stripe anti-AdBlock - DÉSACTIVÉ
 export const configureStripeForVPS = () => {
-  if (typeof window === 'undefined') return;
-  
-  // Créer des éléments DOM pour contourner la détection AdBlock
-  const script = document.createElement('script');
-  script.src = 'https://js.stripe.com/v3/';
-  script.async = true;
-  script.onload = () => {
-    console.log('✅ Stripe chargé avec succès pour VPS');
-  };
-  script.onerror = (error) => {
-    console.error('❌ Stripe bloqué:', error);
-    // Fallback : afficher un message d'erreur utilisateur
-    window.dispatchEvent(new CustomEvent('stripe-blocked', { detail: { error } }));
-  };
-  
-  document.head.appendChild(script);
+  // Fonction désactivée - Stripe est maintenant chargé uniquement via loadStripe
+  // depuis @stripe/stripe-js dans client/src/lib/stripe.js
+  console.log('✅ Stripe est chargé via loadStripe (méthode officielle)');
 };
 
 // Configuration des headers API pour VPS
@@ -151,10 +138,7 @@ export const handleVPSAPIError = (error: any, endpoint: string) => {
 export const initializeVPSCompatibility = () => {
   if (typeof window === 'undefined') return;
   
-  // Configurer Stripe pour VPS
-  if (isVPSEnvironment()) {
-    configureStripeForVPS();
-  }
+  // Ne plus appeler configureStripeForVPS() - Stripe est chargé via loadStripe
   
   // Écouter les erreurs Stripe
   window.addEventListener('stripe-blocked', (event) => {
