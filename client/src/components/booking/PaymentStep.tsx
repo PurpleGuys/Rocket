@@ -11,7 +11,7 @@ import { useBookingState } from "@/hooks/useBookingState";
 import { stripePromise } from "@/lib/stripe";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Lock, Shield, AlertCircle, ExternalLink, CheckCircle } from "lucide-react";
+import { CreditCard, Lock, Shield, AlertCircle, ExternalLink, CheckCircle, ShoppingCart } from "lucide-react";
 import { useLocation } from "wouter";
 import AdBlockDetector from "@/components/AdBlockDetector";
 
@@ -239,59 +239,32 @@ function CheckoutForm() {
         </CardContent>
       </Card>
 
-      {/* Payment Method */}
-      <Card>
+      {/* Cart Information */}
+      <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle>Mode de paiement</CardTitle>
+          <CardTitle className="flex items-center">
+            <ShoppingCart className="h-5 w-5 mr-2 text-blue-600" />
+            Information panier
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <RadioGroup defaultValue="stripe">
-            <div className="flex items-center space-x-2 p-4 border-2 border-primary-500 bg-primary-50 rounded-lg">
-              <RadioGroupItem value="stripe" id="stripe" />
-              <Label htmlFor="stripe" className="flex items-center flex-1">
-                <CreditCard className="h-5 w-5 mr-3 text-primary-600" />
-                <div>
-                  <div className="font-medium">Carte bancaire</div>
-                  <div className="text-sm text-slate-600">Paiement sécurisé via Stripe</div>
-                </div>
-              </Label>
+        <CardContent>
+          <div className="space-y-3">
+            <Alert className="bg-blue-100 border-blue-300">
+              <CheckCircle className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                Votre benne sera ajoutée au panier. Vous pourrez :
+                <ul className="mt-2 ml-6 list-disc text-sm">
+                  <li>Ajouter d'autres bennes si nécessaire</li>
+                  <li>Modifier les quantités ou supprimer des articles</li>
+                  <li>Procéder au paiement sécurisé quand vous êtes prêt</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+            <div className="pt-2 text-sm text-gray-600">
+              <p>✓ Paiement sécurisé par Stripe</p>
+              <p>✓ Modification possible avant paiement</p>
+              <p>✓ Confirmation par email</p>
             </div>
-          </RadioGroup>
-          
-          {/* Stripe Payment Element avec gestion AdBlock */}
-          <div className="mt-4">
-            {stripeError ? (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="font-medium mb-2">Problème de chargement du paiement</div>
-                  <div className="text-sm mb-3">{stripeError}</div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                      Réessayer
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => {
-                        toast({
-                          title: "Alternative de paiement",
-                          description: "Contactez-nous pour un paiement manuel : contact@bennespro.fr",
-                        });
-                      }}
-                    >
-                      Paiement manuel
-                    </Button>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <PaymentElement 
-                options={{
-                  layout: "tabs"
-                }}
-              />
-            )}
           </div>
         </CardContent>
       </Card>
@@ -333,49 +306,22 @@ function CheckoutForm() {
         </CardContent>
       </Card>
 
-      {/* Submit Buttons */}
-      <div className="space-y-3">
-        <Button
-          type="button"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-4 h-auto"
-          onClick={() => {
-            // Sauvegarder les informations client avant de naviguer
-            updateCustomer({
-              firstName: customerInfo.firstName,
-              lastName: customerInfo.lastName,
-              email: customerInfo.email,
-              phone: customerInfo.phone,
-              createAccount: customerInfo.createAccount,
-            });
-            // Naviguer vers la page checkout séparée
-            setLocation('/checkout');
-          }}
-        >
-          <ExternalLink className="h-5 w-5 mr-2" />
-          Continuer vers la page de paiement
-        </Button>
-        
-        <div className="text-center text-sm text-gray-500">ou</div>
-        
+      {/* Submit Button */}
+      <div>
         <Button
           type="submit"
-          className="w-full bg-red-600 hover:bg-red-700 text-lg py-4 h-auto"
-          disabled={!stripe || isProcessing || !!stripeError}
+          className="w-full bg-red-600 hover:bg-red-700 text-lg py-6 h-auto flex items-center justify-center"
+          disabled={isProcessing}
         >
           {isProcessing ? (
             <>
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-              Traitement...
-            </>
-          ) : stripeError ? (
-            <>
-              <AlertCircle className="h-5 w-5 mr-2" />
-              Paiement indisponible
+              <div className="animate-spin w-5 h-5 border-3 border-white border-t-transparent rounded-full mr-3" />
+              Ajout en cours...
             </>
           ) : (
             <>
-              <Lock className="h-5 w-5 mr-2" />
-              Payer {pricing.totalTTC.toFixed(2)}€
+              <ShoppingCart className="h-5 w-5 mr-3" />
+              Ajouter au panier - {pricing.totalTTC.toFixed(2)}€ TTC
             </>
           )}
         </Button>
