@@ -316,7 +316,7 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
     }
 
     // Sauvegarder les données dans le contexte global via les props
-    const selectedService = services?.find((s: Service) => s.id === selectedServiceId);
+    const selectedService = (services as Service[])?.find((s: Service) => s.id === selectedServiceId);
     if (selectedService) {
       // Mettre à jour le service dans le contexte global
       sessionStorage.setItem('selectedService', JSON.stringify(selectedService));
@@ -334,8 +334,39 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
     if (onContinue) {
       onContinue();
     } else {
-      // Rediriger vers le flux de réservation avec panier
-      setLocation('/booking');
+      // Si pas de onContinue, on ajoute directement au panier
+      const sessionId = localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      localStorage.setItem('session_id', sessionId);
+      
+      apiRequest("/api/cart/add", "POST", {
+        serviceId: selectedServiceId,
+        wasteTypeId: selectedWasteType,
+        quantity: 1,
+        transportDistance: distance || 10,
+        transportPrice: priceData.transport?.toFixed(2) || '0',
+        rentalPrice: priceData.rental?.toFixed(2) || '0',
+        treatmentPrice: priceData.treatment?.toFixed(2) || '0',
+        totalPrice: priceData.total?.toFixed(2) || '0',
+        deliveryAddress: deliveryAddress,
+        deliveryPostalCode: postalCode,
+        deliveryCity: city,
+        deliveryDate: new Date().toISOString().split('T')[0],
+        deliveryTimeSlot: '8h-12h',
+        notes: ''
+      }).then(() => {
+        toast({
+          title: "Ajouté au panier !",
+          description: "Votre benne a été ajoutée au panier avec succès.",
+        });
+        setLocation('/cart');
+      }).catch((error) => {
+        console.error("Error adding to cart:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'ajouter au panier. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      });
     }
   };
 
@@ -880,7 +911,7 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
                   size="lg"
                   disabled={!selectedServiceId || !deliveryAddress || !selectedWasteType || !priceData || (bsdOption && !fidData)}
                 >
-                  {onContinue ? 'Suivant' : 'Réserver maintenant'}
+                  {onContinue ? 'Suivant' : 'Ajouter au panier'}
                 </Button>
               </div>
             ) : (
