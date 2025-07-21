@@ -15,7 +15,7 @@ import { DistanceService } from "./distanceService";
 import { emailService } from "./emailService";
 import { sendGridService } from "./sendgridService";
 import { NotificationService } from "./notificationService";
-import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema, insertFidSchema, updateFidSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, loginSchema, updateUserSchema, changePasswordSchema, insertRentalPricingSchema, updateRentalPricingSchema, insertServiceSchema, insertTransportPricingSchema, updateTransportPricingSchema, insertWasteTypeSchema, insertTreatmentPricingSchema, updateTreatmentPricingSchema, insertBankDepositSchema, updateBankDepositSchema, insertFidSchema, updateFidSchema, type Cart } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 
@@ -602,6 +602,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: "Error fetching services: " + error.message });
+    }
+  });
+
+  // ==================== CART ROUTES ====================
+  
+  // Add item to cart
+  app.post("/api/cart/add", async (req, res) => {
+    try {
+      const sessionId = req.headers['x-session-id'] as string || req.sessionID;
+      const userId = req.user?.id;
+      
+      const cartData = {
+        ...req.body,
+        userId: userId || null,
+        sessionId: userId ? null : sessionId
+      };
+      
+      const cart = await storage.createCart(cartData);
+      res.json(cart);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de l'ajout au panier: " + error.message });
+    }
+  });
+
+  // Get cart items
+  app.get("/api/cart", async (req, res) => {
+    try {
+      const sessionId = req.headers['x-session-id'] as string || req.sessionID;
+      const userId = req.user?.id;
+      
+      let cartItems: Cart[] = [];
+      
+      if (userId) {
+        cartItems = await storage.getCartByUser(userId);
+      } else if (sessionId) {
+        cartItems = await storage.getCartBySession(sessionId);
+      }
+      
+      // Join with services and waste types for display
+      const enrichedItems = await Promise.all(cartItems.map(async (item) => {
+        const service = await storage.getService(item.serviceId);
+        const wasteType = await storage.getWasteTypeById(item.wasteTypeId);
+        return {
+          ...item,
+          service: service ? {
+            name: service.name,
+            volume: service.volume,
+            imageUrl: service.imageUrl
+          } : undefined,
+          wasteType: wasteType ? {
+            name: wasteType.name,
+            code: wasteType.code
+          } : undefined
+        };
+      }));
+      
+      res.json(enrichedItems);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la récupération du panier: " + error.message });
+    }
+  });
+
+  // Update cart item
+  app.put("/api/cart/:id", async (req, res) => {
+    try {
+      const cartId = Number(req.params.id);
+      const updatedCart = await storage.updateCart(cartId, req.body);
+      
+      if (!updatedCart) {
+        return res.status(404).json({ message: "Article du panier non trouvé" });
+      }
+      
+      res.json(updatedCart);
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du panier: " + error.message });
+    }
+  });
+
+  // Delete cart item
+  app.delete("/api/cart/:id", async (req, res) => {
+    try {
+      const cartId = Number(req.params.id);
+      await storage.deleteCart(cartId);
+      res.json({ message: "Article supprimé du panier" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors de la suppression: " + error.message });
+    }
+  });
+
+  // Clear cart
+  app.delete("/api/cart", async (req, res) => {
+    try {
+      const sessionId = req.headers['x-session-id'] as string || req.sessionID;
+      const userId = req.user?.id;
+      
+      if (userId) {
+        await storage.clearUserCart(userId);
+      } else if (sessionId) {
+        await storage.clearSessionCart(sessionId);
+      }
+      
+      res.json({ message: "Panier vidé" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Erreur lors du vidage du panier: " + error.message });
     }
   });
 

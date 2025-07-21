@@ -129,21 +129,41 @@ function CheckoutForm() {
         totalPrice: pricing.totalTTC
       };
 
-      // Créer la commande en base de données
-      const orderResponse = await apiRequest("/api/orders", "POST", {
-        bookingData: fullBookingData
+      // Ajouter au panier
+      const sessionId = localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      localStorage.setItem('session_id', sessionId);
+      
+      const cartResponse = await apiRequest("/api/cart/add", "POST", {
+        serviceId: bookingData.service!.id,
+        wasteTypeId: bookingData.wasteTypes[0] || 1,
+        quantity: 1,
+        transportDistance: 10, // À calculer avec Google Maps
+        transportPrice: pricing.transportCost.toFixed(2),
+        rentalPrice: pricing.basePrice.toFixed(2),
+        treatmentPrice: "0.00",
+        totalPrice: pricing.totalTTC.toFixed(2),
+        deliveryAddress: bookingData.address!.street,
+        deliveryPostalCode: bookingData.address!.postalCode,
+        deliveryCity: bookingData.address!.city,
+        deliveryDate: bookingData.deliveryTimeSlot!.date,
+        deliveryTimeSlot: bookingData.deliveryTimeSlot!.time,
+        pickupDate: bookingData.pickupTimeSlot?.date,
+        pickupTimeSlot: bookingData.pickupTimeSlot?.time,
+        notes: customerInfo.acceptMarketing ? "Accepte les communications marketing" : ""
+      }, {
+        'X-Session-ID': sessionId
       });
 
-      if (!orderResponse.success || !orderResponse.order) {
-        throw new Error("Impossible de créer la commande");
+      if (!cartResponse.ok) {
+        const error = await cartResponse.json();
+        throw new Error(error.message || "Impossible d'ajouter au panier");
       }
 
-      // Stocker les infos de commande et client pour checkout
-      localStorage.setItem('orderId', orderResponse.order.id.toString());
+      // Stocker les infos client pour checkout
       localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
       
-      // Rediriger vers la page de paiement
-      setLocation('/checkout');
+      // Rediriger vers le panier
+      setLocation('/cart');
       
     } catch (error) {
       console.error("Error creating order:", error);

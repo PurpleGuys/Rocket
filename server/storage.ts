@@ -1,11 +1,20 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, satisfactionSurveys, surveyNotifications, fids, abandonedCheckouts, inactivityNotifications, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit, type SatisfactionSurvey, type InsertSatisfactionSurvey, type SurveyNotification, type InsertSurveyNotification, type Fid, type InsertFid, type UpdateFid, type AbandonedCheckout, type InsertAbandonedCheckout, type InactivityNotification, type InsertInactivityNotification } from "@shared/schema";
+import { users, services, serviceImages, timeSlots, orders, sessions, rentalPricing, transportPricing, wasteTypes, treatmentPricing, companyActivities, emailLogs, auditLogs, bankDeposits, satisfactionSurveys, surveyNotifications, fids, abandonedCheckouts, inactivityNotifications, carts, type User, type InsertUser, type UpdateUser, type Service, type InsertService, type ServiceImage, type InsertServiceImage, type TimeSlot, type InsertTimeSlot, type Order, type InsertOrder, type Session, type RentalPricing, type InsertRentalPricing, type UpdateRentalPricing, type TransportPricing, type InsertTransportPricing, type UpdateTransportPricing, type WasteType, type InsertWasteType, type TreatmentPricing, type InsertTreatmentPricing, type UpdateTreatmentPricing, type CompanyActivities, type InsertCompanyActivities, type UpdateCompanyActivities, type EmailLog, type InsertEmailLog, type AuditLog, type InsertAuditLog, type BankDeposit, type InsertBankDeposit, type UpdateBankDeposit, type SatisfactionSurvey, type InsertSatisfactionSurvey, type SurveyNotification, type InsertSurveyNotification, type Fid, type InsertFid, type UpdateFid, type AbandonedCheckout, type InsertAbandonedCheckout, type InactivityNotification, type InsertInactivityNotification, type Cart, type InsertCart } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and, gte, lte, sql, lt } from "drizzle-orm";
 
 export interface IStorage {
+  // Cart methods
+  createCart(cart: Partial<Cart>): Promise<Cart>;
+  getCart(id: number): Promise<Cart | undefined>;
+  getCartByUser(userId: number): Promise<Cart[]>;
+  getCartBySession(sessionId: string): Promise<Cart[]>;
+  updateCart(id: number, cart: Partial<Cart>): Promise<Cart | undefined>;
+  deleteCart(id: number): Promise<void>;
+  clearUserCart(userId: number): Promise<void>;
+  clearSessionCart(sessionId: string): Promise<void>;
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserById(id: number): Promise<User | undefined>;
@@ -90,6 +99,7 @@ export interface IStorage {
   // Waste Types
   getWasteTypes(): Promise<WasteType[]>;
   getWasteType(id: number): Promise<WasteType | undefined>;
+  getWasteTypeById(id: number): Promise<WasteType | undefined>;
   createWasteType(wasteType: InsertWasteType): Promise<WasteType>;
   updateWasteType(id: number, wasteType: Partial<InsertWasteType>): Promise<WasteType | undefined>;
   deleteWasteType(id: number): Promise<void>;
@@ -693,6 +703,10 @@ export class DatabaseStorage implements IStorage {
     return wasteType || undefined;
   }
 
+  async getWasteTypeById(id: number): Promise<WasteType | undefined> {
+    return this.getWasteType(id);
+  }
+
   async createWasteType(wasteType: InsertWasteType): Promise<WasteType> {
     const [newWasteType] = await db
       .insert(wasteTypes)
@@ -1132,6 +1146,66 @@ export class DatabaseStorage implements IStorage {
       .where(eq(fids.id, id))
       .returning();
     return updatedFid || undefined;
+  }
+
+  // Cart methods
+  async createCart(cart: Partial<Cart>): Promise<Cart> {
+    const [newCart] = await db
+      .insert(carts)
+      .values({
+        ...cart,
+        updatedAt: new Date()
+      })
+      .returning();
+    return newCart;
+  }
+
+  async getCart(id: number): Promise<Cart | undefined> {
+    const [cart] = await db
+      .select()
+      .from(carts)
+      .where(eq(carts.id, id));
+    return cart || undefined;
+  }
+
+  async getCartByUser(userId: number): Promise<Cart[]> {
+    return await db
+      .select()
+      .from(carts)
+      .where(eq(carts.userId, userId))
+      .orderBy(desc(carts.createdAt));
+  }
+
+  async getCartBySession(sessionId: string): Promise<Cart[]> {
+    return await db
+      .select()
+      .from(carts)
+      .where(eq(carts.sessionId, sessionId))
+      .orderBy(desc(carts.createdAt));
+  }
+
+  async updateCart(id: number, cart: Partial<Cart>): Promise<Cart | undefined> {
+    const [updatedCart] = await db
+      .update(carts)
+      .set({
+        ...cart,
+        updatedAt: new Date()
+      })
+      .where(eq(carts.id, id))
+      .returning();
+    return updatedCart || undefined;
+  }
+
+  async deleteCart(id: number): Promise<void> {
+    await db.delete(carts).where(eq(carts.id, id));
+  }
+
+  async clearUserCart(userId: number): Promise<void> {
+    await db.delete(carts).where(eq(carts.userId, userId));
+  }
+
+  async clearSessionCart(sessionId: string): Promise<void> {
+    await db.delete(carts).where(eq(carts.sessionId, sessionId));
   }
 }
 

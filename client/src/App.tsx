@@ -20,6 +20,7 @@ import NotFound from "@/pages/not-found";
 import Checkout from "@/pages/checkout";
 import BookingRedesign from "@/pages/booking-redesign";
 import CheckoutRedesign from "@/pages/checkout-redesign";
+import Cart from "@/pages/cart";
 import PaymentSuccess from "@/pages/payment-success";
 import Legal from "@/pages/legal";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -71,6 +72,7 @@ function Router() {
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/admin/*" component={Admin} />
           <Route path="/admin" component={Admin} />
+          <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={CheckoutRedesign} />
           <Route path="/payment-success" component={PaymentSuccess} />
           <Route path="/legal" component={Legal} />

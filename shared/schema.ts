@@ -316,6 +316,31 @@ export const inactivityNotifications = pgTable("inactivity_notifications", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Shopping Cart - Système de panier
+export const carts = pgTable("carts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: text("session_id"), // For anonymous users
+  serviceId: integer("service_id").references(() => services.id).notNull(),
+  wasteTypeId: integer("waste_type_id").references(() => wasteTypes.id).notNull(),
+  quantity: integer("quantity").default(1).notNull(),
+  transportDistance: decimal("transport_distance", { precision: 10, scale: 2 }),
+  transportPrice: decimal("transport_price", { precision: 10, scale: 2 }),
+  rentalPrice: decimal("rental_price", { precision: 10, scale: 2 }),
+  treatmentPrice: decimal("treatment_price", { precision: 10, scale: 2 }),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  deliveryAddress: text("delivery_address").notNull(),
+  deliveryPostalCode: text("delivery_postal_code").notNull(),
+  deliveryCity: text("delivery_city").notNull(),
+  deliveryDate: timestamp("delivery_date"),
+  deliveryTimeSlot: text("delivery_time_slot"),
+  pickupDate: timestamp("pickup_date"),
+  pickupTimeSlot: text("pickup_time_slot"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -423,6 +448,20 @@ export const insertTreatmentPricingSchema = createInsertSchema(treatmentPricing)
   updatedAt: true,
 });
 
+export const insertCartSchema = createInsertSchema(carts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateCartSchema = createInsertSchema(carts).omit({
+  id: true,
+  userId: true,
+  sessionId: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
+
 export const updateTreatmentPricingSchema = createInsertSchema(treatmentPricing).omit({
   id: true,
   wasteTypeId: true,
@@ -498,6 +537,8 @@ export type InsertAbandonedCheckout = z.infer<typeof insertAbandonedCheckoutSche
 
 export type InactivityNotification = typeof inactivityNotifications.$inferSelect;
 export type InsertInactivityNotification = z.infer<typeof insertInactivityNotificationSchema>;
+export type Cart = typeof carts.$inferSelect;
+export type InsertCart = z.infer<typeof insertCartSchema>;
 
 // Company Activities Configuration
 export const companyActivities = pgTable("company_activities", {
