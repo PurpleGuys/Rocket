@@ -610,8 +610,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add item to cart
   app.post("/api/cart/add", async (req, res) => {
     try {
-      const sessionId = req.headers['x-session-id'] as string || req.sessionID;
+      // Get session ID from header or generate one
+      let sessionId = req.headers['x-session-id'] as string;
       const userId = req.user?.id;
+      
+      // If no session ID provided, generate one
+      if (!sessionId && !userId) {
+        sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      }
       
       // Convert date strings to Date objects
       const cartData = {
@@ -625,6 +631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cart = await storage.createCart(cartData);
       res.json(cart);
     } catch (error: any) {
+      console.error("Cart add error:", error);
       res.status(500).json({ message: "Erreur lors de l'ajout au panier: " + error.message });
     }
   });
@@ -632,7 +639,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get cart items
   app.get("/api/cart", async (req, res) => {
     try {
-      const sessionId = req.headers['x-session-id'] as string || req.sessionID;
+      const sessionId = req.headers['x-session-id'] as string;
       const userId = req.user?.id;
       
       let cartItems: Cart[] = [];
@@ -697,7 +704,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Clear cart
   app.delete("/api/cart", async (req, res) => {
     try {
-      const sessionId = req.headers['x-session-id'] as string || req.sessionID;
+      const sessionId = req.headers['x-session-id'] as string;
       const userId = req.user?.id;
       
       if (userId) {
