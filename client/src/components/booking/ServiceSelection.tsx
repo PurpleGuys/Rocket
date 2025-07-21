@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { apiRequest } from "@/lib/queryClient";
 import { Service } from "@shared/schema";
-import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2, Building2, Construction, Shield } from "lucide-react";
+import { Truck, AlertTriangle, MapPin, Calendar as CalendarIcon, Loader2, Building2, Construction, Shield, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -334,8 +334,8 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
     if (onContinue) {
       onContinue();
     } else {
-      // Fallback: rediriger vers checkout
-      setLocation('/checkout');
+      // Rediriger vers le flux de réservation avec panier
+      setLocation('/booking-redesign');
     }
   };
 
@@ -876,11 +876,12 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
 
                 <Button 
                   onClick={handleBooking}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"
                   size="lg"
                   disabled={!selectedServiceId || !deliveryAddress || !selectedWasteType || !priceData || (bsdOption && !fidData)}
                 >
-                  {onContinue ? 'Suivant' : 'Réserver maintenant'}
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  {onContinue ? 'Ajouter au panier et continuer' : 'Ajouter au panier'}
                 </Button>
               </div>
             ) : (

@@ -252,7 +252,7 @@ export default function Introduction() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Link href="/booking" className="w-full sm:w-auto">
+                <Link href="/booking-redesign" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full bg-white text-red-600 hover:bg-red-50 px-6 sm:px-8 py-4 text-base sm:text-lg font-semibold shadow-xl btn-touch">
                     <Calendar className="mr-2 h-5 w-5" />
                     Réserver ma benne
