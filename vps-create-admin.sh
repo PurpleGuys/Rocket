@@ -1,118 +1,89 @@
 #!/bin/bash
 
-echo "🚀 Script de création/réinitialisation de l'admin pour VPS"
-echo "================================================"
+# Script pour créer l'utilisateur admin sur le VPS
+# Usage: ./vps-create-admin.sh
 
-# Créer un fichier JavaScript temporaire
-cat > /tmp/vps-admin-reset.mjs << 'EOF'
-import dotenv from 'dotenv';
-dotenv.config();
+echo "==================================="
+echo "Création de l'utilisateur admin VPS"
+echo "==================================="
 
-import { drizzle } from 'drizzle-orm/node-postgres';
-import pkg from 'pg';
-const { Pool } = pkg;
-import bcrypt from 'bcryptjs';
-import { sql } from 'drizzle-orm';
+# Variables pour l'admin
+ADMIN_EMAIL="ethan.petrovic@remondis.fr"
+ADMIN_PASSWORD="LoulouEP150804@"
 
-// Create pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false }
-});
-
-const db = drizzle(pool);
-
-async function createOrResetAdmin() {
-  try {
-    console.log('🔍 Vérification de l\'utilisateur admin...');
-    
-    // Check if user exists using raw SQL
-    const existingUsers = await db.execute(
-      sql`SELECT * FROM users WHERE email = 'ethan.petrovic@remondis.fr'`
-    );
-    
-    const hashedPassword = await bcrypt.hash('LoulouEP150804@', 12);
-    
-    if (existingUsers.rows.length === 0) {
-      console.log('❌ Utilisateur non trouvé. Création...');
-      
-      // Create new admin user
-      await db.execute(sql`
+# Créer le script SQL pour l'admin
+cat > create-admin-vps.sql << 'EOF'
+-- Vérifier si l'utilisateur existe déjà
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'ethan.petrovic@remondis.fr') THEN
+        -- Créer l'utilisateur admin
         INSERT INTO users (
-          email, password, "firstName", "lastName", phone, role, 
-          "isVerified", "isActive", "companyName", "accountType",
-          address, city, "postalCode", country, "preferredLanguage",
-          "marketingConsent", "loginAttempts", "notifyOnInactivity"
+            email, 
+            username, 
+            password_hash, 
+            role, 
+            is_verified, 
+            first_name, 
+            last_name,
+            phone,
+            created_at,
+            updated_at
         ) VALUES (
-          'ethan.petrovic@remondis.fr', 
-          ${hashedPassword},
-          'Ethan', 
-          'Petrovic', 
-          '+33 1 23 45 67 89', 
-          'admin',
-          true, 
-          true, 
-          'Remondis', 
-          'professionnel',
-          '', 
-          '', 
-          '', 
-          'FR', 
-          'fr',
-          false, 
-          0, 
-          true
-        )
-      `);
-      
-      console.log('✅ Utilisateur admin créé avec succès!');
-    } else {
-      console.log('✅ Utilisateur trouvé. Réinitialisation du mot de passe...');
-      
-      // Update password and unlock account
-      await db.execute(sql`
+            'ethan.petrovic@remondis.fr',
+            'ethan.petrovic',
+            '$2b$10$0FhHKJYX.gE7xjbQ7a7Kyu6xsD.fRfJAG0Iqt5UfQ7h3VjRhBsXBa', -- Hash de LoulouEP150804@
+            'admin',
+            true,
+            'Ethan',
+            'Petrovic',
+            '0123456789',
+            NOW(),
+            NOW()
+        );
+        RAISE NOTICE 'Admin user created successfully';
+    ELSE
+        -- Mettre à jour le mot de passe si l'utilisateur existe
         UPDATE users 
         SET 
-          password = ${hashedPassword},
-          "loginAttempts" = 0,
-          "lockUntil" = NULL,
-          "isVerified" = true,
-          "isActive" = true
-        WHERE email = 'ethan.petrovic@remondis.fr'
-      `);
-      
-      console.log('✅ Mot de passe réinitialisé avec succès!');
-    }
-    
-    console.log('\n📌 Informations de connexion:');
-    console.log('   URL: https://purpleguy.world');
-    console.log('   Email: ethan.petrovic@remondis.fr');
-    console.log('   Mot de passe: LoulouEP150804@');
-    console.log('   Rôle: admin');
-    
-    await pool.end();
-    process.exit(0);
-  } catch (error) {
-    console.error('❌ Erreur:', error);
-    await pool.end();
-    process.exit(1);
-  }
-}
+            password_hash = '$2b$10$0FhHKJYX.gE7xjbQ7a7Kyu6xsD.fRfJAG0Iqt5UfQ7h3VjRhBsXBa',
+            role = 'admin',
+            is_verified = true,
+            updated_at = NOW()
+        WHERE email = 'ethan.petrovic@remondis.fr';
+        RAISE NOTICE 'Admin user updated successfully';
+    END IF;
+END $$;
 
-createOrResetAdmin();
+-- Vérifier le résultat
+SELECT id, email, username, role, is_verified FROM users WHERE email = 'ethan.petrovic@remondis.fr';
 EOF
 
-# Exécuter le script
-echo ""
-echo "📦 Installation des dépendances..."
-npm install bcryptjs pg drizzle-orm dotenv
+echo "Script SQL créé avec succès."
 
 echo ""
-echo "🔧 Exécution du script..."
-node /tmp/vps-admin-reset.mjs
-
-# Nettoyer
-rm -f /tmp/vps-admin-reset.mjs
-
+echo "==================================="
+echo "INSTRUCTIONS POUR LE VPS:"
+echo "==================================="
 echo ""
-echo "✅ Script terminé!"
+echo "1. Connectez-vous à votre VPS:"
+echo "   ssh votre_utilisateur@purpleguy.world"
+echo ""
+echo "2. Exécutez le script SQL:"
+echo "   sudo -u postgres psql -d bennespro < create-admin-vps.sql"
+echo ""
+echo "3. Ou si vous utilisez Docker:"
+echo "   docker exec -i bennespro-postgres psql -U postgres -d bennespro < create-admin-vps.sql"
+echo ""
+echo "4. Vérifiez que l'utilisateur a été créé:"
+echo "   sudo -u postgres psql -d bennespro -c \"SELECT * FROM users WHERE email='ethan.petrovic@remondis.fr';\""
+echo ""
+echo "5. Redémarrez l'application:"
+echo "   sudo systemctl restart bennespro"
+echo "   # ou"
+echo "   docker-compose restart app"
+echo ""
+echo "Credentials:"
+echo "Email: $ADMIN_EMAIL"
+echo "Password: $ADMIN_PASSWORD"
+echo ""

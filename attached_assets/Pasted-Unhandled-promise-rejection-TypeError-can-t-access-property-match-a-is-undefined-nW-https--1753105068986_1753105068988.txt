@@ -1,0 +1,59 @@
+Unhandled promise rejection: TypeError: can't access property "match", a is undefined
+    nW https://purpleguy.world/assets/index-W9FhmL3c.js:516
+    aW https://purpleguy.world/assets/index-W9FhmL3c.js:516
+<anonymous code>:1:145535
+Application error: TypeError: can't access property "match", a is undefined
+    nW https://purpleguy.world/assets/index-W9FhmL3c.js:516
+    aW https://purpleguy.world/assets/index-W9FhmL3c.js:516
+<anonymous code>:1:145535
+Uncaught (in promise) TypeError: can't access property "match", a is undefined
+    nW https://purpleguy.world/assets/index-W9FhmL3c.js:516
+    aW https://purpleguy.world/assets/index-W9FhmL3c.js:516
+index-W9FhmL3c.js:516:9193
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (connect-src) à l’adresse https://js.stripe.com/v3/ car elle enfreint la directive suivante : « connect-src 'self' https://api.stripe.com https://maps.googleapis.com » index-W9FhmL3c.js:438:63524
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (connect-src) à l’adresse https://r.stripe.com/favicon.ico car elle enfreint la directive suivante : « connect-src 'self' https://api.stripe.com https://maps.googleapis.com » index-W9FhmL3c.js:438:63524
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (connect-src) à l’adresse https://m.stripe.com/favicon.ico car elle enfreint la directive suivante : « connect-src 'self' https://api.stripe.com https://maps.googleapis.com » index-W9FhmL3c.js:438:63524
+🚀 VPS 100% opérationnel index-W9FhmL3c.js:438:65654
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/v3/fingerprinted/js/m-outer-15a2b40a058ddff1cffdb63779fe3de1.js » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+
+Request for font "Arial Rounded MT" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2Fpurpleguy.world%2Fauth&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=826714af-53db-4348-ac46-0404f04f3defa302ba&sid=NA&version=6&preview=false&__shared_params__[version]=basil » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé.
+out-4.5.44.js:1:39660
+Request for font "Arial Unicode MS" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Book Antiqua" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Bookman Old Style" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Century Gothic" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Century Schoolbook" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Century" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Garamond" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Fax" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Handwriting" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Sans Typewriter" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Lucida Sans" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "MS Outlook" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "MS Reference Sans Serif" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+Request for font "Monotype Corsiva" blocked at visibility level 2 (requires 3)
+out-4.5.44.js:1:53048
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 2
+Erreur dans les liens source : Error: JSON.parse: unexpected character at line 1 column 1 of the JSON data
+Stack in the worker:parseSourceMapInput@resource://devtools/client/shared/vendor/source-map/lib/util.js:163:15
+_factory@resource://devtools/client/shared/vendor/source-map/lib/source-map-consumer.js:1066:22
+SourceMapConsumer@resource://devtools/client/shared/vendor/source-map/lib/source-map-consumer.js:26:12
+_fetch@resource://devtools/client/shared/source-map-loader/utils/fetchSourceMap.js:83:19
+
+URL de la ressource : https://purpleguy.world/%3Canonymous%20code%3E
+URL du lien source : installHook.js.map

@@ -67,7 +67,7 @@ export async function apiRequest(
         localStorage.removeItem('session_token');
       }
       // Return empty object for auth endpoints
-      if (url && url.includes && url.includes('/api/auth/me')) {
+      if (url && typeof url === 'string' && url.includes('/api/auth/me')) {
         return {};
       }
       throw new Error('Authentication required');
@@ -104,7 +104,14 @@ export const getQueryFn: <T>(options: {
       headers["x-session-token"] = sessionToken;
     }
 
-    const res = await fetch(queryKey[0] as string, {
+    // Ensure queryKey[0] is a valid string
+    const url = queryKey[0];
+    if (!url || typeof url !== 'string') {
+      console.error('Invalid URL in query key:', url);
+      return null;
+    }
+    
+    const res = await fetch(url, {
       method: "GET",
       headers,
       credentials: "include",

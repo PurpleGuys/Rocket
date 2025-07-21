@@ -4024,8 +4024,9 @@ function MyActivitiesPage() {
     if (parts.length >= 3) {
       const address = parts[0];
       const cityPart = parts[parts.length - 2];
-      const postalCodeMatch = cityPart.match(/(\d{5})/);
-      const city = cityPart.replace(/\d{5}\s*/, '').trim();
+      // Add safety check for cityPart before calling match
+      const postalCodeMatch = cityPart && typeof cityPart === 'string' ? cityPart.match(/(\d{5})/) : null;
+      const city = cityPart && typeof cityPart === 'string' ? cityPart.replace(/\d{5}\s*/, '').trim() : '';
       
       updateActivity('industrialSiteAddress', address);
       updateActivity('industrialSitePostalCode', postalCodeMatch ? postalCodeMatch[1] : '');
