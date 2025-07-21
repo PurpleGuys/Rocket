@@ -11,7 +11,7 @@ import { useBookingState } from "@/hooks/useBookingState";
 import { stripePromise } from "@/lib/stripe";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Lock, Shield, AlertCircle, ExternalLink } from "lucide-react";
+import { CreditCard, Lock, Shield, AlertCircle, ExternalLink, CheckCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import AdBlockDetector from "@/components/AdBlockDetector";
 
@@ -137,27 +137,22 @@ function CheckoutForm() {
         serviceId: bookingData.service!.id,
         wasteTypeId: bookingData.wasteTypes[0] || 1,
         quantity: 1,
-        transportDistance: 10, // À calculer avec Google Maps
-        transportPrice: pricing.transportCost.toFixed(2),
-        rentalPrice: pricing.basePrice.toFixed(2),
-        treatmentPrice: "0.00",
+        transportDistance: pricing.distance || 10,
+        transportPrice: pricing.deliveryFee.toFixed(2),
+        rentalPrice: pricing.rentalPrice.toFixed(2),
+        treatmentPrice: pricing.treatmentPrice.toFixed(2),
         totalPrice: pricing.totalTTC.toFixed(2),
         deliveryAddress: bookingData.address!.street,
         deliveryPostalCode: bookingData.address!.postalCode,
         deliveryCity: bookingData.address!.city,
         deliveryDate: bookingData.deliveryTimeSlot!.date,
-        deliveryTimeSlot: bookingData.deliveryTimeSlot!.time,
+        deliveryTimeSlot: `${bookingData.deliveryTimeSlot!.startTime} - ${bookingData.deliveryTimeSlot!.endTime}`,
         pickupDate: bookingData.pickupTimeSlot?.date,
-        pickupTimeSlot: bookingData.pickupTimeSlot?.time,
+        pickupTimeSlot: bookingData.pickupTimeSlot ? `${bookingData.pickupTimeSlot.startTime} - ${bookingData.pickupTimeSlot.endTime}` : '',
         notes: customerInfo.acceptMarketing ? "Accepte les communications marketing" : ""
-      }, {
-        'X-Session-ID': sessionId
       });
 
-      if (!cartResponse.ok) {
-        const error = await cartResponse.json();
-        throw new Error(error.message || "Impossible d'ajouter au panier");
-      }
+      console.log('Cart response:', cartResponse);
 
       // Stocker les infos client pour checkout
       localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
@@ -295,8 +290,6 @@ function CheckoutForm() {
                 options={{
                   layout: "tabs"
                 }}
-                onReady={() => setStripeError(null)}
-                onError={(error) => setStripeError(error.message)}
               />
             )}
           </div>
@@ -352,6 +345,7 @@ function CheckoutForm() {
               lastName: customerInfo.lastName,
               email: customerInfo.email,
               phone: customerInfo.phone,
+              createAccount: customerInfo.createAccount,
             });
             // Naviguer vers la page checkout séparée
             setLocation('/checkout');

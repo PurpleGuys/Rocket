@@ -20,6 +20,7 @@ import NotFound from "@/pages/not-found";
 import Checkout from "@/pages/checkout";
 import BookingRedesign from "@/pages/booking-redesign";
 import CheckoutRedesign from "@/pages/checkout-redesign";
+import CheckoutCart from "@/pages/checkout-cart";
 import Cart from "@/pages/cart";
 import PaymentSuccess from "@/pages/payment-success";
 import Legal from "@/pages/legal";

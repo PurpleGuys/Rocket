@@ -613,8 +613,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sessionId = req.headers['x-session-id'] as string || req.sessionID;
       const userId = req.user?.id;
       
+      // Convert date strings to Date objects
       const cartData = {
         ...req.body,
+        deliveryDate: req.body.deliveryDate ? new Date(req.body.deliveryDate) : null,
+        pickupDate: req.body.pickupDate ? new Date(req.body.pickupDate) : null,
         userId: userId || null,
         sessionId: userId ? null : sessionId
       };

@@ -27,6 +27,7 @@ export async function apiRequest(
   url: string,
   method: string = "GET",
   data?: unknown | undefined,
+  customHeaders?: Record<string, string>
 ): Promise<any> {
   // Guard against undefined url
   if (!url || typeof url !== 'string') {
@@ -39,12 +40,21 @@ export async function apiRequest(
   // Add auth headers
   const token = localStorage.getItem("auth_token");
   const sessionToken = localStorage.getItem("session_token");
+  const sessionId = localStorage.getItem("session_id");
   
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
   if (sessionToken) {
     headers["x-session-token"] = sessionToken;
+  }
+  if (sessionId) {
+    headers["x-session-id"] = sessionId;
+  }
+  
+  // Add custom headers
+  if (customHeaders) {
+    Object.assign(headers, customHeaders);
   }
   
   if (data) {

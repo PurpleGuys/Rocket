@@ -10,12 +10,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { stripePromise } from "@/lib/stripe";
-import { Calendar, AlertTriangle, CheckCircle, MapPin, Truck, Clock, CreditCard, Euro, Package, ArrowLeft } from "lucide-react";
+import { Calendar, AlertTriangle, CheckCircle, MapPin, Truck, Clock, CreditCard, Euro, Package, ArrowLeft, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import AdBlockDetector from "@/components/AdBlockDetector";
 
-function CheckoutForm({ order, customerInfo }: { order: any; customerInfo: any }) {
+function CheckoutForm({ cartItems, totalAmount }: { cartItems: any[]; totalAmount: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();

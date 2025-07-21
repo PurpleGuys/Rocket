@@ -101,6 +101,10 @@ export default function BookingRedesign() {
                 <Link href="/faq" className="text-gray-700 hover:text-red-600 font-medium transition-colors px-3 py-2">
                   FAQ
                 </Link>
+                <Link href="/cart" className="text-gray-700 hover:text-red-600 font-medium transition-colors px-3 py-2 relative">
+                  <ShoppingCart className="h-4 w-4 inline mr-1" />
+                  Panier
+                </Link>
                 <a href="tel:0344451158" className="text-gray-700 hover:text-red-600 font-medium transition-colors px-3 py-2">
                   <Phone className="h-4 w-4 inline mr-1" />
                   03 44 45 11 58

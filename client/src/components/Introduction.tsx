@@ -28,7 +28,8 @@ import {
   ArrowRight,
   Play,
   Menu,
-  X
+  X,
+  ShoppingCart
 } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -75,6 +76,10 @@ export default function Introduction() {
                 </a>
                 <Link href="/faq" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
                   FAQ
+                </Link>
+                <Link href="/cart" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
+                  <ShoppingCart className="h-4 w-4 inline mr-1" />
+                  Panier
                 </Link>
                 <a href="#contact" className="text-gray-700 hover:text-red-600 font-medium transition-colors cursor-pointer" onClick={(e) => {
                   e.preventDefault();
