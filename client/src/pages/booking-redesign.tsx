@@ -4,7 +4,7 @@ import { useBookingState } from "@/hooks/useBookingState";
 import ServiceSelection from "@/components/booking/ServiceSelection";
 import AddressInput from "@/components/booking/AddressInput";
 import TimeSlotSelection from "@/components/booking/TimeSlotSelection";
-import CartStep from "@/components/booking/CartStep";
+import PaymentStep from "@/components/booking/PaymentStep";
 import { CheckCircle, ArrowRight, ArrowLeft, ShoppingCart, MapPin, Calendar, CreditCard, Home, Phone, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link, useLocation } from "wouter";
@@ -46,7 +46,7 @@ export default function BookingRedesign() {
     { id: 1, name: "Service", icon: ShoppingCart, description: "Choisir votre benne" },
     { id: 2, name: "Adresse", icon: MapPin, description: "Lieu de livraison" },
     { id: 3, name: "Dates", icon: Calendar, description: "Planning" },
-    { id: 4, name: "Informations", icon: CreditCard, description: "Ajouter au panier" },
+    { id: 4, name: "Paiement", icon: CreditCard, description: "Finaliser" },
   ];
 
   const getStepComponent = () => {
@@ -58,7 +58,7 @@ export default function BookingRedesign() {
       case 3:
         return <TimeSlotSelection />;
       case 4:
-        return <CartStep />;
+        return <PaymentStep />;
       default:
         return <ServiceSelection />;
     }

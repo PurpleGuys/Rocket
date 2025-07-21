@@ -64,8 +64,8 @@ function Router() {
       <StripeErrorHandler>
         <Switch>
           <Route path="/auth" component={Auth} />
-          <Route path="/booking" component={BookingNew} />
-          <Route path="/booking-redesign" component={BookingRedesign} />
+          <Route path="/booking" component={BookingRedesign} />
+          <Route path="/booking-old" component={BookingNew} />
           <Route path="/profile" component={Profile} />
           <Route path="/client-dashboard" component={ClientDashboard} />
           <Route path="/dashboard" component={Dashboard} />
