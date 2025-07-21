@@ -342,7 +342,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if account is locked
       if (await AuthService.isAccountLocked(user)) {
-        return res.status(423).json({ message: "Compte temporairement verrouillé" });
+        const remainingTime = user.lockUntil ? Math.ceil((new Date(user.lockUntil).getTime() - Date.now()) / 60000) : 30;
+        return res.status(423).json({ 
+          message: `Compte temporairement verrouillé. Réessayez dans ${remainingTime} minutes.`,
+          lockUntil: user.lockUntil,
+          remainingMinutes: remainingTime,
+          loginAttempts: user.loginAttempts
+        });
       }
       
       // Check if email is verified

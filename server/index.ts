@@ -49,7 +49,9 @@ function log(message: string, source = "express", level = "INFO") {
             "https://r.stripe.com", 
             "https://m.stripe.com",
             "https://m.stripe.network",
-            "https://maps.googleapis.com"
+            "https://maps.googleapis.com",
+            "wss://localhost:*",
+            "ws://localhost:*"
           ],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
           frameSrc: ["'self'", "https://js.stripe.com"]

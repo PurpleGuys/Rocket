@@ -1,0 +1,44 @@
+XHRGET
+https://purpleguy.world/api/auth/me
+[HTTP/2 401  26ms]
+
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/basil/stripe.js » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+
+GET
+https://purpleguy.world/favicon.ico
+[HTTP/2 403  0ms]
+
+Erreur dans les liens source : Error: JSON.parse: unexpected character at line 1 column 1 of the JSON data
+Stack in the worker:parseSourceMapInput@resource://devtools/client/shared/vendor/source-map/lib/util.js:163:15
+_factory@resource://devtools/client/shared/vendor/source-map/lib/source-map-consumer.js:1066:22
+SourceMapConsumer@resource://devtools/client/shared/vendor/source-map/lib/source-map-consumer.js:26:12
+_fetch@resource://devtools/client/shared/source-map-loader/utils/fetchSourceMap.js:83:19
+
+URL de la ressource : https://purpleguy.world/%3Canonymous%20code%3E
+URL du lien source : installHook.js.map
+
+Unhandled promise rejection: TypeError: can't access property "match", a is undefined
+    nW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    aW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    promise callback*aW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    <anonymous> https://purpleguy.world/assets/index-DEGpdwl9.js:521
+<anonymous code>:1:145535
+Application error: TypeError: can't access property "match", a is undefined
+    nW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    aW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    promise callback*aW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    <anonymous> https://purpleguy.world/assets/index-DEGpdwl9.js:521
+<anonymous code>:1:145535
+Uncaught (in promise) TypeError: can't access property "match", a is undefined
+    nW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    aW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    promise callback*aW https://purpleguy.world/assets/index-DEGpdwl9.js:516
+    <anonymous> https://purpleguy.world/assets/index-DEGpdwl9.js:521
+index-DEGpdwl9.js:516:9193
+Erreur dans les liens source : can't access property "sources", map is undefined
+URL de la ressource : https://purpleguy.world/%3Canonymous%20code%3E
+URL du lien source : react_devtools_backend_compact.js.map
+
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (connect-src) à l’adresse https://js.stripe.com/v3/ car elle enfreint la directive suivante : « connect-src 'self' https://api.stripe.com https://maps.googleapis.com » index-DEGpdwl9.js:438:63524
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (connect-src) à l’adresse https://r.stripe.com/favicon.ico car elle enfreint la directive suivante : « connect-src 'self' https://api.stripe.com https://maps.googleapis.com » index-DEGpdwl9.js:438:63524
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (connect-src) à l’adresse https://m.stripe.com/favicon.ico car elle enfreint la directive suivante : « connect-src 'self' https://api.stripe.com https://maps.googleapis.com »
