@@ -636,7 +636,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId: userId ? null : sessionId
       };
       
+      console.log("[CART ADD] Creating cart with data:", cartData);
       const cart = await storage.createCart(cartData);
+      console.log("[CART ADD] Created cart:", cart);
       res.json(cart);
     } catch (error: any) {
       console.error("Cart add error:", error);
@@ -650,6 +652,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sessionId = req.headers['x-session-id'] as string;
       const userId = req.user?.id;
       
+      console.log("[CART GET] SessionId:", sessionId, "UserId:", userId);
+      
       let cartItems: Cart[] = [];
       
       if (userId) {
@@ -657,6 +661,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (sessionId) {
         cartItems = await storage.getCartBySession(sessionId);
       }
+      
+      console.log("[CART GET] Found items:", cartItems.length);
       
       // Join with services and waste types for display
       const enrichedItems = await Promise.all(cartItems.map(async (item) => {

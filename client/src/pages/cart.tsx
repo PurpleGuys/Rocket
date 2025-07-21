@@ -68,18 +68,19 @@ export default function Cart() {
   const { data: cartItems = [], isLoading } = useQuery<CartItem[]>({
     queryKey: ['/api/cart'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/cart', null, {
-        'X-Session-ID': sessionId
-      });
-      return response.json();
+      // apiRequest ajoute automatiquement x-session-id depuis localStorage
+      console.log('[CART] Fetching cart with sessionId:', sessionId);
+      const response = await apiRequest('/api/cart', 'GET');
+      console.log('[CART] Received items:', response);
+      return response;
     }
   });
 
   // Update cart item
   const updateMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: number; quantity: number }) => {
-      const response = await apiRequest('PUT', `/api/cart/${id}`, { quantity });
-      return response.json();
+      const response = await apiRequest(`/api/cart/${id}`, 'PUT', { quantity });
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
@@ -89,7 +90,7 @@ export default function Cart() {
   // Delete cart item
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest('DELETE', `/api/cart/${id}`);
+      await apiRequest(`/api/cart/${id}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
@@ -103,9 +104,7 @@ export default function Cart() {
   // Clear cart
   const clearMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('DELETE', '/api/cart', null, {
-        'X-Session-ID': sessionId
-      });
+      await apiRequest('/api/cart', 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cart'] });

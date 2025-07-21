@@ -342,6 +342,8 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
       const selectedWasteTypeObj = wasteTypes?.find((wt: any) => wt.name === selectedWasteType);
       const wasteTypeId = selectedWasteTypeObj?.id || 1; // Default to 1 if not found
       
+      // Note: apiRequest ajoute automatiquement x-session-id depuis localStorage
+      console.log('[SERVICE] Adding to cart with sessionId:', sessionId, 'wasteTypeId:', wasteTypeId);
       apiRequest("/api/cart/add", "POST", {
         serviceId: selectedServiceId,
         wasteTypeId: wasteTypeId,
