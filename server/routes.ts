@@ -619,9 +619,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       }
       
-      // Convert date strings to Date objects
+      // Convert date strings to Date objects and ensure proper types
       const cartData = {
         ...req.body,
+        serviceId: parseInt(req.body.serviceId),
+        wasteTypeId: parseInt(req.body.wasteTypeId),
+        quantity: parseInt(req.body.quantity) || 1,
+        transportDistance: req.body.transportDistance ? parseFloat(req.body.transportDistance) : null,
+        transportPrice: req.body.transportPrice || '0',
+        rentalPrice: req.body.rentalPrice || '0',
+        treatmentPrice: req.body.treatmentPrice || '0',
+        totalPrice: req.body.totalPrice || '0',
         deliveryDate: req.body.deliveryDate ? new Date(req.body.deliveryDate) : null,
         pickupDate: req.body.pickupDate ? new Date(req.body.pickupDate) : null,
         userId: userId || null,

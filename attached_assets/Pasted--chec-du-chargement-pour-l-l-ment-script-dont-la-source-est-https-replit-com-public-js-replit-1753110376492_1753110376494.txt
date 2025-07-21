@@ -1,0 +1,195 @@
+Échec du chargement pour l’élément <script> dont la source est « https://replit.com/public/js/replit-dev-banner.js ». booking:16:92
+Content-Security-Policy : Les paramètres de la page ont empêché l’exécution d’un script (script-src-elem) à l’adresse https://replit.com/public/js/replit-dev-banner.js car il enfreint la directive suivante : « script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com » booking
+La mise en page a été forcée avant le chargement complet de la page. Si les feuilles de style ne sont pas encore chargées, cela peut provoquer un flash de contenu non stylisé. node.js:417:1
+Erreur dans les liens source : JSON.parse: unexpected character at line 1 column 1 of the JSON data
+URL de la ressource : https://purpleguy.world/%3Canonymous%20code%3E
+URL du lien source : installHook.js.map
+[Stripe] Missing public key. Please set VITE_STRIPE_PUBLIC_KEY in your .env file <anonymous code>:1:145535
+[Stripe] Configuration loaded from environment index-CQByKoMA.js:40:57881
+[Stripe] Missing public key. Please set VITE_STRIPE_PUBLIC_KEY in your .env file <anonymous code>:1:145535
+✅ Compatibilité VPS initialisée index-CQByKoMA.js:443:63379
+🔧 Initialisation des correctifs VPS... index-CQByKoMA.js:443:65509
+✅ Correctifs VPS appliqués avec succès index-CQByKoMA.js:443:65584
+GET
+https://purpleguy.world/favicon.ico
+[HTTP/2 403  0ms]
+
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/basil/stripe.js » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+Erreur dans les liens source : Error: JSON.parse: unexpected character at line 1 column 1 of the JSON data
+Stack in the worker:parseSourceMapInput@resource://devtools/client/shared/vendor/source-map/lib/util.js:163:15
+_factory@resource://devtools/client/shared/vendor/source-map/lib/source-map-consumer.js:1066:22
+SourceMapConsumer@resource://devtools/client/shared/vendor/source-map/lib/source-map-consumer.js:26:12
+_fetch@resource://devtools/client/shared/source-map-loader/utils/fetchSourceMap.js:83:19
+
+URL de la ressource : https://purpleguy.world/%3Canonymous%20code%3E
+URL du lien source : installHook.js.map
+Unhandled promise rejection: TypeError: can't access property "match", a is undefined
+    oW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    lW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    promise callback*lW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    <anonymous> https://purpleguy.world/assets/index-CQByKoMA.js:526
+<anonymous code>:1:145535
+Application error: TypeError: can't access property "match", a is undefined
+    oW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    lW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    promise callback*lW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    <anonymous> https://purpleguy.world/assets/index-CQByKoMA.js:526
+<anonymous code>:1:145535
+Uncaught (in promise) TypeError: can't access property "match", a is undefined
+    oW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    lW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    promise callback*lW https://purpleguy.world/assets/index-CQByKoMA.js:521
+    <anonymous> https://purpleguy.world/assets/index-CQByKoMA.js:526
+index-CQByKoMA.js:521:9193
+Erreur dans les liens source : can't access property "sources", map is undefined
+URL de la ressource : https://purpleguy.world/%3Canonymous%20code%3E
+URL du lien source : react_devtools_backend_compact.js.map
+XHRHEAD
+https://r.stripe.com/favicon.ico
+[HTTP/2 404  738ms]
+
+XHRHEAD
+https://m.stripe.com/favicon.ico
+[HTTP/2 404  743ms]
+
+🚀 VPS 100% opérationnel index-CQByKoMA.js:443:65654
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: undefined index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: undefined index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+La demande d’accès aux cookies ou au stockage sur « https://js.stripe.com/v3/fingerprinted/js/m-outer-15a2b40a058ddff1cffdb63779fe3de1.js » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée.
+Un accès partitionné à un cookie ou au stockage a été fourni à « https://m.stripe.network/inner.html#url=https%3A%2F%2Fpurpleguy.world%2Fbooking&title=BennesPro%20-%20Location%20de%20Bennes%20Particulier%20%26%20Professionnel&referrer=&muid=826714af-53db-4348-ac46-0404f04f3defa302ba&sid=4a96e7d5-30e8-44d6-b8b2-282bd7e8bd30a4ca40&version=6&preview=false&__shared_params__[version]=basil » car il est chargé dans le contexte tiers et le partitionnement d’état dynamique est activé. out-4.5.44.js:1:39660
+La demande d’accès aux cookies ou au stockage sur « <URL> » a été bloquée car elle provenait d’un traqueur et que la protection renforcée contre le pistage est activée. 3
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Déclenchement automatique du calcul de prix index-CQByKoMA.js:520:31835
+Calcul du prix avec: 
+Object { serviceId: 1, wasteType: "Déchets verts", address: "1 Rue de Bruxelles, 60110 Amblainville", postalCode: "60110", city: "Amblainville", durationDays: 7 }
+index-CQByKoMA.js:520:32858
+Calcul du prix avec: 
+Object { serviceId: 1, wasteType: "Déchets verts", address: "1 Rue de Bruxelles, 60110 Amblainville", postalCode: "60110", city: "Amblainville", durationDays: 7 }
+index-CQByKoMA.js:520:32858
+Réponse API calculate-pricing: 
+Object { success: true, pricing: {…}, distance: {…}, service: {…}, duration: {…}, addresses: {…} }
+index-CQByKoMA.js:520:33193
+Réponse API calculate-pricing: 
+Object { success: true, pricing: {…}, distance: {…}, service: {…}, duration: {…}, addresses: {…} }
+index-CQByKoMA.js:520:33193
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+XHRPOST
+https://purpleguy.world/api/cart/add
+[HTTP/2 500  33ms]
+
+Error adding to cart: Error: 500: 
+    ZS https://purpleguy.world/assets/index-CQByKoMA.js:48
+    be https://purpleguy.world/assets/index-CQByKoMA.js:48
+    ce https://purpleguy.world/assets/index-CQByKoMA.js:520
+    oI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    cI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    dI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    Uy https://purpleguy.world/assets/index-CQByKoMA.js:37
+    j2 https://purpleguy.world/assets/index-CQByKoMA.js:37
+    ff https://purpleguy.world/assets/index-CQByKoMA.js:37
+    $g https://purpleguy.world/assets/index-CQByKoMA.js:40
+    UC https://purpleguy.world/assets/index-CQByKoMA.js:37
+    ff https://purpleguy.world/assets/index-CQByKoMA.js:37
+    hg https://purpleguy.world/assets/index-CQByKoMA.js:37
+    kI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    b2 https://purpleguy.world/assets/index-CQByKoMA.js:37
+    pf https://purpleguy.world/assets/index-CQByKoMA.js:37
+    Oc https://purpleguy.world/assets/index-CQByKoMA.js:37
+    Oc https://purpleguy.world/assets/index-CQByKoMA.js:37
+    createRoot https://purpleguy.world/assets/index-CQByKoMA.js:40
+    <anonymous> https://purpleguy.world/assets/index-CQByKoMA.js:526
+<anonymous code>:1:145535
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Calcul du prix avec: 
+Object { serviceId: 1, wasteType: "Déchets verts", address: "1 Rue de Bruxelles, 60110 Amblainville", postalCode: "60110", city: "Amblainville", durationDays: 7 }
+index-CQByKoMA.js:520:32858
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Calcul du prix avec: 
+Object { serviceId: 1, wasteType: "Déchets verts", address: "1 Rue de Bruxelles, 60110 Amblainville", postalCode: "60110", city: "Amblainville", durationDays: 7 }
+index-CQByKoMA.js:520:32858
+Réponse API calculate-pricing: 
+Object { success: true, pricing: {…}, distance: {…}, service: {…}, duration: {…}, addresses: {…} }
+index-CQByKoMA.js:520:33193
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Réponse API calculate-pricing: 
+Object { success: true, pricing: {…}, distance: {…}, service: {…}, duration: {…}, addresses: {…} }
+index-CQByKoMA.js:520:33193
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+XHRPOST
+https://purpleguy.world/api/cart/add
+[HTTP/2 500  28ms]
+
+Error adding to cart: Error: 500: 
+    ZS https://purpleguy.world/assets/index-CQByKoMA.js:48
+    be https://purpleguy.world/assets/index-CQByKoMA.js:48
+    ce https://purpleguy.world/assets/index-CQByKoMA.js:520
+    oI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    cI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    dI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    Uy https://purpleguy.world/assets/index-CQByKoMA.js:37
+    j2 https://purpleguy.world/assets/index-CQByKoMA.js:37
+    ff https://purpleguy.world/assets/index-CQByKoMA.js:37
+    $g https://purpleguy.world/assets/index-CQByKoMA.js:40
+    UC https://purpleguy.world/assets/index-CQByKoMA.js:37
+    ff https://purpleguy.world/assets/index-CQByKoMA.js:37
+    hg https://purpleguy.world/assets/index-CQByKoMA.js:37
+    kI https://purpleguy.world/assets/index-CQByKoMA.js:37
+    b2 https://purpleguy.world/assets/index-CQByKoMA.js:37
+    pf https://purpleguy.world/assets/index-CQByKoMA.js:37
+    Oc https://purpleguy.world/assets/index-CQByKoMA.js:37
+    Oc https://purpleguy.world/assets/index-CQByKoMA.js:37
+    createRoot https://purpleguy.world/assets/index-CQByKoMA.js:40
+    <anonymous> https://purpleguy.world/assets/index-CQByKoMA.js:526
+<anonymous code>:1:145535
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418
+Service: Big-Bag, Volume: 20, ID: 1 index-CQByKoMA.js:513:1365
+Images uploadées: 
+Array []
+index-CQByKoMA.js:513:1418

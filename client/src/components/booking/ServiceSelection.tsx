@@ -338,9 +338,13 @@ export default function ServiceSelection({ updatePriceData, onContinue }: Servic
       const sessionId = localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       localStorage.setItem('session_id', sessionId);
       
+      // Trouver l'ID du waste type à partir de son nom
+      const selectedWasteTypeObj = wasteTypes?.find((wt: any) => wt.name === selectedWasteType);
+      const wasteTypeId = selectedWasteTypeObj?.id || 1; // Default to 1 if not found
+      
       apiRequest("/api/cart/add", "POST", {
         serviceId: selectedServiceId,
-        wasteTypeId: selectedWasteType,
+        wasteTypeId: wasteTypeId,
         quantity: 1,
         transportDistance: distance || 10,
         transportPrice: priceData.transport?.toFixed(2) || '0',
